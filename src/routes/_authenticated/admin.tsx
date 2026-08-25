@@ -1,13 +1,17 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 
+import { DivisionBadge } from "@/components/eloshape/DivisionBadge";
 import { EmptyState } from "@/components/eloshape/EmptyState";
 import { StatTile } from "@/components/eloshape/StatTile";
 import { PageContainer, PageHeading } from "@/components/layout/PageShell";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDate, riotRankLabel } from "@/lib/format";
-import { getAdminOverview } from "@/lib/admin.functions";
+import { getAdminOverview, setPlayerEligibility } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -19,6 +23,42 @@ export const Route = createFileRoute("/_authenticated/admin")({
   }),
   component: AdminPage,
 });
+
+type Decision = "eligible" | "pending_review" | "rejected" | "suspended";
+
+function EligibilityActions({ profileId }: { profileId: string }) {
+  const queryClient = useQueryClient();
+  const decide = useServerFn(setPlayerEligibility);
+  const mutation = useMutation({
+    mutationFn: (status: Decision) =>
+      decide({ data: { profileId, status, reason: `Staff set ${status}` } }),
+    onSuccess: (result) => {
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success(`Eligibility set to ${result.profile.eligibility}.`);
+      void queryClient.invalidateQueries({ queryKey: ["admin-overview"] });
+    },
+    onError: () => toast.error("Could not update eligibility."),
+  });
+
+  return (
+    <div className="mt-3 flex flex-wrap gap-2">
+      {(["eligible", "pending_review", "rejected", "suspended"] as Decision[]).map((status) => (
+        <Button
+          key={status}
+          size="sm"
+          variant={status === "eligible" ? "default" : "outline"}
+          disabled={mutation.isPending}
+          onClick={() => mutation.mutate(status)}
+        >
+          {status.replace("_", " ")}
+        </Button>
+      ))}
+    </div>
+  );
+}
 
 function AdminPage() {
   const fetchOverview = useServerFn(getAdminOverview);
@@ -33,8 +73,9 @@ function AdminPage() {
       <PageHeading
         eyebrow="Staff"
         title="Moderation console"
-        description="Anti-smurf eligibility reviews and player reports. Read-only foundation; resolution actions land next."
+        description="Anti-smurf eligibility reviews, Riot account checks and player reports. Eligibility is a manual staff decision."
       />
+
 
       <PageContainer className="py-10">
         {isPending ? (
