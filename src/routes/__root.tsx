@@ -77,15 +77,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "EloShape — Competitive League of Legends circuit" },
+      {
+        name: "description",
+        content:
+          "EloShape is a competitive League of Legends platform for amateur players: skill-based divisions, city-to-region tournaments and rankings earned only on the circuit.",
+      },
+      { name: "author", content: "EloShape" },
+      { property: "og:title", content: "EloShape — Competitive League of Legends circuit" },
+      {
+        property: "og:description",
+        content: "Skill-based divisions, city-to-region tournaments and honest rankings.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
+
     links: [
       {
         rel: "stylesheet",
