@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
 
 type Search = { mode: "signin" | "signup" };
 
@@ -72,14 +71,6 @@ function AuthPage() {
     }
   };
 
-  const google = async () => {
-    try {
-      await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Google sign-in failed");
-    }
-  };
-
   return (
     <PageContainer className="flex min-h-[70vh] items-center justify-center py-16">
       <div className="bg-surface-gradient shadow-elevated w-full max-w-md rounded-xl border border-border p-8">
@@ -99,16 +90,6 @@ function AuthPage() {
           </p>
         ) : (
           <>
-            <Button variant="outline" className="mt-6 w-full" onClick={google}>
-              Continue with Google
-            </Button>
-
-            <div className="my-6 flex items-center gap-3">
-              <span className="h-px flex-1 bg-border" />
-              <span className="eyebrow">or email</span>
-              <span className="h-px flex-1 bg-border" />
-            </div>
-
             <form onSubmit={submit} className="space-y-4">
               {isSignup ? (
                 <div>
