@@ -159,6 +159,53 @@ function AdminPage() {
                 </div>
               </div>
             </div>
+
+            <div className="mt-10">
+              <p className="eyebrow">Linked Riot accounts (eligibility data only)</p>
+              <div className="bg-surface-gradient mt-3 overflow-hidden rounded-lg border border-border">
+                {data.riotAccounts.length ? (
+                  data.riotAccounts.map((account) => (
+                    <div
+                      key={account.id}
+                      className="grid gap-3 border-b border-border p-4 last:border-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start"
+                    >
+                      <div className="min-w-0">
+                        <span className="block truncate text-sm font-semibold text-foreground">
+                          {account.profile?.display_name ?? "Unknown player"} · {account.riot_id}
+                        </span>
+                        <span className="eyebrow mt-1 block">
+                          {riotRankLabel(account.solo_tier, account.solo_rank)}
+                          {account.solo_lp != null ? ` · ${account.solo_lp} LP` : ""} ·{" "}
+                          {account.platform.toUpperCase()} · synced{" "}
+                          {formatDate(account.last_synced_at)}
+                        </span>
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                          {account.profile?.division ? (
+                            <DivisionBadge division={account.profile.division} />
+                          ) : null}
+                          <Badge variant={account.data_verified ? "default" : "outline"}>
+                            {account.data_verified ? "Riot data verified" : "Unverified data"}
+                          </Badge>
+                          <Badge variant="outline">
+                            {account.ownership_verified
+                              ? "Ownership verified"
+                              : "Ownership unverified"}
+                          </Badge>
+                          <Badge variant="outline">{account.profile?.eligibility}</Badge>
+                        </div>
+                      </div>
+                      {account.profile ? (
+                        <EligibilityActions profileId={account.profile.id} />
+                      ) : null}
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-6">
+                    <EmptyState title="No linked Riot accounts yet" />
+                  </div>
+                )}
+              </div>
+            </div>
           </>
         )}
       </PageContainer>
