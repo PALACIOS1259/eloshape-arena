@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DivisionsRouteImport } from './routes/divisions'
 import { Route as RankingsRouteImport } from './routes/rankings'
+import { Route as RulesRouteImport } from './routes/rules'
 import { Route as TeamsRouteImport } from './routes/teams'
 import { Route as TournamentsRouteImport } from './routes/tournaments'
 import { Route as PlayersHandleRouteImport } from './routes/players.$handle'
@@ -31,6 +32,11 @@ const DivisionsRoute = DivisionsRouteImport.update({
 const RankingsRoute = RankingsRouteImport.update({
   id: '/rankings',
   path: '/rankings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RulesRoute = RulesRouteImport.update({
+  id: '/rules',
+  path: '/rules',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TeamsRoute = TeamsRouteImport.update({
@@ -63,6 +69,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/divisions': typeof DivisionsRoute
   '/rankings': typeof RankingsRoute
+  '/rules': typeof RulesRoute
   '/teams': typeof TeamsRouteWithChildren
   '/tournaments': typeof TournamentsRouteWithChildren
   '/players/$handle': typeof PlayersHandleRoute
@@ -73,6 +80,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/divisions': typeof DivisionsRoute
   '/rankings': typeof RankingsRoute
+  '/rules': typeof RulesRoute
   '/teams': typeof TeamsRouteWithChildren
   '/tournaments': typeof TournamentsRouteWithChildren
   '/players/$handle': typeof PlayersHandleRoute
@@ -84,6 +92,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/divisions': typeof DivisionsRoute
   '/rankings': typeof RankingsRoute
+  '/rules': typeof RulesRoute
   '/teams': typeof TeamsRouteWithChildren
   '/tournaments': typeof TournamentsRouteWithChildren
   '/players/$handle': typeof PlayersHandleRoute
@@ -96,6 +105,7 @@ export interface FileRouteTypes {
     | '/'
     | '/divisions'
     | '/rankings'
+    | '/rules'
     | '/teams'
     | '/tournaments'
     | '/players/$handle'
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/divisions'
     | '/rankings'
+    | '/rules'
     | '/teams'
     | '/tournaments'
     | '/players/$handle'
@@ -116,6 +127,7 @@ export interface FileRouteTypes {
     | '/'
     | '/divisions'
     | '/rankings'
+    | '/rules'
     | '/teams'
     | '/tournaments'
     | '/players/$handle'
@@ -127,6 +139,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DivisionsRoute: typeof DivisionsRoute
   RankingsRoute: typeof RankingsRoute
+  RulesRoute: typeof RulesRoute
   TeamsRoute: typeof TeamsRouteWithChildren
   TournamentsRoute: typeof TournamentsRouteWithChildren
   PlayersHandleRoute: typeof PlayersHandleRoute
@@ -153,6 +166,13 @@ declare module '@tanstack/react-router' {
       path: '/rankings'
       fullPath: '/rankings'
       preLoaderRoute: typeof RankingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rules': {
+      id: '/rules'
+      path: '/rules'
+      fullPath: '/rules'
+      preLoaderRoute: typeof RulesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/teams': {
@@ -219,6 +239,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DivisionsRoute: DivisionsRoute,
   RankingsRoute: RankingsRoute,
+  RulesRoute: RulesRoute,
   TeamsRoute: TeamsRouteWithChildren,
   TournamentsRoute: TournamentsRouteWithChildren,
   PlayersHandleRoute: PlayersHandleRoute,
