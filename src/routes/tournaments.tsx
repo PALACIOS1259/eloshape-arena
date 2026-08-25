@@ -14,14 +14,11 @@ import {
 import { directoryQuery, tournamentsQuery } from "@/lib/queries";
 import { TOURNAMENT_STATUS_LABEL } from "@/lib/format";
 
-type Search = { status: string; division: string; mode: string };
+type Search = { status?: string; division?: string; mode?: string };
+type SearchInput = { status?: string; division?: string; mode?: string };
 
 export const Route = createFileRoute("/tournaments")({
-  validateSearch: (search: Record<string, unknown>): Search => ({
-    status: typeof search["status"] === "string" ? search["status"] : "all",
-    division: typeof search["division"] === "string" ? search["division"] : "all",
-    mode: typeof search["mode"] === "string" ? search["mode"] : "all",
-  }),
+  validateSearch: (search: SearchInput): Search => search,
   head: () => ({
     meta: [
       { title: "Tournaments — EloShape competitive circuit" },
@@ -40,7 +37,11 @@ export const Route = createFileRoute("/tournaments")({
   loaderDeps: ({ search }) => search,
   loader: ({ context, deps }) => {
     context.queryClient.ensureQueryData(
-      tournamentsQuery({ status: deps.status, divisionCode: deps.division, mode: deps.mode }),
+      tournamentsQuery({
+        status: deps.status ?? "all",
+        divisionCode: deps.division ?? "all",
+        mode: deps.mode ?? "all",
+      }),
     );
     context.queryClient.ensureQueryData(directoryQuery());
   },
@@ -50,7 +51,12 @@ export const Route = createFileRoute("/tournaments")({
 const STATUSES = ["all", "registration_open", "registration_closed", "live", "completed"];
 
 function TournamentsPage() {
-  const search = Route.useSearch();
+  const raw = Route.useSearch();
+  const search = {
+    status: raw.status ?? "all",
+    division: raw.division ?? "all",
+    mode: raw.mode ?? "all",
+  };
   const navigate = useNavigate({ from: Route.fullPath });
   const { data: directory } = useSuspenseQuery(directoryQuery());
   const { data: tournaments } = useSuspenseQuery(

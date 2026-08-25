@@ -13,14 +13,11 @@ import {
 } from "@/components/ui/select";
 import { directoryQuery, rankingsQuery } from "@/lib/queries";
 
-type Search = { period: "season" | "month"; division: string; region: string };
+type Search = { period?: "season" | "month"; division?: string; region?: string };
+type SearchInput = { period?: "season" | "month"; division?: string; region?: string };
 
 export const Route = createFileRoute("/rankings")({
-  validateSearch: (search: Record<string, unknown>): Search => ({
-    period: search["period"] === "month" ? "month" : "season",
-    division: typeof search["division"] === "string" ? search["division"] : "all",
-    region: typeof search["region"] === "string" ? search["region"] : "all",
-  }),
+  validateSearch: (search: SearchInput): Search => search,
   head: () => ({
     meta: [
       { title: "Rankings — EloShape leaderboards by division and region" },
@@ -40,9 +37,9 @@ export const Route = createFileRoute("/rankings")({
   loader: ({ context, deps }) => {
     context.queryClient.ensureQueryData(
       rankingsQuery({
-        period: deps.period,
-        divisionCode: deps.division,
-        regionSlug: deps.region,
+        period: deps.period ?? "season",
+        divisionCode: deps.division ?? "all",
+        regionSlug: deps.region ?? "all",
       }),
     );
     context.queryClient.ensureQueryData(directoryQuery());
@@ -58,7 +55,12 @@ const KIND_LABEL: Record<string, string> = {
 };
 
 function RankingsPage() {
-  const search = Route.useSearch();
+  const raw = Route.useSearch();
+  const search = {
+    period: raw.period ?? ("season" as const),
+    division: raw.division ?? "all",
+    region: raw.region ?? "all",
+  };
   const navigate = useNavigate({ from: Route.fullPath });
   const { data: directory } = useSuspenseQuery(directoryQuery());
   const { data: players } = useSuspenseQuery(
@@ -86,7 +88,7 @@ function RankingsPage() {
             <span className="eyebrow">Period</span>
             <Select
               value={search.period}
-              onValueChange={(value) => update({ period: value as Search["period"] })}
+              onValueChange={(value) => update({ period: value as "season" | "month" })}
             >
               <SelectTrigger className="mt-2 w-full">
                 <SelectValue />

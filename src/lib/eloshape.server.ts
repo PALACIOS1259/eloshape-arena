@@ -35,9 +35,16 @@ const TEAM_CARD_SELECT = `
 
 export type RankingPeriod = "season" | "month";
 
-function unwrap<T>(res: { data: T | null; error: { message: string } | null }): T {
+type QueryResult<T> = { data: T; error: { message: string } | null };
+
+function unwrap<T>(res: QueryResult<T>): T {
   if (res.error) throw new Error(res.error.message);
-  return res.data as T;
+  return res.data;
+}
+
+/** Same as `unwrap` but guarantees an array for list queries. */
+function rows<T>(res: QueryResult<T[] | null>): T[] {
+  return unwrap(res) ?? [];
 }
 
 /** Divisions, geography tree, active season and the configurable point rules. */
@@ -50,13 +57,13 @@ export async function loadDirectory() {
     db.from("point_rules").select("*").order("sort_order"),
   ]);
 
-  const seasonRows = unwrap(seasons);
+  const seasonRows = rows(seasons);
   return {
-    divisions: unwrap(divisions),
-    regions: unwrap(regions),
+    divisions: rows(divisions),
+    regions: rows(regions),
     seasons: seasonRows,
     activeSeason: seasonRows.find((s) => s.is_active) ?? seasonRows[0] ?? null,
-    pointRules: unwrap(rules),
+    pointRules: rows(rules),
   };
 }
 
@@ -91,10 +98,10 @@ export async function loadHomeSnapshot() {
     ]);
 
   return {
-    upcoming: unwrap(upcoming),
-    live: unwrap(live),
-    topPlayers: unwrap(topPlayers),
-    topTeams: unwrap(topTeams),
+    upcoming: rows(upcoming),
+    live: rows(live),
+    topPlayers: rows(topPlayers),
+    topTeams: rows(topTeams),
     stats: {
       players: playerCount.count ?? 0,
       tournaments: tournamentCount.count ?? 0,
@@ -116,8 +123,8 @@ export async function loadTournaments(filters: TournamentFilters) {
     .neq("status", "draft")
     .order("starts_at");
 
-  if (filters.status && filters.status !== "all") query = query.eq("status", filters.status);
-  if (filters.mode && filters.mode !== "all") query = query.eq("mode", filters.mode);
+  if (filters.status && filters.status !== "all") query = query.eq("status", filters.status as never);
+  if (filters.mode && filters.mode !== "all") query = query.eq("mode", filters.mode as never);
   if (filters.divisionCode && filters.divisionCode !== "all") {
     const division = unwrap(
       await db.from("divisions").select("id").eq("code", filters.divisionCode).maybeSingle(),
@@ -126,7 +133,7 @@ export async function loadTournaments(filters: TournamentFilters) {
     query = query.eq("division_id", division.id);
   }
 
-  return unwrap(await query);
+  return rows(await query);
 }
 
 export async function loadTournamentDetail(slug: string) {
@@ -161,7 +168,7 @@ export async function loadTournamentDetail(slug: string) {
       .order("bracket_slot"),
   ]);
 
-  return { tournament, entries: unwrap(entries), matches: unwrap(matches) };
+  return { tournament, entries: rows(entries), matches: rows(matches) };
 }
 
 export type RankingFilters = {
@@ -202,10 +209,10 @@ export async function loadRankings(filters: RankingFilters) {
     );
     if (!region) return [];
     const column = REGION_COLUMN[region.kind];
-    if (column) query = query.eq(column, region.id);
+    if (column) query = query.eq(column as never, region.id);
   }
 
-  return unwrap(await query);
+  return rows(await query);
 }
 
 export async function loadPlayer(handle: string) {
@@ -249,10 +256,10 @@ export async function loadPlayer(handle: string) {
 
   return {
     profile,
-    ledger: unwrap(ledger),
-    achievements: unwrap(achievements),
-    teams: unwrap(teams),
-    entries: unwrap(entries),
+    ledger: rows(ledger),
+    achievements: rows(achievements),
+    teams: rows(teams),
+    entries: rows(entries),
   };
 }
 
@@ -285,12 +292,12 @@ export async function loadTeam(slug: string) {
       .eq("team_id", team.id),
   ]);
 
-  return { team, members: unwrap(members), entries: unwrap(entries) };
+  return { team, members: rows(members), entries: rows(entries) };
 }
 
 export async function loadTeams() {
   const db = createPublicClient();
-  return unwrap(
+  return rows(
     await db.from("teams").select(TEAM_CARD_SELECT).order("points_season", { ascending: false }),
   );
 }
