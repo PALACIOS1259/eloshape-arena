@@ -1,19 +1,15 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Database } from "@/integrations/supabase/types";
 
 /**
  * Staff-only server functions. The caller's roles are read through their own
  * RLS-scoped client (policy: a user may read their own roles) before any
  * privileged helper is loaded.
  */
-async function assertStaff(supabase: {
-  from: (table: "user_roles") => {
-    select: (columns: string) => {
-      eq: (column: string, value: string) => Promise<{ data: { role: string }[] | null; error: { message: string } | null }>;
-    };
-  };
-}, userId: string) {
+async function assertStaff(supabase: SupabaseClient<Database>, userId: string) {
   const { data, error } = await supabase.from("user_roles").select("role").eq("user_id", userId);
   if (error) throw new Error(error.message);
   const roles = (data ?? []).map((row) => row.role);
@@ -37,7 +33,7 @@ export const getMyStaffStatus = createServerFn({ method: "GET" })
 export const getAdminOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { isAdmin } = await assertStaff(context.supabase as never, context.userId);
+    const { isAdmin } = await assertStaff(context.supabase, context.userId);
     const { loadAdminOverview } = await import("./admin.server");
     return { ...(await loadAdminOverview()), isAdmin };
   });
@@ -53,7 +49,7 @@ export const setPlayerEligibility = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     try {
-      await assertStaff(context.supabase as never, context.userId);
+      await assertStaff(context.supabase, context.userId);
       const { decideEligibility } = await import("./admin.server");
       const profile = await decideEligibility({
         reviewerUserId: context.userId,
