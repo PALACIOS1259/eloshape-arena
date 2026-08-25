@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DivisionsRouteImport } from './routes/divisions'
 import { Route as RankingsRouteImport } from './routes/rankings'
 import { Route as TeamsRouteImport } from './routes/teams'
 import { Route as TournamentsRouteImport } from './routes/tournaments'
@@ -20,6 +21,11 @@ import { Route as TournamentsSlugRouteImport } from './routes/tournaments.$slug'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DivisionsRoute = DivisionsRouteImport.update({
+  id: '/divisions',
+  path: '/divisions',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RankingsRoute = RankingsRouteImport.update({
@@ -55,6 +61,7 @@ const TournamentsSlugRoute = TournamentsSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/divisions': typeof DivisionsRoute
   '/rankings': typeof RankingsRoute
   '/teams': typeof TeamsRouteWithChildren
   '/tournaments': typeof TournamentsRouteWithChildren
@@ -64,6 +71,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/divisions': typeof DivisionsRoute
   '/rankings': typeof RankingsRoute
   '/teams': typeof TeamsRouteWithChildren
   '/tournaments': typeof TournamentsRouteWithChildren
@@ -74,6 +82,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/divisions': typeof DivisionsRoute
   '/rankings': typeof RankingsRoute
   '/teams': typeof TeamsRouteWithChildren
   '/tournaments': typeof TournamentsRouteWithChildren
@@ -85,6 +94,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/divisions'
     | '/rankings'
     | '/teams'
     | '/tournaments'
@@ -94,6 +104,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/divisions'
     | '/rankings'
     | '/teams'
     | '/tournaments'
@@ -103,6 +114,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/divisions'
     | '/rankings'
     | '/teams'
     | '/tournaments'
@@ -113,6 +125,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DivisionsRoute: typeof DivisionsRoute
   RankingsRoute: typeof RankingsRoute
   TeamsRoute: typeof TeamsRouteWithChildren
   TournamentsRoute: typeof TournamentsRouteWithChildren
@@ -126,6 +139,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/divisions': {
+      id: '/divisions'
+      path: '/divisions'
+      fullPath: '/divisions'
+      preLoaderRoute: typeof DivisionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/rankings': {
@@ -197,6 +217,7 @@ const TournamentsRouteWithChildren = TournamentsRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DivisionsRoute: DivisionsRoute,
   RankingsRoute: RankingsRoute,
   TeamsRoute: TeamsRouteWithChildren,
   TournamentsRoute: TournamentsRouteWithChildren,
