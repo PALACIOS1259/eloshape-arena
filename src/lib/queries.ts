@@ -53,5 +53,4 @@ export const playerQuery = (handle: string) =>
 export const teamQuery = (slug: string) =>
   queryOptions({ queryKey: ["team", slug], queryFn: () => getTeam({ data: { slug } }) });
 
-export const teamsQuery = () =>
-  queryOptions({ queryKey: ["teams"], queryFn: () => getTeams() });
+export const teamsQuery = () => queryOptions({ queryKey: ["teams"], queryFn: () => getTeams() });

@@ -17,7 +17,7 @@ import { TOURNAMENT_STATUS_LABEL } from "@/lib/format";
 type Search = { status?: string; division?: string; mode?: string };
 type SearchInput = { status?: string; division?: string; mode?: string };
 
-export const Route = createFileRoute("/tournaments")({
+export const Route = createFileRoute("/tournaments/")({
   validateSearch: (search: SearchInput): Search => search,
   head: () => ({
     meta: [

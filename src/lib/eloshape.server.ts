@@ -69,33 +69,28 @@ export async function loadDirectory() {
 
 export async function loadHomeSnapshot() {
   const db = createPublicClient();
-  const [upcoming, live, topPlayers, topTeams, playerCount, tournamentCount] =
-    await Promise.all([
-      db
-        .from("tournaments")
-        .select(TOURNAMENT_CARD_SELECT)
-        .in("status", ["registration_open", "registration_closed"])
-        .order("starts_at")
-        .limit(3),
-      db
-        .from("tournaments")
-        .select(TOURNAMENT_CARD_SELECT)
-        .eq("status", "live")
-        .order("starts_at")
-        .limit(2),
-      db
-        .from("profiles")
-        .select(PLAYER_CARD_SELECT)
-        .order("points_season", { ascending: false })
-        .limit(6),
-      db
-        .from("teams")
-        .select(TEAM_CARD_SELECT)
-        .order("points_season", { ascending: false })
-        .limit(4),
-      db.from("profiles").select("id", { count: "exact", head: true }),
-      db.from("tournaments").select("id", { count: "exact", head: true }),
-    ]);
+  const [upcoming, live, topPlayers, topTeams, playerCount, tournamentCount] = await Promise.all([
+    db
+      .from("tournaments")
+      .select(TOURNAMENT_CARD_SELECT)
+      .in("status", ["registration_open", "registration_closed"])
+      .order("starts_at")
+      .limit(3),
+    db
+      .from("tournaments")
+      .select(TOURNAMENT_CARD_SELECT)
+      .eq("status", "live")
+      .order("starts_at")
+      .limit(2),
+    db
+      .from("profiles")
+      .select(PLAYER_CARD_SELECT)
+      .order("points_season", { ascending: false })
+      .limit(6),
+    db.from("teams").select(TEAM_CARD_SELECT).order("points_season", { ascending: false }).limit(4),
+    db.from("profiles").select("id", { count: "exact", head: true }),
+    db.from("tournaments").select("id", { count: "exact", head: true }),
+  ]);
 
   return {
     upcoming: rows(upcoming),
@@ -123,7 +118,8 @@ export async function loadTournaments(filters: TournamentFilters) {
     .neq("status", "draft")
     .order("starts_at");
 
-  if (filters.status && filters.status !== "all") query = query.eq("status", filters.status as never);
+  if (filters.status && filters.status !== "all")
+    query = query.eq("status", filters.status as never);
   if (filters.mode && filters.mode !== "all") query = query.eq("mode", filters.mode as never);
   if (filters.divisionCode && filters.divisionCode !== "all") {
     const division = unwrap(

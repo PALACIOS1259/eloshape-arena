@@ -154,7 +154,10 @@ export function RiotAccountCard({
             onClick={() => refresh.mutate()}
             disabled={refresh.isPending || !service.configured}
           >
-            <RefreshCw className={refresh.isPending ? "size-4 animate-spin" : "size-4"} aria-hidden />
+            <RefreshCw
+              className={refresh.isPending ? "size-4 animate-spin" : "size-4"}
+              aria-hidden
+            />
             {refresh.isPending ? "Checking Riot…" : "Refresh Riot data"}
           </Button>
         </div>

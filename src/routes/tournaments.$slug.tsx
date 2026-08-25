@@ -23,7 +23,10 @@ export const Route = createFileRoute("/tournaments/$slug")({
   head: ({ loaderData }) => {
     if (!loaderData) {
       return {
-        meta: [{ title: "Tournament unavailable — EloShape" }, { name: "robots", content: "noindex" }],
+        meta: [
+          { title: "Tournament unavailable — EloShape" },
+          { name: "robots", content: "noindex" },
+        ],
       };
     }
     const title = `${loaderData.name} — EloShape tournament`;
@@ -144,15 +147,11 @@ function TournamentDetailPage() {
                   division. Riot rank is checked once for eligibility; standings here are pure
                   EloShape results.
                 </p>
-                <Button asChild className="mt-6 w-full" disabled={tournament.status !== "registration_open"}>
-                  <Link to="/auth" search={{ mode: "signup" }}>
-                    {tournament.status === "registration_open"
-                      ? "Sign in to register"
-                      : "Registration closed"}
-                  </Link>
-                </Button>
-                <p className="mt-3 text-center text-xs text-muted-foreground">
-                  Registration and check-in flows arrive with the player dashboard.
+                <div className="mt-6">
+                  <TournamentRegisterButton slug={tournament.slug} status={tournament.status} />
+                </div>
+                <p className="mt-3 text-xs text-muted-foreground">
+                  Eligibility, division and geography are validated on the server when you register.
                 </p>
               </div>
             </div>
@@ -280,12 +279,18 @@ function MatchSide({
     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
       <span
         className={
-          winner ? "truncate text-sm font-bold text-foreground" : "truncate text-sm text-muted-foreground"
+          winner
+            ? "truncate text-sm font-bold text-foreground"
+            : "truncate text-sm text-muted-foreground"
         }
       >
         {name}
       </span>
-      <span className={winner ? "tabular text-sm font-black text-brand" : "tabular text-sm text-muted-foreground"}>
+      <span
+        className={
+          winner ? "tabular text-sm font-black text-brand" : "tabular text-sm text-muted-foreground"
+        }
+      >
         {score ?? "–"}
       </span>
     </div>

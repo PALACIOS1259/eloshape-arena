@@ -11,13 +11,7 @@ import { checkInToTournament, registerForTournament } from "@/lib/tournament.fun
  * All validation (eligibility, division, region, capacity, duplicates) happens
  * server-side. This button only sends the tournament slug.
  */
-export function TournamentRegisterButton({
-  slug,
-  status,
-}: {
-  slug: string;
-  status: string;
-}) {
+export function TournamentRegisterButton({ slug, status }: { slug: string; status: string }) {
   const { session, loading } = useAuth();
   const queryClient = useQueryClient();
   const register = useServerFn(registerForTournament);

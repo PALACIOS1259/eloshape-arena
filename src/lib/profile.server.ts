@@ -6,6 +6,9 @@
  * division, eligibility, riot_*) are never written from user input.
  */
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import type { Database } from "@/integrations/supabase/types";
+
+type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"];
 
 export const RESERVED_HANDLES = [
   "admin",
@@ -109,7 +112,7 @@ export async function updateMyProfile(
   input: { handle?: string; displayName?: string; bio?: string; avatarUrl?: string },
 ) {
   const profileId = await ensureProfile(userId);
-  const patch: Record<string, string | null> = {};
+  const patch: ProfileUpdate = {};
 
   if (input.handle !== undefined) {
     const handle = validateHandle(input.handle);
@@ -126,7 +129,8 @@ export async function updateMyProfile(
 
   if (input.displayName !== undefined) {
     const name = input.displayName.trim();
-    if (name.length < 2 || name.length > 40) throw new Error("Display name must be 2-40 characters.");
+    if (name.length < 2 || name.length > 40)
+      throw new Error("Display name must be 2-40 characters.");
     patch["display_name"] = name;
   }
 
@@ -262,7 +266,11 @@ export function onboardingSteps(input: {
 }): OnboardingStep[] {
   return [
     { key: "account", label: "Create EloShape account", done: true },
-    { key: "handle", label: "Choose your handle & display name", done: !input.handle.startsWith("player_") },
+    {
+      key: "handle",
+      label: "Choose your handle & display name",
+      done: !input.handle.startsWith("player_"),
+    },
     { key: "location", label: "Select your location", done: Boolean(input.cityId) },
     { key: "riot", label: "Connect your Riot account", done: input.riotLinked },
     { key: "rank", label: "Riot rank detected", done: Boolean(input.riotTier) },

@@ -8,6 +8,7 @@
  * The profile is ALWAYS derived from the signed-in auth user id.
  */
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import type { Database } from "@/integrations/supabase/types";
 
 import { ensureProfile, recalculateProfileCompletion } from "./profile.server";
 import {
@@ -177,7 +178,10 @@ export async function refreshRiotAccount(userId: string): Promise<RiotConnection
     const cached = await loadMyRiotAccount(userId);
     if (cached) {
       const wait = Math.ceil((REFRESH_COOLDOWN_MS - elapsed) / 60000);
-      return { ...cached, notice: cached.notice ?? `Riot data was just synced. Try again in ${wait} min.` };
+      return {
+        ...cached,
+        notice: cached.notice ?? `Riot data was just synced. Try again in ${wait} min.`,
+      };
     }
   }
 
@@ -255,7 +259,7 @@ async function persistSnapshot(args: {
   if (upsert.error) throw new Error(upsert.error.message);
 
   // Safe public projection on the profile — never the PUUID.
-  const profilePatch: Record<string, string | null> = {
+  const profilePatch: Database["public"]["Tables"]["profiles"]["Update"] = {
     riot_id: riotId,
     riot_tier: tier === "UNRANKED" ? null : tier,
     riot_rank: snapshot.rank,
@@ -360,7 +364,9 @@ async function reviewEligibility(args: {
   if (divisionChanged && currentEligibility === "eligible") {
     const upcoming = await supabaseAdmin
       .from("tournament_entries")
-      .select("id, tournament:tournaments!tournament_entries_tournament_id_fkey(status, division_id)")
+      .select(
+        "id, tournament:tournaments!tournament_entries_tournament_id_fkey(status, division_id)",
+      )
       .eq("profile_id", profileId)
       .in("status", ["registered", "checked_in"]);
     const affected = (upcoming.data ?? []).some(

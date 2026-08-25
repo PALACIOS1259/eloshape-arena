@@ -19,7 +19,8 @@ export const Route = createFileRoute("/auth")({
       { title: "Sign in — EloShape" },
       {
         name: "description",
-        content: "Sign in or create an EloShape account to register for tournaments and track your points.",
+        content:
+          "Sign in or create an EloShape account to register for tournaments and track your points.",
       },
       { property: "og:title", content: "Sign in to EloShape" },
       { property: "og:description", content: "Join the amateur League of Legends circuit." },
@@ -135,7 +136,9 @@ function AuthPage() {
 
         <button
           type="button"
-          onClick={() => navigate({ to: "/auth", search: { mode: isSignup ? "signin" : "signup" } })}
+          onClick={() =>
+            navigate({ to: "/auth", search: { mode: isSignup ? "signin" : "signup" } })
+          }
           className="mt-6 w-full text-center text-sm text-muted-foreground hover:text-foreground"
         >
           {isSignup ? "Already have an account? Sign in" : "New to EloShape? Create an account"}

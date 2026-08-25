@@ -68,7 +68,12 @@ export function ProfileSettingsCard({
         return;
       }
       toast.success(
-        `Location set to ${[result.location.city, result.location.province, result.location.country, result.location.region]
+        `Location set to ${[
+          result.location.city,
+          result.location.province,
+          result.location.country,
+          result.location.region,
+        ]
           .filter(Boolean)
           .join(" → ")}`,
       );
@@ -154,7 +159,12 @@ export function ProfileSettingsCard({
             </SelectContent>
           </Select>
           <span className="text-sm text-muted-foreground">
-            {[profile.city?.name, profile.province?.name, profile.country?.name, profile.region?.name]
+            {[
+              profile.city?.name,
+              profile.province?.name,
+              profile.country?.name,
+              profile.region?.name,
+            ]
               .filter(Boolean)
               .join(" → ") || "No location set"}
           </span>
