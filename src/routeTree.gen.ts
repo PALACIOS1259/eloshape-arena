@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as RankingsRouteImport } from './routes/rankings'
 import { Route as TeamsRouteImport } from './routes/teams'
 import { Route as TournamentsRouteImport } from './routes/tournaments'
+import { Route as TeamsSlugRouteImport } from './routes/teams.$slug'
 import { Route as TournamentsSlugRouteImport } from './routes/tournaments.$slug'
 
 const IndexRoute = IndexRouteImport.update({
@@ -35,6 +36,11 @@ const TournamentsRoute = TournamentsRouteImport.update({
   path: '/tournaments',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TeamsSlugRoute = TeamsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => TeamsRoute,
+} as any)
 const TournamentsSlugRoute = TournamentsSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -44,44 +50,59 @@ const TournamentsSlugRoute = TournamentsSlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/rankings': typeof RankingsRoute
-  '/teams': typeof TeamsRoute
+  '/teams': typeof TeamsRouteWithChildren
   '/tournaments': typeof TournamentsRouteWithChildren
+  '/teams/$slug': typeof TeamsSlugRoute
   '/tournaments/$slug': typeof TournamentsSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/rankings': typeof RankingsRoute
-  '/teams': typeof TeamsRoute
+  '/teams': typeof TeamsRouteWithChildren
   '/tournaments': typeof TournamentsRouteWithChildren
+  '/teams/$slug': typeof TeamsSlugRoute
   '/tournaments/$slug': typeof TournamentsSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/rankings': typeof RankingsRoute
-  '/teams': typeof TeamsRoute
+  '/teams': typeof TeamsRouteWithChildren
   '/tournaments': typeof TournamentsRouteWithChildren
+  '/teams/$slug': typeof TeamsSlugRoute
   '/tournaments/$slug': typeof TournamentsSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/rankings' | '/teams' | '/tournaments' | '/tournaments/$slug'
+    | '/'
+    | '/rankings'
+    | '/teams'
+    | '/tournaments'
+    | '/teams/$slug'
+    | '/tournaments/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/rankings' | '/teams' | '/tournaments' | '/tournaments/$slug'
+  to:
+    | '/'
+    | '/rankings'
+    | '/teams'
+    | '/tournaments'
+    | '/teams/$slug'
+    | '/tournaments/$slug'
   id:
     | '__root__'
     | '/'
     | '/rankings'
     | '/teams'
     | '/tournaments'
+    | '/teams/$slug'
     | '/tournaments/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   RankingsRoute: typeof RankingsRoute
-  TeamsRoute: typeof TeamsRoute
+  TeamsRoute: typeof TeamsRouteWithChildren
   TournamentsRoute: typeof TournamentsRouteWithChildren
 }
 
@@ -115,6 +136,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TournamentsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/teams/$slug': {
+      id: '/teams/$slug'
+      path: '/$slug'
+      fullPath: '/teams/$slug'
+      preLoaderRoute: typeof TeamsSlugRouteImport
+      parentRoute: typeof TeamsRoute
+    }
     '/tournaments/$slug': {
       id: '/tournaments/$slug'
       path: '/$slug'
@@ -124,6 +152,16 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface TeamsRouteChildren {
+  TeamsSlugRoute: typeof TeamsSlugRoute
+}
+
+const TeamsRouteChildren: TeamsRouteChildren = {
+  TeamsSlugRoute: TeamsSlugRoute,
+}
+
+const TeamsRouteWithChildren = TeamsRoute._addFileChildren(TeamsRouteChildren)
 
 interface TournamentsRouteChildren {
   TournamentsSlugRoute: typeof TournamentsSlugRoute
@@ -140,7 +178,7 @@ const TournamentsRouteWithChildren = TournamentsRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   RankingsRoute: RankingsRoute,
-  TeamsRoute: TeamsRoute,
+  TeamsRoute: TeamsRouteWithChildren,
   TournamentsRoute: TournamentsRouteWithChildren,
 }
 export const routeTree = rootRouteImport
