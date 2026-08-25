@@ -6,7 +6,7 @@ import { TeamCard } from "@/components/eloshape/TeamCard";
 import { PageContainer, PageHeading } from "@/components/layout/PageShell";
 import { teamsQuery } from "@/lib/queries";
 
-export const Route = createFileRoute("/teams")({
+export const Route = createFileRoute("/teams/")({
   head: () => ({
     meta: [
       { title: "Teams — EloShape 5v5 rosters" },
