@@ -3,6 +3,7 @@ import { Menu } from "lucide-react";
 import { useState } from "react";
 
 import { EloShapeLogo } from "@/components/brand/EloShapeLogo";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
@@ -15,6 +16,7 @@ const NAV = [
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const { user } = useAuth();
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
@@ -77,14 +79,22 @@ export function SiteHeader() {
                   </Link>
                 ))}
                 <div className="mt-4 flex flex-col gap-2 border-t border-border pt-4">
-                  <Button asChild variant="outline" onClick={() => setOpen(false)}>
-                    <Link to="/auth">Sign in</Link>
-                  </Button>
-                  <Button asChild onClick={() => setOpen(false)}>
-                    <Link to="/auth" search={{ mode: "signup" }}>
-                      Create account
-                    </Link>
-                  </Button>
+                  {user ? (
+                    <Button asChild onClick={() => setOpen(false)}>
+                      <Link to="/dashboard">Dashboard</Link>
+                    </Button>
+                  ) : (
+                    <>
+                      <Button asChild variant="outline" onClick={() => setOpen(false)}>
+                        <Link to="/auth">Sign in</Link>
+                      </Button>
+                      <Button asChild onClick={() => setOpen(false)}>
+                        <Link to="/auth" search={{ mode: "signup" }}>
+                          Create account
+                        </Link>
+                      </Button>
+                    </>
+                  )}
                 </div>
               </div>
             </SheetContent>
