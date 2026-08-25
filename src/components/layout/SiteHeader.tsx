@@ -38,14 +38,23 @@ export function SiteHeader() {
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
-          <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
-            <Link to="/auth">Sign in</Link>
-          </Button>
-          <Button asChild size="sm" className="hidden sm:inline-flex">
-            <Link to="/auth" search={{ mode: "signup" }}>
-              Create account
-            </Link>
-          </Button>
+          {user ? (
+            <Button asChild size="sm" className="hidden sm:inline-flex">
+              <Link to="/dashboard">Dashboard</Link>
+            </Button>
+          ) : (
+            <>
+              <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+                <Link to="/auth">Sign in</Link>
+              </Button>
+              <Button asChild size="sm" className="hidden sm:inline-flex">
+                <Link to="/auth" search={{ mode: "signup" }}>
+                  Create account
+                </Link>
+              </Button>
+            </>
+          )}
+
 
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>

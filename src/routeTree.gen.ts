@@ -17,6 +17,7 @@ import { Route as RankingsRouteImport } from './routes/rankings'
 import { Route as RulesRouteImport } from './routes/rules'
 import { Route as TeamsRouteImport } from './routes/teams'
 import { Route as TournamentsRouteImport } from './routes/tournaments'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as PlayersHandleRouteImport } from './routes/players.$handle'
 import { Route as TeamsSlugRouteImport } from './routes/teams.$slug'
@@ -61,6 +62,11 @@ const TournamentsRoute = TournamentsRouteImport.update({
   path: '/tournaments',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -90,6 +96,7 @@ export interface FileRoutesByFullPath {
   '/rules': typeof RulesRoute
   '/teams': typeof TeamsRouteWithChildren
   '/tournaments': typeof TournamentsRouteWithChildren
+  '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/players/$handle': typeof PlayersHandleRoute
   '/teams/$slug': typeof TeamsSlugRoute
@@ -103,6 +110,7 @@ export interface FileRoutesByTo {
   '/rules': typeof RulesRoute
   '/teams': typeof TeamsRouteWithChildren
   '/tournaments': typeof TournamentsRouteWithChildren
+  '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/players/$handle': typeof PlayersHandleRoute
   '/teams/$slug': typeof TeamsSlugRoute
@@ -118,6 +126,7 @@ export interface FileRoutesById {
   '/rules': typeof RulesRoute
   '/teams': typeof TeamsRouteWithChildren
   '/tournaments': typeof TournamentsRouteWithChildren
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/players/$handle': typeof PlayersHandleRoute
   '/teams/$slug': typeof TeamsSlugRoute
@@ -133,6 +142,7 @@ export interface FileRouteTypes {
     | '/rules'
     | '/teams'
     | '/tournaments'
+    | '/admin'
     | '/dashboard'
     | '/players/$handle'
     | '/teams/$slug'
@@ -146,6 +156,7 @@ export interface FileRouteTypes {
     | '/rules'
     | '/teams'
     | '/tournaments'
+    | '/admin'
     | '/dashboard'
     | '/players/$handle'
     | '/teams/$slug'
@@ -160,6 +171,7 @@ export interface FileRouteTypes {
     | '/rules'
     | '/teams'
     | '/tournaments'
+    | '/_authenticated/admin'
     | '/_authenticated/dashboard'
     | '/players/$handle'
     | '/teams/$slug'
@@ -236,6 +248,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TournamentsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -268,10 +287,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
 }
 
