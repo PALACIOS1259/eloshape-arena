@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/eloshape/EmptyState";
 import { PlayerAvatar } from "@/components/eloshape/PlayerRow";
 import { StatTile } from "@/components/eloshape/StatTile";
 import { StatusBadge } from "@/components/eloshape/StatusBadge";
+import { TournamentRegisterButton } from "@/components/eloshape/TournamentRegisterButton";
 import { PageContainer } from "@/components/layout/PageShell";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -96,11 +97,14 @@ function TournamentDetailPage() {
             />
           </div>
 
-          {tournament.prize ? (
-            <p className="mt-6 inline-flex items-center gap-2 rounded-md border border-gold/30 bg-gold/10 px-3 py-2 text-sm text-gold">
-              <Trophy className="size-4" /> {tournament.prize}
-            </p>
-          ) : null}
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            {tournament.prize ? (
+              <p className="inline-flex items-center gap-2 rounded-md border border-gold/30 bg-gold/10 px-3 py-2 text-sm text-gold">
+                <Trophy className="size-4" /> {tournament.prize}
+              </p>
+            ) : null}
+            <TournamentRegisterButton slug={tournament.slug} status={tournament.status} />
+          </div>
         </PageContainer>
       </section>
 
