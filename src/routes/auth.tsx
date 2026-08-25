@@ -13,9 +13,7 @@ type Search = { mode?: "signin" | "signup" };
 type SearchInput = { mode?: "signin" | "signup" };
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: SearchInput): Search => ({
-    mode: search.mode ?? "signin",
-  }),
+  validateSearch: (search: SearchInput): Search => search,
   head: () => ({
     meta: [
       { title: "Sign in — EloShape" },

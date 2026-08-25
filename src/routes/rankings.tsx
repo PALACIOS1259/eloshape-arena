@@ -17,11 +17,7 @@ type Search = { period?: "season" | "month"; division?: string; region?: string 
 type SearchInput = { period?: "season" | "month"; division?: string; region?: string };
 
 export const Route = createFileRoute("/rankings")({
-  validateSearch: (search: SearchInput): Search => ({
-    period: search.period ?? "season",
-    division: search.division ?? "all",
-    region: search.region ?? "all",
-  }),
+  validateSearch: (search: SearchInput): Search => search,
   head: () => ({
     meta: [
       { title: "Rankings — EloShape leaderboards by division and region" },

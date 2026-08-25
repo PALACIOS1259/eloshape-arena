@@ -18,11 +18,7 @@ type Search = { status?: string; division?: string; mode?: string };
 type SearchInput = { status?: string; division?: string; mode?: string };
 
 export const Route = createFileRoute("/tournaments")({
-  validateSearch: (search: SearchInput): Search => ({
-    status: search.status ?? "all",
-    division: search.division ?? "all",
-    mode: search.mode ?? "all",
-  }),
+  validateSearch: (search: SearchInput): Search => search,
   head: () => ({
     meta: [
       { title: "Tournaments — EloShape competitive circuit" },
