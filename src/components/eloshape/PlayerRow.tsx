@@ -9,7 +9,7 @@ export type PlayerRowData = {
   id: string;
   handle: string;
   display_name: string;
-  avatar_url?: string | null;
+  avatar_url?: string | null | undefined;
   points_season: number;
   points_month: number;
   wins: number;
@@ -52,8 +52,8 @@ export function PlayerAvatar({
   className,
 }: {
   name: string;
-  url?: string | null;
-  className?: string;
+  url?: string | null | undefined;
+  className?: string | undefined;
 }) {
   return (
     <span

@@ -35,9 +35,11 @@ const TEAM_CARD_SELECT = `
 
 export type RankingPeriod = "season" | "month";
 
-function unwrap<T>(res: { data: T | null; error: { message: string } | null }): T {
+type QueryResult<T> = { data: T; error: { message: string } | null };
+
+function unwrap<T>(res: QueryResult<T>): T {
   if (res.error) throw new Error(res.error.message);
-  return res.data as T;
+  return res.data;
 }
 
 /** Divisions, geography tree, active season and the configurable point rules. */
@@ -116,8 +118,8 @@ export async function loadTournaments(filters: TournamentFilters) {
     .neq("status", "draft")
     .order("starts_at");
 
-  if (filters.status && filters.status !== "all") query = query.eq("status", filters.status);
-  if (filters.mode && filters.mode !== "all") query = query.eq("mode", filters.mode);
+  if (filters.status && filters.status !== "all") query = query.eq("status", filters.status as never);
+  if (filters.mode && filters.mode !== "all") query = query.eq("mode", filters.mode as never);
   if (filters.divisionCode && filters.divisionCode !== "all") {
     const division = unwrap(
       await db.from("divisions").select("id").eq("code", filters.divisionCode).maybeSingle(),
@@ -202,7 +204,7 @@ export async function loadRankings(filters: RankingFilters) {
     );
     if (!region) return [];
     const column = REGION_COLUMN[region.kind];
-    if (column) query = query.eq(column, region.id);
+    if (column) query = query.eq(column as never, region.id);
   }
 
   return unwrap(await query);
