@@ -85,9 +85,9 @@ const TeamsIndexRoute = TeamsIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const TeamsSlugRoute = TeamsSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => TeamsRoute,
+  id: '/teams/$slug',
+  path: '/teams/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const TournamentsIndexRoute = TournamentsIndexRouteImport.update({
   id: '/tournaments/',
@@ -95,9 +95,9 @@ const TournamentsIndexRoute = TournamentsIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const TournamentsSlugRoute = TournamentsSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => TournamentsRoute,
+  id: '/tournaments/$slug',
+  path: '/tournaments/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -212,6 +212,8 @@ export interface RootRouteChildren {
   RulesRoute: typeof RulesRoute
   TermsRoute: typeof TermsRoute
   PlayersHandleRoute: typeof PlayersHandleRoute
+  TeamsSlugRoute: typeof TeamsSlugRoute
+  TournamentsSlugRoute: typeof TournamentsSlugRoute
   TeamsIndexRoute: typeof TeamsIndexRoute
   TournamentsIndexRoute: typeof TournamentsIndexRoute
 }
@@ -304,10 +306,10 @@ declare module '@tanstack/react-router' {
     }
     '/teams/$slug': {
       id: '/teams/$slug'
-      path: '/$slug'
+      path: '/teams/$slug'
       fullPath: '/teams/$slug'
       preLoaderRoute: typeof TeamsSlugRouteImport
-      parentRoute: typeof TeamsRoute
+      parentRoute: typeof rootRouteImport
     }
     '/tournaments/': {
       id: '/tournaments/'
@@ -318,10 +320,10 @@ declare module '@tanstack/react-router' {
     }
     '/tournaments/$slug': {
       id: '/tournaments/$slug'
-      path: '/$slug'
+      path: '/tournaments/$slug'
       fullPath: '/tournaments/$slug'
       preLoaderRoute: typeof TournamentsSlugRouteImport
-      parentRoute: typeof TournamentsRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -349,6 +351,8 @@ const rootRouteChildren: RootRouteChildren = {
   RulesRoute: RulesRoute,
   TermsRoute: TermsRoute,
   PlayersHandleRoute: PlayersHandleRoute,
+  TeamsSlugRoute: TeamsSlugRoute,
+  TournamentsSlugRoute: TournamentsSlugRoute,
   TeamsIndexRoute: TeamsIndexRoute,
   TournamentsIndexRoute: TournamentsIndexRoute,
 }
