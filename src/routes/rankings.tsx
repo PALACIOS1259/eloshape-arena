@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { directoryQuery, rankingsQuery } from "@/lib/queries";
 
-type Search = { period: "season" | "month"; division: string; region: string };
+type Search = { period?: "season" | "month"; division?: string; region?: string };
 type SearchInput = { period?: "season" | "month"; division?: string; region?: string };
 
 export const Route = createFileRoute("/rankings")({
@@ -41,9 +41,9 @@ export const Route = createFileRoute("/rankings")({
   loader: ({ context, deps }) => {
     context.queryClient.ensureQueryData(
       rankingsQuery({
-        period: deps.period,
-        divisionCode: deps.division,
-        regionSlug: deps.region,
+        period: deps.period ?? "season",
+        divisionCode: deps.division ?? "all",
+        regionSlug: deps.region ?? "all",
       }),
     );
     context.queryClient.ensureQueryData(directoryQuery());
@@ -59,7 +59,12 @@ const KIND_LABEL: Record<string, string> = {
 };
 
 function RankingsPage() {
-  const search = Route.useSearch();
+  const raw = Route.useSearch();
+  const search = {
+    period: raw.period ?? ("season" as const),
+    division: raw.division ?? "all",
+    region: raw.region ?? "all",
+  };
   const navigate = useNavigate({ from: Route.fullPath });
   const { data: directory } = useSuspenseQuery(directoryQuery());
   const { data: players } = useSuspenseQuery(
