@@ -92,7 +92,7 @@ function RankingsPage() {
             <span className="eyebrow">Period</span>
             <Select
               value={search.period}
-              onValueChange={(value) => update({ period: value as Search["period"] })}
+              onValueChange={(value) => update({ period: value as "season" | "month" })}
             >
               <SelectTrigger className="mt-2 w-full">
                 <SelectValue />

@@ -292,7 +292,7 @@ export async function loadTeam(slug: string) {
       .eq("team_id", team.id),
   ]);
 
-  return { team, members: unwrap(members), entries: rows(entries) };
+  return { team, members: rows(members), entries: rows(entries) };
 }
 
 export async function loadTeams() {

@@ -119,7 +119,7 @@ export function PlayerRow({
       </span>
 
       <span className="flex items-center justify-end gap-3">
-        <MovementIndicator value={player.rank_movement} />
+        <MovementIndicator value={player.rank_movement ?? null} />
         <span className="tabular text-sm font-black text-foreground">{formatPoints(points)}</span>
       </span>
     </Link>
