@@ -10,33 +10,172 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as DivisionsRouteImport } from './routes/divisions'
+import { Route as RankingsRouteImport } from './routes/rankings'
+import { Route as RulesRouteImport } from './routes/rules'
+import { Route as TeamsRouteImport } from './routes/teams'
+import { Route as TournamentsRouteImport } from './routes/tournaments'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as PlayersHandleRouteImport } from './routes/players.$handle'
+import { Route as TeamsSlugRouteImport } from './routes/teams.$slug'
+import { Route as TournamentsSlugRouteImport } from './routes/tournaments.$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DivisionsRoute = DivisionsRouteImport.update({
+  id: '/divisions',
+  path: '/divisions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RankingsRoute = RankingsRouteImport.update({
+  id: '/rankings',
+  path: '/rankings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RulesRoute = RulesRouteImport.update({
+  id: '/rules',
+  path: '/rules',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TeamsRoute = TeamsRouteImport.update({
+  id: '/teams',
+  path: '/teams',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TournamentsRoute = TournamentsRouteImport.update({
+  id: '/tournaments',
+  path: '/tournaments',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const PlayersHandleRoute = PlayersHandleRouteImport.update({
+  id: '/players/$handle',
+  path: '/players/$handle',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TeamsSlugRoute = TeamsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => TeamsRoute,
+} as any)
+const TournamentsSlugRoute = TournamentsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => TournamentsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/divisions': typeof DivisionsRoute
+  '/rankings': typeof RankingsRoute
+  '/rules': typeof RulesRoute
+  '/teams': typeof TeamsRouteWithChildren
+  '/tournaments': typeof TournamentsRouteWithChildren
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/players/$handle': typeof PlayersHandleRoute
+  '/teams/$slug': typeof TeamsSlugRoute
+  '/tournaments/$slug': typeof TournamentsSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/divisions': typeof DivisionsRoute
+  '/rankings': typeof RankingsRoute
+  '/rules': typeof RulesRoute
+  '/teams': typeof TeamsRouteWithChildren
+  '/tournaments': typeof TournamentsRouteWithChildren
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/players/$handle': typeof PlayersHandleRoute
+  '/teams/$slug': typeof TeamsSlugRoute
+  '/tournaments/$slug': typeof TournamentsSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/divisions': typeof DivisionsRoute
+  '/rankings': typeof RankingsRoute
+  '/rules': typeof RulesRoute
+  '/teams': typeof TeamsRouteWithChildren
+  '/tournaments': typeof TournamentsRouteWithChildren
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/players/$handle': typeof PlayersHandleRoute
+  '/teams/$slug': typeof TeamsSlugRoute
+  '/tournaments/$slug': typeof TournamentsSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/divisions'
+    | '/rankings'
+    | '/rules'
+    | '/teams'
+    | '/tournaments'
+    | '/dashboard'
+    | '/players/$handle'
+    | '/teams/$slug'
+    | '/tournaments/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/divisions'
+    | '/rankings'
+    | '/rules'
+    | '/teams'
+    | '/tournaments'
+    | '/dashboard'
+    | '/players/$handle'
+    | '/teams/$slug'
+    | '/tournaments/$slug'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/divisions'
+    | '/rankings'
+    | '/rules'
+    | '/teams'
+    | '/tournaments'
+    | '/_authenticated/dashboard'
+    | '/players/$handle'
+    | '/teams/$slug'
+    | '/tournaments/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  DivisionsRoute: typeof DivisionsRoute
+  RankingsRoute: typeof RankingsRoute
+  RulesRoute: typeof RulesRoute
+  TeamsRoute: typeof TeamsRouteWithChildren
+  TournamentsRoute: typeof TournamentsRouteWithChildren
+  PlayersHandleRoute: typeof PlayersHandleRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +187,129 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/divisions': {
+      id: '/divisions'
+      path: '/divisions'
+      fullPath: '/divisions'
+      preLoaderRoute: typeof DivisionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rankings': {
+      id: '/rankings'
+      path: '/rankings'
+      fullPath: '/rankings'
+      preLoaderRoute: typeof RankingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rules': {
+      id: '/rules'
+      path: '/rules'
+      fullPath: '/rules'
+      preLoaderRoute: typeof RulesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/teams': {
+      id: '/teams'
+      path: '/teams'
+      fullPath: '/teams'
+      preLoaderRoute: typeof TeamsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tournaments': {
+      id: '/tournaments'
+      path: '/tournaments'
+      fullPath: '/tournaments'
+      preLoaderRoute: typeof TournamentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/players/$handle': {
+      id: '/players/$handle'
+      path: '/players/$handle'
+      fullPath: '/players/$handle'
+      preLoaderRoute: typeof PlayersHandleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/teams/$slug': {
+      id: '/teams/$slug'
+      path: '/$slug'
+      fullPath: '/teams/$slug'
+      preLoaderRoute: typeof TeamsSlugRouteImport
+      parentRoute: typeof TeamsRoute
+    }
+    '/tournaments/$slug': {
+      id: '/tournaments/$slug'
+      path: '/$slug'
+      fullPath: '/tournaments/$slug'
+      preLoaderRoute: typeof TournamentsSlugRouteImport
+      parentRoute: typeof TournamentsRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+interface TeamsRouteChildren {
+  TeamsSlugRoute: typeof TeamsSlugRoute
+}
+
+const TeamsRouteChildren: TeamsRouteChildren = {
+  TeamsSlugRoute: TeamsSlugRoute,
+}
+
+const TeamsRouteWithChildren = TeamsRoute._addFileChildren(TeamsRouteChildren)
+
+interface TournamentsRouteChildren {
+  TournamentsSlugRoute: typeof TournamentsSlugRoute
+}
+
+const TournamentsRouteChildren: TournamentsRouteChildren = {
+  TournamentsSlugRoute: TournamentsSlugRoute,
+}
+
+const TournamentsRouteWithChildren = TournamentsRoute._addFileChildren(
+  TournamentsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+  DivisionsRoute: DivisionsRoute,
+  RankingsRoute: RankingsRoute,
+  RulesRoute: RulesRoute,
+  TeamsRoute: TeamsRouteWithChildren,
+  TournamentsRoute: TournamentsRouteWithChildren,
+  PlayersHandleRoute: PlayersHandleRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
