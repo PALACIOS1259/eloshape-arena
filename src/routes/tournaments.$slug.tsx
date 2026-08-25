@@ -144,15 +144,11 @@ function TournamentDetailPage() {
                   division. Riot rank is checked once for eligibility; standings here are pure
                   EloShape results.
                 </p>
-                <Button asChild className="mt-6 w-full" disabled={tournament.status !== "registration_open"}>
-                  <Link to="/auth" search={{ mode: "signup" }}>
-                    {tournament.status === "registration_open"
-                      ? "Sign in to register"
-                      : "Registration closed"}
-                  </Link>
-                </Button>
-                <p className="mt-3 text-center text-xs text-muted-foreground">
-                  Registration and check-in flows arrive with the player dashboard.
+                <div className="mt-6">
+                  <TournamentRegisterButton slug={tournament.slug} status={tournament.status} />
+                </div>
+                <p className="mt-3 text-xs text-muted-foreground">
+                  Eligibility, division and geography are validated on the server when you register.
                 </p>
               </div>
             </div>
