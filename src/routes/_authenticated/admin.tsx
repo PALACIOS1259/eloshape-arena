@@ -96,14 +96,14 @@ function AdminPage() {
                         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
                           <span className="min-w-0">
                             <span className="block truncate text-sm font-semibold text-foreground">
-                              {report.kind} · {report.reported?.display_name ?? "—"}
+                              {report.reason} · {report.reported?.display_name ?? "—"}
                             </span>
                             <span className="eyebrow mt-1 block">{formatDate(report.created_at)}</span>
                           </span>
                           <span className="eyebrow shrink-0 text-gold">{report.status}</span>
                         </div>
-                        {report.reason ? (
-                          <p className="mt-2 text-sm text-muted-foreground">{report.reason}</p>
+                        {report.details ? (
+                          <p className="mt-2 text-sm text-muted-foreground">{report.details}</p>
                         ) : null}
                       </div>
                     ))

@@ -13,7 +13,7 @@ export async function loadAdminOverview(supabase: Client) {
     supabase
       .from("reports")
       .select(
-        `id, kind, status, reason, created_at,
+        `id, status, reason, details, created_at,
          reported:profiles!reports_reported_profile_id_fkey(handle, display_name)`,
       )
       .order("created_at", { ascending: false })
