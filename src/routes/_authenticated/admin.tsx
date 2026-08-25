@@ -118,6 +118,9 @@ function AdminPage() {
                         {review.reason ? (
                           <p className="mt-2 text-sm text-muted-foreground">{review.reason}</p>
                         ) : null}
+                        {review.profile ? (
+                          <EligibilityActions profileId={review.profile.id} />
+                        ) : null}
                       </div>
                     ))
                   ) : (
