@@ -49,13 +49,7 @@ export function SiteFooter() {
   );
 }
 
-function FooterColumn({
-  title,
-  links,
-}: {
-  title: string;
-  links: { to: string; label: string }[];
-}) {
+function FooterColumn({ title, links }: { title: string; links: { to: string; label: string }[] }) {
   return (
     <div>
       <p className="eyebrow">{title}</p>

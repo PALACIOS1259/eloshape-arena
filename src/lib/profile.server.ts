@@ -129,7 +129,8 @@ export async function updateMyProfile(
 
   if (input.displayName !== undefined) {
     const name = input.displayName.trim();
-    if (name.length < 2 || name.length > 40) throw new Error("Display name must be 2-40 characters.");
+    if (name.length < 2 || name.length > 40)
+      throw new Error("Display name must be 2-40 characters.");
     patch["display_name"] = name;
   }
 
@@ -265,7 +266,11 @@ export function onboardingSteps(input: {
 }): OnboardingStep[] {
   return [
     { key: "account", label: "Create EloShape account", done: true },
-    { key: "handle", label: "Choose your handle & display name", done: !input.handle.startsWith("player_") },
+    {
+      key: "handle",
+      label: "Choose your handle & display name",
+      done: !input.handle.startsWith("player_"),
+    },
     { key: "location", label: "Select your location", done: Boolean(input.cityId) },
     { key: "riot", label: "Connect your Riot account", done: input.riotLinked },
     { key: "rank", label: "Riot rank detected", done: Boolean(input.riotTier) },

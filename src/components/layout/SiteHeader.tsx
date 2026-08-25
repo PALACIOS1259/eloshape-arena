@@ -57,7 +57,6 @@ export function SiteHeader() {
             </>
           )}
 
-
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon" className="lg:hidden" aria-label="Open menu">

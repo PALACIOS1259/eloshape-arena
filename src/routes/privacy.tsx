@@ -70,9 +70,9 @@ function PrivacyPage() {
         </section>
         <p className="border-t border-border pt-6 text-xs">
           EloShape is not endorsed by Riot Games and does not reflect the views or opinions of Riot
-          Games or anyone officially involved in producing or managing Riot Games properties.
-          League of Legends and Riot Games are trademarks or registered trademarks of Riot Games,
-          Inc. League of Legends © Riot Games, Inc.
+          Games or anyone officially involved in producing or managing Riot Games properties. League
+          of Legends and Riot Games are trademarks or registered trademarks of Riot Games, Inc.
+          League of Legends © Riot Games, Inc.
         </p>
       </PageContainer>
     </div>

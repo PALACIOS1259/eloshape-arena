@@ -23,7 +23,10 @@ export const Route = createFileRoute("/tournaments/$slug")({
   head: ({ loaderData }) => {
     if (!loaderData) {
       return {
-        meta: [{ title: "Tournament unavailable — EloShape" }, { name: "robots", content: "noindex" }],
+        meta: [
+          { title: "Tournament unavailable — EloShape" },
+          { name: "robots", content: "noindex" },
+        ],
       };
     }
     const title = `${loaderData.name} — EloShape tournament`;
@@ -276,12 +279,18 @@ function MatchSide({
     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
       <span
         className={
-          winner ? "truncate text-sm font-bold text-foreground" : "truncate text-sm text-muted-foreground"
+          winner
+            ? "truncate text-sm font-bold text-foreground"
+            : "truncate text-sm text-muted-foreground"
         }
       >
         {name}
       </span>
-      <span className={winner ? "tabular text-sm font-black text-brand" : "tabular text-sm text-muted-foreground"}>
+      <span
+        className={
+          winner ? "tabular text-sm font-black text-brand" : "tabular text-sm text-muted-foreground"
+        }
+      >
         {score ?? "–"}
       </span>
     </div>

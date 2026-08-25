@@ -15,7 +15,10 @@ export const registerForTournament = createServerFn({ method: "POST" })
     try {
       return { ok: true as const, entry: await register(context.userId, data.slug) };
     } catch (error) {
-      return { ok: false as const, error: message(error, "Could not register for this tournament.") };
+      return {
+        ok: false as const,
+        error: message(error, "Could not register for this tournament."),
+      };
     }
   });
 

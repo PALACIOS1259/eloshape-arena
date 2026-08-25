@@ -19,7 +19,9 @@ export const Route = createFileRoute("/players/$handle")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return { meta: [{ title: "Player unavailable — EloShape" }, { name: "robots", content: "noindex" }] };
+      return {
+        meta: [{ title: "Player unavailable — EloShape" }, { name: "robots", content: "noindex" }],
+      };
     }
     const title = `${loaderData.name} — EloShape player profile`;
     const description = `EloShape points, division, record, achievements and tournament history for ${loaderData.name}.`;
@@ -82,7 +84,11 @@ function PlayerPage() {
               <span
                 className={`inline-flex items-center gap-1.5 text-xs ${eligible ? "text-success" : "text-warning"}`}
               >
-                {eligible ? <ShieldCheck className="size-3.5" /> : <ShieldAlert className="size-3.5" />}
+                {eligible ? (
+                  <ShieldCheck className="size-3.5" />
+                ) : (
+                  <ShieldAlert className="size-3.5" />
+                )}
                 {eligible ? "Eligibility verified" : `Eligibility: ${profile.eligibility}`}
               </span>
             </div>

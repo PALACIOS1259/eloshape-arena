@@ -76,7 +76,6 @@ function AdminPage() {
         description="Anti-smurf eligibility reviews, Riot account checks and player reports. Eligibility is a manual staff decision."
       />
 
-
       <PageContainer className="py-10">
         {isPending ? (
           <div className="space-y-4">
@@ -109,8 +108,8 @@ function AdminPage() {
                               {review.profile?.display_name ?? "Unknown player"}
                             </span>
                             <span className="eyebrow mt-1 block">
-                              {riotRankLabel(review.profile?.riot_tier, review.profile?.riot_rank)} ·{" "}
-                              {formatDate(review.created_at)}
+                              {riotRankLabel(review.profile?.riot_tier, review.profile?.riot_rank)}{" "}
+                              · {formatDate(review.created_at)}
                             </span>
                           </span>
                           <span className="eyebrow shrink-0 text-gold">{review.status}</span>
@@ -142,7 +141,9 @@ function AdminPage() {
                             <span className="block truncate text-sm font-semibold text-foreground">
                               {report.reason} · {report.reported?.display_name ?? "—"}
                             </span>
-                            <span className="eyebrow mt-1 block">{formatDate(report.created_at)}</span>
+                            <span className="eyebrow mt-1 block">
+                              {formatDate(report.created_at)}
+                            </span>
                           </span>
                           <span className="eyebrow shrink-0 text-gold">{report.status}</span>
                         </div>

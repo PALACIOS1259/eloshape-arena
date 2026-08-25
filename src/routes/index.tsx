@@ -52,9 +52,7 @@ function HomePage() {
         <PageContainer className="relative py-16 sm:py-24">
           <div className="grid gap-12 lg:grid-cols-[1.1fr_minmax(0,0.9fr)] lg:items-center">
             <div className="min-w-0">
-              <p className="eyebrow">
-                {directory.activeSeason?.name ?? "Season 1"} · LAS circuit
-              </p>
+              <p className="eyebrow">{directory.activeSeason?.name ?? "Season 1"} · LAS circuit</p>
               <h1 className="mt-4 text-4xl font-black leading-[1.05] tracking-tight text-foreground sm:text-6xl">
                 Competitive League for the <span className="text-brand-gradient">other 90%</span>
               </h1>

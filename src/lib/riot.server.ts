@@ -32,15 +32,17 @@
 
 export type RiotPlatform = "LA2";
 
-export const RIOT_PLATFORMS: Record<RiotPlatform, { label: string; host: string; regional: string }> =
-  {
-    // Extensible: add BR1/NA1/EUW1... with their regional routing host.
-    LA2: {
-      label: "LAS (Latin America South)",
-      host: "https://la2.api.riotgames.com",
-      regional: "https://americas.api.riotgames.com",
-    },
-  };
+export const RIOT_PLATFORMS: Record<
+  RiotPlatform,
+  { label: string; host: string; regional: string }
+> = {
+  // Extensible: add BR1/NA1/EUW1... with their regional routing host.
+  LA2: {
+    label: "LAS (Latin America South)",
+    host: "https://la2.api.riotgames.com",
+    regional: "https://americas.api.riotgames.com",
+  },
+};
 
 export const DEFAULT_PLATFORM: RiotPlatform = "LA2";
 

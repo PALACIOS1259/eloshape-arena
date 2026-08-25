@@ -35,17 +35,17 @@ function TermsPage() {
         <section>
           <h2 className="text-base font-black text-foreground">Eligibility</h2>
           <p className="mt-2">
-            EloShape runs divisions for lower-elo players. Your Riot Solo Queue rank determines which
-            division you may enter. Eligibility decisions are made by EloShape staff; a valid Riot
-            rank alone does not grant eligibility.
+            EloShape runs divisions for lower-elo players. Your Riot Solo Queue rank determines
+            which division you may enter. Eligibility decisions are made by EloShape staff; a valid
+            Riot rank alone does not grant eligibility.
           </p>
         </section>
         <section>
           <h2 className="text-base font-black text-foreground">Fair play</h2>
           <p className="mt-2">
             Smurfing, account sharing, rank manipulation, and linking a Riot account you do not own
-            are prohibited and may result in suspension. A Riot account may be linked to one EloShape
-            player only.
+            are prohibited and may result in suspension. A Riot account may be linked to one
+            EloShape player only.
           </p>
         </section>
         <section>
@@ -65,9 +65,9 @@ function TermsPage() {
         </section>
         <p className="border-t border-border pt-6 text-xs">
           EloShape is not endorsed by Riot Games and does not reflect the views or opinions of Riot
-          Games or anyone officially involved in producing or managing Riot Games properties.
-          League of Legends and Riot Games are trademarks or registered trademarks of Riot Games,
-          Inc. League of Legends © Riot Games, Inc.
+          Games or anyone officially involved in producing or managing Riot Games properties. League
+          of Legends and Riot Games are trademarks or registered trademarks of Riot Games, Inc.
+          League of Legends © Riot Games, Inc.
         </p>
       </PageContainer>
     </div>

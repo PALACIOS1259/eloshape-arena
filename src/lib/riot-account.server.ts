@@ -178,7 +178,10 @@ export async function refreshRiotAccount(userId: string): Promise<RiotConnection
     const cached = await loadMyRiotAccount(userId);
     if (cached) {
       const wait = Math.ceil((REFRESH_COOLDOWN_MS - elapsed) / 60000);
-      return { ...cached, notice: cached.notice ?? `Riot data was just synced. Try again in ${wait} min.` };
+      return {
+        ...cached,
+        notice: cached.notice ?? `Riot data was just synced. Try again in ${wait} min.`,
+      };
     }
   }
 
@@ -361,7 +364,9 @@ async function reviewEligibility(args: {
   if (divisionChanged && currentEligibility === "eligible") {
     const upcoming = await supabaseAdmin
       .from("tournament_entries")
-      .select("id, tournament:tournaments!tournament_entries_tournament_id_fkey(status, division_id)")
+      .select(
+        "id, tournament:tournaments!tournament_entries_tournament_id_fkey(status, division_id)",
+      )
       .eq("profile_id", profileId)
       .in("status", ["registered", "checked_in"]);
     const affected = (upcoming.data ?? []).some(

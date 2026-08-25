@@ -20,7 +20,9 @@ export const Route = createFileRoute("/teams/$slug")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return { meta: [{ title: "Team unavailable — EloShape" }, { name: "robots", content: "noindex" }] };
+      return {
+        meta: [{ title: "Team unavailable — EloShape" }, { name: "robots", content: "noindex" }],
+      };
     }
     const title = `${loaderData.name} — EloShape team`;
     const description = `Roster, record and tournament history for ${loaderData.name} on the EloShape circuit.`;
@@ -75,11 +77,17 @@ function TeamPage() {
             <DivisionBadge division={team.division} size="md" />
           </div>
 
-          {team.bio ? <p className="mt-6 max-w-2xl text-sm text-muted-foreground">{team.bio}</p> : null}
+          {team.bio ? (
+            <p className="mt-6 max-w-2xl text-sm text-muted-foreground">{team.bio}</p>
+          ) : null}
 
           <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <StatTile label="Season points" value={formatPoints(team.points_season)} />
-            <StatTile label="Record" value={`${team.wins}-${team.losses}`} hint={`${winRate(team.wins, team.losses)} win rate`} />
+            <StatTile
+              label="Record"
+              value={`${team.wins}-${team.losses}`}
+              hint={`${winRate(team.wins, team.losses)} win rate`}
+            />
             <StatTile
               label="Championships"
               value={team.championships ?? 0}

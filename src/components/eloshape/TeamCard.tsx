@@ -32,7 +32,11 @@ export function TeamCard({ team, className }: { team: TeamCardData; className?: 
         <div className="flex min-w-0 items-center gap-3">
           <span className="grid size-11 shrink-0 place-items-center rounded-md border border-border bg-surface-raised text-sm font-black text-steel">
             {team.logo_url ? (
-              <img src={team.logo_url} alt={team.name} className="size-full rounded-md object-cover" />
+              <img
+                src={team.logo_url}
+                alt={team.name}
+                className="size-full rounded-md object-cover"
+              />
             ) : (
               (team.tag ?? initials(team.name))
             )}
@@ -52,7 +56,9 @@ export function TeamCard({ team, className }: { team: TeamCardData; className?: 
 
       <div className="mt-4 grid grid-cols-3 gap-2 border-t border-border pt-4 text-center">
         <div>
-          <p className="tabular text-sm font-black text-foreground">{formatPoints(team.points_season)}</p>
+          <p className="tabular text-sm font-black text-foreground">
+            {formatPoints(team.points_season)}
+          </p>
           <p className="eyebrow mt-1">Points</p>
         </div>
         <div>

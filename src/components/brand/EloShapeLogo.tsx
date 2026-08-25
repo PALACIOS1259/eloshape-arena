@@ -6,12 +6,7 @@ import { cn } from "@/lib/utils";
  */
 export function EloShapeMark({ className }: { className?: string }) {
   return (
-    <svg
-      viewBox="0 0 64 76"
-      role="img"
-      aria-label="EloShape"
-      className={cn("h-8 w-8", className)}
-    >
+    <svg viewBox="0 0 64 76" role="img" aria-label="EloShape" className={cn("h-8 w-8", className)}>
       <defs>
         <linearGradient id="es-silver" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="oklch(0.93 0.006 265)" />
