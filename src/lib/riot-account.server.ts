@@ -8,6 +8,7 @@
  * The profile is ALWAYS derived from the signed-in auth user id.
  */
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import type { Database } from "@/integrations/supabase/types";
 
 import { ensureProfile, recalculateProfileCompletion } from "./profile.server";
 import {
@@ -255,7 +256,7 @@ async function persistSnapshot(args: {
   if (upsert.error) throw new Error(upsert.error.message);
 
   // Safe public projection on the profile — never the PUUID.
-  const profilePatch: Record<string, string | null> = {
+  const profilePatch: Database["public"]["Tables"]["profiles"]["Update"] = {
     riot_id: riotId,
     riot_tier: tier === "UNRANKED" ? null : tier,
     riot_rank: snapshot.rank,

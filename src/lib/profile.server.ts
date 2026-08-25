@@ -6,6 +6,9 @@
  * division, eligibility, riot_*) are never written from user input.
  */
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import type { Database } from "@/integrations/supabase/types";
+
+type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"];
 
 export const RESERVED_HANDLES = [
   "admin",
@@ -109,7 +112,7 @@ export async function updateMyProfile(
   input: { handle?: string; displayName?: string; bio?: string; avatarUrl?: string },
 ) {
   const profileId = await ensureProfile(userId);
-  const patch: Record<string, string | null> = {};
+  const patch: ProfileUpdate = {};
 
   if (input.handle !== undefined) {
     const handle = validateHandle(input.handle);
