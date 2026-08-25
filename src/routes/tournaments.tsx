@@ -14,13 +14,14 @@ import {
 import { directoryQuery, tournamentsQuery } from "@/lib/queries";
 import { TOURNAMENT_STATUS_LABEL } from "@/lib/format";
 
-type Search = { status?: string; division?: string; mode?: string };
+type Search = { status: string; division: string; mode: string };
+type SearchInput = { status?: string; division?: string; mode?: string };
 
 export const Route = createFileRoute("/tournaments")({
-  validateSearch: (search: Record<string, unknown>): Search => ({
-    status: typeof search["status"] === "string" ? search["status"] : "all",
-    division: typeof search["division"] === "string" ? search["division"] : "all",
-    mode: typeof search["mode"] === "string" ? search["mode"] : "all",
+  validateSearch: (search: SearchInput): Search => ({
+    status: search.status ?? "all",
+    division: search.division ?? "all",
+    mode: search.mode ?? "all",
   }),
   head: () => ({
     meta: [

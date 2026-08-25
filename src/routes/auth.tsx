@@ -9,11 +9,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 
-type Search = { mode?: "signin" | "signup" };
+type Search = { mode: "signin" | "signup" };
+type SearchInput = { mode?: "signin" | "signup" };
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: Record<string, unknown>): Search => ({
-    mode: search["mode"] === "signup" ? "signup" : "signin",
+  validateSearch: (search: SearchInput): Search => ({
+    mode: search.mode ?? "signin",
   }),
   head: () => ({
     meta: [

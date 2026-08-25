@@ -13,13 +13,14 @@ import {
 } from "@/components/ui/select";
 import { directoryQuery, rankingsQuery } from "@/lib/queries";
 
-type Search = { period?: "season" | "month"; division?: string; region?: string };
+type Search = { period: "season" | "month"; division: string; region: string };
+type SearchInput = { period?: "season" | "month"; division?: string; region?: string };
 
 export const Route = createFileRoute("/rankings")({
-  validateSearch: (search: Record<string, unknown>): Search => ({
-    period: search["period"] === "month" ? "month" : "season",
-    division: typeof search["division"] === "string" ? search["division"] : "all",
-    region: typeof search["region"] === "string" ? search["region"] : "all",
+  validateSearch: (search: SearchInput): Search => ({
+    period: search.period ?? "season",
+    division: search.division ?? "all",
+    region: search.region ?? "all",
   }),
   head: () => ({
     meta: [
