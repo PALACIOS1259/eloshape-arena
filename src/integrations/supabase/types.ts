@@ -559,42 +559,75 @@ export type Database = {
       riot_accounts: {
         Row: {
           created_at: string
+          data_verified: boolean
+          game_name: string | null
           id: string
+          last_sync_error_code: string | null
+          last_sync_status: string | null
           last_synced_at: string | null
+          losses: number
+          ownership_verified: boolean
           platform: string
           profile_id: string
           puuid: string | null
+          queue_type: string | null
           riot_id: string
           solo_lp: number | null
           solo_rank: string | null
           solo_tier: string | null
+          tag_line: string | null
+          updated_at: string
+          verification_method: string
           verified: boolean
+          wins: number
         }
         Insert: {
           created_at?: string
+          data_verified?: boolean
+          game_name?: string | null
           id?: string
+          last_sync_error_code?: string | null
+          last_sync_status?: string | null
           last_synced_at?: string | null
+          losses?: number
+          ownership_verified?: boolean
           platform?: string
           profile_id: string
           puuid?: string | null
+          queue_type?: string | null
           riot_id: string
           solo_lp?: number | null
           solo_rank?: string | null
           solo_tier?: string | null
+          tag_line?: string | null
+          updated_at?: string
+          verification_method?: string
           verified?: boolean
+          wins?: number
         }
         Update: {
           created_at?: string
+          data_verified?: boolean
+          game_name?: string | null
           id?: string
+          last_sync_error_code?: string | null
+          last_sync_status?: string | null
           last_synced_at?: string | null
+          losses?: number
+          ownership_verified?: boolean
           platform?: string
           profile_id?: string
           puuid?: string | null
+          queue_type?: string | null
           riot_id?: string
           solo_lp?: number | null
           solo_rank?: string | null
           solo_tier?: string | null
+          tag_line?: string | null
+          updated_at?: string
+          verification_method?: string
           verified?: boolean
+          wins?: number
         }
         Relationships: [
           {
@@ -949,13 +982,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
-      }
+      [_ in never]: never
     }
     Enums: {
       app_role: "admin" | "moderator" | "player"

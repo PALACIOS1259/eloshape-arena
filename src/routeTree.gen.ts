@@ -13,9 +13,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DivisionsRouteImport } from './routes/divisions'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RankingsRouteImport } from './routes/rankings'
 import { Route as RulesRouteImport } from './routes/rules'
 import { Route as TeamsRouteImport } from './routes/teams'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TournamentsRouteImport } from './routes/tournaments'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -42,6 +44,11 @@ const DivisionsRoute = DivisionsRouteImport.update({
   path: '/divisions',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RankingsRoute = RankingsRouteImport.update({
   id: '/rankings',
   path: '/rankings',
@@ -55,6 +62,11 @@ const RulesRoute = RulesRouteImport.update({
 const TeamsRoute = TeamsRouteImport.update({
   id: '/teams',
   path: '/teams',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TournamentsRoute = TournamentsRouteImport.update({
@@ -92,9 +104,11 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/divisions': typeof DivisionsRoute
+  '/privacy': typeof PrivacyRoute
   '/rankings': typeof RankingsRoute
   '/rules': typeof RulesRoute
   '/teams': typeof TeamsRouteWithChildren
+  '/terms': typeof TermsRoute
   '/tournaments': typeof TournamentsRouteWithChildren
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -106,9 +120,11 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/divisions': typeof DivisionsRoute
+  '/privacy': typeof PrivacyRoute
   '/rankings': typeof RankingsRoute
   '/rules': typeof RulesRoute
   '/teams': typeof TeamsRouteWithChildren
+  '/terms': typeof TermsRoute
   '/tournaments': typeof TournamentsRouteWithChildren
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -122,9 +138,11 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/divisions': typeof DivisionsRoute
+  '/privacy': typeof PrivacyRoute
   '/rankings': typeof RankingsRoute
   '/rules': typeof RulesRoute
   '/teams': typeof TeamsRouteWithChildren
+  '/terms': typeof TermsRoute
   '/tournaments': typeof TournamentsRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
@@ -138,9 +156,11 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/divisions'
+    | '/privacy'
     | '/rankings'
     | '/rules'
     | '/teams'
+    | '/terms'
     | '/tournaments'
     | '/admin'
     | '/dashboard'
@@ -152,9 +172,11 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/divisions'
+    | '/privacy'
     | '/rankings'
     | '/rules'
     | '/teams'
+    | '/terms'
     | '/tournaments'
     | '/admin'
     | '/dashboard'
@@ -167,9 +189,11 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/divisions'
+    | '/privacy'
     | '/rankings'
     | '/rules'
     | '/teams'
+    | '/terms'
     | '/tournaments'
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
@@ -183,9 +207,11 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   DivisionsRoute: typeof DivisionsRoute
+  PrivacyRoute: typeof PrivacyRoute
   RankingsRoute: typeof RankingsRoute
   RulesRoute: typeof RulesRoute
   TeamsRoute: typeof TeamsRouteWithChildren
+  TermsRoute: typeof TermsRoute
   TournamentsRoute: typeof TournamentsRouteWithChildren
   PlayersHandleRoute: typeof PlayersHandleRoute
 }
@@ -220,6 +246,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DivisionsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/rankings': {
       id: '/rankings'
       path: '/rankings'
@@ -239,6 +272,13 @@ declare module '@tanstack/react-router' {
       path: '/teams'
       fullPath: '/teams'
       preLoaderRoute: typeof TeamsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tournaments': {
@@ -326,9 +366,11 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   DivisionsRoute: DivisionsRoute,
+  PrivacyRoute: PrivacyRoute,
   RankingsRoute: RankingsRoute,
   RulesRoute: RulesRoute,
   TeamsRoute: TeamsRouteWithChildren,
+  TermsRoute: TermsRoute,
   TournamentsRoute: TournamentsRouteWithChildren,
   PlayersHandleRoute: PlayersHandleRoute,
 }

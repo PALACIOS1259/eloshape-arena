@@ -1,31 +1,67 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Database } from "@/integrations/supabase/types";
 
-/** True when the caller holds the admin or moderator role. */
+/**
+ * Staff-only server functions. The caller's roles are read through their own
+ * RLS-scoped client (policy: a user may read their own roles) before any
+ * privileged helper is loaded.
+ */
+async function assertStaff(supabase: SupabaseClient<Database>, userId: string) {
+  const { data, error } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+  if (error) throw new Error(error.message);
+  const roles = (data ?? []).map((row) => row.role);
+  const isAdmin = roles.includes("admin");
+  const isModerator = roles.includes("moderator");
+  if (!isAdmin && !isModerator) throw new Error("Forbidden");
+  return { isAdmin, isModerator };
+}
+
 export const getMyStaffStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const [admin, moderator] = await Promise.all([
-      context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" }),
-      context.supabase.rpc("has_role", { _user_id: context.userId, _role: "moderator" }),
-    ]);
-    return { isAdmin: admin.data === true, isModerator: moderator.data === true };
+    const { data } = await context.supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId);
+    const roles = (data ?? []).map((row) => row.role);
+    return { isAdmin: roles.includes("admin"), isModerator: roles.includes("moderator") };
   });
 
 export const getAdminOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data: isAdmin } = await context.supabase.rpc("has_role", {
-      _user_id: context.userId,
-      _role: "admin",
-    });
-    const { data: isModerator } = await context.supabase.rpc("has_role", {
-      _user_id: context.userId,
-      _role: "moderator",
-    });
-    if (isAdmin !== true && isModerator !== true) throw new Error("Forbidden");
-
+    const { isAdmin } = await assertStaff(context.supabase, context.userId);
     const { loadAdminOverview } = await import("./admin.server");
-    return { ...(await loadAdminOverview(context.supabase)), isAdmin: isAdmin === true };
+    return { ...(await loadAdminOverview()), isAdmin };
+  });
+
+export const setPlayerEligibility = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (input: {
+      profileId: string;
+      status: "eligible" | "pending_review" | "rejected" | "suspended";
+      reason: string;
+    }) => input,
+  )
+  .handler(async ({ data, context }) => {
+    try {
+      await assertStaff(context.supabase, context.userId);
+      const { decideEligibility } = await import("./admin.server");
+      const profile = await decideEligibility({
+        reviewerUserId: context.userId,
+        profileId: data.profileId,
+        status: data.status,
+        reason: data.reason,
+      });
+      return { ok: true as const, profile };
+    } catch (error) {
+      return {
+        ok: false as const,
+        error: error instanceof Error ? error.message : "Could not update eligibility.",
+      };
+    }
   });
