@@ -1,14 +1,35 @@
 /**
  * Staff moderation reads/writes — SERVER ONLY.
  *
- * Callers are authorised in `admin.functions.ts` (role read through the caller's
- * own RLS-scoped client) BEFORE any of these privileged helpers run.
- * Riot API credentials are never surfaced here; the PUUID is never returned.
+ * All staff access is scoped to the authenticated caller. RLS and narrow
+ * SECURITY DEFINER RPCs are the authorization boundary; no service-role
+ * credential is required by localhost or the web runtime.
  */
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
-export async function loadStaffRoles(userId: string) {
-  const { data, error } = await supabaseAdmin
+import type { Database } from "@/integrations/supabase/types";
+
+type AuthenticatedSupabaseClient = SupabaseClient<Database>;
+type RpcError = { message: string };
+type RpcResult<T> = { data: T | null; error: RpcError | null };
+
+function callRpc<T>(
+  supabase: AuthenticatedSupabaseClient,
+  fn: string,
+  args?: Record<string, unknown>,
+): Promise<RpcResult<T>> {
+  const rpc = supabase.rpc.bind(supabase) as unknown as (
+    fn: string,
+    args?: Record<string, unknown>,
+  ) => Promise<RpcResult<T>>;
+  return rpc(fn, args);
+}
+
+export async function loadStaffRoles(
+  supabase: AuthenticatedSupabaseClient,
+  userId: string,
+) {
+  const { data, error } = await supabase
     .from("user_roles")
     .select("role")
     .eq("user_id", userId);
@@ -17,12 +38,12 @@ export async function loadStaffRoles(userId: string) {
   return { isAdmin: roles.includes("admin"), isModerator: roles.includes("moderator") };
 }
 
-export async function loadAdminOverview() {
+export async function loadAdminOverview(supabase: AuthenticatedSupabaseClient) {
   const [players, teams, tournaments, reports, reviews, riot] = await Promise.all([
-    supabaseAdmin.from("profiles").select("id", { count: "exact", head: true }),
-    supabaseAdmin.from("teams").select("id", { count: "exact", head: true }),
-    supabaseAdmin.from("tournaments").select("id", { count: "exact", head: true }),
-    supabaseAdmin
+    supabase.from("profiles").select("id", { count: "exact", head: true }),
+    supabase.from("teams").select("id", { count: "exact", head: true }),
+    supabase.from("tournaments").select("id", { count: "exact", head: true }),
+    supabase
       .from("reports")
       .select(
         `id, status, reason, details, created_at,
@@ -30,7 +51,7 @@ export async function loadAdminOverview() {
       )
       .order("created_at", { ascending: false })
       .limit(20),
-    supabaseAdmin
+    supabase
       .from("eligibility_reviews")
       .select(
         `id, status, reason, notes, created_at,
@@ -39,7 +60,7 @@ export async function loadAdminOverview() {
       .order("created_at", { ascending: false })
       .limit(20),
     // Safe Riot review projection: no PUUID, no credentials.
-    supabaseAdmin
+    supabase
       .from("riot_accounts")
       .select(
         `id, riot_id, platform, solo_tier, solo_rank, solo_lp, data_verified, ownership_verified,
@@ -51,9 +72,9 @@ export async function loadAdminOverview() {
       .limit(25),
   ]);
 
-  if (reports.error) throw new Error(reports.error.message);
-  if (reviews.error) throw new Error(reviews.error.message);
-  if (riot.error) throw new Error(riot.error.message);
+  for (const result of [players, teams, tournaments, reports, reviews, riot]) {
+    if (result.error) throw new Error(result.error.message);
+  }
 
   return {
     counts: {
@@ -69,28 +90,33 @@ export async function loadAdminOverview() {
 
 export type EligibilityDecision = "eligible" | "pending_review" | "rejected" | "suspended";
 
-/** Manual staff eligibility decision — the only path that may set `eligible`. */
-export async function decideEligibility(args: {
-  reviewerUserId: string;
-  profileId: string;
-  status: EligibilityDecision;
-  reason: string;
-}) {
-  const profile = await supabaseAdmin
-    .from("profiles")
-    .update({ eligibility: args.status })
-    .eq("id", args.profileId)
-    .select("id, handle, eligibility")
-    .single();
-  if (profile.error) throw new Error(profile.error.message);
+/** Manual staff eligibility decision through a narrow auth.uid()-scoped RPC. */
+export async function decideEligibility(
+  supabase: AuthenticatedSupabaseClient,
+  args: {
+    profileId: string;
+    status: EligibilityDecision;
+    reason: string;
+  },
+) {
+  const { data, error } = await callRpc<Record<string, unknown>>(
+    supabase,
+    "staff_set_player_eligibility",
+    {
+      p_profile: args.profileId,
+      p_status: args.status,
+      p_reason: args.reason,
+    },
+  );
+  if (error) throw new Error(error.message);
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    throw new Error("Could not update eligibility.");
+  }
 
-  const review = await supabaseAdmin.from("eligibility_reviews").insert({
-    profile_id: args.profileId,
-    status: args.status,
-    reason: args.reason.slice(0, 200) || "Staff decision",
-    reviewed_by: args.reviewerUserId,
-  });
-  if (review.error) throw new Error(review.error.message);
+  const id = typeof data["id"] === "string" ? data["id"] : args.profileId;
+  const handle = typeof data["handle"] === "string" ? data["handle"] : "";
+  const eligibility =
+    typeof data["eligibility"] === "string" ? data["eligibility"] : args.status;
 
-  return profile.data;
+  return { id, handle, eligibility };
 }
