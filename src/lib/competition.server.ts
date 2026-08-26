@@ -29,10 +29,6 @@ export async function lockTournamentEntries(client: Client, tournamentId: string
   return data;
 }
 
-/**
- * Only properly checked-in entries with a locked roster snapshot can be seeded.
- * When a tournament opts out of check-in, registered entries count instead.
- */
 async function loadSeedableEntries(client: Client, tournamentId: string) {
   const tournament = await client
     .from("tournaments")
@@ -64,7 +60,6 @@ async function loadSeedableEntries(client: Client, tournamentId: string) {
   }));
 }
 
-/** Deterministic bracket generation. Idempotent: an existing bracket is kept. */
 export async function generateTournamentBracket(
   client: Client,
   tournamentId: string,
@@ -85,8 +80,6 @@ export async function generateTournamentBracket(
   return { result: data, size: bracket.size, rounds: bracket.rounds, byes: bracket.byes };
 }
 
-
-/** Authoritative result reporting: row-locked, first valid report wins. */
 export async function reportMatchResult(
   client: Client,
   matchId: string,
@@ -102,7 +95,6 @@ export async function reportMatchResult(
   return data;
 }
 
-/** Atomic, idempotent closure: derives placements and writes the ledgers once. */
 export async function finalizeTournament(client: Client, tournamentId: string) {
   const { data, error } = await client.rpc("staff_finalize_tournament", {
     p_tournament: tournamentId,
@@ -129,13 +121,6 @@ export async function setSplitStatus(client: Client, splitId: string, status: st
   return data;
 }
 
-/**
- * Playoff generation is a single trusted, atomic database operation:
- * standings-based seeding, entry creation, immutable roster snapshots, seeds and
- * every bracket coordinate are written inside one transaction under an advisory
- * lock. The required field size is the split's configured `playoff_size`
- * (normally 16); a shorter field needs an explicit, audited override reason.
- */
 export async function generateSplitPlayoffs(
   client: Client,
   splitId: string,
@@ -145,14 +130,12 @@ export async function generateSplitPlayoffs(
     p_split: splitId,
     p_best_of: options.bestOf ?? 3,
     p_allow_short_field: options.allowShortField ?? false,
-    p_reason: options.reason ?? null,
+    ...(options.reason ? { p_reason: options.reason } : {}),
   });
   fail(error);
   return data;
 }
 
-
-/** Staff view of a tournament's bracket, seeds and generated ledger. */
 export async function loadTournamentOps(client: Client, tournamentId: string) {
   const [tournament, entries, matches, log] = await Promise.all([
     client
