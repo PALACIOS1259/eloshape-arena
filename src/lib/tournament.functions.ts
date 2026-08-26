@@ -13,7 +13,10 @@ export const registerForTournament = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { registerForTournament: register } = await import("./tournament-entry.server");
     try {
-      return { ok: true as const, entry: await register(context.userId, data.slug) };
+      return {
+        ok: true as const,
+        entry: await register(context.userId, context.supabase, data.slug),
+      };
     } catch (error) {
       return {
         ok: false as const,
@@ -28,7 +31,10 @@ export const checkInToTournament = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { checkInToTournament: checkIn } = await import("./tournament-entry.server");
     try {
-      return { ok: true as const, entry: await checkIn(context.userId, data.slug) };
+      return {
+        ok: true as const,
+        entry: await checkIn(context.userId, context.supabase, data.slug),
+      };
     } catch (error) {
       return { ok: false as const, error: message(error, "Could not check in.") };
     }
