@@ -5,13 +5,16 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 /** Identity-only profile edits. Competitive columns are never accepted here. */
 export const updateMyProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (input: { handle?: string; displayName?: string; bio?: string; avatarUrl?: string }) => input,
   )
   .handler(async ({ data, context }) => {
     const { updateMyProfile: update } = await import("./profile.server");
     try {
-      return { ok: true as const, profile: await update(context.userId, data) };
+      return {
+        ok: true as const,
+        profile: await update(context.userId, context.supabase, data),
+      };
     } catch (error) {
       return {
         ok: false as const,
@@ -20,14 +23,17 @@ export const updateMyProfile = createServerFn({ method: "POST" })
     }
   });
 
-/** Selecting a city resolves province/country/region server-side. */
+/** Selecting a city resolves province/country/region inside a trusted DB wrapper. */
 export const updateMyLocation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { cityId: string }) => input)
+  .validator((input: { cityId: string }) => input)
   .handler(async ({ data, context }) => {
     const { updateMyLocation: update } = await import("./profile.server");
     try {
-      return { ok: true as const, location: await update(context.userId, data.cityId) };
+      return {
+        ok: true as const,
+        location: await update(context.userId, context.supabase, data.cityId),
+      };
     } catch (error) {
       return {
         ok: false as const,
