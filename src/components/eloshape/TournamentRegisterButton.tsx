@@ -1,11 +1,15 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { checkInToTournament, registerForTournament } from "@/lib/tournament.functions";
+import {
+  checkInToTournament,
+  getMyTournamentEntry,
+  registerForTournament,
+} from "@/lib/tournament.functions";
 
 /**
  * All validation (eligibility, division, region, capacity, duplicates) happens
@@ -16,9 +20,18 @@ export function TournamentRegisterButton({ slug, status }: { slug: string; statu
   const queryClient = useQueryClient();
   const register = useServerFn(registerForTournament);
   const checkIn = useServerFn(checkInToTournament);
+  const getEntry = useServerFn(getMyTournamentEntry);
+
+  const entryQuery = useQuery({
+    queryKey: ["my-tournament-entry", slug],
+    queryFn: () => getEntry({ data: { slug } }),
+    enabled: Boolean(session),
+    retry: false,
+  });
 
   const invalidate = () => {
     void queryClient.invalidateQueries({ queryKey: ["tournament", slug] });
+    void queryClient.invalidateQueries({ queryKey: ["my-tournament-entry", slug] });
     void queryClient.invalidateQueries({ queryKey: ["my-dashboard"] });
   };
 
@@ -60,22 +73,48 @@ export function TournamentRegisterButton({ slug, status }: { slug: string; statu
     );
   }
 
-  if (status === "registration_open") {
+  if (entryQuery.isPending) {
     return (
-      <Button onClick={() => registerMutation.mutate()} disabled={registerMutation.isPending}>
-        {registerMutation.isPending ? "Registering…" : "Register"}
+      <Button variant="outline" disabled>
+        Checking entry…
       </Button>
     );
   }
 
-  if (status === "registration_closed") {
+  const entry = entryQuery.data;
+
+  if (entry?.status === "checked_in") {
     return (
-      <Button
-        variant="outline"
-        onClick={() => checkInMutation.mutate()}
-        disabled={checkInMutation.isPending}
-      >
-        {checkInMutation.isPending ? "Checking in…" : "Check in"}
+      <Button variant="outline" disabled>
+        Checked in
+      </Button>
+    );
+  }
+
+  if (entry?.status === "registered") {
+    if (entry.canCheckIn) {
+      return (
+        <Button
+          variant="outline"
+          onClick={() => checkInMutation.mutate()}
+          disabled={checkInMutation.isPending}
+        >
+          {checkInMutation.isPending ? "Checking in…" : "Check in"}
+        </Button>
+      );
+    }
+
+    return (
+      <Button variant="outline" disabled>
+        Registered
+      </Button>
+    );
+  }
+
+  if (status === "registration_open") {
+    return (
+      <Button onClick={() => registerMutation.mutate()} disabled={registerMutation.isPending}>
+        {registerMutation.isPending ? "Registering…" : "Register"}
       </Button>
     );
   }
