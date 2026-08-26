@@ -252,7 +252,7 @@ export async function loadTournamentOps(client: Client, tournamentId: string) {
     client
       .from("tournaments")
       .select(
-        "id, slug, name, status, best_of:format, entries_locked_at, bracket_generated_at, finalized_at, split_id, qualifier_index",
+        "id, slug, name, status, format, entries_locked_at, bracket_generated_at, finalized_at, split_id, qualifier_index",
       )
       .eq("id", tournamentId)
       .maybeSingle(),
