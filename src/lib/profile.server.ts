@@ -1,14 +1,32 @@
 /**
  * Trusted profile logic — SERVER ONLY.
  *
- * Every mutation derives the profile from the signed-in user id. Nothing here
- * accepts a client-supplied profile id. Competitive columns (points, wins,
- * division, eligibility, riot_*) are never written from user input.
+ * Normal player self-service uses the authenticated Supabase client from
+ * `requireSupabaseAuth`, so RLS + column grants remain the primary boundary and
+ * local development does not need the service-role secret. Privileged callers
+ * (Riot sync / admin flows) may still use the service-role client explicitly.
  */
+import type { SupabaseClient } from "@supabase/supabase-js";
+
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import type { Database } from "@/integrations/supabase/types";
 
 type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"];
+type AuthenticatedSupabaseClient = SupabaseClient<Database>;
+type RpcError = { message: string };
+type RpcResult<T> = { data: T | null; error: RpcError | null };
+
+function callAuthenticatedRpc<T>(
+  supabase: AuthenticatedSupabaseClient,
+  fn: string,
+  args?: Record<string, unknown>,
+): Promise<RpcResult<T>> {
+  const rpc = supabase.rpc as unknown as (
+    fn: string,
+    args?: Record<string, unknown>,
+  ) => Promise<RpcResult<T>>;
+  return rpc(fn, args);
+}
 
 export const RESERVED_HANDLES = [
   "admin",
@@ -36,8 +54,21 @@ export type OnboardingStep = {
   done: boolean;
 };
 
-/** Idempotently make sure the signed-in auth user owns exactly one profile. */
-export async function ensureProfile(userId: string) {
+/**
+ * Idempotently ensure the signed-in user has a profile.
+ *
+ * When an authenticated client is supplied, the DB wrapper derives auth.uid()
+ * itself and can never provision another user's profile. The service-role
+ * fallback exists only for trusted server modules that already require it.
+ */
+export async function ensureProfile(userId: string, supabase?: AuthenticatedSupabaseClient) {
+  if (supabase) {
+    const { data, error } = await callAuthenticatedRpc<string>(supabase, "ensure_my_profile");
+    if (error) throw new Error(error.message);
+    if (!data) throw new Error("Could not provision your EloShape profile.");
+    return data;
+  }
+
   const existing = await supabaseAdmin
     .from("profiles")
     .select("id")
@@ -109,14 +140,15 @@ export function validateHandle(raw: string) {
 /** Update only the identity fields a player is allowed to control. */
 export async function updateMyProfile(
   userId: string,
+  supabase: AuthenticatedSupabaseClient,
   input: { handle?: string; displayName?: string; bio?: string; avatarUrl?: string },
 ) {
-  const profileId = await ensureProfile(userId);
+  const profileId = await ensureProfile(userId, supabase);
   const patch: ProfileUpdate = {};
 
   if (input.handle !== undefined) {
     const handle = validateHandle(input.handle);
-    const taken = await supabaseAdmin
+    const taken = await supabase
       .from("profiles")
       .select("id")
       .ilike("handle", handle)
@@ -138,72 +170,43 @@ export async function updateMyProfile(
   if (input.avatarUrl !== undefined) patch["avatar_url"] = input.avatarUrl.trim() || null;
 
   if (Object.keys(patch).length) {
-    const { error } = await supabaseAdmin.from("profiles").update(patch).eq("id", profileId);
+    // RLS verifies ownership and column grants allow only identity fields.
+    const { error } = await supabase.from("profiles").update(patch).eq("id", profileId);
     if (error) throw new Error(error.message);
   }
 
-  await recalculateProfileCompletion(profileId);
-  return loadProfileState(profileId);
+  const completion = await callAuthenticatedRpc<number>(supabase, "recalculate_my_profile_completion");
+  if (completion.error) throw new Error(completion.error.message);
+
+  return loadProfileState(profileId, supabase);
 }
 
 /** Resolve a city to its full, consistent geography chain and store all four ids. */
-export async function updateMyLocation(userId: string, cityId: string) {
-  const profileId = await ensureProfile(userId);
+export async function updateMyLocation(
+  userId: string,
+  supabase: AuthenticatedSupabaseClient,
+  cityId: string,
+) {
+  await ensureProfile(userId, supabase);
 
-  const city = await supabaseAdmin
-    .from("regions")
-    .select("id, name, parent_id, kind")
-    .eq("id", cityId)
-    .eq("kind", "city")
-    .maybeSingle();
-  if (city.error) throw new Error(city.error.message);
-  if (!city.data) throw new Error("Unknown city.");
-
-  const province = city.data.parent_id
-    ? await supabaseAdmin
-        .from("regions")
-        .select("id, name, parent_id, kind")
-        .eq("id", city.data.parent_id)
-        .maybeSingle()
-    : null;
-  const provinceRow = province?.data?.kind === "province" ? province.data : null;
-
-  const country = provinceRow?.parent_id
-    ? await supabaseAdmin
-        .from("regions")
-        .select("id, name, parent_id, kind")
-        .eq("id", provinceRow.parent_id)
-        .maybeSingle()
-    : null;
-  const countryRow = country?.data?.kind === "country" ? country.data : null;
-
-  const region = countryRow?.parent_id
-    ? await supabaseAdmin
-        .from("regions")
-        .select("id, name, kind")
-        .eq("id", countryRow.parent_id)
-        .maybeSingle()
-    : null;
-  const regionRow = region?.data?.kind === "region" ? region.data : null;
-
-  const { error } = await supabaseAdmin
-    .from("profiles")
-    .update({
-      city_id: city.data.id,
-      province_id: provinceRow?.id ?? null,
-      country_id: countryRow?.id ?? null,
-      region_id: regionRow?.id ?? null,
-    })
-    .eq("id", profileId);
+  // SECURITY DEFINER wrapper derives auth.uid(), validates the full geography
+  // chain, and updates only the current user's location columns.
+  const { data, error } = await callAuthenticatedRpc<Record<string, unknown>>(
+    supabase,
+    "update_my_location",
+    { p_city_id: cityId },
+  );
   if (error) throw new Error(error.message);
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    throw new Error("Could not update your location.");
+  }
 
-  await recalculateProfileCompletion(profileId);
-
+  const result = data as Record<string, unknown>;
   return {
-    city: city.data.name,
-    province: provinceRow?.name ?? null,
-    country: countryRow?.name ?? null,
-    region: regionRow?.name ?? null,
+    city: typeof result["city"] === "string" ? result["city"] : null,
+    province: typeof result["province"] === "string" ? result["province"] : null,
+    country: typeof result["country"] === "string" ? result["country"] : null,
+    region: typeof result["region"] === "string" ? result["region"] : null,
   };
 }
 
@@ -224,7 +227,7 @@ export async function recalculateProfileCompletion(profileId: string) {
     .maybeSingle();
 
   const steps = [
-    true, // account exists
+    true,
     !profile.data.handle.startsWith("player_"),
     Boolean(profile.data.city_id),
     Boolean(riot.data?.data_verified),
@@ -239,8 +242,11 @@ export async function recalculateProfileCompletion(profileId: string) {
   return completion;
 }
 
-export async function loadProfileState(profileId: string) {
-  const { data, error } = await supabaseAdmin
+export async function loadProfileState(
+  profileId: string,
+  supabase: AuthenticatedSupabaseClient = supabaseAdmin,
+) {
+  const { data, error } = await supabase
     .from("profiles")
     .select(
       `id, handle, display_name, avatar_url, bio, profile_completion, eligibility,
