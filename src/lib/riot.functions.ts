@@ -1,6 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import {
+  createAuthenticatedSupabaseClient,
+  requireSupabaseAuth,
+} from "@/integrations/supabase/auth-middleware";
 
 /**
  * Riot server functions. Thin wrappers only — no runtime helper lives at module
@@ -21,8 +24,9 @@ export const getMyRiotAccount = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { loadMyRiotAccount, riotServiceStatus } = await import("./riot-account.server");
+    const supabase = createAuthenticatedSupabaseClient(context.accessToken);
     return {
-      account: await loadMyRiotAccount(context.userId, context.supabase),
+      account: await loadMyRiotAccount(context.userId, supabase),
       service: riotServiceStatus(),
     };
   });
