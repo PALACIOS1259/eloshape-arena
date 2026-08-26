@@ -21,7 +21,10 @@ function callAuthenticatedRpc<T>(
   fn: string,
   args?: Record<string, unknown>,
 ): Promise<RpcResult<T>> {
-  const rpc = supabase.rpc as unknown as (
+  // SupabaseClient.rpc() reads internal client state through `this.rest`.
+  // Never detach the method from the client instance or `this` becomes
+  // undefined at runtime ("Cannot read properties of undefined (reading 'rest')").
+  const rpc = supabase.rpc.bind(supabase) as unknown as (
     fn: string,
     args?: Record<string, unknown>,
   ) => Promise<RpcResult<T>>;
