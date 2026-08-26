@@ -4,13 +4,10 @@ import { Progress } from "@/components/ui/progress";
 
 export type OnboardingStep = { key: string; label: string; done: boolean };
 
-export function OnboardingChecklist({
-  steps,
-  completion,
-}: {
-  steps: OnboardingStep[];
-  completion: number;
-}) {
+export function OnboardingChecklist({ steps }: { steps: OnboardingStep[] }) {
+  const completedSteps = steps.filter((step) => step.done).length;
+  const completion = steps.length ? Math.round((completedSteps / steps.length) * 100) : 0;
+
   return (
     <div className="bg-surface-gradient shadow-card rounded-lg border border-border p-5">
       <div className="flex items-baseline justify-between gap-3">
