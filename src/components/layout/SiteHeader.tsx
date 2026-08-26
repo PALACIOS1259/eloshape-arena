@@ -9,10 +9,12 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/s
 
 const NAV = [
   { to: "/tournaments", label: "Tournaments" },
+  { to: "/splits", label: "Semi-Splits" },
   { to: "/rankings", label: "Rankings" },
   { to: "/teams", label: "Teams" },
   { to: "/divisions", label: "Divisions" },
 ] as const;
+
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);

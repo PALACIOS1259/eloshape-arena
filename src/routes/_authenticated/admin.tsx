@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 
+import { CompetitionOpsPanel } from "@/components/eloshape/CompetitionOpsPanel";
 import { DivisionBadge } from "@/components/eloshape/DivisionBadge";
 import { EmptyState } from "@/components/eloshape/EmptyState";
 import { StatTile } from "@/components/eloshape/StatTile";
@@ -12,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDate, riotRankLabel } from "@/lib/format";
 import { getAdminOverview, setPlayerEligibility } from "@/lib/admin.functions";
+
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -207,7 +209,19 @@ function AdminPage() {
                 )}
               </div>
             </div>
+
+            <div className="mt-12">
+              <p className="eyebrow">Competition operations</p>
+              <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+                Rosters, brackets, results, scoring and Semi-Split stages. Every action is executed
+                and validated inside the database, and written to the audit trail.
+              </p>
+              <div className="mt-4">
+                <CompetitionOpsPanel />
+              </div>
+            </div>
           </>
+
         )}
       </PageContainer>
     </div>

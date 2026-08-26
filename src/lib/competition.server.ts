@@ -170,7 +170,7 @@ export async function generateSplitPlayoffs(
       .select("id")
       .single();
     fail(created.error);
-    playoffId = created.data.id;
+    playoffId = created.data!.id;
   }
 
   // Entries follow standings order, so seeds reflect competition performance.
@@ -213,7 +213,7 @@ export async function generateSplitPlayoffs(
         .select("id")
         .single();
       fail(created.error);
-      entryIdByTeam.set(seed.entryId, created.data.id);
+      entryIdByTeam.set(seed.entryId, created.data!.id);
     }
 
 
