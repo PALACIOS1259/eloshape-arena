@@ -6,21 +6,36 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import {
+  checkInMyTeamToTournament,
+  registerMyTeamForTournament,
+} from "@/lib/team.functions";
+import {
   checkInToTournament,
   getMyTournamentEntry,
   registerForTournament,
 } from "@/lib/tournament.functions";
 
 /**
- * All validation (eligibility, division, region, capacity, duplicates) happens
- * server-side. This button only sends the tournament slug.
+ * All validation (eligibility, roster, division, region, capacity, duplicates)
+ * happens server-side. The browser only sends the tournament slug.
  */
-export function TournamentRegisterButton({ slug, status }: { slug: string; status: string }) {
+export function TournamentRegisterButton({
+  slug,
+  status,
+  mode = "solo",
+}: {
+  slug: string;
+  status: string;
+  mode?: string;
+}) {
   const { session, loading } = useAuth();
   const queryClient = useQueryClient();
-  const register = useServerFn(registerForTournament);
-  const checkIn = useServerFn(checkInToTournament);
+  const registerSolo = useServerFn(registerForTournament);
+  const checkInSolo = useServerFn(checkInToTournament);
+  const registerTeam = useServerFn(registerMyTeamForTournament);
+  const checkInTeam = useServerFn(checkInMyTeamToTournament);
   const getEntry = useServerFn(getMyTournamentEntry);
+  const isTeam = mode === "team";
 
   const entryQuery = useQuery({
     queryKey: ["my-tournament-entry", slug],
@@ -33,10 +48,11 @@ export function TournamentRegisterButton({ slug, status }: { slug: string; statu
     void queryClient.invalidateQueries({ queryKey: ["tournament", slug] });
     void queryClient.invalidateQueries({ queryKey: ["my-tournament-entry", slug] });
     void queryClient.invalidateQueries({ queryKey: ["my-dashboard"] });
+    void queryClient.invalidateQueries({ queryKey: ["my-team-hub"] });
   };
 
-  const registerMutation = useMutation({
-    mutationFn: () => register({ data: { slug } }),
+  const soloRegisterMutation = useMutation({
+    mutationFn: () => registerSolo({ data: { slug } }),
     onSuccess: (result) => {
       if (!result.ok) {
         toast.error(result.error);
@@ -48,8 +64,21 @@ export function TournamentRegisterButton({ slug, status }: { slug: string; statu
     onError: () => toast.error("Could not register for this tournament."),
   });
 
-  const checkInMutation = useMutation({
-    mutationFn: () => checkIn({ data: { slug } }),
+  const teamRegisterMutation = useMutation({
+    mutationFn: () => registerTeam({ data: { slug } }),
+    onSuccess: (result) => {
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success("Team registered.");
+      invalidate();
+    },
+    onError: () => toast.error("Could not register your team."),
+  });
+
+  const soloCheckInMutation = useMutation({
+    mutationFn: () => checkInSolo({ data: { slug } }),
     onSuccess: (result) => {
       if (!result.ok) {
         toast.error(result.error);
@@ -59,6 +88,19 @@ export function TournamentRegisterButton({ slug, status }: { slug: string; statu
       invalidate();
     },
     onError: () => toast.error("Could not check in."),
+  });
+
+  const teamCheckInMutation = useMutation({
+    mutationFn: () => checkInTeam({ data: { slug } }),
+    onSuccess: (result) => {
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success("Team checked in.");
+      invalidate();
+    },
+    onError: () => toast.error("Could not check in your team."),
   });
 
   if (loading) return null;
@@ -86,35 +128,40 @@ export function TournamentRegisterButton({ slug, status }: { slug: string; statu
   if (entry?.status === "checked_in") {
     return (
       <Button variant="outline" disabled>
-        Checked in
+        {isTeam ? "Team checked in" : "Checked in"}
       </Button>
     );
   }
 
   if (entry?.status === "registered") {
     if (entry.canCheckIn) {
+      const pending = isTeam ? teamCheckInMutation.isPending : soloCheckInMutation.isPending;
       return (
         <Button
           variant="outline"
-          onClick={() => checkInMutation.mutate()}
-          disabled={checkInMutation.isPending}
+          onClick={() => (isTeam ? teamCheckInMutation.mutate() : soloCheckInMutation.mutate())}
+          disabled={pending}
         >
-          {checkInMutation.isPending ? "Checking in…" : "Check in"}
+          {pending ? "Checking in…" : isTeam ? "Check in team" : "Check in"}
         </Button>
       );
     }
 
     return (
       <Button variant="outline" disabled>
-        Registered
+        {isTeam ? "Team registered" : "Registered"}
       </Button>
     );
   }
 
   if (status === "registration_open") {
+    const pending = isTeam ? teamRegisterMutation.isPending : soloRegisterMutation.isPending;
     return (
-      <Button onClick={() => registerMutation.mutate()} disabled={registerMutation.isPending}>
-        {registerMutation.isPending ? "Registering…" : "Register"}
+      <Button
+        onClick={() => (isTeam ? teamRegisterMutation.mutate() : soloRegisterMutation.mutate())}
+        disabled={pending}
+      >
+        {pending ? "Registering…" : isTeam ? "Register team" : "Register"}
       </Button>
     );
   }
