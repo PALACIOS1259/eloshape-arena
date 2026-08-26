@@ -36,9 +36,14 @@ function TeamsPage() {
         title="Teams"
         description="Teams compete in team-mode brackets. Team points are separate from individual player rankings."
         aside={
-          <Button asChild>
-            <Link to="/team">Create / manage team</Link>
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button asChild variant="outline">
+              <Link to="/team/players">Find players</Link>
+            </Button>
+            <Button asChild>
+              <Link to="/team">Create / manage team</Link>
+            </Button>
+          </div>
         }
       />
       <PageContainer className="py-10">
