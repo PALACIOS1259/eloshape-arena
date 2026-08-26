@@ -52,6 +52,109 @@ export type Database = {
           },
         ]
       }
+      competition_audit_log: {
+        Row: {
+          action: string
+          actor_user_id: string | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          metadata: Json
+        }
+        Insert: {
+          action: string
+          actor_user_id?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          metadata?: Json
+        }
+        Update: {
+          action?: string
+          actor_user_id?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          metadata?: Json
+        }
+        Relationships: []
+      }
+      competitive_splits: {
+        Row: {
+          created_at: string
+          dispute_deadline_at: string | null
+          division_id: string | null
+          ends_at: string
+          id: string
+          name: string
+          playoff_reveal_at: string | null
+          playoff_size: number
+          region_id: string | null
+          season_id: string
+          slug: string
+          starts_at: string
+          status: Database["public"]["Enums"]["split_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          dispute_deadline_at?: string | null
+          division_id?: string | null
+          ends_at: string
+          id?: string
+          name: string
+          playoff_reveal_at?: string | null
+          playoff_size?: number
+          region_id?: string | null
+          season_id: string
+          slug: string
+          starts_at: string
+          status?: Database["public"]["Enums"]["split_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          dispute_deadline_at?: string | null
+          division_id?: string | null
+          ends_at?: string
+          id?: string
+          name?: string
+          playoff_reveal_at?: string | null
+          playoff_size?: number
+          region_id?: string | null
+          season_id?: string
+          slug?: string
+          starts_at?: string
+          status?: Database["public"]["Enums"]["split_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitive_splits_division_id_fkey"
+            columns: ["division_id"]
+            isOneToOne: false
+            referencedRelation: "divisions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "competitive_splits_region_id_fkey"
+            columns: ["region_id"]
+            isOneToOne: false
+            referencedRelation: "regions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "competitive_splits_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       divisions: {
         Row: {
           accent: string
@@ -188,6 +291,7 @@ export type Database = {
           entry_a_id: string | null
           entry_b_id: string | null
           id: string
+          is_bye: boolean
           round_index: number
           round_label: string
           scheduled_at: string | null
@@ -204,6 +308,7 @@ export type Database = {
           entry_a_id?: string | null
           entry_b_id?: string | null
           id?: string
+          is_bye?: boolean
           round_index?: number
           round_label: string
           scheduled_at?: string | null
@@ -220,6 +325,7 @@ export type Database = {
           entry_a_id?: string | null
           entry_b_id?: string | null
           id?: string
+          is_bye?: boolean
           round_index?: number
           round_label?: string
           scheduled_at?: string | null
@@ -407,6 +513,7 @@ export type Database = {
       ranking_points: {
         Row: {
           awarded_at: string
+          event_key: string | null
           id: string
           note: string | null
           points: number
@@ -417,6 +524,7 @@ export type Database = {
         }
         Insert: {
           awarded_at?: string
+          event_key?: string | null
           id?: string
           note?: string | null
           points: number
@@ -427,6 +535,7 @@ export type Database = {
         }
         Update: {
           awarded_at?: string
+          event_key?: string | null
           id?: string
           note?: string | null
           points?: number
@@ -558,6 +667,8 @@ export type Database = {
       }
       riot_accounts: {
         Row: {
+          account_level: number | null
+          account_level_synced_at: string | null
           created_at: string
           data_verified: boolean
           game_name: string | null
@@ -582,6 +693,8 @@ export type Database = {
           wins: number
         }
         Insert: {
+          account_level?: number | null
+          account_level_synced_at?: string | null
           created_at?: string
           data_verified?: boolean
           game_name?: string | null
@@ -606,6 +719,8 @@ export type Database = {
           wins?: number
         }
         Update: {
+          account_level?: number | null
+          account_level_synced_at?: string | null
           created_at?: string
           data_verified?: boolean
           game_name?: string | null
@@ -669,6 +784,71 @@ export type Database = {
         }
         Relationships: []
       }
+      split_qualifications: {
+        Row: {
+          id: string
+          playoff_seed: number | null
+          qualification_position: number | null
+          qualified_at: string
+          qualified_from_tournament_id: string | null
+          replaces_team_id: string | null
+          split_id: string
+          status: Database["public"]["Enums"]["qualification_status"]
+          team_id: string
+        }
+        Insert: {
+          id?: string
+          playoff_seed?: number | null
+          qualification_position?: number | null
+          qualified_at?: string
+          qualified_from_tournament_id?: string | null
+          replaces_team_id?: string | null
+          split_id: string
+          status?: Database["public"]["Enums"]["qualification_status"]
+          team_id: string
+        }
+        Update: {
+          id?: string
+          playoff_seed?: number | null
+          qualification_position?: number | null
+          qualified_at?: string
+          qualified_from_tournament_id?: string | null
+          replaces_team_id?: string | null
+          split_id?: string
+          status?: Database["public"]["Enums"]["qualification_status"]
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "split_qualifications_qualified_from_tournament_id_fkey"
+            columns: ["qualified_from_tournament_id"]
+            isOneToOne: false
+            referencedRelation: "tournaments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "split_qualifications_replaces_team_id_fkey"
+            columns: ["replaces_team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "split_qualifications_split_id_fkey"
+            columns: ["split_id"]
+            isOneToOne: false
+            referencedRelation: "competitive_splits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "split_qualifications_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       team_members: {
         Row: {
           id: string
@@ -707,6 +887,81 @@ export type Database = {
             columns: ["team_id"]
             isOneToOne: false
             referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_ranking_points: {
+        Row: {
+          awarded_at: string
+          event_key: string | null
+          id: string
+          note: string | null
+          points: number
+          rule_code: string | null
+          season_id: string | null
+          split_id: string | null
+          team_id: string
+          tournament_id: string | null
+        }
+        Insert: {
+          awarded_at?: string
+          event_key?: string | null
+          id?: string
+          note?: string | null
+          points?: number
+          rule_code?: string | null
+          season_id?: string | null
+          split_id?: string | null
+          team_id: string
+          tournament_id?: string | null
+        }
+        Update: {
+          awarded_at?: string
+          event_key?: string | null
+          id?: string
+          note?: string | null
+          points?: number
+          rule_code?: string | null
+          season_id?: string | null
+          split_id?: string | null
+          team_id?: string
+          tournament_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_ranking_points_rule_code_fkey"
+            columns: ["rule_code"]
+            isOneToOne: false
+            referencedRelation: "point_rules"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "team_ranking_points_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_ranking_points_split_id_fkey"
+            columns: ["split_id"]
+            isOneToOne: false
+            referencedRelation: "competitive_splits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_ranking_points_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_ranking_points_tournament_id_fkey"
+            columns: ["tournament_id"]
+            isOneToOne: false
+            referencedRelation: "tournaments"
             referencedColumns: ["id"]
           },
         ]
@@ -808,10 +1063,12 @@ export type Database = {
         Row: {
           checked_in_at: string | null
           created_at: string
+          eliminated_in_round: number | null
           id: string
           placement: number | null
           points_awarded: number
           profile_id: string | null
+          roster_locked_at: string | null
           seed: number | null
           status: Database["public"]["Enums"]["entry_status"]
           team_id: string | null
@@ -820,10 +1077,12 @@ export type Database = {
         Insert: {
           checked_in_at?: string | null
           created_at?: string
+          eliminated_in_round?: number | null
           id?: string
           placement?: number | null
           points_awarded?: number
           profile_id?: string | null
+          roster_locked_at?: string | null
           seed?: number | null
           status?: Database["public"]["Enums"]["entry_status"]
           team_id?: string | null
@@ -832,10 +1091,12 @@ export type Database = {
         Update: {
           checked_in_at?: string | null
           created_at?: string
+          eliminated_in_round?: number | null
           id?: string
           placement?: number | null
           points_awarded?: number
           profile_id?: string | null
+          roster_locked_at?: string | null
           seed?: number | null
           status?: Database["public"]["Enums"]["entry_status"]
           team_id?: string | null
@@ -868,9 +1129,12 @@ export type Database = {
       tournaments: {
         Row: {
           banner_url: string | null
+          bracket_generated_at: string | null
           created_at: string
           description: string | null
           division_id: string | null
+          entries_locked_at: string | null
+          finalized_at: string | null
           format: string
           id: string
           max_participants: number
@@ -878,11 +1142,14 @@ export type Database = {
           name: string
           participants_count: number
           prize: string | null
+          qualifier_index: number | null
           region_id: string | null
           registration_closes_at: string | null
           rules: string | null
           season_id: string | null
           slug: string
+          split_id: string | null
+          split_phase: string | null
           starts_at: string
           status: Database["public"]["Enums"]["tournament_status"]
           subtitle: string | null
@@ -890,9 +1157,12 @@ export type Database = {
         }
         Insert: {
           banner_url?: string | null
+          bracket_generated_at?: string | null
           created_at?: string
           description?: string | null
           division_id?: string | null
+          entries_locked_at?: string | null
+          finalized_at?: string | null
           format?: string
           id?: string
           max_participants?: number
@@ -900,11 +1170,14 @@ export type Database = {
           name: string
           participants_count?: number
           prize?: string | null
+          qualifier_index?: number | null
           region_id?: string | null
           registration_closes_at?: string | null
           rules?: string | null
           season_id?: string | null
           slug: string
+          split_id?: string | null
+          split_phase?: string | null
           starts_at: string
           status?: Database["public"]["Enums"]["tournament_status"]
           subtitle?: string | null
@@ -912,9 +1185,12 @@ export type Database = {
         }
         Update: {
           banner_url?: string | null
+          bracket_generated_at?: string | null
           created_at?: string
           description?: string | null
           division_id?: string | null
+          entries_locked_at?: string | null
+          finalized_at?: string | null
           format?: string
           id?: string
           max_participants?: number
@@ -922,11 +1198,14 @@ export type Database = {
           name?: string
           participants_count?: number
           prize?: string | null
+          qualifier_index?: number | null
           region_id?: string | null
           registration_closes_at?: string | null
           rules?: string | null
           season_id?: string | null
           slug?: string
+          split_id?: string | null
+          split_phase?: string | null
           starts_at?: string
           status?: Database["public"]["Enums"]["tournament_status"]
           subtitle?: string | null
@@ -952,6 +1231,13 @@ export type Database = {
             columns: ["season_id"]
             isOneToOne: false
             referencedRelation: "seasons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tournaments_split_id_fkey"
+            columns: ["split_id"]
+            isOneToOne: false
+            referencedRelation: "competitive_splits"
             referencedColumns: ["id"]
           },
         ]
@@ -982,7 +1268,48 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      split_standings: {
+        Args: { p_split: string }
+        Returns: {
+          division_code: string
+          logo_url: string
+          losses: number
+          points: number
+          qualification_position: number
+          qualification_status: string
+          qualified_from: string
+          team_id: string
+          team_name: string
+          team_slug: string
+          team_tag: string
+          tournaments_played: number
+          wins: number
+        }[]
+      }
+      staff_create_bracket: {
+        Args: { p_matches: Json; p_seeds: Json; p_tournament: string }
+        Returns: Json
+      }
+      staff_finalize_tournament: {
+        Args: { p_tournament: string }
+        Returns: Json
+      }
+      staff_lock_tournament_entries: {
+        Args: { p_tournament: string }
+        Returns: Json
+      }
+      staff_replace_withdrawn_qualifier: {
+        Args: { p_split: string; p_team: string }
+        Returns: Json
+      }
+      staff_report_match_result: {
+        Args: { p_match: string; p_score_a: number; p_score_b: number }
+        Returns: Json
+      }
+      staff_set_split_status: {
+        Args: { p_split: string; p_status: string }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "player"
@@ -993,8 +1320,18 @@ export type Database = {
         | "suspended"
       entry_status: "registered" | "checked_in" | "withdrawn" | "disqualified"
       match_status: "scheduled" | "live" | "completed" | "cancelled"
+      qualification_status: "qualified" | "withdrawn" | "replaced"
       region_kind: "region" | "country" | "province" | "city"
       report_status: "open" | "reviewing" | "resolved" | "dismissed"
+      split_status:
+        | "upcoming"
+        | "qualifiers"
+        | "seeding"
+        | "playoffs"
+        | "semifinals"
+        | "final"
+        | "completed"
+        | "cancelled"
       tournament_status:
         | "draft"
         | "registration_open"
@@ -1138,8 +1475,19 @@ export const Constants = {
       ],
       entry_status: ["registered", "checked_in", "withdrawn", "disqualified"],
       match_status: ["scheduled", "live", "completed", "cancelled"],
+      qualification_status: ["qualified", "withdrawn", "replaced"],
       region_kind: ["region", "country", "province", "city"],
       report_status: ["open", "reviewing", "resolved", "dismissed"],
+      split_status: [
+        "upcoming",
+        "qualifiers",
+        "seeding",
+        "playoffs",
+        "semifinals",
+        "final",
+        "completed",
+        "cancelled",
+      ],
       tournament_status: [
         "draft",
         "registration_open",
