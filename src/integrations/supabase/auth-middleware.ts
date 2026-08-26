@@ -31,21 +31,51 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
   };
 }
 
+function publicSupabaseEnv() {
+  const url = process.env["SUPABASE_URL"]?.trim();
+  const publishableKey = process.env["SUPABASE_PUBLISHABLE_KEY"]?.trim();
+
+  if (!url || !publishableKey) {
+    const missing = [
+      ...(!url ? ["SUPABASE_URL"] : []),
+      ...(!publishableKey ? ["SUPABASE_PUBLISHABLE_KEY"] : []),
+    ];
+    const message = `Missing Supabase environment variable(s): ${missing.join(", ")}. Connect Supabase in Lovable Cloud.`;
+    console.error(`[Supabase] ${message}`);
+    throw new Error(message);
+  }
+
+  return { url, publishableKey };
+}
+
+/**
+ * Create a fresh server-side Supabase client scoped to one authenticated user.
+ *
+ * Do not pass SupabaseClient instances through TanStack middleware context: they
+ * are class instances with private runtime state (`rest`, auth, realtime, etc.)
+ * and are not safe to treat as serializable middleware context. Passing only the
+ * verified access token keeps the context simple; handlers rebuild the client
+ * here and RLS remains the database authorization boundary.
+ */
+export function createAuthenticatedSupabaseClient(accessToken: string) {
+  const { url, publishableKey } = publicSupabaseEnv();
+  return createClient<Database>(url, publishableKey, {
+    global: {
+      fetch: createSupabaseFetch(publishableKey),
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+    auth: {
+      storage: undefined,
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  });
+}
+
 export const requireSupabaseAuth = createMiddleware({ type: "function" }).server(
   async ({ next }) => {
-    const SUPABASE_URL = process.env["SUPABASE_URL"];
-    const SUPABASE_PUBLISHABLE_KEY = process.env["SUPABASE_PUBLISHABLE_KEY"];
-
-    if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
-      const missing = [
-        ...(!SUPABASE_URL ? ["SUPABASE_URL"] : []),
-        ...(!SUPABASE_PUBLISHABLE_KEY ? ["SUPABASE_PUBLISHABLE_KEY"] : []),
-      ];
-      const message = `Missing Supabase environment variable(s): ${missing.join(", ")}. Connect Supabase in Lovable Cloud.`;
-      console.error(`[Supabase] ${message}`);
-      throw new Error(message);
-    }
-
     const request = getRequest();
 
     if (!request?.headers) {
@@ -62,7 +92,7 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
       throw new Error("Unauthorized: Only Bearer tokens are supported");
     }
 
-    const token = authHeader.replace("Bearer ", "");
+    const token = authHeader.slice("Bearer ".length).trim();
     if (!token) {
       throw new Error("Unauthorized: No token provided");
     }
@@ -71,20 +101,7 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
       throw new Error("Unauthorized: Invalid token");
     }
 
-    const supabase = createClient<Database>(SUPABASE_URL!, SUPABASE_PUBLISHABLE_KEY!, {
-      global: {
-        fetch: createSupabaseFetch(SUPABASE_PUBLISHABLE_KEY!),
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-      auth: {
-        storage: undefined,
-        persistSession: false,
-        autoRefreshToken: false,
-      },
-    });
-
+    const supabase = createAuthenticatedSupabaseClient(token);
     const { data, error } = await supabase.auth.getClaims(token);
     if (error || !data?.claims) {
       throw new Error("Unauthorized: Invalid token");
@@ -94,11 +111,12 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
       throw new Error("Unauthorized: No user ID found in token");
     }
 
+    // Keep middleware context plain/serializable. Handlers rebuild their own
+    // authenticated Supabase client from this already-validated token.
     return next({
       context: {
-        supabase,
         userId: data.claims.sub,
-        claims: data.claims,
+        accessToken: token,
       },
     });
   },
