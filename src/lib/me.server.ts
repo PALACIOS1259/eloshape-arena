@@ -1,19 +1,24 @@
 /**
  * Signed-in player dashboard payload — SERVER ONLY.
  *
- * The profile is resolved from the auth user id (and provisioned if missing),
- * so a freshly registered user can never land on a profile-less dashboard.
- * The Riot PUUID is never part of this payload.
+ * Dashboard reads run with the authenticated user's Supabase client. This keeps
+ * RLS active and allows local development with only the publishable key; the
+ * service-role secret is not required just to view a player's own dashboard.
+ * Riot PUUID is never part of this payload.
  */
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+import type { Database } from "@/integrations/supabase/types";
 
 import { ensureProfile, onboardingSteps } from "./profile.server";
 import { loadMyRiotAccount, riotServiceStatus } from "./riot-account.server";
 
-export async function loadMyDashboard(userId: string) {
-  const profileId = await ensureProfile(userId);
+type AuthenticatedSupabaseClient = SupabaseClient<Database>;
 
-  const { data: profile, error } = await supabaseAdmin
+export async function loadMyDashboard(userId: string, supabase: AuthenticatedSupabaseClient) {
+  const profileId = await ensureProfile(userId, supabase);
+
+  const { data: profile, error } = await supabase
     .from("profiles")
     .select(
       `id, handle, display_name, avatar_url, bio, points_season, points_month, wins, losses,
@@ -30,14 +35,14 @@ export async function loadMyDashboard(userId: string) {
   if (error) throw new Error(error.message);
 
   const [entries, ledger, riot] = await Promise.all([
-    supabaseAdmin
+    supabase
       .from("tournament_entries")
       .select(
         `id, status, placement, points_awarded,
          tournament:tournaments!tournament_entries_tournament_id_fkey(slug, name, status, starts_at)`,
       )
       .eq("profile_id", profileId),
-    supabaseAdmin
+    supabase
       .from("ranking_points")
       .select(
         `id, points, awarded_at, rule_code, note,
@@ -46,7 +51,7 @@ export async function loadMyDashboard(userId: string) {
       .eq("profile_id", profileId)
       .order("awarded_at", { ascending: false })
       .limit(10),
-    loadMyRiotAccount(userId),
+    loadMyRiotAccount(userId, supabase),
   ]);
 
   if (entries.error) throw new Error(entries.error.message);
