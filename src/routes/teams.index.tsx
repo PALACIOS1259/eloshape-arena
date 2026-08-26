@@ -1,9 +1,10 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { EmptyState } from "@/components/eloshape/EmptyState";
 import { TeamCard } from "@/components/eloshape/TeamCard";
 import { PageContainer, PageHeading } from "@/components/layout/PageShell";
+import { Button } from "@/components/ui/button";
 import { teamsQuery } from "@/lib/queries";
 
 export const Route = createFileRoute("/teams/")({
@@ -34,6 +35,11 @@ function TeamsPage() {
         eyebrow="5v5"
         title="Teams"
         description="Teams compete in team-mode brackets. Team points are separate from individual player rankings."
+        aside={
+          <Button asChild>
+            <Link to="/team">Create / manage team</Link>
+          </Button>
+        }
       />
       <PageContainer className="py-10">
         {teams.length ? (
@@ -43,7 +49,15 @@ function TeamsPage() {
             ))}
           </div>
         ) : (
-          <EmptyState title="No teams registered yet" />
+          <EmptyState
+            title="No teams registered yet"
+            description="Create the first 5v5 roster and invite players by their EloShape handle."
+            action={
+              <Button asChild>
+                <Link to="/team">Create a team</Link>
+              </Button>
+            }
+          />
         )}
       </PageContainer>
     </div>
