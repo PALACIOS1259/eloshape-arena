@@ -10,5 +10,5 @@ export const getMyDashboard = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { loadMyDashboard } = await import("./me.server");
     const supabase = createAuthenticatedSupabaseClient(context.accessToken);
-    return loadMyDashboard(context.userId, supabase);
+    return loadMyDashboard(context.userId, supabase, context.accessToken);
   });
