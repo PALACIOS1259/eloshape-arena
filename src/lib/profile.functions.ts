@@ -1,6 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import {
+  createAuthenticatedSupabaseClient,
+  requireSupabaseAuth,
+} from "@/integrations/supabase/auth-middleware";
 
 /** Identity-only profile edits. Competitive columns are never accepted here. */
 export const updateMyProfile = createServerFn({ method: "POST" })
@@ -11,9 +14,10 @@ export const updateMyProfile = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { updateMyProfile: update } = await import("./profile.server");
     try {
+      const supabase = createAuthenticatedSupabaseClient(context.accessToken);
       return {
         ok: true as const,
-        profile: await update(context.userId, context.supabase, data),
+        profile: await update(context.userId, supabase, data),
       };
     } catch (error) {
       return {
@@ -30,9 +34,10 @@ export const updateMyLocation = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { updateMyLocation: update } = await import("./profile.server");
     try {
+      const supabase = createAuthenticatedSupabaseClient(context.accessToken);
       return {
         ok: true as const,
-        location: await update(context.userId, context.supabase, data.cityId),
+        location: await update(context.userId, supabase, data.cityId),
       };
     } catch (error) {
       return {
