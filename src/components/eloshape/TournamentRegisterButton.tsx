@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import {
   checkInMyTeamToTournament,
   registerMyTeamForTournament,
@@ -22,7 +23,7 @@ import {
 export function TournamentRegisterButton({
   slug,
   status,
-  mode = "solo",
+  mode,
 }: {
   slug: string;
   status: string;
@@ -35,7 +36,19 @@ export function TournamentRegisterButton({
   const registerTeam = useServerFn(registerMyTeamForTournament);
   const checkInTeam = useServerFn(checkInMyTeamToTournament);
   const getEntry = useServerFn(getMyTournamentEntry);
-  const isTeam = mode === "team";
+
+  const modeQuery = useQuery({
+    queryKey: ["tournament-mode", slug],
+    queryFn: async () => {
+      const result = await supabase.from("tournaments").select("mode").eq("slug", slug).maybeSingle();
+      if (result.error) throw new Error(result.error.message);
+      return result.data?.mode ?? "solo";
+    },
+    enabled: !mode,
+    staleTime: 5 * 60 * 1000,
+  });
+  const effectiveMode = mode ?? modeQuery.data ?? "solo";
+  const isTeam = effectiveMode === "team";
 
   const entryQuery = useQuery({
     queryKey: ["my-tournament-entry", slug],
@@ -54,10 +67,7 @@ export function TournamentRegisterButton({
   const soloRegisterMutation = useMutation({
     mutationFn: () => registerSolo({ data: { slug } }),
     onSuccess: (result) => {
-      if (!result.ok) {
-        toast.error(result.error);
-        return;
-      }
+      if (!result.ok) return toast.error(result.error);
       toast.success(`Registered for ${result.entry.tournamentName}.`);
       invalidate();
     },
@@ -67,10 +77,7 @@ export function TournamentRegisterButton({
   const teamRegisterMutation = useMutation({
     mutationFn: () => registerTeam({ data: { slug } }),
     onSuccess: (result) => {
-      if (!result.ok) {
-        toast.error(result.error);
-        return;
-      }
+      if (!result.ok) return toast.error(result.error);
       toast.success("Team registered.");
       invalidate();
     },
@@ -80,10 +87,7 @@ export function TournamentRegisterButton({
   const soloCheckInMutation = useMutation({
     mutationFn: () => checkInSolo({ data: { slug } }),
     onSuccess: (result) => {
-      if (!result.ok) {
-        toast.error(result.error);
-        return;
-      }
+      if (!result.ok) return toast.error(result.error);
       toast.success("Checked in.");
       invalidate();
     },
@@ -93,10 +97,7 @@ export function TournamentRegisterButton({
   const teamCheckInMutation = useMutation({
     mutationFn: () => checkInTeam({ data: { slug } }),
     onSuccess: (result) => {
-      if (!result.ok) {
-        toast.error(result.error);
-        return;
-      }
+      if (!result.ok) return toast.error(result.error);
       toast.success("Team checked in.");
       invalidate();
     },
@@ -115,7 +116,7 @@ export function TournamentRegisterButton({
     );
   }
 
-  if (entryQuery.isPending) {
+  if ((!mode && modeQuery.isPending) || entryQuery.isPending) {
     return (
       <Button variant="outline" disabled>
         Checking entry…
