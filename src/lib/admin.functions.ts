@@ -1,7 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createServerFn } from "@tanstack/react-start";
 
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import {
+  createAuthenticatedSupabaseClient,
+  requireSupabaseAuth,
+} from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
 
 async function assertStaff(supabase: SupabaseClient<Database>, userId: string) {
@@ -17,7 +20,8 @@ async function assertStaff(supabase: SupabaseClient<Database>, userId: string) {
 export const getMyStaffStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data } = await context.supabase
+    const supabase = createAuthenticatedSupabaseClient(context.accessToken);
+    const { data } = await supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", context.userId);
@@ -28,7 +32,8 @@ export const getMyStaffStatus = createServerFn({ method: "GET" })
 export const getAdminOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { isAdmin } = await assertStaff(context.supabase, context.userId);
+    const supabase = createAuthenticatedSupabaseClient(context.accessToken);
+    const { isAdmin } = await assertStaff(supabase, context.userId);
     const { loadAdminOverview } = await import("./admin.server");
     return { ...(await loadAdminOverview()), isAdmin };
   });
@@ -44,7 +49,8 @@ export const setPlayerEligibility = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     try {
-      await assertStaff(context.supabase, context.userId);
+      const supabase = createAuthenticatedSupabaseClient(context.accessToken);
+      await assertStaff(supabase, context.userId);
       const { decideEligibility } = await import("./admin.server");
       const profile = await decideEligibility({
         reviewerUserId: context.userId,
