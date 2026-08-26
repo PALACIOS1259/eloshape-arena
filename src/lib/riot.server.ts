@@ -66,6 +66,12 @@ export type SoloQueueSnapshot = {
   source: "riot" | "mock";
 };
 
+export type SummonerSnapshot = {
+  summonerLevel: number;
+  fetchedAt: string;
+  source: "riot" | "mock";
+};
+
 export type RiotErrorCode =
   | "not_configured"
   | "invalid_riot_id"
@@ -253,6 +259,44 @@ export async function fetchSoloQueueSnapshot(
   };
 }
 
+
+type RiotSummonerResponse = {
+  puuid?: string;
+  summonerLevel?: number;
+};
+
+/** SUMMONER-V4 account-level snapshot via the platform routing host. */
+export async function fetchSummonerSnapshot(
+  puuid: string,
+  platform: RiotPlatform = DEFAULT_PLATFORM,
+): Promise<SummonerSnapshot> {
+  if (isMockMode()) return mockSummonerSnapshot(puuid);
+
+  const key = apiKey();
+  if (!key) throw new RiotError("not_configured");
+
+  const base = RIOT_PLATFORMS[platform].host;
+  const url = `${base}/lol/summoner/v4/summoners/by-puuid/${encodeURIComponent(puuid)}`;
+  const { status, body, retryAfter } = await riotFetch(url, key);
+  if (status !== 200) throwForStatus(status, retryAfter);
+
+  const summoner = body as RiotSummonerResponse | null;
+  if (
+    !summoner ||
+    typeof summoner.summonerLevel !== "number" ||
+    !Number.isFinite(summoner.summonerLevel) ||
+    summoner.summonerLevel < 0
+  ) {
+    throw new RiotError("unknown");
+  }
+
+  return {
+    summonerLevel: summoner.summonerLevel,
+    fetchedAt: new Date().toISOString(),
+    source: "riot",
+  };
+}
+
 function unrankedSnapshot(source: "riot" | "mock"): SoloQueueSnapshot {
   return {
     tier: "UNRANKED",
@@ -290,6 +334,14 @@ function mockSnapshot(puuid: string): SoloQueueSnapshot {
     wins: 20 + (seed % 40),
     losses: 15 + (seed % 30),
     queueType: "RANKED_SOLO_5x5",
+    fetchedAt: new Date().toISOString(),
+    source: "mock",
+  };
+}
+
+function mockSummonerSnapshot(_puuid: string): SummonerSnapshot {
+  return {
+    summonerLevel: 100,
     fetchedAt: new Date().toISOString(),
     source: "mock",
   };

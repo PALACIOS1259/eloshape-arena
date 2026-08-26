@@ -17,14 +17,17 @@ import {
   SUPPORTED_TIERS,
   fetchRiotAccount,
   fetchSoloQueueSnapshot,
+  fetchSummonerSnapshot,
   isRiotConfigured,
   isRsoEnabled,
   type RiotPlatform,
   type SoloQueueSnapshot,
+  type SummonerSnapshot,
 } from "./riot.server";
 
 /** Minimum time between Riot requests for the same account. */
 export const REFRESH_COOLDOWN_MS = 10 * 60 * 1000;
+export const DEFAULT_MIN_RIOT_ACCOUNT_LEVEL = 30;
 
 export type RiotConnectionResult = {
   riotId: string;
@@ -42,6 +45,8 @@ export type RiotConnectionResult = {
   divisionCode: string | null;
   divisionName: string | null;
   tierSupported: boolean;
+  accountLevel: number | null;
+  accountLevelSyncedAt: string | null;
   dataVerified: boolean;
   ownershipVerified: boolean;
   verificationMethod: string;
@@ -67,7 +72,8 @@ export async function loadMyRiotAccount(userId: string): Promise<RiotConnectionR
     .from("riot_accounts")
     .select(
       `riot_id, game_name, tag_line, platform, solo_tier, solo_rank, solo_lp, wins, losses,
-       queue_type, data_verified, ownership_verified, verification_method, last_synced_at`,
+       queue_type, account_level, account_level_synced_at, data_verified, ownership_verified,
+       verification_method, last_synced_at`,
     )
     .eq("profile_id", profileId)
     .maybeSingle();
@@ -100,12 +106,14 @@ export async function loadMyRiotAccount(userId: string): Promise<RiotConnectionR
     divisionCode: profile.data?.division?.code ?? null,
     divisionName: profile.data?.division?.name ?? null,
     tierSupported: isSupportedTier(tier),
+    accountLevel: data.account_level,
+    accountLevelSyncedAt: data.account_level_synced_at,
     dataVerified: data.data_verified,
     ownershipVerified: data.ownership_verified,
     verificationMethod: data.verification_method,
     lastSyncedAt: data.last_synced_at,
     eligibility: profile.data?.eligibility ?? "pending_review",
-    notice: unsupportedNotice(tier),
+    notice: connectionNotice(tier, data.account_level),
     fromCache: true,
   };
 }
@@ -121,6 +129,15 @@ function unsupportedNotice(tier: string | null) {
   }
   if (!isSupportedTier(tier)) {
     return "Your Riot rank is currently outside EloShape's available competitive divisions.";
+  }
+  return null;
+}
+
+function connectionNotice(tier: string | null, accountLevel: number | null) {
+  const rankNotice = unsupportedNotice(tier);
+  if (rankNotice) return rankNotice;
+  if (accountLevel !== null && accountLevel < DEFAULT_MIN_RIOT_ACCOUNT_LEVEL) {
+    return `Riot account level ${DEFAULT_MIN_RIOT_ACCOUNT_LEVEL} is required to compete. Your current level is ${accountLevel}.`;
   }
   return null;
 }
@@ -158,15 +175,25 @@ export async function connectRiotAccount(
     throw new Error("That Riot account is already linked to another EloShape player.");
   }
 
-  const snapshot = await fetchSoloQueueSnapshot(identity.puuid, platform);
-  return persistSnapshot({ profileId, platform, identity, snapshot, fromCache: false });
+  const [snapshot, summoner] = await Promise.all([
+    fetchSoloQueueSnapshot(identity.puuid, platform),
+    fetchSummonerSnapshot(identity.puuid, platform),
+  ]);
+  return persistSnapshot({
+    profileId,
+    platform,
+    identity,
+    snapshot,
+    summoner,
+    fromCache: false,
+  });
 }
 
 export async function refreshRiotAccount(userId: string): Promise<RiotConnectionResult> {
   const profileId = await ensureProfile(userId);
   const account = await supabaseAdmin
     .from("riot_accounts")
-    .select("id, riot_id, game_name, tag_line, puuid, platform, last_synced_at")
+    .select("id, riot_id, game_name, tag_line, puuid, platform, account_level, last_synced_at")
     .eq("profile_id", profileId)
     .maybeSingle();
   if (account.error) throw new Error(account.error.message);
@@ -174,7 +201,10 @@ export async function refreshRiotAccount(userId: string): Promise<RiotConnection
 
   const lastSynced = account.data.last_synced_at ? Date.parse(account.data.last_synced_at) : 0;
   const elapsed = Date.now() - lastSynced;
-  if (elapsed < REFRESH_COOLDOWN_MS) {
+  // Existing links created before account-level sync was added may have a fresh
+  // rank snapshot but no level. Let those accounts bypass the cooldown once so
+  // Summoner-v4 can backfill the missing eligibility input immediately.
+  if (elapsed < REFRESH_COOLDOWN_MS && account.data.account_level !== null) {
     const cached = await loadMyRiotAccount(userId);
     if (cached) {
       const wait = Math.ceil((REFRESH_COOLDOWN_MS - elapsed) / 60000);
@@ -198,12 +228,16 @@ export async function refreshRiotAccount(userId: string): Promise<RiotConnection
     tagLine = identity.tagLine;
   }
 
-  const snapshot = await fetchSoloQueueSnapshot(puuid, platform);
+  const [snapshot, summoner] = await Promise.all([
+    fetchSoloQueueSnapshot(puuid, platform),
+    fetchSummonerSnapshot(puuid, platform),
+  ]);
   return persistSnapshot({
     profileId,
     platform,
     identity: { puuid, gameName, tagLine },
     snapshot,
+    summoner,
     fromCache: false,
   });
 }
@@ -213,12 +247,14 @@ async function persistSnapshot(args: {
   platform: RiotPlatform;
   identity: { puuid: string; gameName: string; tagLine: string };
   snapshot: SoloQueueSnapshot;
+  summoner: SummonerSnapshot;
   fromCache: boolean;
 }): Promise<RiotConnectionResult> {
-  const { profileId, platform, identity, snapshot } = args;
+  const { profileId, platform, identity, snapshot, summoner } = args;
   const riotId = `${identity.gameName}#${identity.tagLine}`;
   const tier = snapshot.tier;
   const division = await divisionForTier(tier);
+  const lastSyncedAt = newestTimestamp(snapshot.fetchedAt, summoner.fetchedAt);
 
   const profileBefore = await supabaseAdmin
     .from("profiles")
@@ -243,12 +279,14 @@ async function persistSnapshot(args: {
         wins: snapshot.wins,
         losses: snapshot.losses,
         queue_type: snapshot.queueType,
+        account_level: summoner.summonerLevel,
+        account_level_synced_at: summoner.fetchedAt,
         verified: true,
         data_verified: true,
         // Ownership is only ever proven by RSO, which is not available yet.
         ownership_verified: false,
         verification_method: "api_key_lookup",
-        last_synced_at: snapshot.fetchedAt,
+        last_synced_at: lastSyncedAt,
         last_sync_status: "ok",
         last_sync_error_code: null,
       },
@@ -305,14 +343,21 @@ async function persistSnapshot(args: {
     divisionCode: division?.code ?? null,
     divisionName: division?.name ?? null,
     tierSupported: isSupportedTier(tier),
+    accountLevel: summoner.summonerLevel,
+    accountLevelSyncedAt: summoner.fetchedAt,
     dataVerified: true,
     ownershipVerified: false,
     verificationMethod: "api_key_lookup",
-    lastSyncedAt: snapshot.fetchedAt,
+    lastSyncedAt,
     eligibility,
-    notice: unsupportedNotice(tier),
+    notice: connectionNotice(tier, summoner.summonerLevel),
     fromCache: false,
   };
+}
+
+function newestTimestamp(...timestamps: string[]) {
+  const newest = Math.max(...timestamps.map((value) => Date.parse(value)).filter(Number.isFinite));
+  return Number.isFinite(newest) ? new Date(newest).toISOString() : new Date().toISOString();
 }
 
 /**

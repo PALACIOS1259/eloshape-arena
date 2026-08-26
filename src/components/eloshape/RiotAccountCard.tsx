@@ -27,6 +27,8 @@ type RiotAccount = {
   divisionCode: string | null;
   divisionName: string | null;
   tierSupported: boolean;
+  accountLevel: number | null;
+  accountLevelSyncedAt: string | null;
   dataVerified: boolean;
   ownershipVerified: boolean;
   verificationMethod: string;
@@ -126,6 +128,10 @@ export function RiotAccountCard({
               }
             />
             <Field label="EloShape division" value={account.divisionName ?? "Not assigned"} />
+            <Field
+              label="Riot account level"
+              value={account.accountLevel !== null ? `Level ${account.accountLevel}` : "Unavailable"}
+            />
             <Field label="Last synced" value={formatDateTime(account.lastSyncedAt)} />
           </div>
 
@@ -139,6 +145,20 @@ export function RiotAccountCard({
                 ? "Ownership verified via Riot"
                 : "Ownership verification unavailable"}
             </Badge>
+            {account.accountLevel !== null ? (
+              <Badge
+                variant="outline"
+                className={
+                  account.accountLevel >= 30
+                    ? "border-success/40 text-success"
+                    : "border-destructive/40 text-destructive"
+                }
+              >
+                {account.accountLevel >= 30
+                  ? "Level 30 requirement met"
+                  : `Level ${account.accountLevel} — level 30 required`}
+              </Badge>
+            ) : null}
           </div>
 
           {account.notice ? (

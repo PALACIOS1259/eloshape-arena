@@ -197,13 +197,17 @@ Archivos: `src/lib/riot.server.ts` (cliente HTTP) y
 
 - La clave se lee **solo en servidor**, dentro del handler:
   `process.env["RIOT_API_KEY"]`. **Nunca** se hardcodea ni se expone al cliente.
-- APIs usadas: **Account-v1** (resolver Riot ID → PUUID) y **League-v4**
-  (entradas de liga / tier de Solo Queue).
+- APIs usadas: **Account-v1** (resolver Riot ID → PUUID), **League-v4**
+  (entradas de liga / tier de Solo Queue) y **Summoner-v4**
+  (`/lol/summoner/v4/summoners/by-puuid/{encryptedPUUID}`) para sincronizar
+  `summonerLevel`. El nivel se guarda en `riot_accounts.account_level` y se usa
+  en las validaciones server-side de elegibilidad (mínimo 30 por defecto).
 - Manejo de errores: 404 (Riot ID inexistente), 429 (rate limit), 5xx
   (indisponible), con mensajes seguros para el usuario.
 - **Modo mock determinístico** cuando no hay clave configurada, para desarrollo.
 - Reglas de vinculación: PUUID único por plataforma, cooldown de **10 minutos**
-  entre refrescos, mapeo automático de tier → división elegible.
+  entre refrescos, mapeo automático de tier → división elegible y sincronización
+  del nivel de cuenta Riot junto con cada conexión/refresco.
 - El PUUID nunca sale en payloads hacia el cliente (dashboard ni consola staff).
 
 Funciones expuestas (`src/lib/riot.functions.ts`): `getRiotStatus`,
