@@ -18,6 +18,33 @@ type RiotServiceStatus = {
   rsoEnabled: boolean;
 };
 
+type RiotAccountPayload = {
+  riotId: string;
+  gameName: string;
+  tagLine: string;
+  platform: string;
+  ranked: {
+    tier: string;
+    rank: string | null;
+    leaguePoints: number;
+    wins: number;
+    losses: number;
+    queueType: string | null;
+  } | null;
+  divisionCode: string | null;
+  divisionName: string | null;
+  tierSupported: boolean;
+  accountLevel: number | null;
+  accountLevelSyncedAt: string | null;
+  dataVerified: boolean;
+  ownershipVerified: boolean;
+  verificationMethod: string;
+  lastSyncedAt: string | null;
+  eligibility: string;
+  notice: string | null;
+  fromCache: boolean;
+};
+
 type EdgeResponse<T = unknown> = {
   ok?: boolean;
   account?: T;
@@ -60,7 +87,7 @@ export const getRiotStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     try {
-      const result = await invokeRiotEdge(context.accessToken, { method: "GET" });
+      const result = await invokeRiotEdge<never>(context.accessToken, { method: "GET" });
       return (
         result.service ?? {
           configured: false,
@@ -84,7 +111,7 @@ export const getMyRiotAccount = createServerFn({ method: "GET" })
       rsoEnabled: false,
     };
     try {
-      const status = await invokeRiotEdge(context.accessToken, { method: "GET" });
+      const status = await invokeRiotEdge<never>(context.accessToken, { method: "GET" });
       if (status.service) service = status.service;
     } catch {
       // Reading the already-linked account still works if Riot is temporarily offline.
@@ -100,11 +127,14 @@ export const connectRiotAccount = createServerFn({ method: "POST" })
   .validator((input: { gameName: string; tagLine: string }) => input)
   .handler(async ({ data, context }) => {
     try {
-      const result = await invokeRiotEdge(context.accessToken, {
+      const result = await invokeRiotEdge<RiotAccountPayload>(context.accessToken, {
         body: { action: "connect", gameName: data.gameName, tagLine: data.tagLine },
       });
       if (!result.ok || !result.account) {
-        return { ok: false as const, error: result.error ?? "Riot data sync is temporarily unavailable." };
+        return {
+          ok: false as const,
+          error: result.error ?? "Riot data sync is temporarily unavailable.",
+        };
       }
       return { ok: true as const, account: result.account };
     } catch (error) {
@@ -116,11 +146,14 @@ export const refreshRiotAccount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     try {
-      const result = await invokeRiotEdge(context.accessToken, {
+      const result = await invokeRiotEdge<RiotAccountPayload>(context.accessToken, {
         body: { action: "refresh" },
       });
       if (!result.ok || !result.account) {
-        return { ok: false as const, error: result.error ?? "Riot data sync is temporarily unavailable." };
+        return {
+          ok: false as const,
+          error: result.error ?? "Riot data sync is temporarily unavailable.",
+        };
       }
       return { ok: true as const, account: result.account };
     } catch (error) {
