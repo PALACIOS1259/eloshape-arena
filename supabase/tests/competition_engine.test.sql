@@ -298,8 +298,10 @@ begin
                  and round_index = 1 and (entry_a_id is not null or entry_b_id is not null)) then
     raise exception 'FAIL playoff byes: bye winner did not advance to round 1.';
   end if;
-  if (select count(*) from public.tournament_roster_members where tournament_id = v_playoffs) <> 15 then
-    raise exception 'FAIL playoffs: playoff rosters were not snapshotted.';
+  -- Team 1 lost a live member in test 2, so its playoff snapshot has 4 rows: 4 + 5 + 5 = 14.
+  if (select count(*) from public.tournament_roster_members where tournament_id = v_playoffs) <> 14 then
+    raise exception 'FAIL playoffs: playoff rosters were not snapshotted (% rows).',
+      (select count(*) from public.tournament_roster_members where tournament_id = v_playoffs);
   end if;
 
   v_res := private.generate_split_playoffs(v_actor, v_split, 3, true, 'integration test');
