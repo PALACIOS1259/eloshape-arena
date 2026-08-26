@@ -9,7 +9,7 @@ function message(error: unknown, fallback: string) {
 /** Server-validated registration. The browser only supplies a tournament slug. */
 export const registerForTournament = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { slug: string }) => input)
+  .validator((input: { slug: string }) => input)
   .handler(async ({ data, context }) => {
     const { registerForTournament: register } = await import("./tournament-entry.server");
     try {
@@ -24,7 +24,7 @@ export const registerForTournament = createServerFn({ method: "POST" })
 
 export const checkInToTournament = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { slug: string }) => input)
+  .validator((input: { slug: string }) => input)
   .handler(async ({ data, context }) => {
     const { checkInToTournament: checkIn } = await import("./tournament-entry.server");
     try {
