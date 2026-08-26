@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 
+import { CompetitionOpsPanel } from "@/components/eloshape/CompetitionOpsPanel";
 import { DivisionBadge } from "@/components/eloshape/DivisionBadge";
 import { EmptyState } from "@/components/eloshape/EmptyState";
 import { StatTile } from "@/components/eloshape/StatTile";
@@ -12,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDate, riotRankLabel } from "@/lib/format";
 import { getAdminOverview, setPlayerEligibility } from "@/lib/admin.functions";
+
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
