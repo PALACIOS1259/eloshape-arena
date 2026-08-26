@@ -7,7 +7,9 @@
  *
  * The profile is ALWAYS derived from the signed-in auth user id.
  */
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+import { isSupabaseAdminConfigured, supabaseAdmin } from "@/integrations/supabase/client.server";
 import type { Database } from "@/integrations/supabase/types";
 
 import { ensureProfile, recalculateProfileCompletion } from "./profile.server";
@@ -25,9 +27,10 @@ import {
   type SummonerSnapshot,
 } from "./riot.server";
 
-/** Minimum time between Riot requests for the same account. */
 export const REFRESH_COOLDOWN_MS = 10 * 60 * 1000;
 export const DEFAULT_MIN_RIOT_ACCOUNT_LEVEL = 30;
+
+type AuthenticatedSupabaseClient = SupabaseClient<Database>;
 
 export type RiotConnectionResult = {
   riotId: string;
@@ -58,17 +61,24 @@ export type RiotConnectionResult = {
 
 export type RiotServiceStatus = {
   configured: boolean;
+  trustedWritesConfigured: boolean;
   rsoEnabled: boolean;
 };
 
 export function riotServiceStatus(): RiotServiceStatus {
-  return { configured: isRiotConfigured(), rsoEnabled: isRsoEnabled() };
+  return {
+    configured: isRiotConfigured(),
+    trustedWritesConfigured: isSupabaseAdminConfigured(),
+    rsoEnabled: isRsoEnabled(),
+  };
 }
 
-/** Safe, non-PUUID view of the signed-in player's Riot connection. */
-export async function loadMyRiotAccount(userId: string): Promise<RiotConnectionResult | null> {
-  const profileId = await ensureProfile(userId);
-  const { data, error } = await supabaseAdmin
+export async function loadMyRiotAccount(
+  userId: string,
+  supabase: AuthenticatedSupabaseClient = supabaseAdmin,
+): Promise<RiotConnectionResult | null> {
+  const profileId = await ensureProfile(userId, supabase === supabaseAdmin ? undefined : supabase);
+  const { data, error } = await supabase
     .from("riot_accounts")
     .select(
       `riot_id, game_name, tag_line, platform, solo_tier, solo_rank, solo_lp, wins, losses,
@@ -80,11 +90,12 @@ export async function loadMyRiotAccount(userId: string): Promise<RiotConnectionR
   if (error) throw new Error(error.message);
   if (!data) return null;
 
-  const profile = await supabaseAdmin
+  const profile = await supabase
     .from("profiles")
     .select("eligibility, division:divisions!profiles_division_id_fkey(code, name)")
     .eq("id", profileId)
     .single();
+  if (profile.error) throw new Error(profile.error.message);
 
   const tier = data.solo_tier ?? "UNRANKED";
   return {
@@ -142,7 +153,6 @@ function connectionNotice(tier: string | null, accountLevel: number | null) {
   return null;
 }
 
-/** Resolve the EloShape division for a Riot tier using the divisions table. */
 async function divisionForTier(tier: string | null) {
   if (!tier || !isSupportedTier(tier)) return null;
   const { data, error } = await supabaseAdmin
@@ -163,8 +173,6 @@ export async function connectRiotAccount(
   const profileId = await ensureProfile(userId);
 
   const identity = await fetchRiotAccount(input.gameName, input.tagLine, platform);
-
-  // A real Riot account may only belong to one EloShape player.
   const existing = await supabaseAdmin
     .from("riot_accounts")
     .select("id, profile_id")
@@ -179,14 +187,7 @@ export async function connectRiotAccount(
     fetchSoloQueueSnapshot(identity.puuid, platform),
     fetchSummonerSnapshot(identity.puuid, platform),
   ]);
-  return persistSnapshot({
-    profileId,
-    platform,
-    identity,
-    snapshot,
-    summoner,
-    fromCache: false,
-  });
+  return persistSnapshot({ profileId, platform, identity, snapshot, summoner, fromCache: false });
 }
 
 export async function refreshRiotAccount(userId: string): Promise<RiotConnectionResult> {
@@ -201,23 +202,16 @@ export async function refreshRiotAccount(userId: string): Promise<RiotConnection
 
   const lastSynced = account.data.last_synced_at ? Date.parse(account.data.last_synced_at) : 0;
   const elapsed = Date.now() - lastSynced;
-  // Existing links created before account-level sync was added may have a fresh
-  // rank snapshot but no level. Let those accounts bypass the cooldown once so
-  // Summoner-v4 can backfill the missing eligibility input immediately.
   if (elapsed < REFRESH_COOLDOWN_MS && account.data.account_level !== null) {
     const cached = await loadMyRiotAccount(userId);
     if (cached) {
       const wait = Math.ceil((REFRESH_COOLDOWN_MS - elapsed) / 60000);
-      return {
-        ...cached,
-        notice: cached.notice ?? `Riot data was just synced. Try again in ${wait} min.`,
-      };
+      return { ...cached, notice: cached.notice ?? `Riot data was just synced. Try again in ${wait} min.` };
     }
   }
 
   if (!isRiotConfigured()) throw new RiotError("not_configured");
   const platform = (account.data.platform as RiotPlatform) ?? DEFAULT_PLATFORM;
-
   let puuid = account.data.puuid;
   let gameName = account.data.game_name ?? account.data.riot_id.split("#")[0] ?? "";
   let tagLine = account.data.tag_line ?? account.data.riot_id.split("#")[1] ?? "";
@@ -283,7 +277,6 @@ async function persistSnapshot(args: {
         account_level_synced_at: summoner.fetchedAt,
         verified: true,
         data_verified: true,
-        // Ownership is only ever proven by RSO, which is not available yet.
         ownership_verified: false,
         verification_method: "api_key_lookup",
         last_synced_at: lastSyncedAt,
@@ -296,7 +289,6 @@ async function persistSnapshot(args: {
     .single();
   if (upsert.error) throw new Error(upsert.error.message);
 
-  // Safe public projection on the profile — never the PUUID.
   const profilePatch: Database["public"]["Tables"]["profiles"]["Update"] = {
     riot_id: riotId,
     riot_tier: tier === "UNRANKED" ? null : tier,
@@ -306,7 +298,6 @@ async function persistSnapshot(args: {
 
   const updated = await supabaseAdmin.from("profiles").update(profilePatch).eq("id", profileId);
   if (updated.error) {
-    // Keep state consistent: record the failed sync rather than leaving a half-applied link.
     await supabaseAdmin
       .from("riot_accounts")
       .update({ last_sync_status: "profile_update_failed" })
@@ -360,12 +351,6 @@ function newestTimestamp(...timestamps: string[]) {
   return Number.isFinite(newest) ? new Date(newest).toISOString() : new Date().toISOString();
 }
 
-/**
- * Riot rank is ONE input to eligibility, never the decision.
- * - `pending_review` is never auto-promoted to `eligible`.
- * - `suspended` / `rejected` are never cleared by a Riot refresh.
- * - A division change while entered in upcoming brackets is flagged for review.
- */
 async function reviewEligibility(args: {
   profileId: string;
   currentEligibility: string;
@@ -374,7 +359,6 @@ async function reviewEligibility(args: {
   tier: string;
 }) {
   const { profileId, currentEligibility, previousDivisionId, nextDivisionId, tier } = args;
-
   const existingReview = await supabaseAdmin
     .from("eligibility_reviews")
     .select("id")
@@ -401,7 +385,6 @@ async function reviewEligibility(args: {
     });
   }
 
-  // Suspensions/rejections survive Riot refreshes.
   if (currentEligibility === "suspended" || currentEligibility === "rejected") {
     return currentEligibility;
   }
@@ -409,9 +392,7 @@ async function reviewEligibility(args: {
   if (divisionChanged && currentEligibility === "eligible") {
     const upcoming = await supabaseAdmin
       .from("tournament_entries")
-      .select(
-        "id, tournament:tournaments!tournament_entries_tournament_id_fkey(status, division_id)",
-      )
+      .select("id, tournament:tournaments!tournament_entries_tournament_id_fkey(status, division_id)")
       .eq("profile_id", profileId)
       .in("status", ["registered", "checked_in"]);
     const affected = (upcoming.data ?? []).some(
