@@ -6,5 +6,5 @@ export const getMyDashboard = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { loadMyDashboard } = await import("./me.server");
-    return loadMyDashboard(context.userId);
+    return loadMyDashboard(context.userId, context.supabase);
   });
