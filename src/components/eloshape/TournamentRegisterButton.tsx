@@ -5,7 +5,6 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
 import {
   checkInMyTeamToTournament,
   registerMyTeamForTournament,
@@ -37,25 +36,15 @@ export function TournamentRegisterButton({
   const checkInTeam = useServerFn(checkInMyTeamToTournament);
   const getEntry = useServerFn(getMyTournamentEntry);
 
-  const modeQuery = useQuery({
-    queryKey: ["tournament-mode", slug],
-    queryFn: async () => {
-      const result = await supabase.from("tournaments").select("mode").eq("slug", slug).maybeSingle();
-      if (result.error) throw new Error(result.error.message);
-      return result.data?.mode ?? "solo";
-    },
-    enabled: !mode,
-    staleTime: 5 * 60 * 1000,
-  });
-  const effectiveMode = mode ?? modeQuery.data ?? "solo";
-  const isTeam = effectiveMode === "team";
-
   const entryQuery = useQuery({
     queryKey: ["my-tournament-entry", slug],
     queryFn: () => getEntry({ data: { slug } }),
     enabled: Boolean(session),
     retry: false,
   });
+
+  const effectiveMode = mode ?? entryQuery.data?.mode ?? "solo";
+  const isTeam = effectiveMode === "team";
 
   const invalidate = () => {
     void queryClient.invalidateQueries({ queryKey: ["tournament", slug] });
@@ -116,7 +105,7 @@ export function TournamentRegisterButton({
     );
   }
 
-  if ((!mode && modeQuery.isPending) || entryQuery.isPending) {
+  if (entryQuery.isPending) {
     return (
       <Button variant="outline" disabled>
         Checking entry…
