@@ -4,11 +4,6 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
 
-/**
- * Staff-only server functions. The caller's roles are read through their own
- * RLS-scoped client (policy: a user may read their own roles) before any
- * privileged helper is loaded.
- */
 async function assertStaff(supabase: SupabaseClient<Database>, userId: string) {
   const { data, error } = await supabase.from("user_roles").select("role").eq("user_id", userId);
   if (error) throw new Error(error.message);
@@ -40,7 +35,7 @@ export const getAdminOverview = createServerFn({ method: "GET" })
 
 export const setPlayerEligibility = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (input: {
       profileId: string;
       status: "eligible" | "pending_review" | "rejected" | "suspended";
