@@ -10,8 +10,8 @@ function message(error: unknown, fallback: string) {
 }
 
 type EntryState = {
-  id: string;
-  status: string;
+  id: string | null;
+  status: string | null;
   checkedInAt: string | null;
   canCheckIn: boolean;
   mode: "solo" | "team";
