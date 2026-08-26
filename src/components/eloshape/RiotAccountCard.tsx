@@ -45,7 +45,7 @@ export function RiotAccountCard({
   service,
 }: {
   account: RiotAccount | null;
-  service: { configured: boolean; rsoEnabled: boolean };
+  service: { configured: boolean; trustedWritesConfigured: boolean; rsoEnabled: boolean };
 }) {
   const queryClient = useQueryClient();
   const connectFn = useServerFn(connectRiotAccount);
@@ -98,6 +98,12 @@ export function RiotAccountCard({
         <p className="mt-4 rounded-md border border-border bg-surface/60 p-4 text-sm text-muted-foreground">
           Riot integration is not configured yet. Your EloShape profile and tournament history are
           unaffected.
+        </p>
+      ) : !service.trustedWritesConfigured ? (
+        <p className="mt-4 rounded-md border border-gold/30 bg-gold/10 p-4 text-sm text-gold">
+          Riot lookups are configured, but secure Riot linking is unavailable in this local
+          environment because the trusted database credential is intentionally not exposed. Use the
+          published EloShape app for real account linking.
         </p>
       ) : null}
 
@@ -172,7 +178,7 @@ export function RiotAccountCard({
           <Button
             variant="outline"
             onClick={() => refresh.mutate()}
-            disabled={refresh.isPending || !service.configured}
+            disabled={refresh.isPending || !service.configured || !service.trustedWritesConfigured}
           >
             <RefreshCw
               className={refresh.isPending ? "size-4 animate-spin" : "size-4"}
@@ -220,7 +226,10 @@ export function RiotAccountCard({
               </p>
             </div>
           </div>
-          <Button type="submit" disabled={connect.isPending || !service.configured}>
+          <Button
+            type="submit"
+            disabled={connect.isPending || !service.configured || !service.trustedWritesConfigured}
+          >
             {connect.isPending ? "Checking Riot…" : "Connect Riot account"}
           </Button>
         </form>
