@@ -16,21 +16,21 @@ export const getHomeSnapshot = createServerFn({ method: "GET" }).handler(async (
 });
 
 export const getTournaments = createServerFn({ method: "GET" })
-  .inputValidator((input: { status?: string; divisionCode?: string; mode?: string }) => input)
+  .validator((input: { status?: string; divisionCode?: string; mode?: string }) => input)
   .handler(async ({ data }) => {
     const { loadTournaments } = await import("./eloshape.server");
     return loadTournaments(data ?? {});
   });
 
 export const getTournamentDetail = createServerFn({ method: "GET" })
-  .inputValidator((input: { slug: string }) => input)
+  .validator((input: { slug: string }) => input)
   .handler(async ({ data }) => {
     const { loadTournamentDetail } = await import("./eloshape.server");
     return loadTournamentDetail(data.slug);
   });
 
 export const getRankings = createServerFn({ method: "GET" })
-  .inputValidator(
+  .validator(
     (input: {
       period: "season" | "month";
       divisionCode?: string;
@@ -44,14 +44,14 @@ export const getRankings = createServerFn({ method: "GET" })
   });
 
 export const getPlayer = createServerFn({ method: "GET" })
-  .inputValidator((input: { handle: string }) => input)
+  .validator((input: { handle: string }) => input)
   .handler(async ({ data }) => {
     const { loadPlayer } = await import("./eloshape.server");
     return loadPlayer(data.handle);
   });
 
 export const getTeam = createServerFn({ method: "GET" })
-  .inputValidator((input: { slug: string }) => input)
+  .validator((input: { slug: string }) => input)
   .handler(async ({ data }) => {
     const { loadTeam } = await import("./eloshape.server");
     return loadTeam(data.slug);
