@@ -26,7 +26,9 @@ function callRpc<T>(
   fn: string,
   args?: Record<string, unknown>,
 ): Promise<RpcResult<T>> {
-  const rpc = supabase.rpc as unknown as (
+  // SupabaseClient.rpc() relies on `this.rest`; keep the method bound to the
+  // client instance or registration/check-in crashes before reaching Postgres.
+  const rpc = supabase.rpc.bind(supabase) as unknown as (
     fn: string,
     args?: Record<string, unknown>,
   ) => Promise<RpcResult<T>>;
