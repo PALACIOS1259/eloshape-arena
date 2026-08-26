@@ -93,10 +93,14 @@ Migraciones en `supabase/migrations/`. Tablas del esquema `public`:
 | `user_roles` | Roles separados del perfil: `admin`, `moderator`, `player` |
 | `riot_accounts` | Cuenta Riot vinculada: game name, tag line, PUUID (privado), tier/rank, wins/losses, verificación, último sync |
 | `teams` / `team_members` | Equipos y roster con roles (capitán, titular, suplente) |
-| `tournaments` | Torneos: slug, nombre, división, región, modo, estado, fechas, cupos |
-| `tournament_entries` | Inscripciones: estado (registrado / check-in), placement, puntos otorgados |
-| `matches` / `match_players` | Bracket, rondas, resultados y estadísticas por jugador |
-| `ranking_points` | Ledger inmutable de puntos con regla aplicada y torneo origen |
+| `tournaments` | Torneos: slug, nombre, división, región, modo, estado, fechas, cupos, `checkin_required`, `required_roster_size`, `min_account_level`, `required_platform`, hitos (`entries_locked_at`, `bracket_generated_at`, `finalized_at`) |
+| `tournament_entries` | Inscripciones: estado (registrado / check-in / descalificado), seed, placement, `roster_locked_at`, puntos otorgados |
+| `tournament_roster_members` | **Snapshot inmutable** del roster al cerrar inscripciones (jugador, rol, Riot ID, tier, nivel de cuenta) |
+| `matches` / `match_players` | Bracket con coordenadas base cero `(round_index, bracket_slot)`, byes, resultados y estadísticas por jugador |
+| `competitive_splits` | Semi-Splits: ventana, estado, `playoff_size`, `qualification_slots_per_qualifier` |
+| `split_qualifications` | Clasificados por qualifier: posición, seed de playoffs, reemplazos |
+| `ranking_points` / `team_ranking_points` | Ledger inmutable de puntos (jugador / equipo) con regla, torneo y `event_key` idempotente |
+| `competition_audit_log` | Auditoría de toda operación de staff (locks, brackets, resultados, cierres) |
 | `achievements` | Logros del jugador |
 | `reports` | Reportes de usuarios |
 | `eligibility_reviews` | Revisión manual anti-smurf con estados y notas del staff |
@@ -104,6 +108,40 @@ Migraciones en `supabase/migrations/`. Tablas del esquema `public`:
 Datos demo sembrados: 24 jugadores (Argentina, Uruguay, Chile), 4 equipos,
 6 torneos en distintos estados, historial completo del “Rosario Silver
 Invitational”, ledger de puntos, logros y cola de moderación activa.
+
+### Integridad competitiva (endurecimiento)
+
+1. **El check-in define quién juega**: `lock_tournament_entries` solo procesa
+   entries `checked_in` (o `registered` si `checkin_required = false`); el resto
+   queda fuera del bracket y del scoring.
+2. **Elegibilidad de roster completo**: cada jugador activo debe tener perfil,
+   cuenta Riot vinculada y verificada, nivel ≥ `min_account_level` (30 por
+   defecto), plataforma correcta, división compatible y no estar suspendido.
+   Los rechazos se devuelven con motivos legibles.
+3. **Snapshot inmutable**: al bloquear inscripciones se congela el roster en
+   `tournament_roster_members` (triggers impiden UPDATE/DELETE). Scoring y
+   elegibilidad posteriores **nunca** leen `team_members`.
+4. **Playoffs atómicos**: `private.generate_split_playoffs` crea torneo,
+   entries, snapshots y bracket en una sola transacción, exige el campo
+   configurado (`playoff_size`, normalmente 16) y requiere motivo registrado
+   para sembrar un campo corto. Es idempotente (`already_generated`).
+5. **Concurrencia**: `pg_advisory_xact_lock` protege la asignación de cupos y la
+   generación de playoffs; los cupos se cuentan **por qualifier**, así que
+   re-ejecutar el cierre nunca reparte slots extra.
+6. **Resultados de un solo disparo**: `report_match_result` bloquea la fila y
+   rechaza un segundo reporte (`match_not_reportable`); el ganador avanza a
+   `(round_index + 1, floor(bracket_slot / 2))`.
+7. **Cierre idempotente**: `finalize_tournament` devuelve `already_finalized` y
+   no duplica ledger (claves `event_key`).
+
+### Tests de integración
+
+`supabase/tests/competition_engine.test.sql` corre el ciclo completo
+(inscripción → check-in → bracket → resultados → cierre → clasificación →
+playoffs) verificando gating de check-in, inmutabilidad del snapshot,
+concurrencia de resultados, byes, idempotencia y exactitud de puntos
+(campeón 95, subcampeón 45). Todo se limpia al final; se ejecuta con permisos
+de servicio contra la base del proyecto.
 
 ---
 

@@ -92,6 +92,7 @@ export type Database = {
           name: string
           playoff_reveal_at: string | null
           playoff_size: number
+          qualification_slots_per_qualifier: number
           region_id: string | null
           season_id: string
           slug: string
@@ -108,6 +109,7 @@ export type Database = {
           name: string
           playoff_reveal_at?: string | null
           playoff_size?: number
+          qualification_slots_per_qualifier?: number
           region_id?: string | null
           season_id: string
           slug: string
@@ -124,6 +126,7 @@ export type Database = {
           name?: string
           playoff_reveal_at?: string | null
           playoff_size?: number
+          qualification_slots_per_qualifier?: number
           region_id?: string | null
           season_id?: string
           slug?: string
@@ -1126,10 +1129,88 @@ export type Database = {
           },
         ]
       }
+      tournament_roster_members: {
+        Row: {
+          account_level: number | null
+          entry_id: string
+          id: string
+          is_captain: boolean
+          is_substitute: boolean
+          locked_at: string
+          profile_id: string
+          riot_id: string | null
+          riot_rank: string | null
+          riot_tier: string | null
+          role: string
+          team_id: string | null
+          tournament_id: string
+        }
+        Insert: {
+          account_level?: number | null
+          entry_id: string
+          id?: string
+          is_captain?: boolean
+          is_substitute?: boolean
+          locked_at?: string
+          profile_id: string
+          riot_id?: string | null
+          riot_rank?: string | null
+          riot_tier?: string | null
+          role?: string
+          team_id?: string | null
+          tournament_id: string
+        }
+        Update: {
+          account_level?: number | null
+          entry_id?: string
+          id?: string
+          is_captain?: boolean
+          is_substitute?: boolean
+          locked_at?: string
+          profile_id?: string
+          riot_id?: string | null
+          riot_rank?: string | null
+          riot_tier?: string | null
+          role?: string
+          team_id?: string | null
+          tournament_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tournament_roster_members_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "tournament_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tournament_roster_members_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tournament_roster_members_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tournament_roster_members_tournament_id_fkey"
+            columns: ["tournament_id"]
+            isOneToOne: false
+            referencedRelation: "tournaments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tournaments: {
         Row: {
           banner_url: string | null
           bracket_generated_at: string | null
+          checkin_required: boolean
           created_at: string
           description: string | null
           division_id: string | null
@@ -1138,6 +1219,7 @@ export type Database = {
           format: string
           id: string
           max_participants: number
+          min_account_level: number
           mode: string
           name: string
           participants_count: number
@@ -1145,6 +1227,8 @@ export type Database = {
           qualifier_index: number | null
           region_id: string | null
           registration_closes_at: string | null
+          required_platform: string | null
+          required_roster_size: number
           rules: string | null
           season_id: string | null
           slug: string
@@ -1158,6 +1242,7 @@ export type Database = {
         Insert: {
           banner_url?: string | null
           bracket_generated_at?: string | null
+          checkin_required?: boolean
           created_at?: string
           description?: string | null
           division_id?: string | null
@@ -1166,6 +1251,7 @@ export type Database = {
           format?: string
           id?: string
           max_participants?: number
+          min_account_level?: number
           mode?: string
           name: string
           participants_count?: number
@@ -1173,6 +1259,8 @@ export type Database = {
           qualifier_index?: number | null
           region_id?: string | null
           registration_closes_at?: string | null
+          required_platform?: string | null
+          required_roster_size?: number
           rules?: string | null
           season_id?: string | null
           slug: string
@@ -1186,6 +1274,7 @@ export type Database = {
         Update: {
           banner_url?: string | null
           bracket_generated_at?: string | null
+          checkin_required?: boolean
           created_at?: string
           description?: string | null
           division_id?: string | null
@@ -1194,6 +1283,7 @@ export type Database = {
           format?: string
           id?: string
           max_participants?: number
+          min_account_level?: number
           mode?: string
           name?: string
           participants_count?: number
@@ -1201,6 +1291,8 @@ export type Database = {
           qualifier_index?: number | null
           region_id?: string | null
           registration_closes_at?: string | null
+          required_platform?: string | null
+          required_roster_size?: number
           rules?: string | null
           season_id?: string | null
           slug?: string
@@ -1292,6 +1384,15 @@ export type Database = {
       }
       staff_finalize_tournament: {
         Args: { p_tournament: string }
+        Returns: Json
+      }
+      staff_generate_split_playoffs: {
+        Args: {
+          p_allow_short_field?: boolean
+          p_best_of?: number
+          p_reason?: string
+          p_split: string
+        }
         Returns: Json
       }
       staff_lock_tournament_entries: {

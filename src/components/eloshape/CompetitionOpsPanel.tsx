@@ -241,9 +241,11 @@ export function CompetitionOpsPanel() {
     ...handlers("Stage change"),
   });
   const playoffMutation = useMutation({
-    mutationFn: (splitId: string) => playoffs({ data: { splitId, bestOf: 3 } }),
+    mutationFn: (input: { splitId: string; allowShortField?: boolean; reason?: string }) =>
+      playoffs({ data: { bestOf: 3, ...input } }),
     ...handlers("Playoff generation"),
   });
+
 
   if (isPending) return <Skeleton className="h-48 w-full" />;
   if (!data) return <EmptyState title="Staff access required" />;
@@ -281,11 +283,30 @@ export function CompetitionOpsPanel() {
                   <Button
                     size="sm"
                     disabled={playoffMutation.isPending}
-                    onClick={() => playoffMutation.mutate(split.id)}
+                    onClick={() => playoffMutation.mutate({ splitId: split.id })}
                   >
-                    Seed playoffs
+                    Seed playoffs ({split.playoff_size})
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={playoffMutation.isPending}
+                    onClick={() => {
+                      const reason = window.prompt(
+                        `The playoff field must have ${split.playoff_size} qualified teams. Reason for seeding a short field?`,
+                      );
+                      if (!reason?.trim()) return;
+                      playoffMutation.mutate({
+                        splitId: split.id,
+                        allowShortField: true,
+                        reason: reason.trim(),
+                      });
+                    }}
+                  >
+                    Seed short field…
                   </Button>
                 </div>
+
               </div>
             ))
           ) : (
