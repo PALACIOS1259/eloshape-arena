@@ -110,7 +110,7 @@ function DashboardPage() {
         </div>
 
         <div className="mt-10 grid gap-6 lg:grid-cols-[1fr_1.4fr]">
-          <OnboardingChecklist steps={onboarding} completion={profile.profile_completion} />
+          <OnboardingChecklist steps={onboarding} />
           <div className="space-y-6">
             <RiotAccountCard account={riot} service={riotService} />
             <ProfileSettingsCard profile={profile} />
