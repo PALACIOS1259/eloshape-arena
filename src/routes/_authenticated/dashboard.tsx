@@ -41,6 +41,7 @@ function DashboardPage() {
   const { data, isPending, error } = useQuery({
     queryKey: ["my-dashboard"],
     queryFn: () => fetchDashboard(),
+    retry: false,
   });
 
   const signOut = async () => {
@@ -58,12 +59,15 @@ function DashboardPage() {
   }
 
   if (error || !data) {
+    const description =
+      import.meta.env.DEV && error instanceof Error && error.message
+        ? `Development error: ${error.message}`
+        : "Your EloShape profile and history are safe. Please try again in a moment.";
+    if (import.meta.env.DEV && error) console.error("[EloShape dashboard]", error);
+
     return (
       <PageContainer className="py-16">
-        <EmptyState
-          title="We couldn't load your dashboard"
-          description="Your EloShape profile and history are safe. Please try again in a moment."
-        />
+        <EmptyState title="We couldn't load your dashboard" description={description} />
       </PageContainer>
     );
   }
