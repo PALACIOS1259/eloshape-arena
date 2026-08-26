@@ -209,7 +209,19 @@ function AdminPage() {
                 )}
               </div>
             </div>
+
+            <div className="mt-12">
+              <p className="eyebrow">Competition operations</p>
+              <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+                Rosters, brackets, results, scoring and Semi-Split stages. Every action is executed
+                and validated inside the database, and written to the audit trail.
+              </p>
+              <div className="mt-4">
+                <CompetitionOpsPanel />
+              </div>
+            </div>
           </>
+
         )}
       </PageContainer>
     </div>
