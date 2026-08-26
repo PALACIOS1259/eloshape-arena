@@ -22,18 +22,17 @@ export const getMyRiotAccount = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { loadMyRiotAccount, riotServiceStatus } = await import("./riot-account.server");
     return {
-      account: await loadMyRiotAccount(context.userId),
+      account: await loadMyRiotAccount(context.userId, context.supabase),
       service: riotServiceStatus(),
     };
   });
 
 export const connectRiotAccount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { gameName: string; tagLine: string }) => input)
+  .validator((input: { gameName: string; tagLine: string }) => input)
   .handler(async ({ data, context }) => {
     const mod = await import("./riot-account.server");
     try {
-      // profile is derived from the session, never from the browser
       const account = await mod.connectRiotAccount(context.userId, {
         gameName: data.gameName,
         tagLine: data.tagLine,
