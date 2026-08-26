@@ -10,7 +10,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
 
-import { buildBracket, seedCompetitors, type BracketCompetitor } from "./bracket";
+import { buildBracket, type BracketCompetitor } from "./bracket";
 
 type Client = SupabaseClient<Database>;
 
@@ -29,16 +29,30 @@ export async function lockTournamentEntries(client: Client, tournamentId: string
   return data;
 }
 
+/**
+ * Only properly checked-in entries with a locked roster snapshot can be seeded.
+ * When a tournament opts out of check-in, registered entries count instead.
+ */
 async function loadSeedableEntries(client: Client, tournamentId: string) {
+  const tournament = await client
+    .from("tournaments")
+    .select("id, checkin_required")
+    .eq("id", tournamentId)
+    .maybeSingle();
+  fail(tournament.error);
+  if (!tournament.data) throw new Error("Tournament not found.");
+  const checkinRequired = tournament.data.checkin_required !== false;
+
   const { data, error } = await client
     .from("tournament_entries")
     .select(
-      `id, seed, status,
+      `id, seed, status, roster_locked_at,
        profile:profiles!tournament_entries_profile_id_fkey(handle, points_season, wins, tournaments_played),
        team:teams!tournament_entries_team_id_fkey(slug, points_season, wins)`,
     )
     .eq("tournament_id", tournamentId)
-    .neq("status", "withdrawn");
+    .not("roster_locked_at", "is", null)
+    .in("status", checkinRequired ? ["checked_in"] : ["checked_in", "registered"]);
   fail(error);
 
   return (data ?? []).map<BracketCompetitor>((entry) => ({
@@ -57,7 +71,9 @@ export async function generateTournamentBracket(
   series: SeriesConfig = {},
 ) {
   const competitors = await loadSeedableEntries(client, tournamentId);
-  if (competitors.length < 2) throw new Error("At least two locked entries are required.");
+  if (competitors.length < 2) {
+    throw new Error("At least two checked-in entries with locked rosters are required.");
+  }
 
   const bracket = buildBracket(competitors, series);
   const { data, error } = await client.rpc("staff_create_bracket", {
@@ -68,6 +84,7 @@ export async function generateTournamentBracket(
   fail(error);
   return { result: data, size: bracket.size, rounds: bracket.rounds, byes: bracket.byes };
 }
+
 
 /** Authoritative result reporting: row-locked, first valid report wins. */
 export async function reportMatchResult(
@@ -113,138 +130,27 @@ export async function setSplitStatus(client: Client, splitId: string, status: st
 }
 
 /**
- * Seed the playoffs from Semi-Split standings (never from qualification order),
- * create the playoff tournament and generate its bracket with the same engine.
+ * Playoff generation is a single trusted, atomic database operation:
+ * standings-based seeding, entry creation, immutable roster snapshots, seeds and
+ * every bracket coordinate are written inside one transaction under an advisory
+ * lock. The required field size is the split's configured `playoff_size`
+ * (normally 16); a shorter field needs an explicit, audited override reason.
  */
 export async function generateSplitPlayoffs(
   client: Client,
   splitId: string,
-  series: SeriesConfig = { bestOf: 3, roundBestOf: {} },
+  options: { bestOf?: number; allowShortField?: boolean; reason?: string } = {},
 ) {
-  const split = await client
-    .from("competitive_splits")
-    .select("id, slug, name, season_id, division_id, region_id, playoff_size, status, ends_at")
-    .eq("id", splitId)
-    .maybeSingle();
-  fail(split.error);
-  if (!split.data) throw new Error("Split not found.");
-  if (!["seeding", "playoffs"].includes(split.data.status)) {
-    throw new Error("Playoffs can only be generated from the seeding window.");
-  }
-
-  const standings = await client.rpc("split_standings", { p_split: splitId });
-  fail(standings.error);
-  const qualified = (standings.data ?? []).filter((row) => row.qualification_status === "qualified");
-  if (qualified.length < 2) throw new Error("Not enough qualified teams.");
-
-  const playoffSlug = `${split.data.slug}-playoffs`;
-  const existing = await client
-    .from("tournaments")
-    .select("id, slug, bracket_generated_at")
-    .eq("slug", playoffSlug)
-    .maybeSingle();
-
-  let playoffId = existing.data?.id ?? null;
-  if (!playoffId) {
-    const created = await client
-      .from("tournaments")
-      .insert({
-        slug: playoffSlug,
-        name: `${split.data.name} — Playoffs`,
-        subtitle: "16-team Playoff bracket",
-        description:
-          "Playoff bracket seeded from Semi-Split standings. Round of 16 and Quarterfinals in week 6, Semifinals in week 7, Grand Final in week 8.",
-        division_id: split.data.division_id,
-        region_id: split.data.region_id,
-        season_id: split.data.season_id,
-        split_id: splitId,
-        split_phase: "playoffs",
-        status: "registration_closed",
-        format: "single_elimination",
-        mode: "team",
-        max_participants: split.data.playoff_size,
-        participants_count: qualified.length,
-        starts_at: split.data.ends_at,
-        entries_locked_at: new Date().toISOString(),
-      })
-      .select("id")
-      .single();
-    fail(created.error);
-    playoffId = created.data!.id;
-  }
-
-  // Entries follow standings order, so seeds reflect competition performance.
-  const seeded = seedCompetitors(
-    qualified.map((row, index) => ({
-      entryId: row.team_id,
-      points: row.points,
-      wins: row.wins,
-      tournamentsPlayed: row.tournaments_played,
-      handle: row.team_slug ?? String(index),
-    })),
-  );
-
-  const entryIdByTeam = new Map<string, string>();
-  for (const seed of seeded) {
-    const existingEntry = await client
-      .from("tournament_entries")
-      .select("id")
-      .eq("tournament_id", playoffId)
-      .eq("team_id", seed.entryId)
-      .maybeSingle();
-    fail(existingEntry.error);
-
-    if (existingEntry.data) {
-      await client
-        .from("tournament_entries")
-        .update({ seed: seed.seed, roster_locked_at: new Date().toISOString() })
-        .eq("id", existingEntry.data.id);
-      entryIdByTeam.set(seed.entryId, existingEntry.data.id);
-    } else {
-      const created = await client
-        .from("tournament_entries")
-        .insert({
-          tournament_id: playoffId,
-          team_id: seed.entryId,
-          status: "checked_in",
-          seed: seed.seed,
-          roster_locked_at: new Date().toISOString(),
-        })
-        .select("id")
-        .single();
-      fail(created.error);
-      entryIdByTeam.set(seed.entryId, created.data!.id);
-    }
-
-
-    await client
-      .from("split_qualifications")
-      .update({ playoff_seed: seed.seed })
-      .eq("split_id", splitId)
-      .eq("team_id", seed.entryId);
-  }
-
-  await client.rpc("staff_lock_tournament_entries", { p_tournament: playoffId });
-
-  const bracket = buildBracket(
-    seeded.map((seed) => ({ entryId: entryIdByTeam.get(seed.entryId)!, seed: seed.seed })),
-    { bestOf: series.bestOf ?? 3, roundBestOf: series.roundBestOf ?? {} },
-  );
-
-  const created = await client.rpc("staff_create_bracket", {
-    p_tournament: playoffId,
-    p_seeds: bracket.seeds.map((seed) => ({ entry_id: seed.entryId, seed: seed.seed })),
-    p_matches: bracket.matches,
+  const { data, error } = await client.rpc("staff_generate_split_playoffs", {
+    p_split: splitId,
+    p_best_of: options.bestOf ?? 3,
+    p_allow_short_field: options.allowShortField ?? false,
+    p_reason: options.reason ?? null,
   });
-  fail(created.error);
-
-  return {
-    tournamentId: playoffId,
-    slug: playoffSlug,
-    teams: seeded.length,
-    result: created.data,
-  };
+  fail(error);
+  return data;
 }
+
 
 /** Staff view of a tournament's bracket, seeds and generated ledger. */
 export async function loadTournamentOps(client: Client, tournamentId: string) {

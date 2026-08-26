@@ -118,14 +118,26 @@ export const advanceSplitStatus = createServerFn({ method: "POST" })
 
 export const buildSplitPlayoffs = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { splitId: string; bestOf?: number }) => input)
+  .inputValidator(
+    (input: { splitId: string; bestOf?: number; allowShortField?: boolean; reason?: string }) => {
+      if (input.allowShortField && !input.reason?.trim()) {
+        throw new Error("An override reason is required for a short playoff field.");
+      }
+      return input;
+    },
+  )
   .handler(async ({ data, context }) =>
     guarded(async () => {
       await assertStaff(context.supabase, context.userId);
       const { generateSplitPlayoffs } = await import("./competition.server");
-      return generateSplitPlayoffs(context.supabase, data.splitId, { bestOf: data.bestOf ?? 3 });
+      return generateSplitPlayoffs(context.supabase, data.splitId, {
+        bestOf: data.bestOf ?? 3,
+        allowShortField: data.allowShortField ?? false,
+        reason: data.reason?.trim() || undefined,
+      });
     }),
   );
+
 
 export const getStaffSplits = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
