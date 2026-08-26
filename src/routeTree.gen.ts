@@ -20,6 +20,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as PlayersHandleRouteImport } from './routes/players.$handle'
+import { Route as SplitsIndexRouteImport } from './routes/splits.index'
 import { Route as TeamsIndexRouteImport } from './routes/teams.index'
 import { Route as TeamsSlugRouteImport } from './routes/teams.$slug'
 import { Route as TournamentsIndexRouteImport } from './routes/tournaments.index'
@@ -79,6 +80,11 @@ const PlayersHandleRoute = PlayersHandleRouteImport.update({
   path: '/players/$handle',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SplitsIndexRoute = SplitsIndexRouteImport.update({
+  id: '/splits/',
+  path: '/splits/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TeamsIndexRoute = TeamsIndexRouteImport.update({
   id: '/teams/',
   path: '/teams/',
@@ -113,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/players/$handle': typeof PlayersHandleRoute
   '/teams/$slug': typeof TeamsSlugRoute
   '/tournaments/$slug': typeof TournamentsSlugRoute
+  '/splits/': typeof SplitsIndexRoute
   '/teams/': typeof TeamsIndexRoute
   '/tournaments/': typeof TournamentsIndexRoute
 }
@@ -129,6 +136,7 @@ export interface FileRoutesByTo {
   '/players/$handle': typeof PlayersHandleRoute
   '/teams/$slug': typeof TeamsSlugRoute
   '/tournaments/$slug': typeof TournamentsSlugRoute
+  '/splits': typeof SplitsIndexRoute
   '/teams': typeof TeamsIndexRoute
   '/tournaments': typeof TournamentsIndexRoute
 }
@@ -147,6 +155,7 @@ export interface FileRoutesById {
   '/players/$handle': typeof PlayersHandleRoute
   '/teams/$slug': typeof TeamsSlugRoute
   '/tournaments/$slug': typeof TournamentsSlugRoute
+  '/splits/': typeof SplitsIndexRoute
   '/teams/': typeof TeamsIndexRoute
   '/tournaments/': typeof TournamentsIndexRoute
 }
@@ -165,6 +174,7 @@ export interface FileRouteTypes {
     | '/players/$handle'
     | '/teams/$slug'
     | '/tournaments/$slug'
+    | '/splits/'
     | '/teams/'
     | '/tournaments/'
   fileRoutesByTo: FileRoutesByTo
@@ -181,6 +191,7 @@ export interface FileRouteTypes {
     | '/players/$handle'
     | '/teams/$slug'
     | '/tournaments/$slug'
+    | '/splits'
     | '/teams'
     | '/tournaments'
   id:
@@ -198,6 +209,7 @@ export interface FileRouteTypes {
     | '/players/$handle'
     | '/teams/$slug'
     | '/tournaments/$slug'
+    | '/splits/'
     | '/teams/'
     | '/tournaments/'
   fileRoutesById: FileRoutesById
@@ -214,6 +226,7 @@ export interface RootRouteChildren {
   PlayersHandleRoute: typeof PlayersHandleRoute
   TeamsSlugRoute: typeof TeamsSlugRoute
   TournamentsSlugRoute: typeof TournamentsSlugRoute
+  SplitsIndexRoute: typeof SplitsIndexRoute
   TeamsIndexRoute: typeof TeamsIndexRoute
   TournamentsIndexRoute: typeof TournamentsIndexRoute
 }
@@ -297,6 +310,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlayersHandleRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/splits/': {
+      id: '/splits/'
+      path: '/splits'
+      fullPath: '/splits/'
+      preLoaderRoute: typeof SplitsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/teams/': {
       id: '/teams/'
       path: '/teams'
@@ -353,6 +373,7 @@ const rootRouteChildren: RootRouteChildren = {
   PlayersHandleRoute: PlayersHandleRoute,
   TeamsSlugRoute: TeamsSlugRoute,
   TournamentsSlugRoute: TournamentsSlugRoute,
+  SplitsIndexRoute: SplitsIndexRoute,
   TeamsIndexRoute: TeamsIndexRoute,
   TournamentsIndexRoute: TournamentsIndexRoute,
 }
