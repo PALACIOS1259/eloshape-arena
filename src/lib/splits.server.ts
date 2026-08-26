@@ -48,7 +48,7 @@ export async function loadSplitDetail(slug: string) {
     db
       .from("split_qualifications")
       .select(
-        `id, status, qualification_position, playoff_seed, created_at,
+        `id, status, qualification_position, playoff_seed, qualified_at,
          team:teams!split_qualifications_team_id_fkey(id, slug, name, tag, logo_url),
          replaces:teams!split_qualifications_replaces_team_id_fkey(id, slug, name, tag),
          qualified_from:tournaments!split_qualifications_qualified_from_tournament_id_fkey(slug, name, qualifier_index)`,
