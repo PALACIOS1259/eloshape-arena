@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { Search, ShieldCheck } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 
@@ -10,6 +11,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  transferMyTeamCaptain,
+  updateMyTeamMemberRole,
+} from "@/lib/team-management.functions";
 import {
   cancelMyTeamInvite,
   createMyTeam,
@@ -49,11 +54,20 @@ function TeamHubPage() {
         description="Build a five-player starting roster, add substitutes, and enter team-mode EloShape brackets."
         aside={
           data?.team ? (
-            <Button asChild variant="outline">
-              <Link to="/teams/$slug" params={{ slug: data.team.slug }}>
-                Public team page
-              </Link>
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              {data.team.isCaptain ? (
+                <Button asChild>
+                  <Link to="/team/players">
+                    <Search className="mr-2 size-4" /> Find players
+                  </Link>
+                </Button>
+              ) : null}
+              <Button asChild variant="outline">
+                <Link to="/teams/$slug" params={{ slug: data.team.slug }}>
+                  Public team page
+                </Link>
+              </Button>
+            </div>
           ) : undefined
         }
       />
@@ -91,7 +105,7 @@ function IncomingInvites({ invites }: { invites: TeamHub["incomingInvites"] }) {
     mutationFn: (input: { inviteId: string; accept: boolean }) => respond({ data: input }),
     onSuccess: (result) => {
       if (!result.ok) return toast.error(result.error);
-      toast.success(result.data && typeof result.data === "object" ? "Team invitation updated." : "Done.");
+      toast.success("Team invitation updated.");
       void queryClient.invalidateQueries({ queryKey: ["my-team-hub"] });
       void queryClient.invalidateQueries({ queryKey: ["teams"] });
     },
@@ -105,27 +119,16 @@ function IncomingInvites({ invites }: { invites: TeamHub["incomingInvites"] }) {
           <div key={invite.id} className="bg-surface-gradient rounded-lg border border-border p-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="font-semibold text-foreground">
-                  [{invite.teamTag}] {invite.teamName}
-                </p>
+                <p className="font-semibold text-foreground">[{invite.teamTag}] {invite.teamName}</p>
                 <p className="mt-1 text-sm text-muted-foreground">
                   Invited by {invite.invitedBy} · {invite.role === "substitute" ? "Substitute" : "Starter"}
                 </p>
               </div>
               <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  onClick={() => mutation.mutate({ inviteId: invite.id, accept: true })}
-                  disabled={mutation.isPending}
-                >
+                <Button size="sm" onClick={() => mutation.mutate({ inviteId: invite.id, accept: true })} disabled={mutation.isPending}>
                   Accept
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => mutation.mutate({ inviteId: invite.id, accept: false })}
-                  disabled={mutation.isPending}
-                >
+                <Button size="sm" variant="outline" onClick={() => mutation.mutate({ inviteId: invite.id, accept: false })} disabled={mutation.isPending}>
                   Decline
                 </Button>
               </div>
@@ -180,7 +183,7 @@ function CreateTeamCard() {
 
 function ExistingTeam({ hub }: { hub: TeamHub }) {
   const team = hub.team!;
-  const active = team.members.filter((member) => member.role !== "substitute").length;
+  const starters = team.members.filter((member) => member.role !== "substitute").length;
   return (
     <div className="space-y-8">
       <section className="bg-surface-gradient rounded-lg border border-border p-6 shadow-card">
@@ -198,7 +201,7 @@ function ExistingTeam({ hub }: { hub: TeamHub }) {
           </div>
           <div className="text-right">
             <p className="eyebrow">Starting roster</p>
-            <p className="mt-1 text-2xl font-black text-foreground">{active}/5</p>
+            <p className="mt-1 text-2xl font-black text-foreground">{starters}/5</p>
             <Badge className="mt-2" variant={team.eligibility.eligible ? "default" : "outline"}>
               {team.eligibility.eligible ? "Tournament ready" : "Roster not ready"}
             </Badge>
@@ -213,9 +216,46 @@ function ExistingTeam({ hub }: { hub: TeamHub }) {
 }
 
 function Roster({ team }: { team: NonNullable<TeamHub["team"]> }) {
+  const queryClient = useQueryClient();
+  const updateRole = useServerFn(updateMyTeamMemberRole);
+  const transferCaptain = useServerFn(transferMyTeamCaptain);
+  const remove = useServerFn(removeMyTeamMember);
+
+  const refresh = () => {
+    void queryClient.invalidateQueries({ queryKey: ["my-team-hub"] });
+    void queryClient.invalidateQueries({ queryKey: ["teams"] });
+  };
+
+  const roleMutation = useMutation({
+    mutationFn: (input: { handle: string; role: "player" | "substitute" }) => updateRole({ data: input }),
+    onSuccess: (result) => {
+      if (!result.ok) return toast.error(result.error);
+      toast.success("Roster role updated.");
+      refresh();
+    },
+  });
+
+  const captainMutation = useMutation({
+    mutationFn: (handle: string) => transferCaptain({ data: { handle } }),
+    onSuccess: (result) => {
+      if (!result.ok) return toast.error(result.error);
+      toast.success("Captaincy transferred.");
+      refresh();
+    },
+  });
+
+  const removeMutation = useMutation({
+    mutationFn: (handle: string) => remove({ data: { handle } }),
+    onSuccess: (result) => {
+      if (!result.ok) return toast.error(result.error);
+      toast.success("Player removed from roster.");
+      refresh();
+    },
+  });
+
   return (
     <section>
-      <div className="flex items-end justify-between gap-3">
+      <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="eyebrow">Roster</p>
           <h3 className="mt-1 text-xl font-black">Players</h3>
@@ -224,7 +264,7 @@ function Roster({ team }: { team: NonNullable<TeamHub["team"]> }) {
       </div>
       <div className="mt-3 overflow-hidden rounded-lg border border-border">
         {team.members.map((member) => (
-          <div key={member.profileId} className="grid gap-3 border-b border-border p-4 last:border-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+          <div key={member.profileId} className="grid gap-3 border-b border-border p-4 last:border-0 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <Link to="/players/$handle" params={{ handle: member.handle }} className="font-semibold text-foreground hover:text-brand">
@@ -237,11 +277,38 @@ function Roster({ team }: { team: NonNullable<TeamHub["team"]> }) {
                 @{member.handle} · {member.riotTier ?? "Unranked"} {member.riotRank ?? ""}
                 {member.accountLevel != null ? ` · level ${member.accountLevel}` : ""}
               </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <Badge variant={member.riotVerified ? "default" : "outline"}>{member.riotVerified ? "Riot verified" : "Riot missing"}</Badge>
+                <Badge variant={member.eligibility === "eligible" ? "default" : "outline"}>{member.eligibility.replace("_", " ")}</Badge>
+              </div>
             </div>
-            <div className="flex flex-wrap gap-2 sm:justify-end">
-              <Badge variant={member.riotVerified ? "default" : "outline"}>{member.riotVerified ? "Riot verified" : "Riot missing"}</Badge>
-              <Badge variant={member.eligibility === "eligible" ? "default" : "outline"}>{member.eligibility.replace("_", " ")}</Badge>
-            </div>
+
+            {team.isCaptain && !member.isCaptain ? (
+              <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+                <select
+                  value={member.role}
+                  onChange={(event) => roleMutation.mutate({ handle: member.handle, role: event.target.value as "player" | "substitute" })}
+                  disabled={roleMutation.isPending}
+                  className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  <option value="player">Starter</option>
+                  <option value="substitute">Substitute</option>
+                </select>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    if (window.confirm(`Transfer team captaincy to ${member.displayName}?`)) captainMutation.mutate(member.handle);
+                  }}
+                  disabled={captainMutation.isPending}
+                >
+                  <ShieldCheck className="mr-2 size-4" /> Make captain
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => removeMutation.mutate(member.handle)} disabled={removeMutation.isPending}>
+                  Remove
+                </Button>
+              </div>
+            ) : null}
           </div>
         ))}
       </div>
@@ -254,7 +321,6 @@ function CaptainTools({ team }: { team: NonNullable<TeamHub["team"]> }) {
   const update = useServerFn(updateMyTeam);
   const invite = useServerFn(inviteMyTeamMember);
   const cancel = useServerFn(cancelMyTeamInvite);
-  const remove = useServerFn(removeMyTeamMember);
   const [name, setName] = useState(team.name);
   const [tag, setTag] = useState(team.tag);
   const [bio, setBio] = useState(team.bio ?? "");
@@ -265,6 +331,7 @@ function CaptainTools({ team }: { team: NonNullable<TeamHub["team"]> }) {
     void queryClient.invalidateQueries({ queryKey: ["my-team-hub"] });
     void queryClient.invalidateQueries({ queryKey: ["teams"] });
   };
+
   const updateMutation = useMutation({
     mutationFn: () => update({ data: { name, tag, bio } }),
     onSuccess: (result) => {
@@ -273,6 +340,7 @@ function CaptainTools({ team }: { team: NonNullable<TeamHub["team"]> }) {
       refresh();
     },
   });
+
   const inviteMutation = useMutation({
     mutationFn: () => invite({ data: { handle, role } }),
     onSuccess: (result) => {
@@ -282,6 +350,7 @@ function CaptainTools({ team }: { team: NonNullable<TeamHub["team"]> }) {
       refresh();
     },
   });
+
   const cancelMutation = useMutation({
     mutationFn: (inviteId: string) => cancel({ data: { inviteId } }),
     onSuccess: (result) => {
@@ -290,27 +359,24 @@ function CaptainTools({ team }: { team: NonNullable<TeamHub["team"]> }) {
       refresh();
     },
   });
-  const removeMutation = useMutation({
-    mutationFn: (memberHandle: string) => remove({ data: { handle: memberHandle } }),
-    onSuccess: (result) => {
-      if (!result.ok) return toast.error(result.error);
-      toast.success("Player removed from roster.");
-      refresh();
-    },
-  });
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       <section className="bg-surface-gradient rounded-lg border border-border p-5">
-        <p className="eyebrow">Captain controls</p>
-        <h3 className="mt-1 text-lg font-black">Invite player</h3>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="eyebrow">Captain controls</p>
+            <h3 className="mt-1 text-lg font-black">Invite player</h3>
+          </div>
+          <Button asChild size="sm" variant="outline">
+            <Link to="/team/players">
+              <Search className="mr-2 size-4" /> Find players
+            </Link>
+          </Button>
+        </div>
         <div className="mt-4 flex gap-2">
           <Input value={handle} onChange={(event) => setHandle(event.target.value)} placeholder="EloShape handle" />
-          <select
-            value={role}
-            onChange={(event) => setRole(event.target.value as "player" | "substitute")}
-            className="rounded-md border border-input bg-background px-3 text-sm"
-          >
+          <select value={role} onChange={(event) => setRole(event.target.value as "player" | "substitute")} className="rounded-md border border-input bg-background px-3 text-sm">
             <option value="player">Starter</option>
             <option value="substitute">Substitute</option>
           </select>
@@ -321,26 +387,12 @@ function CaptainTools({ team }: { team: NonNullable<TeamHub["team"]> }) {
 
         {team.pendingInvites.length ? (
           <div className="mt-6 space-y-2 border-t border-border pt-4">
-            <p className="eyebrow">Pending</p>
+            <p className="eyebrow">Pending invitations</p>
             {team.pendingInvites.map((pending) => (
               <div key={pending.id} className="flex items-center justify-between gap-3 text-sm">
-                <span>@{pending.handle} · {pending.role}</span>
+                <span>@{pending.handle} · {pending.role === "substitute" ? "Substitute" : "Starter"}</span>
                 <Button size="sm" variant="ghost" onClick={() => cancelMutation.mutate(pending.id)} disabled={cancelMutation.isPending}>
                   Cancel
-                </Button>
-              </div>
-            ))}
-          </div>
-        ) : null}
-
-        {team.members.some((member) => !member.isCaptain) ? (
-          <div className="mt-6 space-y-2 border-t border-border pt-4">
-            <p className="eyebrow">Remove member</p>
-            {team.members.filter((member) => !member.isCaptain).map((member) => (
-              <div key={member.profileId} className="flex items-center justify-between gap-3 text-sm">
-                <span>@{member.handle}</span>
-                <Button size="sm" variant="ghost" onClick={() => removeMutation.mutate(member.handle)} disabled={removeMutation.isPending}>
-                  Remove
                 </Button>
               </div>
             ))}
