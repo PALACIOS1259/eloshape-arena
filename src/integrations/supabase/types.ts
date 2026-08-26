@@ -1286,6 +1286,30 @@ export type Database = {
           wins: number
         }[]
       }
+      staff_create_bracket: {
+        Args: { p_matches: Json; p_seeds: Json; p_tournament: string }
+        Returns: Json
+      }
+      staff_finalize_tournament: {
+        Args: { p_tournament: string }
+        Returns: Json
+      }
+      staff_lock_tournament_entries: {
+        Args: { p_tournament: string }
+        Returns: Json
+      }
+      staff_replace_withdrawn_qualifier: {
+        Args: { p_split: string; p_team: string }
+        Returns: Json
+      }
+      staff_report_match_result: {
+        Args: { p_match: string; p_score_a: number; p_score_b: number }
+        Returns: Json
+      }
+      staff_set_split_status: {
+        Args: { p_split: string; p_status: string }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "player"
