@@ -35,7 +35,7 @@ export const getAdminOverview = createServerFn({ method: "GET" })
     const supabase = createAuthenticatedSupabaseClient(context.accessToken);
     const { isAdmin } = await assertStaff(supabase, context.userId);
     const { loadAdminOverview } = await import("./admin.server");
-    return { ...(await loadAdminOverview()), isAdmin };
+    return { ...(await loadAdminOverview(supabase)), isAdmin };
   });
 
 export const setPlayerEligibility = createServerFn({ method: "POST" })
@@ -52,8 +52,7 @@ export const setPlayerEligibility = createServerFn({ method: "POST" })
       const supabase = createAuthenticatedSupabaseClient(context.accessToken);
       await assertStaff(supabase, context.userId);
       const { decideEligibility } = await import("./admin.server");
-      const profile = await decideEligibility({
-        reviewerUserId: context.userId,
+      const profile = await decideEligibility(supabase, {
         profileId: data.profileId,
         status: data.status,
         reason: data.reason,
