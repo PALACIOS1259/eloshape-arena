@@ -186,32 +186,36 @@ export async function generateSplitPlayoffs(
 
   const entryIdByTeam = new Map<string, string>();
   for (const seed of seeded) {
-    const entry = await client
+    const existingEntry = await client
       .from("tournament_entries")
-      .upsert(
-        {
+      .select("id")
+      .eq("tournament_id", playoffId)
+      .eq("team_id", seed.entryId)
+      .maybeSingle();
+    fail(existingEntry.error);
+
+    if (existingEntry.data) {
+      await client
+        .from("tournament_entries")
+        .update({ seed: seed.seed, roster_locked_at: new Date().toISOString() })
+        .eq("id", existingEntry.data.id);
+      entryIdByTeam.set(seed.entryId, existingEntry.data.id);
+    } else {
+      const created = await client
+        .from("tournament_entries")
+        .insert({
           tournament_id: playoffId,
           team_id: seed.entryId,
           status: "checked_in",
           seed: seed.seed,
           roster_locked_at: new Date().toISOString(),
-        },
-        { onConflict: "tournament_id,team_id", ignoreDuplicates: false },
-      )
-      .select("id")
-      .single();
-    if (entry.error) {
-      const found = await client
-        .from("tournament_entries")
+        })
         .select("id")
-        .eq("tournament_id", playoffId)
-        .eq("team_id", seed.entryId)
-        .maybeSingle();
-      if (!found.data) throw new Error(entry.error.message);
-      entryIdByTeam.set(seed.entryId, found.data.id);
-      continue;
+        .single();
+      fail(created.error);
+      entryIdByTeam.set(seed.entryId, created.data.id);
     }
-    entryIdByTeam.set(seed.entryId, entry.data.id);
+
 
     await client
       .from("split_qualifications")
