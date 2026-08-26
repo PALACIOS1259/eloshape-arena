@@ -4,12 +4,6 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
 
-/**
- * Staff competition operations. Authorisation happens twice: here through the
- * caller's own RLS-scoped role read, and again inside the database function,
- * which derives the actor from `auth.uid()`. No competitive value is ever
- * computed in the browser.
- */
 async function assertStaff(supabase: SupabaseClient<Database>, userId: string) {
   const { data, error } = await supabase.from("user_roles").select("role").eq("user_id", userId);
   if (error) throw new Error(error.message);
@@ -31,7 +25,7 @@ async function guarded<T>(run: () => Promise<T>): Promise<Result<T>> {
 
 export const getTournamentOps = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { tournamentId: string }) => input)
+  .validator((input: { tournamentId: string }) => input)
   .handler(async ({ data, context }) => {
     await assertStaff(context.supabase, context.userId);
     const { loadTournamentOps } = await import("./competition.server");
@@ -40,7 +34,7 @@ export const getTournamentOps = createServerFn({ method: "GET" })
 
 export const lockEntries = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { tournamentId: string }) => input)
+  .validator((input: { tournamentId: string }) => input)
   .handler(async ({ data, context }) =>
     guarded(async () => {
       await assertStaff(context.supabase, context.userId);
@@ -51,7 +45,7 @@ export const lockEntries = createServerFn({ method: "POST" })
 
 export const generateBracket = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (input: { tournamentId: string; bestOf?: number; roundBestOf?: Record<number, number> }) =>
       input,
   )
@@ -68,7 +62,7 @@ export const generateBracket = createServerFn({ method: "POST" })
 
 export const submitMatchResult = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { matchId: string; scoreA: number; scoreB: number }) => {
+  .validator((input: { matchId: string; scoreA: number; scoreB: number }) => {
     if (!Number.isInteger(input.scoreA) || !Number.isInteger(input.scoreB)) {
       throw new Error("Scores must be whole numbers.");
     }
@@ -85,7 +79,7 @@ export const submitMatchResult = createServerFn({ method: "POST" })
 
 export const closeTournament = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { tournamentId: string }) => input)
+  .validator((input: { tournamentId: string }) => input)
   .handler(async ({ data, context }) =>
     guarded(async () => {
       await assertStaff(context.supabase, context.userId);
@@ -96,7 +90,7 @@ export const closeTournament = createServerFn({ method: "POST" })
 
 export const replaceQualifier = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { splitId: string; teamId: string }) => input)
+  .validator((input: { splitId: string; teamId: string }) => input)
   .handler(async ({ data, context }) =>
     guarded(async () => {
       await assertStaff(context.supabase, context.userId);
@@ -107,7 +101,7 @@ export const replaceQualifier = createServerFn({ method: "POST" })
 
 export const advanceSplitStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { splitId: string; status: string }) => input)
+  .validator((input: { splitId: string; status: string }) => input)
   .handler(async ({ data, context }) =>
     guarded(async () => {
       await assertStaff(context.supabase, context.userId);
@@ -118,7 +112,7 @@ export const advanceSplitStatus = createServerFn({ method: "POST" })
 
 export const buildSplitPlayoffs = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (input: { splitId: string; bestOf?: number; allowShortField?: boolean; reason?: string }) => {
       if (input.allowShortField && !input.reason?.trim()) {
         throw new Error("An override reason is required for a short playoff field.");
@@ -130,14 +124,14 @@ export const buildSplitPlayoffs = createServerFn({ method: "POST" })
     guarded(async () => {
       await assertStaff(context.supabase, context.userId);
       const { generateSplitPlayoffs } = await import("./competition.server");
+      const reason = data.reason?.trim();
       return generateSplitPlayoffs(context.supabase, data.splitId, {
         bestOf: data.bestOf ?? 3,
         allowShortField: data.allowShortField ?? false,
-        reason: data.reason?.trim() || undefined,
+        ...(reason ? { reason } : {}),
       });
     }),
   );
-
 
 export const getStaffSplits = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
