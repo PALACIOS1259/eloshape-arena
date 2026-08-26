@@ -1,7 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createServerFn } from "@tanstack/react-start";
 
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import {
+  createAuthenticatedSupabaseClient,
+  requireSupabaseAuth,
+} from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
 
 async function assertStaff(supabase: SupabaseClient<Database>, userId: string) {
@@ -23,13 +26,18 @@ async function guarded<T>(run: () => Promise<T>): Promise<Result<T>> {
   }
 }
 
+function clientFor(accessToken: string) {
+  return createAuthenticatedSupabaseClient(accessToken);
+}
+
 export const getTournamentOps = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((input: { tournamentId: string }) => input)
   .handler(async ({ data, context }) => {
-    await assertStaff(context.supabase, context.userId);
+    const supabase = clientFor(context.accessToken);
+    await assertStaff(supabase, context.userId);
     const { loadTournamentOps } = await import("./competition.server");
-    return loadTournamentOps(context.supabase, data.tournamentId);
+    return loadTournamentOps(supabase, data.tournamentId);
   });
 
 export const lockEntries = createServerFn({ method: "POST" })
@@ -37,9 +45,10 @@ export const lockEntries = createServerFn({ method: "POST" })
   .validator((input: { tournamentId: string }) => input)
   .handler(async ({ data, context }) =>
     guarded(async () => {
-      await assertStaff(context.supabase, context.userId);
+      const supabase = clientFor(context.accessToken);
+      await assertStaff(supabase, context.userId);
       const { lockTournamentEntries } = await import("./competition.server");
-      return lockTournamentEntries(context.supabase, data.tournamentId);
+      return lockTournamentEntries(supabase, data.tournamentId);
     }),
   );
 
@@ -51,9 +60,10 @@ export const generateBracket = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) =>
     guarded(async () => {
-      await assertStaff(context.supabase, context.userId);
+      const supabase = clientFor(context.accessToken);
+      await assertStaff(supabase, context.userId);
       const { generateTournamentBracket } = await import("./competition.server");
-      return generateTournamentBracket(context.supabase, data.tournamentId, {
+      return generateTournamentBracket(supabase, data.tournamentId, {
         bestOf: data.bestOf ?? 1,
         roundBestOf: data.roundBestOf ?? {},
       });
@@ -71,9 +81,10 @@ export const submitMatchResult = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }) =>
     guarded(async () => {
-      await assertStaff(context.supabase, context.userId);
+      const supabase = clientFor(context.accessToken);
+      await assertStaff(supabase, context.userId);
       const { reportMatchResult } = await import("./competition.server");
-      return reportMatchResult(context.supabase, data.matchId, data.scoreA, data.scoreB);
+      return reportMatchResult(supabase, data.matchId, data.scoreA, data.scoreB);
     }),
   );
 
@@ -82,9 +93,10 @@ export const closeTournament = createServerFn({ method: "POST" })
   .validator((input: { tournamentId: string }) => input)
   .handler(async ({ data, context }) =>
     guarded(async () => {
-      await assertStaff(context.supabase, context.userId);
+      const supabase = clientFor(context.accessToken);
+      await assertStaff(supabase, context.userId);
       const { finalizeTournament } = await import("./competition.server");
-      return finalizeTournament(context.supabase, data.tournamentId);
+      return finalizeTournament(supabase, data.tournamentId);
     }),
   );
 
@@ -93,9 +105,10 @@ export const replaceQualifier = createServerFn({ method: "POST" })
   .validator((input: { splitId: string; teamId: string }) => input)
   .handler(async ({ data, context }) =>
     guarded(async () => {
-      await assertStaff(context.supabase, context.userId);
+      const supabase = clientFor(context.accessToken);
+      await assertStaff(supabase, context.userId);
       const { replaceWithdrawnQualifier } = await import("./competition.server");
-      return replaceWithdrawnQualifier(context.supabase, data.splitId, data.teamId);
+      return replaceWithdrawnQualifier(supabase, data.splitId, data.teamId);
     }),
   );
 
@@ -104,9 +117,10 @@ export const advanceSplitStatus = createServerFn({ method: "POST" })
   .validator((input: { splitId: string; status: string }) => input)
   .handler(async ({ data, context }) =>
     guarded(async () => {
-      await assertStaff(context.supabase, context.userId);
+      const supabase = clientFor(context.accessToken);
+      await assertStaff(supabase, context.userId);
       const { setSplitStatus } = await import("./competition.server");
-      return setSplitStatus(context.supabase, data.splitId, data.status);
+      return setSplitStatus(supabase, data.splitId, data.status);
     }),
   );
 
@@ -122,10 +136,11 @@ export const buildSplitPlayoffs = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) =>
     guarded(async () => {
-      await assertStaff(context.supabase, context.userId);
+      const supabase = clientFor(context.accessToken);
+      await assertStaff(supabase, context.userId);
       const { generateSplitPlayoffs } = await import("./competition.server");
       const reason = data.reason?.trim();
-      return generateSplitPlayoffs(context.supabase, data.splitId, {
+      return generateSplitPlayoffs(supabase, data.splitId, {
         bestOf: data.bestOf ?? 3,
         allowShortField: data.allowShortField ?? false,
         ...(reason ? { reason } : {}),
@@ -136,13 +151,14 @@ export const buildSplitPlayoffs = createServerFn({ method: "POST" })
 export const getStaffSplits = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertStaff(context.supabase, context.userId);
+    const supabase = clientFor(context.accessToken);
+    await assertStaff(supabase, context.userId);
     const [splits, tournaments] = await Promise.all([
-      context.supabase
+      supabase
         .from("competitive_splits")
         .select("id, slug, name, status, starts_at, ends_at, playoff_size, playoff_reveal_at")
         .order("starts_at", { ascending: false }),
-      context.supabase
+      supabase
         .from("tournaments")
         .select(
           "id, slug, name, status, split_id, qualifier_index, split_phase, entries_locked_at, bracket_generated_at, finalized_at, participants_count",
