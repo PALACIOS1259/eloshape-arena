@@ -1,15 +1,18 @@
 /**
  * Tournament registration and check-in — SERVER ONLY.
  *
- * Players have no direct write access to `tournament_entries`. Every field that
- * affects competition (seed, placement, points_awarded, status) is set here,
- * never by the browser.
+ * Normal player writes use authenticated SECURITY DEFINER RPCs. PostgreSQL
+ * derives auth.uid(), validates eligibility/geography/capacity/timing and owns
+ * the transaction, so neither localhost nor production needs a service-role
+ * credential for these player actions.
  */
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { ensureProfile } from "./profile.server";
+import type { Database } from "@/integrations/supabase/types";
 
-const CHECK_IN_WINDOW_MS = 60 * 60 * 1000; // one hour before start
+type AuthenticatedSupabaseClient = SupabaseClient<Database>;
+type RpcError = { message: string };
+type RpcResult<T> = { data: T | null; error: RpcError | null };
 
 export type RegistrationResult = {
   entryId: string;
@@ -18,146 +21,92 @@ export type RegistrationResult = {
   tournamentName: string;
 };
 
+function callRpc<T>(
+  supabase: AuthenticatedSupabaseClient,
+  fn: string,
+  args?: Record<string, unknown>,
+): Promise<RpcResult<T>> {
+  const rpc = supabase.rpc as unknown as (
+    fn: string,
+    args?: Record<string, unknown>,
+  ) => Promise<RpcResult<T>>;
+  return rpc(fn, args);
+}
+
+function friendlyRpcError(message: string) {
+  const code = message.toLowerCase();
+  if (code.includes("riot_account_missing")) return "Connect your Riot account before registering.";
+  if (code.includes("riot_rank_unverified")) return "Your Riot Solo Queue rank must be verified first.";
+  if (code.includes("account_level_below_minimum")) return "Your Riot account does not meet this tournament's minimum account level.";
+  if (code.includes("platform_mismatch")) return "Your Riot account is linked to a different server/platform.";
+  if (code.includes("division_mismatch")) return "This bracket is for another division.";
+  if (code.includes("region_mismatch")) return "This bracket is restricted to another region.";
+  if (code.includes("account_suspended")) return "Your account is suspended.";
+  if (code.includes("eligibility_rejected")) return "Your competitive eligibility was rejected. Contact moderation.";
+  if (code.includes("eligibility_pending_review")) return "Your competitive eligibility is still pending review.";
+  if (code.includes("registration_not_open")) return "Registration is not open.";
+  if (code.includes("registration_closed")) return "Registration has closed.";
+  if (code.includes("tournament_full")) return "This tournament is full.";
+  if (code.includes("already_registered")) return "You are already registered for this tournament.";
+  if (code.includes("team_registration_required")) return "This tournament requires team registration.";
+  if (code.includes("tournament_not_found")) return "Tournament not found.";
+  if (code.includes("checkin_not_open")) return "Check-in has not opened yet.";
+  if (code.includes("checkin_closed")) return "Check-in has closed.";
+  if (code.includes("checkin_not_required")) return "This tournament does not require check-in.";
+  if (code.includes("not_registered")) return "You are not registered for this tournament.";
+  if (code.includes("entry_not_checkin_eligible")) return "This entry cannot be checked in.";
+  return message;
+}
+
 export async function registerForTournament(
-  userId: string,
+  _userId: string,
+  supabase: AuthenticatedSupabaseClient,
   tournamentSlug: string,
 ): Promise<RegistrationResult> {
-  const profileId = await ensureProfile(userId);
-
-  const profile = await supabaseAdmin
-    .from("profiles")
-    .select("id, eligibility, division_id, city_id, province_id, country_id, region_id")
-    .eq("id", profileId)
-    .single();
-  if (profile.error) throw new Error(profile.error.message);
-
-  if (profile.data.eligibility === "suspended") throw new Error("Your account is suspended.");
-  if (profile.data.eligibility === "rejected") {
-    throw new Error("Your competitive eligibility was rejected. Contact moderation.");
-  }
-  if (profile.data.eligibility !== "eligible") {
-    throw new Error("Your competitive eligibility is still pending review.");
+  const { data, error } = await callRpc<Record<string, unknown>>(
+    supabase,
+    "register_my_tournament",
+    { p_slug: tournamentSlug },
+  );
+  if (error) throw new Error(friendlyRpcError(error.message));
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    throw new Error("Could not register for this tournament.");
   }
 
-  const riot = await supabaseAdmin
-    .from("riot_accounts")
-    .select("id, data_verified")
-    .eq("profile_id", profileId)
-    .maybeSingle();
-  if (!riot.data?.data_verified) {
-    throw new Error("Connect your Riot account before registering.");
-  }
+  const entryId = typeof data["entry_id"] === "string" ? data["entry_id"] : "";
+  const status = typeof data["status"] === "string" ? data["status"] : "registered";
+  const tournamentSlugResult =
+    typeof data["tournament_slug"] === "string" ? data["tournament_slug"] : tournamentSlug;
+  const tournamentName =
+    typeof data["tournament_name"] === "string" ? data["tournament_name"] : tournamentSlug;
 
-  const tournament = await supabaseAdmin
-    .from("tournaments")
-    .select(
-      "id, slug, name, status, division_id, region_id, max_participants, participants_count, registration_closes_at",
-    )
-    .eq("slug", tournamentSlug)
-    .maybeSingle();
-  if (tournament.error) throw new Error(tournament.error.message);
-  if (!tournament.data) throw new Error("Tournament not found.");
-
-  const t = tournament.data;
-  if (t.status !== "registration_open") throw new Error("Registration is not open.");
-  if (t.registration_closes_at && Date.parse(t.registration_closes_at) < Date.now()) {
-    throw new Error("Registration has closed.");
-  }
-  if (t.division_id && t.division_id !== profile.data.division_id) {
-    throw new Error("This bracket is for another division.");
-  }
-  if (t.region_id) {
-    const geography = [
-      profile.data.city_id,
-      profile.data.province_id,
-      profile.data.country_id,
-      profile.data.region_id,
-    ];
-    if (!geography.includes(t.region_id)) {
-      throw new Error("This bracket is restricted to another region.");
-    }
-  }
-
-  const existing = await supabaseAdmin
-    .from("tournament_entries")
-    .select("id, status")
-    .eq("tournament_id", t.id)
-    .eq("profile_id", profileId)
-    .maybeSingle();
-  if (existing.data && existing.data.status !== "withdrawn") {
-    throw new Error("You are already registered for this tournament.");
-  }
-
-  const { count } = await supabaseAdmin
-    .from("tournament_entries")
-    .select("id", { count: "exact", head: true })
-    .eq("tournament_id", t.id)
-    .in("status", ["registered", "checked_in"]);
-  if ((count ?? 0) >= t.max_participants) throw new Error("This tournament is full.");
-
-  const inserted = await supabaseAdmin
-    .from("tournament_entries")
-    .upsert(
-      {
-        ...(existing.data ? { id: existing.data.id } : {}),
-        tournament_id: t.id,
-        profile_id: profileId,
-        status: "registered",
-        seed: null,
-        placement: null,
-        points_awarded: 0,
-        checked_in_at: null,
-      },
-      { onConflict: "id" },
-    )
-    .select("id, status")
-    .single();
-  if (inserted.error) throw new Error(inserted.error.message);
-
-  await supabaseAdmin
-    .from("tournaments")
-    .update({ participants_count: (count ?? 0) + 1 })
-    .eq("id", t.id);
+  if (!entryId) throw new Error("Could not register for this tournament.");
 
   return {
-    entryId: inserted.data.id,
-    status: inserted.data.status,
-    tournamentSlug: t.slug,
-    tournamentName: t.name,
+    entryId,
+    status,
+    tournamentSlug: tournamentSlugResult,
+    tournamentName,
   };
 }
 
-export async function checkInToTournament(userId: string, tournamentSlug: string) {
-  const profileId = await ensureProfile(userId);
+export async function checkInToTournament(
+  _userId: string,
+  supabase: AuthenticatedSupabaseClient,
+  tournamentSlug: string,
+) {
+  const { data, error } = await callRpc<Record<string, unknown>>(
+    supabase,
+    "check_in_my_tournament",
+    { p_slug: tournamentSlug },
+  );
+  if (error) throw new Error(friendlyRpcError(error.message));
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    throw new Error("Could not check in.");
+  }
 
-  const tournament = await supabaseAdmin
-    .from("tournaments")
-    .select("id, slug, status, starts_at")
-    .eq("slug", tournamentSlug)
-    .maybeSingle();
-  if (!tournament.data) throw new Error("Tournament not found.");
-
-  const startsAt = Date.parse(tournament.data.starts_at);
-  const now = Date.now();
-  if (now < startsAt - CHECK_IN_WINDOW_MS) throw new Error("Check-in has not opened yet.");
-  if (now > startsAt) throw new Error("Check-in has closed.");
-
-  const entry = await supabaseAdmin
-    .from("tournament_entries")
-    .select("id, status")
-    .eq("tournament_id", tournament.data.id)
-    .eq("profile_id", profileId)
-    .maybeSingle();
-  if (!entry.data) throw new Error("You are not registered for this tournament.");
-  if (entry.data.status !== "registered") throw new Error("This entry cannot be checked in.");
-
-  const updated = await supabaseAdmin
-    .from("tournament_entries")
-    .update({ status: "checked_in", checked_in_at: new Date().toISOString() })
-    .eq("id", entry.data.id)
-    .select("id, status")
-    .single();
-  if (updated.error) throw new Error(updated.error.message);
-
-  return { entryId: updated.data.id, status: updated.data.status };
+  const entryId = typeof data["entry_id"] === "string" ? data["entry_id"] : "";
+  const status = typeof data["status"] === "string" ? data["status"] : "checked_in";
+  if (!entryId) throw new Error("Could not check in.");
+  return { entryId, status };
 }
