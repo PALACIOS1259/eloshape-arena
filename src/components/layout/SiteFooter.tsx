@@ -28,6 +28,7 @@ export function SiteFooter() {
             { to: "/divisions", label: "Divisions & eligibility" },
             { to: "/rules", label: "Points & rules" },
             { to: "/auth", label: "Sign in" },
+            { to: "/support", label: "Support & account requests" },
             { to: "/privacy", label: "Privacy Policy" },
             { to: "/terms", label: "Terms of Service" },
           ]}
