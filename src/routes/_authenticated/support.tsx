@@ -25,7 +25,8 @@ export const Route = createFileRoute("/_authenticated/support")({
       { title: "Support — EloShape" },
       {
         name: "description",
-        content: "Contact EloShape support, report a bug, ask a privacy question or request account deletion.",
+        content:
+          "Contact EloShape support, report a bug, ask a privacy question or request account deletion.",
       },
       { name: "robots", content: "noindex" },
     ],
@@ -106,7 +107,11 @@ function SupportPage() {
                 value={subject}
                 onChange={(event) => setSubject(event.target.value)}
                 maxLength={120}
-                placeholder={category === "account_deletion" ? "Delete my EloShape account" : "How can we help?"}
+                placeholder={
+                  category === "account_deletion"
+                    ? "Delete my EloShape account"
+                    : "How can we help?"
+                }
               />
             </div>
 
@@ -129,7 +134,9 @@ function SupportPage() {
 
             {category === "account_deletion" ? (
               <div className="rounded-md border border-destructive/30 bg-destructive/10 p-4 text-sm text-muted-foreground">
-                Submitting this request does not instantly erase tournament history. Staff will review the request and remove or anonymize personal data while preserving records that are necessary for competitive integrity or legal obligations.
+                Submitting this request does not instantly erase tournament history. Staff will
+                review the request and remove or anonymize personal data while preserving records
+                that are necessary for competitive integrity or legal obligations.
               </div>
             ) : null}
 
@@ -202,5 +209,9 @@ function categoryLabel(category: SupportCategory) {
 
 function SupportStatusBadge({ status }: { status: SupportStatus }) {
   const label = status.replace("_", " ");
-  return <Badge variant={status === "resolved" || status === "closed" ? "secondary" : "outline"}>{label}</Badge>;
+  return (
+    <Badge variant={status === "resolved" || status === "closed" ? "secondary" : "outline"}>
+      {label}
+    </Badge>
+  );
 }
