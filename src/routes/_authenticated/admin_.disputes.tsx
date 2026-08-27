@@ -104,23 +104,31 @@ function DisputeCard({ claim }: { claim: StaffMatchDispute }) {
         },
       }),
     onSuccess: (result) => {
-      if (!result.ok) return toast.error(result.error);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
       toast.success("Official result applied and bracket updated.");
       refresh();
     },
-    onError: (error) =>
-      toast.error(error instanceof Error ? error.message : "Could not resolve dispute."),
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : "Could not resolve dispute.");
+    },
   });
 
   const dismissMutation = useMutation({
     mutationFn: () => dismiss({ data: { claimId: claim.id, note: note.trim() } }),
     onSuccess: (result) => {
-      if (!result.ok) return toast.error(result.error);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
       toast.success("Result claim dismissed. Participants may submit a new result.");
       refresh();
     },
-    onError: (error) =>
-      toast.error(error instanceof Error ? error.message : "Could not dismiss claim."),
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : "Could not dismiss claim.");
+    },
   });
 
   const pending = resolveMutation.isPending || dismissMutation.isPending;
