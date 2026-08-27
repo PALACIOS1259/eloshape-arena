@@ -1,10 +1,11 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { EloShapeMark } from "@/components/brand/EloShapeLogo";
 import { PageContainer } from "@/components/layout/PageShell";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +13,8 @@ import { supabase } from "@/integrations/supabase/client";
 type AuthMode = "signin" | "signup" | "forgot";
 type Search = { mode: AuthMode };
 type SearchInput = { mode?: unknown };
+
+const LEGAL_VERSION = "2026-08-27";
 
 function strongPassword(password: string) {
   return (
@@ -50,6 +53,7 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [acceptedLegal, setAcceptedLegal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
 
@@ -78,16 +82,29 @@ function AuthPage() {
             "Use at least 10 characters with uppercase, lowercase, a number, and a symbol.",
           );
         }
+        if (!acceptedLegal) {
+          throw new Error("You must accept the Terms of Service and Privacy Policy to continue.");
+        }
 
         const { data, error } = await supabase.auth.signUp({
           email: email.trim(),
           password,
           options: {
             emailRedirectTo: window.location.origin,
-            data: { display_name: displayName.trim() },
+            data: {
+              display_name: displayName.trim(),
+              legal_acceptance: true,
+              accepted_terms_version: LEGAL_VERSION,
+              accepted_privacy_version: LEGAL_VERSION,
+            },
           },
         });
-        if (error) throw error;
+        if (error) {
+          if (error.message.toLowerCase().includes("legal_acceptance_required")) {
+            throw new Error("You must accept the Terms of Service and Privacy Policy to continue.");
+          }
+          throw error;
+        }
         if (!data.session) {
           setSent(true);
           return;
@@ -197,7 +214,33 @@ function AuthPage() {
               </div>
             ) : null}
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            {isSignup ? (
+              <div className="flex items-start gap-3 rounded-md border border-border bg-background/40 p-3">
+                <Checkbox
+                  id="legal"
+                  checked={acceptedLegal}
+                  onCheckedChange={(checked) => setAcceptedLegal(checked === true)}
+                  aria-describedby="legal-copy"
+                />
+                <label
+                  id="legal-copy"
+                  htmlFor="legal"
+                  className="text-xs leading-5 text-muted-foreground"
+                >
+                  I agree to the{" "}
+                  <Link to="/terms" className="font-semibold text-foreground hover:text-brand">
+                    Terms of Service
+                  </Link>{" "}
+                  and{" "}
+                  <Link to="/privacy" className="font-semibold text-foreground hover:text-brand">
+                    Privacy Policy
+                  </Link>
+                  .
+                </label>
+              </div>
+            ) : null}
+
+            <Button type="submit" className="w-full" disabled={loading || (isSignup && !acceptedLegal)}>
               {loading
                 ? "Please wait…"
                 : isForgot
