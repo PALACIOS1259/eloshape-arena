@@ -13,7 +13,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { PageShell } from "../components/layout/PageShell";
 import { Toaster } from "../components/ui/sonner";
 
-const siteUrl = import.meta.env.VITE_SITE_URL?.replace(/\/+$/, "");
+const siteUrl = import.meta.env["VITE_SITE_URL"]?.replace(/\/+$/, "");
 const socialImage = siteUrl ? `${siteUrl}/og-image.svg` : "/og-image.svg";
 
 function NotFoundComponent() {
