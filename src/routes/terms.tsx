@@ -32,6 +32,9 @@ function TermsPage() {
         description="Competing on EloShape means agreeing to these terms."
       />
       <PageContainer className="max-w-3xl space-y-6 py-10 text-sm text-muted-foreground">
+        <p className="text-xs font-semibold uppercase tracking-wide text-foreground">
+          Effective August 27, 2026
+        </p>
         <section>
           <h2 className="text-base font-black text-foreground">Eligibility</h2>
           <p className="mt-2">
@@ -54,6 +57,17 @@ function TermsPage() {
             EloShape ranking points are awarded exclusively from EloShape tournament results. Riot
             Solo Queue performance never generates EloShape points and EloShape does not compute an
             alternative matchmaking rating.
+          </p>
+          <p className="mt-2">
+            A participating solo player, or the captain of a registered team, may submit a match
+            result. The opposing participant or captain can confirm that result. If the parties do
+            not agree, the result enters a dispute and does not advance the bracket until EloShape
+            staff resolves it.
+          </p>
+          <p className="mt-2">
+            Staff may review submitted notes and evidence and may set the official score. The staff
+            ruling recorded by EloShape controls the bracket, standings and points. Fabricated or
+            misleading evidence may lead to disqualification, loss of eligibility or suspension.
           </p>
         </section>
         <section>
