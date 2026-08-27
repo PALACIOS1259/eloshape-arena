@@ -23,16 +23,16 @@ jobs:
       - name: Lint
         run: bun run lint
 
-      - name: Typecheck
-        run: bunx tsc --noEmit
-
-      - name: Run unit tests
-        run: bunx vitest run
-
-      - name: Build application
+      - name: Build application and generate routes
         env:
           SUPABASE_URL: https://hdlktzhjsswzcbgrnhql.supabase.co
           SUPABASE_PUBLISHABLE_KEY: sb_publishable_Yp0co0GeldsRyVLVY2p5dA_8DFcUOP7
           VITE_SUPABASE_URL: https://hdlktzhjsswzcbgrnhql.supabase.co
           VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_Yp0co0GeldsRyVLVY2p5dA_8DFcUOP7
         run: bun run build
+
+      - name: Typecheck
+        run: bunx tsc --noEmit
+
+      - name: Run unit tests
+        run: bunx vitest run
