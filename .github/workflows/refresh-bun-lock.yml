@@ -1,0 +1,40 @@
+name: Refresh Bun lockfile
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/refresh-bun-lock.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  refresh-lock:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Refresh pinned TanStack packages
+        run: >-
+          bun add --exact
+          @tanstack/react-router@1.170.19
+          @tanstack/react-start@1.168.36
+          @tanstack/router-plugin@1.168.24
+
+      - name: Commit refreshed lockfile
+        shell: bash
+        run: |
+          if git diff --quiet -- package.json bun.lock; then
+            echo "Lockfile already synchronized."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json bun.lock
+          git commit -m "chore: synchronize Bun lockfile"
+          git push origin HEAD:main
