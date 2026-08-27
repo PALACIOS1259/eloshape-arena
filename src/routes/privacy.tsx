@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { PageContainer, PageHeading } from "@/components/layout/PageShell";
 
@@ -76,10 +76,14 @@ function PrivacyPage() {
           </p>
         </section>
         <section>
-          <h2 className="text-base font-black text-foreground">Deletion</h2>
+          <h2 className="text-base font-black text-foreground">Deletion and privacy requests</h2>
           <p className="mt-2">
-            You can request account deletion at any time. Historical tournament results may be
-            retained in anonymised form to keep past brackets consistent.
+            You can request account deletion or submit another privacy request at any time from the{" "}
+            <Link to="/support" className="font-semibold text-foreground underline underline-offset-4">
+              EloShape support page
+            </Link>
+            . Historical tournament results may be retained or anonymised where necessary to keep
+            past brackets and competitive records consistent.
           </p>
         </section>
         <p className="border-t border-border pt-6 text-xs">
