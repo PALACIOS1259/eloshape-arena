@@ -32,12 +32,19 @@ function PrivacyPage() {
         description="What EloShape stores, why it stores it, and what is never shown publicly."
       />
       <PageContainer className="prose-invert max-w-3xl space-y-6 py-10 text-sm text-muted-foreground">
+        <p className="text-xs font-semibold uppercase tracking-wide text-foreground">
+          Effective August 27, 2026
+        </p>
         <section>
           <h2 className="text-base font-black text-foreground">Account data</h2>
           <p className="mt-2">
             EloShape accounts are managed with email and password authentication. Your email address
             is used for authentication and account recovery only and is never shown on public
             profiles or in public rankings.
+          </p>
+          <p className="mt-2">
+            When you create an account, EloShape records the version and time of your acceptance of
+            the Terms of Service and Privacy Policy.
           </p>
         </section>
         <section>
@@ -57,8 +64,15 @@ function PrivacyPage() {
         <section>
           <h2 className="text-base font-black text-foreground">Competitive records</h2>
           <p className="mt-2">
-            Tournament entries, match results, ranking points and achievements are public
+            Tournament entries, official match results, ranking points and achievements are public
             competitive records. Moderation notes and eligibility review notes are private to staff.
+          </p>
+          <p className="mt-2">
+            When a participant reports or disputes a result, EloShape may store the proposed score,
+            notes, an evidence URL supplied by the participant, confirmation or dispute status, and
+            the final staff resolution. These dispute materials are limited to participating users
+            and staff as needed to operate the competition; public tournament pages show the official
+            competitive result rather than private dispute notes.
           </p>
         </section>
         <section>
