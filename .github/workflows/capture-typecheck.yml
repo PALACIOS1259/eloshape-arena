@@ -1,0 +1,36 @@
+name: Capture TypeScript errors
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/capture-typecheck.yml
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - name: Generate routes
+        env:
+          SUPABASE_URL: https://hdlktzhjsswzcbgrnhql.supabase.co
+          SUPABASE_PUBLISHABLE_KEY: sb_publishable_Yp0co0GeldsRyVLVY2p5dA_8DFcUOP7
+          VITE_SUPABASE_URL: https://hdlktzhjsswzcbgrnhql.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_Yp0co0GeldsRyVLVY2p5dA_8DFcUOP7
+        run: bun run build
+      - name: Capture typecheck
+        run: bunx tsc --noEmit > fresh-tsc.txt 2>&1 || true
+      - name: Commit report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add fresh-tsc.txt
+          git commit -m "chore: capture post-build typecheck errors"
+          git push origin HEAD:main
