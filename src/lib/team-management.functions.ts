@@ -4,6 +4,7 @@ import {
   createAuthenticatedSupabaseClient,
   requireSupabaseAuth,
 } from "@/integrations/supabase/auth-middleware";
+import type { Json } from "@/integrations/supabase/types";
 
 type RpcResult<T> = { data: T | null; error: { message: string } | null };
 
@@ -38,14 +39,10 @@ export const updateMyTeamMemberRole = createServerFn({ method: "POST" })
     try {
       return {
         ok: true as const,
-        data: await rpc<Record<string, unknown>>(
-          context.accessToken,
-          "update_my_team_member_role",
-          {
-            p_handle: data.handle,
-            p_role: data.role,
-          },
-        ),
+        data: await rpc<Json>(context.accessToken, "update_my_team_member_role", {
+          p_handle: data.handle,
+          p_role: data.role,
+        }),
       };
     } catch (error) {
       return {
@@ -62,7 +59,7 @@ export const transferMyTeamCaptain = createServerFn({ method: "POST" })
     try {
       return {
         ok: true as const,
-        data: await rpc<Record<string, unknown>>(context.accessToken, "transfer_my_team_captain", {
+        data: await rpc<Json>(context.accessToken, "transfer_my_team_captain", {
           p_handle: data.handle,
         }),
       };
