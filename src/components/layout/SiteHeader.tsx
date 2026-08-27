@@ -48,7 +48,9 @@ export function SiteHeader() {
           ) : (
             <>
               <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
-                <Link to="/auth">Sign in</Link>
+                <Link to="/auth" search={{ mode: "signin" }}>
+                  Sign in
+                </Link>
               </Button>
               <Button asChild size="sm" className="hidden sm:inline-flex">
                 <Link to="/auth" search={{ mode: "signup" }}>
@@ -86,7 +88,9 @@ export function SiteHeader() {
                   ) : (
                     <>
                       <Button asChild variant="outline" onClick={() => setOpen(false)}>
-                        <Link to="/auth">Sign in</Link>
+                        <Link to="/auth" search={{ mode: "signin" }}>
+                          Sign in
+                        </Link>
                       </Button>
                       <Button asChild onClick={() => setOpen(false)}>
                         <Link to="/auth" search={{ mode: "signup" }}>
