@@ -81,6 +81,9 @@ function AdminPage() {
               <Link to="/admin/disputes">Match disputes</Link>
             </Button>
             <Button asChild variant="outline">
+              <Link to="/admin/support">Support queue</Link>
+            </Button>
+            <Button asChild variant="outline">
               <Link to="/admin/splits">Semi-Splits</Link>
             </Button>
           </div>
