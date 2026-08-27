@@ -245,7 +245,16 @@ function TournamentDetailPage() {
                                 score={match.score_b}
                                 winner={match.winner_entry_id === match.entry_b_id}
                               />
-                              <p className="eyebrow mt-3">{match.status}</p>
+                              <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                                <p className="eyebrow">{match.status}</p>
+                                {!match.is_bye && match.entry_a_id && match.entry_b_id ? (
+                                  <Button asChild size="sm" variant="outline">
+                                    <Link to="/matches/$matchId" params={{ matchId: match.id }}>
+                                      Result / dispute
+                                    </Link>
+                                  </Button>
+                                ) : null}
+                              </div>
                             </div>
                           );
                         })}

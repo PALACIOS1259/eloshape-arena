@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 
@@ -76,6 +76,16 @@ function AdminPage() {
         eyebrow="Staff"
         title="Moderation console"
         description="Anti-smurf eligibility reviews, Riot account checks and player reports. Eligibility is a manual staff decision."
+        aside={
+          <div className="flex flex-wrap gap-2">
+            <Button asChild variant="outline">
+              <Link to="/admin/disputes">Match disputes</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to="/admin/splits">Semi-Splits</Link>
+            </Button>
+          </div>
+        }
       />
 
       <PageContainer className="py-10">
