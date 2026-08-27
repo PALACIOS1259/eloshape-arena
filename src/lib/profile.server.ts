@@ -178,7 +178,10 @@ export async function updateMyProfile(
     if (error) throw new Error(error.message);
   }
 
-  const completion = await callAuthenticatedRpc<number>(supabase, "recalculate_my_profile_completion");
+  const completion = await callAuthenticatedRpc<number>(
+    supabase,
+    "recalculate_my_profile_completion",
+  );
   if (completion.error) throw new Error(completion.error.message);
 
   return loadProfileState(profileId, supabase);

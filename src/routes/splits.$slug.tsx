@@ -264,7 +264,9 @@ function SplitPage() {
                     </p>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
-                    {row.playoff_seed ? <Badge variant="outline">Seed {row.playoff_seed}</Badge> : null}
+                    {row.playoff_seed ? (
+                      <Badge variant="outline">Seed {row.playoff_seed}</Badge>
+                    ) : null}
                     <Badge variant={row.status === "qualified" ? "default" : "outline"}>
                       {row.status}
                     </Badge>

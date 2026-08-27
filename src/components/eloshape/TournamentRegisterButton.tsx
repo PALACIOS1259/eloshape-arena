@@ -5,10 +5,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import {
-  checkInMyTeamToTournament,
-  registerMyTeamForTournament,
-} from "@/lib/team.functions";
+import { checkInMyTeamToTournament, registerMyTeamForTournament } from "@/lib/team.functions";
 import {
   checkInToTournament,
   getMyTournamentEntry,

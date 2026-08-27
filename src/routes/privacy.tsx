@@ -71,8 +71,8 @@ function PrivacyPage() {
             When a participant reports or disputes a result, EloShape may store the proposed score,
             notes, an evidence URL supplied by the participant, confirmation or dispute status, and
             the final staff resolution. These dispute materials are limited to participating users
-            and staff as needed to operate the competition; public tournament pages show the official
-            competitive result rather than private dispute notes.
+            and staff as needed to operate the competition; public tournament pages show the
+            official competitive result rather than private dispute notes.
           </p>
         </section>
         <section>

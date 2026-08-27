@@ -240,7 +240,11 @@ function AuthPage() {
               </div>
             ) : null}
 
-            <Button type="submit" className="w-full" disabled={loading || (isSignup && !acceptedLegal)}>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={loading || (isSignup && !acceptedLegal)}
+            >
               {loading
                 ? "Please wait…"
                 : isForgot
@@ -274,9 +278,7 @@ function AuthPage() {
               }
               className="block w-full text-muted-foreground hover:text-foreground"
             >
-              {isSignup || isForgot
-                ? "Back to sign in"
-                : "New to EloShape? Create an account"}
+              {isSignup || isForgot ? "Back to sign in" : "New to EloShape? Create an account"}
             </button>
           </div>
         ) : null}

@@ -62,7 +62,11 @@ type Snapshot = {
 };
 
 class PublicError extends Error {
-  constructor(public code: string, message: string, public status = 400) {
+  constructor(
+    public code: string,
+    message: string,
+    public status = 400,
+  ) {
     super(message);
   }
 }
@@ -109,7 +113,9 @@ function publicKey() {
 
 function validateRiotId(gameNameInput: string, tagLineInput: string) {
   const gameName = String(gameNameInput ?? "").trim();
-  const tagLine = String(tagLineInput ?? "").replace(/^#/, "").trim();
+  const tagLine = String(tagLineInput ?? "")
+    .replace(/^#/, "")
+    .trim();
   if (gameName.length < 3 || gameName.length > 16 || tagLine.length < 2 || tagLine.length > 5) {
     throw new PublicError("invalid_riot_id", "Check your Riot ID and tag line.");
   }
@@ -139,18 +145,39 @@ async function riotFetch(url: string) {
       }
     }
     if (response.ok) return body;
-    if (response.status === 400) throw new PublicError("invalid_riot_id", "Check your Riot ID and tag line.");
-    if (response.status === 404) throw new PublicError("not_found", "We couldn't find that Riot account.", 404);
-    if (response.status === 429) throw new PublicError("rate_limited", "Riot is rate limiting us right now. Please try again in a moment.", 429);
-    if (response.status === 401 || response.status === 403) throw new PublicError("riot_unauthorized", "Riot integration is temporarily unavailable.", 503);
-    if (response.status >= 500) throw new PublicError("riot_unavailable", "Riot's service is temporarily unavailable. Please try again shortly.", 503);
+    if (response.status === 400)
+      throw new PublicError("invalid_riot_id", "Check your Riot ID and tag line.");
+    if (response.status === 404)
+      throw new PublicError("not_found", "We couldn't find that Riot account.", 404);
+    if (response.status === 429)
+      throw new PublicError(
+        "rate_limited",
+        "Riot is rate limiting us right now. Please try again in a moment.",
+        429,
+      );
+    if (response.status === 401 || response.status === 403)
+      throw new PublicError(
+        "riot_unauthorized",
+        "Riot integration is temporarily unavailable.",
+        503,
+      );
+    if (response.status >= 500)
+      throw new PublicError(
+        "riot_unavailable",
+        "Riot's service is temporarily unavailable. Please try again shortly.",
+        503,
+      );
     throw new PublicError("riot_error", "Riot data sync is temporarily unavailable.", 502);
   } catch (error) {
     if (error instanceof PublicError) throw error;
     if ((error as Error)?.name === "AbortError") {
       throw new PublicError("riot_timeout", "Riot did not respond in time. Please try again.", 504);
     }
-    throw new PublicError("riot_unavailable", "Riot's service is temporarily unavailable. Please try again shortly.", 503);
+    throw new PublicError(
+      "riot_unavailable",
+      "Riot's service is temporarily unavailable. Please try again shortly.",
+      503,
+    );
   } finally {
     clearTimeout(timeout);
   }
@@ -479,13 +506,15 @@ Deno.serve(async (req: Request) => {
     });
   } catch (error) {
     if (error instanceof PublicError) {
-      return json(req, 
+      return json(
+        req,
         { ok: false, code: error.code, error: error.message, service: serviceStatus() },
         error.status,
       );
     }
     console.error("[riot-sync] unexpected error", { name: (error as Error)?.name });
-    return json(req, 
+    return json(
+      req,
       {
         ok: false,
         code: "unknown",

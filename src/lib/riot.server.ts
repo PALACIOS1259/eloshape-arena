@@ -259,7 +259,6 @@ export async function fetchSoloQueueSnapshot(
   };
 }
 
-
 type RiotSummonerResponse = {
   puuid?: string;
   summonerLevel?: number;

@@ -15,7 +15,6 @@ const NAV = [
   { to: "/divisions", label: "Divisions" },
 ] as const;
 
-
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const { user } = useAuth();

@@ -27,7 +27,8 @@ export const Route = createFileRoute("/_authenticated/admin_/splits")({
       { title: "Semi-Split operations — EloShape Staff" },
       {
         name: "description",
-        content: "Finalize qualifier stages, manage qualification replacements and seed EloShape playoffs.",
+        content:
+          "Finalize qualifier stages, manage qualification replacements and seed EloShape playoffs.",
       },
       { name: "robots", content: "noindex" },
     ],
@@ -47,7 +48,9 @@ function SplitOperationsPage() {
   });
 
   const selected =
-    selectedSplitId ?? splitsQuery.data?.splits.find((split) => split.status !== "completed")?.id ?? null;
+    selectedSplitId ??
+    splitsQuery.data?.splits.find((split) => split.status !== "completed")?.id ??
+    null;
 
   return (
     <div>
@@ -163,7 +166,9 @@ function SplitWorkspace({ splitId }: { splitId: string }) {
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <StatusBadge status={ops.split.status} />
-              <Badge variant="outline">Top {ops.split.qualificationSlotsPerQualifier} / qualifier</Badge>
+              <Badge variant="outline">
+                Top {ops.split.qualificationSlotsPerQualifier} / qualifier
+              </Badge>
               <Badge variant="outline">{ops.split.playoffSize}-team playoffs</Badge>
             </div>
             <h2 className="mt-3 text-2xl font-black text-foreground">{ops.split.name}</h2>
@@ -183,7 +188,13 @@ function SplitWorkspace({ splitId }: { splitId: string }) {
         <StatTile
           label="Qualifiers finalized"
           value={`${r.finalizedQualifierCount}/${r.qualifierCount}`}
-          icon={r.allQualifiersFinalized ? <CheckCircle2 className="size-5" /> : <CircleAlert className="size-5" />}
+          icon={
+            r.allQualifiersFinalized ? (
+              <CheckCircle2 className="size-5" />
+            ) : (
+              <CircleAlert className="size-5" />
+            )
+          }
         />
         <StatTile
           label="Qualified"
@@ -259,10 +270,7 @@ function StageActions({
       <p className="eyebrow">Stage controls</p>
       <div className="mt-4 flex flex-wrap gap-2">
         {ops.split.status === "qualifiers" ? (
-          <Button
-            disabled={!r.canEnterSeeding || stagePending}
-            onClick={() => onStage("seeding")}
-          >
+          <Button disabled={!r.canEnterSeeding || stagePending} onClick={() => onStage("seeding")}>
             {r.canEnterSeeding
               ? "Close qualifier stage → Seeding"
               : `Finalize all qualifiers first (${r.finalizedQualifierCount}/${r.qualifierCount})`}
@@ -293,7 +301,8 @@ function StageActions({
         </Button>
       </div>
       <p className="mt-3 text-xs text-muted-foreground">
-        Finalizing each qualifier in Tournament Operations automatically awards qualification slots to the highest finishing eligible teams that are not already qualified.
+        Finalizing each qualifier in Tournament Operations automatically awards qualification slots
+        to the highest finishing eligible teams that are not already qualified.
       </p>
     </section>
   );
@@ -307,11 +316,16 @@ function QualifierReadiness({ qualifiers }: { qualifiers: StaffSplitOps["qualifi
           <p className="eyebrow">Stage 1</p>
           <h3 className="mt-1 text-xl font-black text-foreground">Open Qualifiers</h3>
         </div>
-        <span className="text-sm text-muted-foreground">Finalize → Top 4 grants happen atomically</span>
+        <span className="text-sm text-muted-foreground">
+          Finalize → Top 4 grants happen atomically
+        </span>
       </div>
       <div className="mt-4 grid gap-3 lg:grid-cols-2">
         {qualifiers.map((qualifier) => (
-          <article key={qualifier.id} className="bg-surface-gradient rounded-lg border border-border p-5">
+          <article
+            key={qualifier.id}
+            className="bg-surface-gradient rounded-lg border border-border p-5"
+          >
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="eyebrow">Qualifier #{qualifier.qualifierIndex}</p>
@@ -326,7 +340,10 @@ function QualifierReadiness({ qualifiers }: { qualifiers: StaffSplitOps["qualifi
               <StatusBadge status={qualifier.status} />
             </div>
             <div className="mt-4 grid grid-cols-3 gap-3 text-sm">
-              <Metric label="Teams" value={`${qualifier.participantsCount}/${qualifier.maxParticipants ?? "∞"}`} />
+              <Metric
+                label="Teams"
+                value={`${qualifier.participantsCount}/${qualifier.maxParticipants ?? "∞"}`}
+              />
               <Metric label="Top 4 active" value={qualifier.activeQualificationGrants} />
               <Metric label="Finalized" value={qualifier.finalizedAt ? "Yes" : "No"} />
             </div>
@@ -364,7 +381,9 @@ function Qualifications({
           <p className="eyebrow">Playoff field</p>
           <h3 className="mt-1 text-xl font-black text-foreground">Qualified teams</h3>
         </div>
-        <span className="text-sm text-muted-foreground">{active.length}/{ops.split.playoffSize} active</span>
+        <span className="text-sm text-muted-foreground">
+          {active.length}/{ops.split.playoffSize} active
+        </span>
       </div>
 
       {!ops.qualifications.length ? (
@@ -434,10 +453,13 @@ function Standings({
       <p className="eyebrow">Replacement order</p>
       <h3 className="mt-1 text-xl font-black text-foreground">Split standings</h3>
       <p className="mt-1 text-sm text-muted-foreground">
-        If a qualified team withdraws, the highest-ranked eligible non-qualified team is selected automatically.
+        If a qualified team withdraws, the highest-ranked eligible non-qualified team is selected
+        automatically.
       </p>
       {!standings.length ? (
-        <div className="mt-4"><EmptyState title="No teams have competed yet" /></div>
+        <div className="mt-4">
+          <EmptyState title="No teams have competed yet" />
+        </div>
       ) : (
         <div className="bg-surface-gradient mt-4 overflow-hidden rounded-lg border border-border">
           {standings.map((team, index) => (
@@ -461,9 +483,13 @@ function Standings({
               <div className="text-right">
                 <p className="tabular font-black text-foreground">{team.points} pts</p>
                 {team.qualification_status ? (
-                  <Badge className="mt-1" variant="outline">{team.qualification_status}</Badge>
+                  <Badge className="mt-1" variant="outline">
+                    {team.qualification_status}
+                  </Badge>
                 ) : replacementIds.has(team.team_id) ? (
-                  <Badge className="mt-1" variant="outline">replacement queue</Badge>
+                  <Badge className="mt-1" variant="outline">
+                    replacement queue
+                  </Badge>
                 ) : null}
               </div>
             </div>
@@ -492,14 +518,20 @@ function nextManualStage(status: string) {
 
 function friendlyOperationError(error?: string) {
   const text = error ?? "Operation failed.";
-  if (text.includes("qualifiers_not_finalized")) return "All Open Qualifiers must be finalized before seeding.";
+  if (text.includes("qualifiers_not_finalized"))
+    return "All Open Qualifiers must be finalized before seeding.";
   if (text.includes("qualifiers_missing")) return "This Semi-Split has no Open Qualifiers.";
   if (text.includes("playoff_field_incomplete")) return "The playoff field is not complete yet.";
   if (text.includes("playoff_field_too_small")) return "At least two qualified teams are required.";
-  if (text.includes("playoffs_not_generated")) return "Generate the playoff bracket before entering the Playoffs stage.";
-  if (text.includes("playoff_not_finalized")) return "Finalize the playoff tournament before completing the Semi-Split.";
-  if (text.includes("replacement_window_closed")) return "Qualification replacements are closed for this stage.";
-  if (text.includes("qualification_not_found")) return "That team no longer has an active qualification slot.";
-  if (text.includes("invalid_transition")) return "That Semi-Split stage transition is not allowed.";
+  if (text.includes("playoffs_not_generated"))
+    return "Generate the playoff bracket before entering the Playoffs stage.";
+  if (text.includes("playoff_not_finalized"))
+    return "Finalize the playoff tournament before completing the Semi-Split.";
+  if (text.includes("replacement_window_closed"))
+    return "Qualification replacements are closed for this stage.";
+  if (text.includes("qualification_not_found"))
+    return "That team no longer has an active qualification slot.";
+  if (text.includes("invalid_transition"))
+    return "That Semi-Split stage transition is not allowed.";
   return text;
 }

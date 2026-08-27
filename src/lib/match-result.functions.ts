@@ -99,7 +99,8 @@ function friendlyResultError(message: string) {
   }
   if (code.includes("match_not_found")) return "That match could not be found.";
   if (code.includes("match_not_reportable")) return "This match is not accepting result reports.";
-  if (code.includes("tournament_not_active")) return "This tournament is not currently accepting results.";
+  if (code.includes("tournament_not_active"))
+    return "This tournament is not currently accepting results.";
   if (code.includes("tournament_finalized")) return "This tournament has already been finalized.";
   if (code.includes("result_claim_already_exists")) {
     return "The opposing participant has already submitted a result for this match.";
@@ -109,7 +110,8 @@ function friendlyResultError(message: string) {
   if (code.includes("opponent_confirmation_required")) {
     return "The participant who submitted a result cannot confirm their own report.";
   }
-  if (code.includes("dispute_note_required")) return "Explain what is wrong before opening a dispute.";
+  if (code.includes("dispute_note_required"))
+    return "Explain what is wrong before opening a dispute.";
   if (code.includes("invalid_evidence_url")) return "Evidence must be a valid http or https link.";
   if (code.includes("note_too_long")) return "Result notes must be 1,000 characters or fewer.";
   if (code.includes("resolution_note_required")) return "Staff must enter a resolution note.";
@@ -193,24 +195,26 @@ export const getStaffMatchDisputes = createServerFn({ method: "GET" })
 
 export const resolveStaffMatchDispute = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator(
-    (input: { claimId: string; scoreA: number; scoreB: number; note: string }) => {
-      if (!Number.isInteger(input.scoreA) || !Number.isInteger(input.scoreB)) {
-        throw new Error("Scores must be whole numbers.");
-      }
-      if (input.scoreA < 0 || input.scoreB < 0) throw new Error("Scores cannot be negative.");
-      if (input.note.trim().length < 3) throw new Error("Enter a staff resolution note.");
-      return input;
-    },
-  )
+  .validator((input: { claimId: string; scoreA: number; scoreB: number; note: string }) => {
+    if (!Number.isInteger(input.scoreA) || !Number.isInteger(input.scoreB)) {
+      throw new Error("Scores must be whole numbers.");
+    }
+    if (input.scoreA < 0 || input.scoreB < 0) throw new Error("Scores cannot be negative.");
+    if (input.note.trim().length < 3) throw new Error("Enter a staff resolution note.");
+    return input;
+  })
   .handler(async ({ data, context }) => {
     try {
-      const state = await run<MatchResultState>(context.accessToken, "staff_resolve_match_dispute", {
-        p_claim: data.claimId,
-        p_score_a: data.scoreA,
-        p_score_b: data.scoreB,
-        p_note: data.note.trim(),
-      });
+      const state = await run<MatchResultState>(
+        context.accessToken,
+        "staff_resolve_match_dispute",
+        {
+          p_claim: data.claimId,
+          p_score_a: data.scoreA,
+          p_score_b: data.scoreB,
+          p_note: data.note.trim(),
+        },
+      );
       return { ok: true as const, state };
     } catch (error) {
       return {
@@ -228,10 +232,14 @@ export const dismissStaffMatchDispute = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }) => {
     try {
-      const state = await run<MatchResultState>(context.accessToken, "staff_dismiss_match_dispute", {
-        p_claim: data.claimId,
-        p_note: data.note.trim(),
-      });
+      const state = await run<MatchResultState>(
+        context.accessToken,
+        "staff_dismiss_match_dispute",
+        {
+          p_claim: data.claimId,
+          p_note: data.note.trim(),
+        },
+      );
       return { ok: true as const, state };
     } catch (error) {
       return {

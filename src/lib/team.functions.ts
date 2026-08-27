@@ -87,19 +87,25 @@ function friendlyTeamError(message: string) {
   if (code.includes("player_not_found")) return "No EloShape player was found with that handle.";
   if (code.includes("cannot_invite_self")) return "You are already the team captain.";
   if (code.includes("player_already_on_team")) return "That player is already on a team.";
-  if (code.includes("invite_already_pending")) return "That player already has a pending invite from your team.";
+  if (code.includes("invite_already_pending"))
+    return "That player already has a pending invite from your team.";
   if (code.includes("invite_not_found")) return "That team invitation is no longer available.";
   if (code.includes("invite_not_pending")) return "That team invitation has already been resolved.";
-  if (code.includes("starting_roster_full")) return "The starting roster already has five players. Invite them as a substitute instead.";
+  if (code.includes("starting_roster_full"))
+    return "The starting roster already has five players. Invite them as a substitute instead.";
   if (code.includes("team_captain_required")) return "Only the team captain can do that.";
   if (code.includes("team_member_not_found")) return "That player is not on your team.";
-  if (code.includes("cannot_remove_captain")) return "The captain cannot be removed from the roster.";
-  if (code.includes("captain_cannot_leave")) return "The captain cannot leave the team. Captain transfer/disbanding comes next.";
+  if (code.includes("cannot_remove_captain"))
+    return "The captain cannot be removed from the roster.";
+  if (code.includes("captain_cannot_leave"))
+    return "The captain cannot leave the team. Captain transfer/disbanding comes next.";
   if (code.includes("not_on_team")) return "You are not currently on a team.";
   if (code.includes("team_bio_too_long")) return "Team bio must be 500 characters or fewer.";
-  if (code.includes("team_ineligible")) return "Your team needs exactly five eligible starters with verified Riot rank and account level 30+.";
+  if (code.includes("team_ineligible"))
+    return "Your team needs exactly five eligible starters with verified Riot rank and account level 30+.";
   if (code.includes("region_mismatch")) return "This team is based outside the tournament region.";
-  if (code.includes("registration_not_open") || code.includes("registration_closed")) return "Team registration is not open.";
+  if (code.includes("registration_not_open") || code.includes("registration_closed"))
+    return "Team registration is not open.";
   if (code.includes("tournament_full")) return "This tournament is full.";
   if (code.includes("already_registered")) return "Your team is already registered.";
   if (code.includes("solo_registration_required")) return "This is not a team-mode tournament.";
@@ -123,9 +129,18 @@ export const createMyTeam = createServerFn({ method: "POST" })
   .validator((input: { name: string; tag: string }) => input)
   .handler(async ({ data, context }) => {
     try {
-      return { ok: true as const, data: await run(context.accessToken, "create_my_team", { p_name: data.name, p_tag: data.tag }) };
+      return {
+        ok: true as const,
+        data: await run(context.accessToken, "create_my_team", {
+          p_name: data.name,
+          p_tag: data.tag,
+        }),
+      };
     } catch (error) {
-      return { ok: false as const, error: error instanceof Error ? error.message : "Could not create team." };
+      return {
+        ok: false as const,
+        error: error instanceof Error ? error.message : "Could not create team.",
+      };
     }
   });
 
@@ -134,9 +149,19 @@ export const updateMyTeam = createServerFn({ method: "POST" })
   .validator((input: { name: string; tag: string; bio: string }) => input)
   .handler(async ({ data, context }) => {
     try {
-      return { ok: true as const, data: await run(context.accessToken, "update_my_team", { p_name: data.name, p_tag: data.tag, p_bio: data.bio }) };
+      return {
+        ok: true as const,
+        data: await run(context.accessToken, "update_my_team", {
+          p_name: data.name,
+          p_tag: data.tag,
+          p_bio: data.bio,
+        }),
+      };
     } catch (error) {
-      return { ok: false as const, error: error instanceof Error ? error.message : "Could not update team." };
+      return {
+        ok: false as const,
+        error: error instanceof Error ? error.message : "Could not update team.",
+      };
     }
   });
 
@@ -145,9 +170,18 @@ export const inviteMyTeamMember = createServerFn({ method: "POST" })
   .validator((input: { handle: string; role: "player" | "substitute" }) => input)
   .handler(async ({ data, context }) => {
     try {
-      return { ok: true as const, data: await run(context.accessToken, "invite_my_team_member", { p_handle: data.handle, p_role: data.role }) };
+      return {
+        ok: true as const,
+        data: await run(context.accessToken, "invite_my_team_member", {
+          p_handle: data.handle,
+          p_role: data.role,
+        }),
+      };
     } catch (error) {
-      return { ok: false as const, error: error instanceof Error ? error.message : "Could not invite player." };
+      return {
+        ok: false as const,
+        error: error instanceof Error ? error.message : "Could not invite player.",
+      };
     }
   });
 
@@ -156,9 +190,18 @@ export const respondMyTeamInvite = createServerFn({ method: "POST" })
   .validator((input: { inviteId: string; accept: boolean }) => input)
   .handler(async ({ data, context }) => {
     try {
-      return { ok: true as const, data: await run(context.accessToken, "respond_my_team_invite", { p_invite_id: data.inviteId, p_accept: data.accept }) };
+      return {
+        ok: true as const,
+        data: await run(context.accessToken, "respond_my_team_invite", {
+          p_invite_id: data.inviteId,
+          p_accept: data.accept,
+        }),
+      };
     } catch (error) {
-      return { ok: false as const, error: error instanceof Error ? error.message : "Could not respond to invite." };
+      return {
+        ok: false as const,
+        error: error instanceof Error ? error.message : "Could not respond to invite.",
+      };
     }
   });
 
@@ -167,9 +210,17 @@ export const cancelMyTeamInvite = createServerFn({ method: "POST" })
   .validator((input: { inviteId: string }) => input)
   .handler(async ({ data, context }) => {
     try {
-      return { ok: true as const, data: await run(context.accessToken, "cancel_my_team_invite", { p_invite_id: data.inviteId }) };
+      return {
+        ok: true as const,
+        data: await run(context.accessToken, "cancel_my_team_invite", {
+          p_invite_id: data.inviteId,
+        }),
+      };
     } catch (error) {
-      return { ok: false as const, error: error instanceof Error ? error.message : "Could not cancel invite." };
+      return {
+        ok: false as const,
+        error: error instanceof Error ? error.message : "Could not cancel invite.",
+      };
     }
   });
 
@@ -178,9 +229,15 @@ export const removeMyTeamMember = createServerFn({ method: "POST" })
   .validator((input: { handle: string }) => input)
   .handler(async ({ data, context }) => {
     try {
-      return { ok: true as const, data: await run(context.accessToken, "remove_my_team_member", { p_handle: data.handle }) };
+      return {
+        ok: true as const,
+        data: await run(context.accessToken, "remove_my_team_member", { p_handle: data.handle }),
+      };
     } catch (error) {
-      return { ok: false as const, error: error instanceof Error ? error.message : "Could not remove player." };
+      return {
+        ok: false as const,
+        error: error instanceof Error ? error.message : "Could not remove player.",
+      };
     }
   });
 
@@ -190,7 +247,10 @@ export const leaveMyTeam = createServerFn({ method: "POST" })
     try {
       return { ok: true as const, data: await run(context.accessToken, "leave_my_team") };
     } catch (error) {
-      return { ok: false as const, error: error instanceof Error ? error.message : "Could not leave team." };
+      return {
+        ok: false as const,
+        error: error instanceof Error ? error.message : "Could not leave team.",
+      };
     }
   });
 
@@ -199,9 +259,19 @@ export const registerMyTeamForTournament = createServerFn({ method: "POST" })
   .validator((input: { slug: string }) => input)
   .handler(async ({ data, context }) => {
     try {
-      return { ok: true as const, entry: await run<Record<string, unknown>>(context.accessToken, "register_my_team_tournament", { p_slug: data.slug }) };
+      return {
+        ok: true as const,
+        entry: await run<Record<string, unknown>>(
+          context.accessToken,
+          "register_my_team_tournament",
+          { p_slug: data.slug },
+        ),
+      };
     } catch (error) {
-      return { ok: false as const, error: error instanceof Error ? error.message : "Could not register team." };
+      return {
+        ok: false as const,
+        error: error instanceof Error ? error.message : "Could not register team.",
+      };
     }
   });
 
@@ -210,8 +280,18 @@ export const checkInMyTeamToTournament = createServerFn({ method: "POST" })
   .validator((input: { slug: string }) => input)
   .handler(async ({ data, context }) => {
     try {
-      return { ok: true as const, entry: await run<Record<string, unknown>>(context.accessToken, "check_in_my_team_tournament", { p_slug: data.slug }) };
+      return {
+        ok: true as const,
+        entry: await run<Record<string, unknown>>(
+          context.accessToken,
+          "check_in_my_team_tournament",
+          { p_slug: data.slug },
+        ),
+      };
     } catch (error) {
-      return { ok: false as const, error: error instanceof Error ? error.message : "Could not check in team." };
+      return {
+        ok: false as const,
+        error: error instanceof Error ? error.message : "Could not check in team.",
+      };
     }
   });

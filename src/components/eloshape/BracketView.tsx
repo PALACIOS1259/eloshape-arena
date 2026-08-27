@@ -46,7 +46,9 @@ function Side({
       </span>
       <span className={cn("truncate", isWinner && "font-semibold")}>
         {entry?.label ?? "TBD"}
-        {entry?.tag ? <span className="ml-1 text-xs text-muted-foreground">{entry.tag}</span> : null}
+        {entry?.tag ? (
+          <span className="ml-1 text-xs text-muted-foreground">{entry.tag}</span>
+        ) : null}
       </span>
       <span className={cn("text-xs font-semibold tabular-nums", isWinner && "text-gold")}>
         {decided ? score : ""}

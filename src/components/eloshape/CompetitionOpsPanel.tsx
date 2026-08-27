@@ -53,8 +53,7 @@ function MatchReporter({
   const [scoreB, setScoreB] = useState("");
   const report = useServerFn(submitMatchResult);
   const mutation = useMutation({
-    mutationFn: () =>
-      report({ data: { matchId, scoreA: Number(scoreA), scoreB: Number(scoreB) } }),
+    mutationFn: () => report({ data: { matchId, scoreA: Number(scoreA), scoreB: Number(scoreB) } }),
     onSuccess: (result) => {
       if (!result.ok) {
         toast.error(result.error);
@@ -150,13 +149,28 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <Button size="sm" variant="outline" disabled={pending} onClick={() => lockMutation.mutate()}>
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={pending}
+          onClick={() => lockMutation.mutate()}
+        >
           Lock rosters
         </Button>
-        <Button size="sm" variant="outline" disabled={pending} onClick={() => bracketMutation.mutate(1)}>
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={pending}
+          onClick={() => bracketMutation.mutate(1)}
+        >
           Generate bracket (Bo1)
         </Button>
-        <Button size="sm" variant="outline" disabled={pending} onClick={() => bracketMutation.mutate(3)}>
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={pending}
+          onClick={() => bracketMutation.mutate(3)}
+        >
           Generate bracket (Bo3)
         </Button>
         <Button size="sm" disabled={pending} onClick={() => closeMutation.mutate()}>
@@ -189,7 +203,11 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
                       </p>
                     </div>
                     {ready ? (
-                      <MatchReporter matchId={match.id} bestOf={match.best_of} onDone={invalidate} />
+                      <MatchReporter
+                        matchId={match.id}
+                        bestOf={match.best_of}
+                        onDone={invalidate}
+                      />
                     ) : (
                       <span className="eyebrow">Waiting on earlier round</span>
                     )}
@@ -245,7 +263,6 @@ export function CompetitionOpsPanel() {
       playoffs({ data: { bestOf: 3, ...input } }),
     ...handlers("Playoff generation"),
   });
-
 
   if (isPending) return <Skeleton className="h-48 w-full" />;
   if (!data) return <EmptyState title="Staff access required" />;
@@ -306,7 +323,6 @@ export function CompetitionOpsPanel() {
                     Seed short field…
                   </Button>
                 </div>
-
               </div>
             ))
           ) : (

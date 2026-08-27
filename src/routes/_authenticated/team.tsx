@@ -11,10 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  transferMyTeamCaptain,
-  updateMyTeamMemberRole,
-} from "@/lib/team-management.functions";
+import { transferMyTeamCaptain, updateMyTeamMemberRole } from "@/lib/team-management.functions";
 import {
   cancelMyTeamInvite,
   createMyTeam,
@@ -119,16 +116,28 @@ function IncomingInvites({ invites }: { invites: TeamHub["incomingInvites"] }) {
           <div key={invite.id} className="bg-surface-gradient rounded-lg border border-border p-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="font-semibold text-foreground">[{invite.teamTag}] {invite.teamName}</p>
+                <p className="font-semibold text-foreground">
+                  [{invite.teamTag}] {invite.teamName}
+                </p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Invited by {invite.invitedBy} · {invite.role === "substitute" ? "Substitute" : "Starter"}
+                  Invited by {invite.invitedBy} ·{" "}
+                  {invite.role === "substitute" ? "Substitute" : "Starter"}
                 </p>
               </div>
               <div className="flex gap-2">
-                <Button size="sm" onClick={() => mutation.mutate({ inviteId: invite.id, accept: true })} disabled={mutation.isPending}>
+                <Button
+                  size="sm"
+                  onClick={() => mutation.mutate({ inviteId: invite.id, accept: true })}
+                  disabled={mutation.isPending}
+                >
                   Accept
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => mutation.mutate({ inviteId: invite.id, accept: false })} disabled={mutation.isPending}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => mutation.mutate({ inviteId: invite.id, accept: false })}
+                  disabled={mutation.isPending}
+                >
                   Decline
                 </Button>
               </div>
@@ -167,14 +176,28 @@ function CreateTeamCard() {
       <div className="mt-6 grid gap-4 sm:grid-cols-[minmax(0,1fr)_10rem]">
         <label className="space-y-2 text-sm">
           <span className="font-semibold">Team name</span>
-          <Input value={name} onChange={(event) => setName(event.target.value)} placeholder="Golden Nest eSports" maxLength={40} />
+          <Input
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            placeholder="Golden Nest eSports"
+            maxLength={40}
+          />
         </label>
         <label className="space-y-2 text-sm">
           <span className="font-semibold">Tag</span>
-          <Input value={tag} onChange={(event) => setTag(event.target.value.toUpperCase())} placeholder="NGE" maxLength={6} />
+          <Input
+            value={tag}
+            onChange={(event) => setTag(event.target.value.toUpperCase())}
+            placeholder="NGE"
+            maxLength={6}
+          />
         </label>
       </div>
-      <Button className="mt-5" onClick={() => mutation.mutate()} disabled={mutation.isPending || !name.trim() || !tag.trim()}>
+      <Button
+        className="mt-5"
+        onClick={() => mutation.mutate()}
+        disabled={mutation.isPending || !name.trim() || !tag.trim()}
+      >
         {mutation.isPending ? "Creating…" : "Create team"}
       </Button>
     </div>
@@ -196,7 +219,8 @@ function ExistingTeam({ hub }: { hub: TeamHub }) {
             </div>
             <h2 className="mt-3 text-3xl font-black text-foreground">{team.name}</h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              {team.pointsSeason} pts · {team.wins}-{team.losses} · {team.championships} championships
+              {team.pointsSeason} pts · {team.wins}-{team.losses} · {team.championships}{" "}
+              championships
             </p>
           </div>
           <div className="text-right">
@@ -227,7 +251,8 @@ function Roster({ team }: { team: NonNullable<TeamHub["team"]> }) {
   };
 
   const roleMutation = useMutation({
-    mutationFn: (input: { handle: string; role: "player" | "substitute" }) => updateRole({ data: input }),
+    mutationFn: (input: { handle: string; role: "player" | "substitute" }) =>
+      updateRole({ data: input }),
     onSuccess: (result) => {
       if (!result.ok) return toast.error(result.error);
       toast.success("Roster role updated.");
@@ -260,26 +285,41 @@ function Roster({ team }: { team: NonNullable<TeamHub["team"]> }) {
           <p className="eyebrow">Roster</p>
           <h3 className="mt-1 text-xl font-black">Players</h3>
         </div>
-        <span className="text-sm text-muted-foreground">Exactly 5 starters required for team brackets</span>
+        <span className="text-sm text-muted-foreground">
+          Exactly 5 starters required for team brackets
+        </span>
       </div>
       <div className="mt-3 overflow-hidden rounded-lg border border-border">
         {team.members.map((member) => (
-          <div key={member.profileId} className="grid gap-3 border-b border-border p-4 last:border-0 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+          <div
+            key={member.profileId}
+            className="grid gap-3 border-b border-border p-4 last:border-0 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center"
+          >
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <Link to="/players/$handle" params={{ handle: member.handle }} className="font-semibold text-foreground hover:text-brand">
+                <Link
+                  to="/players/$handle"
+                  params={{ handle: member.handle }}
+                  className="font-semibold text-foreground hover:text-brand"
+                >
                   {member.displayName}
                 </Link>
                 {member.isCaptain ? <Badge>Captain</Badge> : null}
-                <Badge variant="outline">{member.role === "substitute" ? "Substitute" : "Starter"}</Badge>
+                <Badge variant="outline">
+                  {member.role === "substitute" ? "Substitute" : "Starter"}
+                </Badge>
               </div>
               <p className="mt-1 text-sm text-muted-foreground">
                 @{member.handle} · {member.riotTier ?? "Unranked"} {member.riotRank ?? ""}
                 {member.accountLevel != null ? ` · level ${member.accountLevel}` : ""}
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
-                <Badge variant={member.riotVerified ? "default" : "outline"}>{member.riotVerified ? "Riot verified" : "Riot missing"}</Badge>
-                <Badge variant={member.eligibility === "eligible" ? "default" : "outline"}>{member.eligibility.replace("_", " ")}</Badge>
+                <Badge variant={member.riotVerified ? "default" : "outline"}>
+                  {member.riotVerified ? "Riot verified" : "Riot missing"}
+                </Badge>
+                <Badge variant={member.eligibility === "eligible" ? "default" : "outline"}>
+                  {member.eligibility.replace("_", " ")}
+                </Badge>
               </div>
             </div>
 
@@ -287,7 +327,12 @@ function Roster({ team }: { team: NonNullable<TeamHub["team"]> }) {
               <div className="flex flex-wrap items-center gap-2 lg:justify-end">
                 <select
                   value={member.role}
-                  onChange={(event) => roleMutation.mutate({ handle: member.handle, role: event.target.value as "player" | "substitute" })}
+                  onChange={(event) =>
+                    roleMutation.mutate({
+                      handle: member.handle,
+                      role: event.target.value as "player" | "substitute",
+                    })
+                  }
                   disabled={roleMutation.isPending}
                   className="h-9 rounded-md border border-input bg-background px-3 text-sm"
                 >
@@ -298,13 +343,19 @@ function Roster({ team }: { team: NonNullable<TeamHub["team"]> }) {
                   size="sm"
                   variant="outline"
                   onClick={() => {
-                    if (window.confirm(`Transfer team captaincy to ${member.displayName}?`)) captainMutation.mutate(member.handle);
+                    if (window.confirm(`Transfer team captaincy to ${member.displayName}?`))
+                      captainMutation.mutate(member.handle);
                   }}
                   disabled={captainMutation.isPending}
                 >
                   <ShieldCheck className="mr-2 size-4" /> Make captain
                 </Button>
-                <Button size="sm" variant="ghost" onClick={() => removeMutation.mutate(member.handle)} disabled={removeMutation.isPending}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => removeMutation.mutate(member.handle)}
+                  disabled={removeMutation.isPending}
+                >
                   Remove
                 </Button>
               </div>
@@ -375,13 +426,25 @@ function CaptainTools({ team }: { team: NonNullable<TeamHub["team"]> }) {
           </Button>
         </div>
         <div className="mt-4 flex gap-2">
-          <Input value={handle} onChange={(event) => setHandle(event.target.value)} placeholder="EloShape handle" />
-          <select value={role} onChange={(event) => setRole(event.target.value as "player" | "substitute")} className="rounded-md border border-input bg-background px-3 text-sm">
+          <Input
+            value={handle}
+            onChange={(event) => setHandle(event.target.value)}
+            placeholder="EloShape handle"
+          />
+          <select
+            value={role}
+            onChange={(event) => setRole(event.target.value as "player" | "substitute")}
+            className="rounded-md border border-input bg-background px-3 text-sm"
+          >
             <option value="player">Starter</option>
             <option value="substitute">Substitute</option>
           </select>
         </div>
-        <Button className="mt-3" onClick={() => inviteMutation.mutate()} disabled={inviteMutation.isPending || !handle.trim()}>
+        <Button
+          className="mt-3"
+          onClick={() => inviteMutation.mutate()}
+          disabled={inviteMutation.isPending || !handle.trim()}
+        >
           {inviteMutation.isPending ? "Sending…" : "Send invite"}
         </Button>
 
@@ -390,8 +453,15 @@ function CaptainTools({ team }: { team: NonNullable<TeamHub["team"]> }) {
             <p className="eyebrow">Pending invitations</p>
             {team.pendingInvites.map((pending) => (
               <div key={pending.id} className="flex items-center justify-between gap-3 text-sm">
-                <span>@{pending.handle} · {pending.role === "substitute" ? "Substitute" : "Starter"}</span>
-                <Button size="sm" variant="ghost" onClick={() => cancelMutation.mutate(pending.id)} disabled={cancelMutation.isPending}>
+                <span>
+                  @{pending.handle} · {pending.role === "substitute" ? "Substitute" : "Starter"}
+                </span>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => cancelMutation.mutate(pending.id)}
+                  disabled={cancelMutation.isPending}
+                >
                   Cancel
                 </Button>
               </div>
@@ -404,10 +474,25 @@ function CaptainTools({ team }: { team: NonNullable<TeamHub["team"]> }) {
         <p className="eyebrow">Team profile</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_8rem]">
           <Input value={name} onChange={(event) => setName(event.target.value)} maxLength={40} />
-          <Input value={tag} onChange={(event) => setTag(event.target.value.toUpperCase())} maxLength={6} />
+          <Input
+            value={tag}
+            onChange={(event) => setTag(event.target.value.toUpperCase())}
+            maxLength={6}
+          />
         </div>
-        <Textarea className="mt-3" value={bio} onChange={(event) => setBio(event.target.value)} placeholder="Team bio" maxLength={500} />
-        <Button className="mt-3" variant="outline" onClick={() => updateMutation.mutate()} disabled={updateMutation.isPending}>
+        <Textarea
+          className="mt-3"
+          value={bio}
+          onChange={(event) => setBio(event.target.value)}
+          placeholder="Team bio"
+          maxLength={500}
+        />
+        <Button
+          className="mt-3"
+          variant="outline"
+          onClick={() => updateMutation.mutate()}
+          disabled={updateMutation.isPending}
+        >
           {updateMutation.isPending ? "Saving…" : "Save team profile"}
         </Button>
       </section>
@@ -430,8 +515,15 @@ function MemberTools() {
   return (
     <div className="rounded-lg border border-border p-5">
       <p className="eyebrow">Membership</p>
-      <p className="mt-2 text-sm text-muted-foreground">Only the captain manages tournament registration and check-in.</p>
-      <Button className="mt-4" variant="outline" onClick={() => mutation.mutate()} disabled={mutation.isPending}>
+      <p className="mt-2 text-sm text-muted-foreground">
+        Only the captain manages tournament registration and check-in.
+      </p>
+      <Button
+        className="mt-4"
+        variant="outline"
+        onClick={() => mutation.mutate()}
+        disabled={mutation.isPending}
+      >
         {mutation.isPending ? "Leaving…" : "Leave team"}
       </Button>
     </div>

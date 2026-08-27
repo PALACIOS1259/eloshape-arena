@@ -39,8 +39,7 @@ function TeamPlayerFinderPage() {
   });
 
   const inviteMutation = useMutation({
-    mutationFn: (candidate: TeamCandidate) =>
-      invite({ data: { handle: candidate.handle, role } }),
+    mutationFn: (candidate: TeamCandidate) => invite({ data: { handle: candidate.handle, role } }),
     onSuccess: (result) => {
       if (!result.ok) {
         toast.error(result.error);
@@ -90,7 +89,8 @@ function TeamPlayerFinderPage() {
             </Button>
           </div>
           <p className="mt-3 text-xs text-muted-foreground">
-            Starter-ready means eligible, Riot data verified, account level 30+, and the same EloShape division as your team.
+            Starter-ready means eligible, Riot data verified, account level 30+, and the same
+            EloShape division as your team.
           </p>
         </section>
 
@@ -156,7 +156,9 @@ function TeamPlayerFinderPage() {
 
                     <p className="mt-3 text-sm text-muted-foreground">
                       {candidate.cityName ?? "Location not set"}
-                      {candidate.accountLevel != null ? ` · account level ${candidate.accountLevel}` : " · level unknown"}
+                      {candidate.accountLevel != null
+                        ? ` · account level ${candidate.accountLevel}`
+                        : " · level unknown"}
                     </p>
 
                     <Button
@@ -166,7 +168,9 @@ function TeamPlayerFinderPage() {
                       onClick={() => inviteMutation.mutate(candidate)}
                     >
                       <UserPlus className="mr-2 size-4" />
-                      {starterBlocked ? "Not eligible as starter" : `Invite as ${role === "player" ? "starter" : "substitute"}`}
+                      {starterBlocked
+                        ? "Not eligible as starter"
+                        : `Invite as ${role === "player" ? "starter" : "substitute"}`}
                     </Button>
                   </article>
                 );

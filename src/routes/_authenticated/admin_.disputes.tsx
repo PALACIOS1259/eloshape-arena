@@ -108,7 +108,8 @@ function DisputeCard({ claim }: { claim: StaffMatchDispute }) {
       toast.success("Official result applied and bracket updated.");
       refresh();
     },
-    onError: (error) => toast.error(error instanceof Error ? error.message : "Could not resolve dispute."),
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Could not resolve dispute."),
   });
 
   const dismissMutation = useMutation({
@@ -118,7 +119,8 @@ function DisputeCard({ claim }: { claim: StaffMatchDispute }) {
       toast.success("Result claim dismissed. Participants may submit a new result.");
       refresh();
     },
-    onError: (error) => toast.error(error instanceof Error ? error.message : "Could not dismiss claim."),
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Could not dismiss claim."),
   });
 
   const pending = resolveMutation.isPending || dismissMutation.isPending;
@@ -221,7 +223,12 @@ function DisputeCard({ claim }: { claim: StaffMatchDispute }) {
             <Button
               disabled={pending || note.trim().length < 3 || scoreA === "" || scoreB === ""}
               onClick={() => {
-                if (!window.confirm(`Apply ${scoreA}–${scoreB} as the official result? This advances the bracket.`)) return;
+                if (
+                  !window.confirm(
+                    `Apply ${scoreA}–${scoreB} as the official result? This advances the bracket.`,
+                  )
+                )
+                  return;
                 resolveMutation.mutate();
               }}
             >
@@ -231,7 +238,8 @@ function DisputeCard({ claim }: { claim: StaffMatchDispute }) {
               variant="outline"
               disabled={pending || note.trim().length < 3}
               onClick={() => {
-                if (!window.confirm("Dismiss this result claim without advancing the bracket?")) return;
+                if (!window.confirm("Dismiss this result claim without advancing the bracket?"))
+                  return;
                 dismissMutation.mutate();
               }}
             >

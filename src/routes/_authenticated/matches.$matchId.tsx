@@ -81,7 +81,8 @@ function MatchResultPage() {
       updateState(result.state);
       toast.success("Result submitted. Waiting for opponent confirmation.");
     },
-    onError: (error) => toast.error(error instanceof Error ? error.message : "Could not submit result."),
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Could not submit result."),
   });
 
   const responseMutation = useMutation({
@@ -158,7 +159,9 @@ function MatchResultPage() {
               mine={state.myEntryId === state.entryA?.id}
               winner={official && state.match.winnerEntryId === state.entryA?.id}
             />
-            <div className="text-center text-xs font-black uppercase tracking-widest text-muted-foreground">VS</div>
+            <div className="text-center text-xs font-black uppercase tracking-widest text-muted-foreground">
+              VS
+            </div>
             <EntryCard
               entry={state.entryB}
               score={official ? state.match.scoreB : claim?.scoreB}
@@ -172,10 +175,13 @@ function MatchResultPage() {
           <section className="rounded-lg border border-success/30 bg-success/10 p-5">
             <p className="font-black text-success">Official result confirmed</p>
             <p className="mt-2 text-sm text-muted-foreground">
-              The bracket has been updated with the official score {state.match.scoreA}–{state.match.scoreB}.
+              The bracket has been updated with the official score {state.match.scoreA}–
+              {state.match.scoreB}.
             </p>
             {claim?.resolutionNote ? (
-              <p className="mt-3 text-sm text-muted-foreground">Staff note: {claim.resolutionNote}</p>
+              <p className="mt-3 text-sm text-muted-foreground">
+                Staff note: {claim.resolutionNote}
+              </p>
             ) : null}
           </section>
         ) : null}
@@ -190,7 +196,9 @@ function MatchResultPage() {
                   EloShape Staff must review this match before a winner advances.
                 </p>
                 {claim.responderNote ? (
-                  <p className="mt-3 text-sm text-muted-foreground">Dispute: {claim.responderNote}</p>
+                  <p className="mt-3 text-sm text-muted-foreground">
+                    Dispute: {claim.responderNote}
+                  </p>
                 ) : null}
               </div>
             </div>
@@ -215,7 +223,8 @@ function MatchResultPage() {
               Confirm {claim.scoreA}–{claim.scoreB}?
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Confirming immediately makes this the official result and advances the bracket. If the score is wrong, explain the disagreement and open a dispute.
+              Confirming immediately makes this the official result and advances the bracket. If the
+              score is wrong, explain the disagreement and open a dispute.
             </p>
             <div className="mt-5">
               <Label htmlFor="disputeNote">Dispute explanation</Label>
@@ -231,14 +240,18 @@ function MatchResultPage() {
             <div className="mt-5 flex flex-wrap gap-2">
               <Button
                 disabled={responseMutation.isPending}
-                onClick={() => responseMutation.mutate({ confirm: true, note: "Confirmed by opponent" })}
+                onClick={() =>
+                  responseMutation.mutate({ confirm: true, note: "Confirmed by opponent" })
+                }
               >
                 Confirm result
               </Button>
               <Button
                 variant="destructive"
                 disabled={responseMutation.isPending || disputeNote.trim().length < 3}
-                onClick={() => responseMutation.mutate({ confirm: false, note: disputeNote.trim() })}
+                onClick={() =>
+                  responseMutation.mutate({ confirm: false, note: disputeNote.trim() })
+                }
               >
                 Dispute result
               </Button>
@@ -248,7 +261,13 @@ function MatchResultPage() {
 
         {!official && state.canSubmit ? (
           <section className="bg-surface-gradient rounded-lg border border-border p-6 shadow-card">
-            <p className="eyebrow">{claim?.status === "dismissed" ? "Submit a new claim" : isReporter ? "Update result" : "Report result"}</p>
+            <p className="eyebrow">
+              {claim?.status === "dismissed"
+                ? "Submit a new claim"
+                : isReporter
+                  ? "Update result"
+                  : "Report result"}
+            </p>
             <h2 className="mt-2 text-xl font-black text-foreground">Enter the series score</h2>
             {claim?.status === "dismissed" && claim.resolutionNote ? (
               <p className="mt-2 rounded-md border border-border p-3 text-sm text-muted-foreground">
@@ -315,7 +334,11 @@ function MatchResultPage() {
               disabled={submitMutation.isPending || scoreA === "" || scoreB === ""}
               onClick={() => submitMutation.mutate()}
             >
-              {submitMutation.isPending ? "Submitting…" : isReporter ? "Update submitted result" : "Submit result"}
+              {submitMutation.isPending
+                ? "Submitting…"
+                : isReporter
+                  ? "Update submitted result"
+                  : "Submit result"}
             </Button>
           </section>
         ) : null}
@@ -346,7 +369,9 @@ function EntryCard({
   winner: boolean;
 }) {
   return (
-    <div className={`rounded-lg border p-4 ${mine ? "border-brand/50 bg-brand/5" : "border-border bg-background/40"}`}>
+    <div
+      className={`rounded-lg border p-4 ${mine ? "border-brand/50 bg-brand/5" : "border-border bg-background/40"}`}
+    >
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
           <p className={`truncate font-black ${winner ? "text-brand" : "text-foreground"}`}>
@@ -363,13 +388,23 @@ function EntryCard({
   );
 }
 
-function ClaimBadge({ status }: { status: MatchResultState["claim"] extends infer _T ? string : never }) {
-  const variant = status === "disputed" ? "destructive" : status === "confirmed" || status === "resolved" ? "default" : "outline";
+function ClaimBadge({
+  status,
+}: {
+  status: MatchResultState["claim"] extends infer _T ? string : never;
+}) {
+  const variant =
+    status === "disputed"
+      ? "destructive"
+      : status === "confirmed" || status === "resolved"
+        ? "default"
+        : "outline";
   return <Badge variant={variant}>{status.replaceAll("_", " ")}</Badge>;
 }
 
 function SubmittedEvidence({ claim }: { claim: NonNullable<MatchResultState["claim"]> }) {
-  if (!claim.reporterNote && !claim.evidenceUrl && !claim.responderNote && !claim.resolutionNote) return null;
+  if (!claim.reporterNote && !claim.evidenceUrl && !claim.responderNote && !claim.resolutionNote)
+    return null;
   return (
     <section className="bg-surface-gradient rounded-lg border border-border p-5">
       <p className="eyebrow">Result record</p>

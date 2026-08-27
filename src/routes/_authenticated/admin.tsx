@@ -14,7 +14,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatDate, riotRankLabel } from "@/lib/format";
 import { getAdminOverview, setPlayerEligibility } from "@/lib/admin.functions";
 
-
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
     meta: [
@@ -231,7 +230,6 @@ function AdminPage() {
               </div>
             </div>
           </>
-
         )}
       </PageContainer>
     </div>

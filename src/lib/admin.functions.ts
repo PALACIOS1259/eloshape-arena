@@ -21,10 +21,7 @@ export const getMyStaffStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const supabase = createAuthenticatedSupabaseClient(context.accessToken);
-    const { data } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", context.userId);
+    const { data } = await supabase.from("user_roles").select("role").eq("user_id", context.userId);
     const roles = (data ?? []).map((row) => row.role);
     return { isAdmin: roles.includes("admin"), isModerator: roles.includes("moderator") };
   });

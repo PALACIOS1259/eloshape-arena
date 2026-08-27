@@ -136,7 +136,9 @@ export function RiotAccountCard({
             <Field label="EloShape division" value={account.divisionName ?? "Not assigned"} />
             <Field
               label="Riot account level"
-              value={account.accountLevel !== null ? `Level ${account.accountLevel}` : "Unavailable"}
+              value={
+                account.accountLevel !== null ? `Level ${account.accountLevel}` : "Unavailable"
+              }
             />
             <Field label="Last synced" value={formatDateTime(account.lastSyncedAt)} />
           </div>

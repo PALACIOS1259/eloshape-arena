@@ -15,7 +15,8 @@ function friendly(message: string) {
   if (code.includes("starting_roster_full")) return "The starting roster already has five players.";
   if (code.includes("captain_must_be_starter")) return "The team captain must remain a starter.";
   if (code.includes("already_team_captain")) return "That player is already the team captain.";
-  if (code.includes("roster_locked_for_tournament")) return "Roster changes are locked while your team is checked in to an active tournament.";
+  if (code.includes("roster_locked_for_tournament"))
+    return "Roster changes are locked while your team is checked in to an active tournament.";
   return message;
 }
 
@@ -37,10 +38,14 @@ export const updateMyTeamMemberRole = createServerFn({ method: "POST" })
     try {
       return {
         ok: true as const,
-        data: await rpc<Record<string, unknown>>(context.accessToken, "update_my_team_member_role", {
-          p_handle: data.handle,
-          p_role: data.role,
-        }),
+        data: await rpc<Record<string, unknown>>(
+          context.accessToken,
+          "update_my_team_member_role",
+          {
+            p_handle: data.handle,
+            p_role: data.role,
+          },
+        ),
       };
     } catch (error) {
       return {

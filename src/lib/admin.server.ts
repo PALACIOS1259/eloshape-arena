@@ -25,14 +25,8 @@ function callRpc<T>(
   return rpc(fn, args);
 }
 
-export async function loadStaffRoles(
-  supabase: AuthenticatedSupabaseClient,
-  userId: string,
-) {
-  const { data, error } = await supabase
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", userId);
+export async function loadStaffRoles(supabase: AuthenticatedSupabaseClient, userId: string) {
+  const { data, error } = await supabase.from("user_roles").select("role").eq("user_id", userId);
   if (error) throw new Error(error.message);
   const roles = (data ?? []).map((row) => row.role);
   return { isAdmin: roles.includes("admin"), isModerator: roles.includes("moderator") };
@@ -115,8 +109,7 @@ export async function decideEligibility(
 
   const id = typeof data["id"] === "string" ? data["id"] : args.profileId;
   const handle = typeof data["handle"] === "string" ? data["handle"] : "";
-  const eligibility =
-    typeof data["eligibility"] === "string" ? data["eligibility"] : args.status;
+  const eligibility = typeof data["eligibility"] === "string" ? data["eligibility"] : args.status;
 
   return { id, handle, eligibility };
 }

@@ -38,19 +38,25 @@ function callRpc<T>(
 function friendlyRpcError(message: string) {
   const code = message.toLowerCase();
   if (code.includes("riot_account_missing")) return "Connect your Riot account before registering.";
-  if (code.includes("riot_rank_unverified")) return "Your Riot Solo Queue rank must be verified first.";
-  if (code.includes("account_level_below_minimum")) return "Your Riot account does not meet this tournament's minimum account level.";
-  if (code.includes("platform_mismatch")) return "Your Riot account is linked to a different server/platform.";
+  if (code.includes("riot_rank_unverified"))
+    return "Your Riot Solo Queue rank must be verified first.";
+  if (code.includes("account_level_below_minimum"))
+    return "Your Riot account does not meet this tournament's minimum account level.";
+  if (code.includes("platform_mismatch"))
+    return "Your Riot account is linked to a different server/platform.";
   if (code.includes("division_mismatch")) return "This bracket is for another division.";
   if (code.includes("region_mismatch")) return "This bracket is restricted to another region.";
   if (code.includes("account_suspended")) return "Your account is suspended.";
-  if (code.includes("eligibility_rejected")) return "Your competitive eligibility was rejected. Contact moderation.";
-  if (code.includes("eligibility_pending_review")) return "Your competitive eligibility is still pending review.";
+  if (code.includes("eligibility_rejected"))
+    return "Your competitive eligibility was rejected. Contact moderation.";
+  if (code.includes("eligibility_pending_review"))
+    return "Your competitive eligibility is still pending review.";
   if (code.includes("registration_not_open")) return "Registration is not open.";
   if (code.includes("registration_closed")) return "Registration has closed.";
   if (code.includes("tournament_full")) return "This tournament is full.";
   if (code.includes("already_registered")) return "You are already registered for this tournament.";
-  if (code.includes("team_registration_required")) return "This tournament requires team registration.";
+  if (code.includes("team_registration_required"))
+    return "This tournament requires team registration.";
   if (code.includes("tournament_not_found")) return "Tournament not found.";
   if (code.includes("checkin_not_open")) return "Check-in has not opened yet.";
   if (code.includes("checkin_closed")) return "Check-in has closed.";

@@ -33,7 +33,11 @@ export async function loadSplits() {
 
 export async function loadSplitDetail(slug: string) {
   const db = createPublicClient();
-  const split = await db.from("competitive_splits").select(SPLIT_SELECT).eq("slug", slug).maybeSingle();
+  const split = await db
+    .from("competitive_splits")
+    .select(SPLIT_SELECT)
+    .eq("slug", slug)
+    .maybeSingle();
   if (split.error) throw new Error(split.error.message);
   if (!split.data) return null;
 

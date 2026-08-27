@@ -69,8 +69,8 @@ function SplitsPage() {
                   <StatusBadge status={split.status} />
                 </div>
                 <p className="mt-3 text-sm text-muted-foreground">
-                  {formatDate(split.starts_at)} — {formatDate(split.ends_at)} ·{" "}
-                  {split.playoff_size}-team playoffs
+                  {formatDate(split.starts_at)} — {formatDate(split.ends_at)} · {split.playoff_size}
+                  -team playoffs
                 </p>
               </Link>
             ))}
