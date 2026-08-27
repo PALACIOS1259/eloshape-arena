@@ -101,7 +101,11 @@ function IncomingInvites({ invites }: { invites: TeamHub["incomingInvites"] }) {
   const mutation = useMutation({
     mutationFn: (input: { inviteId: string; accept: boolean }) => respond({ data: input }),
     onSuccess: (result) => {
-      if (!result.ok) return toast.error(result.error);
+      if (!result.ok) {
+        toast.error(result.error);
+
+        return;
+      }
       toast.success("Team invitation updated.");
       void queryClient.invalidateQueries({ queryKey: ["my-team-hub"] });
       void queryClient.invalidateQueries({ queryKey: ["teams"] });
@@ -157,7 +161,11 @@ function CreateTeamCard() {
   const mutation = useMutation({
     mutationFn: () => create({ data: { name, tag } }),
     onSuccess: (result) => {
-      if (!result.ok) return toast.error(result.error);
+      if (!result.ok) {
+        toast.error(result.error);
+
+        return;
+      }
       toast.success("Team created. You are the captain.");
       setName("");
       setTag("");
@@ -254,7 +262,11 @@ function Roster({ team }: { team: NonNullable<TeamHub["team"]> }) {
     mutationFn: (input: { handle: string; role: "player" | "substitute" }) =>
       updateRole({ data: input }),
     onSuccess: (result) => {
-      if (!result.ok) return toast.error(result.error);
+      if (!result.ok) {
+        toast.error(result.error);
+
+        return;
+      }
       toast.success("Roster role updated.");
       refresh();
     },
@@ -263,7 +275,11 @@ function Roster({ team }: { team: NonNullable<TeamHub["team"]> }) {
   const captainMutation = useMutation({
     mutationFn: (handle: string) => transferCaptain({ data: { handle } }),
     onSuccess: (result) => {
-      if (!result.ok) return toast.error(result.error);
+      if (!result.ok) {
+        toast.error(result.error);
+
+        return;
+      }
       toast.success("Captaincy transferred.");
       refresh();
     },
@@ -272,7 +288,11 @@ function Roster({ team }: { team: NonNullable<TeamHub["team"]> }) {
   const removeMutation = useMutation({
     mutationFn: (handle: string) => remove({ data: { handle } }),
     onSuccess: (result) => {
-      if (!result.ok) return toast.error(result.error);
+      if (!result.ok) {
+        toast.error(result.error);
+
+        return;
+      }
       toast.success("Player removed from roster.");
       refresh();
     },
@@ -386,7 +406,11 @@ function CaptainTools({ team }: { team: NonNullable<TeamHub["team"]> }) {
   const updateMutation = useMutation({
     mutationFn: () => update({ data: { name, tag, bio } }),
     onSuccess: (result) => {
-      if (!result.ok) return toast.error(result.error);
+      if (!result.ok) {
+        toast.error(result.error);
+
+        return;
+      }
       toast.success("Team updated.");
       refresh();
     },
@@ -395,7 +419,11 @@ function CaptainTools({ team }: { team: NonNullable<TeamHub["team"]> }) {
   const inviteMutation = useMutation({
     mutationFn: () => invite({ data: { handle, role } }),
     onSuccess: (result) => {
-      if (!result.ok) return toast.error(result.error);
+      if (!result.ok) {
+        toast.error(result.error);
+
+        return;
+      }
       toast.success("Invitation sent.");
       setHandle("");
       refresh();
@@ -405,7 +433,11 @@ function CaptainTools({ team }: { team: NonNullable<TeamHub["team"]> }) {
   const cancelMutation = useMutation({
     mutationFn: (inviteId: string) => cancel({ data: { inviteId } }),
     onSuccess: (result) => {
-      if (!result.ok) return toast.error(result.error);
+      if (!result.ok) {
+        toast.error(result.error);
+
+        return;
+      }
       toast.success("Invitation cancelled.");
       refresh();
     },
@@ -506,7 +538,11 @@ function MemberTools() {
   const mutation = useMutation({
     mutationFn: () => leave(),
     onSuccess: (result) => {
-      if (!result.ok) return toast.error(result.error);
+      if (!result.ok) {
+        toast.error(result.error);
+
+        return;
+      }
       toast.success("You left the team.");
       void queryClient.invalidateQueries({ queryKey: ["my-team-hub"] });
       void queryClient.invalidateQueries({ queryKey: ["teams"] });

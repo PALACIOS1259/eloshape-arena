@@ -122,7 +122,11 @@ function SplitWorkspace({ splitId }: { splitId: string }) {
   const stageMutation = useMutation({
     mutationFn: (status: string) => advance({ data: { splitId, status } }),
     onSuccess: (result: OperationResult) => {
-      if (!result.ok) return toast.error(friendlyOperationError(result.error));
+      if (!result.ok) {
+        toast.error(friendlyOperationError(result.error));
+
+        return;
+      }
       toast.success("Semi-Split stage updated.");
       invalidate();
     },
@@ -133,7 +137,11 @@ function SplitWorkspace({ splitId }: { splitId: string }) {
     mutationFn: (input: { allowShortField?: boolean; reason?: string }) =>
       playoffs({ data: { splitId, bestOf: 3, ...input } }),
     onSuccess: (result: OperationResult) => {
-      if (!result.ok) return toast.error(friendlyOperationError(result.error));
+      if (!result.ok) {
+        toast.error(friendlyOperationError(result.error));
+
+        return;
+      }
       toast.success("Playoff bracket generated from split standings.");
       invalidate();
     },
@@ -143,7 +151,11 @@ function SplitWorkspace({ splitId }: { splitId: string }) {
   const replacementMutation = useMutation({
     mutationFn: (teamId: string) => replace({ data: { splitId, teamId } }),
     onSuccess: (result: OperationResult) => {
-      if (!result.ok) return toast.error(friendlyOperationError(result.error));
+      if (!result.ok) {
+        toast.error(friendlyOperationError(result.error));
+
+        return;
+      }
       toast.success("Qualification replacement processed.");
       invalidate();
     },

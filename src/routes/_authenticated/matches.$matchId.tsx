@@ -77,7 +77,11 @@ function MatchResultPage() {
         },
       }),
     onSuccess: (result) => {
-      if (!result.ok) return toast.error(result.error);
+      if (!result.ok) {
+        toast.error(result.error);
+
+        return;
+      }
       updateState(result.state);
       toast.success("Result submitted. Waiting for opponent confirmation.");
     },
@@ -89,7 +93,11 @@ function MatchResultPage() {
     mutationFn: (input: { confirm: boolean; note?: string }) =>
       respondResult({ data: { matchId, ...input } }),
     onSuccess: (result, variables) => {
-      if (!result.ok) return toast.error(result.error);
+      if (!result.ok) {
+        toast.error(result.error);
+
+        return;
+      }
       updateState(result.state);
       toast.success(variables.confirm ? "Result confirmed." : "Dispute opened for Staff review.");
     },
@@ -155,7 +163,7 @@ function MatchResultPage() {
           <div className="mt-6 grid gap-3 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-center">
             <EntryCard
               entry={state.entryA}
-              score={official ? state.match.scoreA : claim?.scoreA}
+              score={official ? state.match.scoreA : (claim?.scoreA ?? null)}
               mine={state.myEntryId === state.entryA?.id}
               winner={official && state.match.winnerEntryId === state.entryA?.id}
             />
@@ -164,7 +172,7 @@ function MatchResultPage() {
             </div>
             <EntryCard
               entry={state.entryB}
-              score={official ? state.match.scoreB : claim?.scoreB}
+              score={official ? state.match.scoreB : (claim?.scoreB ?? null)}
               mine={state.myEntryId === state.entryB?.id}
               winner={official && state.match.winnerEntryId === state.entryB?.id}
             />
