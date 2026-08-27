@@ -155,11 +155,7 @@ function SupportCard({ request }: { request: StaffSupportRequest }) {
         >
           Mark in review
         </Button>
-        <Button
-          size="sm"
-          disabled={mutation.isPending}
-          onClick={() => mutation.mutate("resolved")}
-        >
+        <Button size="sm" disabled={mutation.isPending} onClick={() => mutation.mutate("resolved")}>
           Resolve
         </Button>
         <Button
