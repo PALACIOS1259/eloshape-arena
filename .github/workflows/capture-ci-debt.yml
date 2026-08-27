@@ -1,0 +1,36 @@
+name: Capture remaining CI debt
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/capture-ci-debt.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - name: Capture lint and typecheck output
+        shell: bash
+        run: |
+          set +e
+          bun run lint > ci-lint-report.txt 2>&1
+          bunx tsc --noEmit > ci-tsc-report.txt 2>&1
+          exit 0
+      - name: Commit reports
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ci-lint-report.txt ci-tsc-report.txt
+          git commit -m "chore: capture remaining CI errors"
+          git push origin HEAD:main
