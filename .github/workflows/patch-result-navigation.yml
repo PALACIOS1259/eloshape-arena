@@ -1,0 +1,86 @@
+name: Wire match result navigation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/patch-result-navigation.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Add dispute navigation
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          admin = Path("src/routes/_authenticated/admin.tsx")
+          text = admin.read_text()
+          text = text.replace(
+              'import { createFileRoute } from "@tanstack/react-router";',
+              'import { Link, createFileRoute } from "@tanstack/react-router";',
+              1,
+          )
+          old = '''      <PageHeading
+        eyebrow="Staff"
+        title="Moderation console"
+        description="Anti-smurf eligibility reviews, Riot account checks and player reports. Eligibility is a manual staff decision."
+      />'''
+          new = '''      <PageHeading
+        eyebrow="Staff"
+        title="Moderation console"
+        description="Anti-smurf eligibility reviews, Riot account checks and player reports. Eligibility is a manual staff decision."
+        aside={
+          <div className="flex flex-wrap gap-2">
+            <Button asChild variant="outline">
+              <Link to="/admin/disputes">Match disputes</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to="/admin/splits">Semi-Splits</Link>
+            </Button>
+          </div>
+        }
+      />'''
+          if old not in text:
+              raise SystemExit("Expected admin PageHeading block not found")
+          admin.write_text(text.replace(old, new, 1))
+
+          tournament = Path("src/routes/tournaments.$slug.tsx")
+          text = tournament.read_text()
+          old = '''                              <p className="eyebrow mt-3">{match.status}</p>'''
+          new = '''                              <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                                <p className="eyebrow">{match.status}</p>
+                                {!match.is_bye && match.entry_a_id && match.entry_b_id ? (
+                                  <Button asChild size="sm" variant="outline">
+                                    <Link to="/matches/$matchId" params={{ matchId: match.id }}>
+                                      Result / dispute
+                                    </Link>
+                                  </Button>
+                                ) : null}
+                              </div>'''
+          if old not in text:
+              raise SystemExit("Expected tournament match status block not found")
+          tournament.write_text(text.replace(old, new, 1))
+          PY
+
+      - name: Commit navigation
+        shell: bash
+        run: |
+          if git diff --quiet -- src/routes/_authenticated/admin.tsx 'src/routes/tournaments.$slug.tsx'; then
+            echo "Navigation already wired."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/routes/_authenticated/admin.tsx 'src/routes/tournaments.$slug.tsx'
+          git commit -m "feat: link match result and dispute workflows"
+          git push origin HEAD:main
