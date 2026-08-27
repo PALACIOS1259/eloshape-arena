@@ -4,6 +4,7 @@ import {
   createAuthenticatedSupabaseClient,
   requireSupabaseAuth,
 } from "@/integrations/supabase/auth-middleware";
+import type { Json } from "@/integrations/supabase/types";
 
 type RpcResult<T> = { data: T | null; error: { message: string } | null };
 
@@ -55,7 +56,7 @@ export type TeamHub = {
     city: null | { id: string; name: string };
     members: TeamMember[];
     pendingInvites: TeamInvite[];
-    eligibility: { eligible: boolean; active_players: number; reasons: unknown[] };
+    eligibility: { eligible: boolean; active_players: number; reasons: Json[] };
   };
 };
 
@@ -131,7 +132,7 @@ export const createMyTeam = createServerFn({ method: "POST" })
     try {
       return {
         ok: true as const,
-        data: await run(context.accessToken, "create_my_team", {
+        data: await run<Json>(context.accessToken, "create_my_team", {
           p_name: data.name,
           p_tag: data.tag,
         }),
@@ -151,7 +152,7 @@ export const updateMyTeam = createServerFn({ method: "POST" })
     try {
       return {
         ok: true as const,
-        data: await run(context.accessToken, "update_my_team", {
+        data: await run<Json>(context.accessToken, "update_my_team", {
           p_name: data.name,
           p_tag: data.tag,
           p_bio: data.bio,
@@ -172,7 +173,7 @@ export const inviteMyTeamMember = createServerFn({ method: "POST" })
     try {
       return {
         ok: true as const,
-        data: await run(context.accessToken, "invite_my_team_member", {
+        data: await run<Json>(context.accessToken, "invite_my_team_member", {
           p_handle: data.handle,
           p_role: data.role,
         }),
@@ -192,7 +193,7 @@ export const respondMyTeamInvite = createServerFn({ method: "POST" })
     try {
       return {
         ok: true as const,
-        data: await run(context.accessToken, "respond_my_team_invite", {
+        data: await run<Json>(context.accessToken, "respond_my_team_invite", {
           p_invite_id: data.inviteId,
           p_accept: data.accept,
         }),
@@ -212,7 +213,7 @@ export const cancelMyTeamInvite = createServerFn({ method: "POST" })
     try {
       return {
         ok: true as const,
-        data: await run(context.accessToken, "cancel_my_team_invite", {
+        data: await run<Json>(context.accessToken, "cancel_my_team_invite", {
           p_invite_id: data.inviteId,
         }),
       };
@@ -231,7 +232,7 @@ export const removeMyTeamMember = createServerFn({ method: "POST" })
     try {
       return {
         ok: true as const,
-        data: await run(context.accessToken, "remove_my_team_member", { p_handle: data.handle }),
+        data: await run<Json>(context.accessToken, "remove_my_team_member", { p_handle: data.handle }),
       };
     } catch (error) {
       return {
@@ -245,7 +246,7 @@ export const leaveMyTeam = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     try {
-      return { ok: true as const, data: await run(context.accessToken, "leave_my_team") };
+      return { ok: true as const, data: await run<Json>(context.accessToken, "leave_my_team") };
     } catch (error) {
       return {
         ok: false as const,
@@ -261,11 +262,9 @@ export const registerMyTeamForTournament = createServerFn({ method: "POST" })
     try {
       return {
         ok: true as const,
-        entry: await run<Record<string, unknown>>(
-          context.accessToken,
-          "register_my_team_tournament",
-          { p_slug: data.slug },
-        ),
+        entry: await run<Json>(context.accessToken, "register_my_team_tournament", {
+          p_slug: data.slug,
+        }),
       };
     } catch (error) {
       return {
@@ -282,11 +281,9 @@ export const checkInMyTeamToTournament = createServerFn({ method: "POST" })
     try {
       return {
         ok: true as const,
-        entry: await run<Record<string, unknown>>(
-          context.accessToken,
-          "check_in_my_team_tournament",
-          { p_slug: data.slug },
-        ),
+        entry: await run<Json>(context.accessToken, "check_in_my_team_tournament", {
+          p_slug: data.slug,
+        }),
       };
     } catch (error) {
       return {
