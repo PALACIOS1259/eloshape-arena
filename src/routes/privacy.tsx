@@ -79,7 +79,10 @@ function PrivacyPage() {
           <h2 className="text-base font-black text-foreground">Deletion and privacy requests</h2>
           <p className="mt-2">
             You can request account deletion or submit another privacy request at any time from the{" "}
-            <Link to="/support" className="font-semibold text-foreground underline underline-offset-4">
+            <Link
+              to="/support"
+              className="font-semibold text-foreground underline underline-offset-4"
+            >
               EloShape support page
             </Link>
             . Historical tournament results may be retained or anonymised where necessary to keep
