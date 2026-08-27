@@ -34,10 +34,16 @@ function friendlySupportError(message: string) {
   const code = message.toLowerCase();
   if (code.includes("authentication_required")) return "Sign in to contact EloShape support.";
   if (code.includes("invalid_support_category")) return "Choose a valid support category.";
-  if (code.includes("invalid_support_subject")) return "Subject must be between 3 and 120 characters.";
-  if (code.includes("invalid_support_message")) return "Message must be between 10 and 4,000 characters.";
+  if (code.includes("invalid_support_subject")) {
+    return "Subject must be between 3 and 120 characters.";
+  }
+  if (code.includes("invalid_support_message")) {
+    return "Message must be between 10 and 4,000 characters.";
+  }
   if (code.includes("invalid_support_status")) return "Choose a valid support status.";
-  if (code.includes("support_response_too_long")) return "Staff response must be 2,000 characters or fewer.";
+  if (code.includes("support_response_too_long")) {
+    return "Staff response must be 2,000 characters or fewer.";
+  }
   if (code.includes("support_request_not_found")) return "That support request could not be found.";
   if (code.includes("forbidden")) return "Staff access required.";
   return message;
@@ -62,19 +68,17 @@ export const getMySupportRequests = createServerFn({ method: "GET" })
 
 export const submitMySupportRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator(
-    (input: { category: SupportCategory; subject: string; message: string }) => {
-      const subject = input.subject.trim();
-      const message = input.message.trim();
-      if (subject.length < 3 || subject.length > 120) {
-        throw new Error("Subject must be between 3 and 120 characters.");
-      }
-      if (message.length < 10 || message.length > 4000) {
-        throw new Error("Message must be between 10 and 4,000 characters.");
-      }
-      return { category: input.category, subject, message };
-    },
-  )
+  .validator((input: { category: SupportCategory; subject: string; message: string }) => {
+    const subject = input.subject.trim();
+    const message = input.message.trim();
+    if (subject.length < 3 || subject.length > 120) {
+      throw new Error("Subject must be between 3 and 120 characters.");
+    }
+    if (message.length < 10 || message.length > 4000) {
+      throw new Error("Message must be between 10 and 4,000 characters.");
+    }
+    return { category: input.category, subject, message };
+  })
   .handler(async ({ data, context }) => {
     try {
       const result = await rpc<{ ok: boolean; id: string; status: SupportStatus }>(
