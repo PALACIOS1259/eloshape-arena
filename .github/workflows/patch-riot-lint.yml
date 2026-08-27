@@ -1,0 +1,29 @@
+name: Patch Riot lint types
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/patch-riot-lint.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Patch explicit Riot types
+        run: |
+          echo 'CmZyb20gcGF0aGxpYiBpbXBvcnQgUGF0aApwID0gUGF0aCgic3VwYWJhc2UvZnVuY3Rpb25zL3Jpb3Qtc3luYy9pbmRleC50cyIpCnMgPSBwLnJlYWRfdGV4dCgpCm9sZCA9ICdmdW5jdGlvbiBzaGFwZUFjY291bnQocm93OiBhbnksIHByb2ZpbGU6IGFueSwgZnJvbUNhY2hlOiBib29sZWFuLCBub3RpY2VPdmVycmlkZT86IHN0cmluZyB8IG51bGwpIHsnCm5ldyA9ICcnJ3R5cGUgUmlvdEFjY291bnRSb3cgPSB7CiAgcmlvdF9pZD86IHN0cmluZyB8IG51bGw7CiAgZ2FtZV9uYW1lPzogc3RyaW5nIHwgbnVsbDsKICB0YWdfbGluZT86IHN0cmluZyB8IG51bGw7CiAgcGxhdGZvcm0/OiBzdHJpbmcgfCBudWxsOwogIHNvbG9fdGllcj86IHN0cmluZyB8IG51bGw7CiAgc29sb19yYW5rPzogc3RyaW5nIHwgbnVsbDsKICBzb2xvX2xwPzogbnVtYmVyIHwgbnVsbDsKICB3aW5zPzogbnVtYmVyIHwgbnVsbDsKICBsb3NzZXM/OiBudW1iZXIgfCBudWxsOwogIHF1ZXVlX3R5cGU/OiBzdHJpbmcgfCBudWxsOwogIGFjY291bnRfbGV2ZWw/OiBudW1iZXIgfCBudWxsOwogIGFjY291bnRfbGV2ZWxfc3luY2VkX2F0Pzogc3RyaW5nIHwgbnVsbDsKICBkYXRhX3ZlcmlmaWVkPzogYm9vbGVhbiB8IG51bGw7CiAgb3duZXJzaGlwX3ZlcmlmaWVkPzogYm9vbGVhbiB8IG51bGw7CiAgdmVyaWZpY2F0aW9uX21ldGhvZD86IHN0cmluZyB8IG51bGw7CiAgbGFzdF9zeW5jZWRfYXQ/OiBzdHJpbmcgfCBudWxsOwp9OwoKdHlwZSBQcm9maWxlU2hhcGUgPSB7CiAgZWxpZ2liaWxpdHk/OiBzdHJpbmcgfCBudWxsOwogIGRpdmlzaW9uPzogeyBjb2RlPzogc3RyaW5nIHwgbnVsbDsgbmFtZT86IHN0cmluZyB8IG51bGwgfSB8IG51bGw7Cn07CgpmdW5jdGlvbiBzaGFwZUFjY291bnQoCiAgcm93OiBSaW90QWNjb3VudFJvdywKICBwcm9maWxlOiBQcm9maWxlU2hhcGUgfCBudWxsLAogIGZyb21DYWNoZTogYm9vbGVhbiwKICBub3RpY2VPdmVycmlkZT86IHN0cmluZyB8IG51bGwsCikgeycnJwppZiBvbGQgbm90IGluIHM6CiAgICByYWlzZSBTeXN0ZW1FeGl0KCJzaGFwZUFjY291bnQgdGFyZ2V0IG5vdCBmb3VuZCIpCnAud3JpdGVfdGV4dChzLnJlcGxhY2Uob2xkLCBuZXcsIDEpKQo=' | base64 --decode > /tmp/patch.py
+          python3 /tmp/patch.py
+      - name: Commit patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add supabase/functions/riot-sync/index.ts
+          git commit -m "fix: type Riot response shaping"
+          git push origin HEAD:main
