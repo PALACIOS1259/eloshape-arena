@@ -232,7 +232,9 @@ export const removeMyTeamMember = createServerFn({ method: "POST" })
     try {
       return {
         ok: true as const,
-        data: await run<Json>(context.accessToken, "remove_my_team_member", { p_handle: data.handle }),
+        data: await run<Json>(context.accessToken, "remove_my_team_member", {
+          p_handle: data.handle,
+        }),
       };
     } catch (error) {
       return {
