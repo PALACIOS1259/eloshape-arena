@@ -1,12 +1,39 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.112.4";
 
-const CORS = {
-  "Access-Control-Allow-Origin": "*",
+const BASE_CORS: Record<string, string> = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Content-Type": "application/json",
 };
+
+const DEFAULT_ALLOWED_ORIGINS = [
+  "http://localhost:8080",
+  "http://127.0.0.1:8080",
+  "https://eloshape-compete-elevate.lovable.app",
+  "https://id-preview--b25a5d43-ea7c-4091-b928-2da59c732426.lovable.app",
+];
+
+const ALLOWED_ORIGINS = new Set([
+  ...DEFAULT_ALLOWED_ORIGINS,
+  ...(Deno.env.get("ELOSHAPE_ALLOWED_ORIGINS") ?? "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean),
+]);
+
+function isAllowedOrigin(origin: string) {
+  return ALLOWED_ORIGINS.has(origin);
+}
+
+function corsHeaders(req: Request) {
+  const headers: Record<string, string> = { ...BASE_CORS, Vary: "Origin" };
+  const origin = req.headers.get("Origin");
+  if (origin && isAllowedOrigin(origin)) {
+    headers["Access-Control-Allow-Origin"] = origin;
+  }
+  return headers;
+}
 
 const PLATFORM = "LA2";
 const PLATFORM_HOST = "https://la2.api.riotgames.com";
@@ -40,8 +67,8 @@ class PublicError extends Error {
   }
 }
 
-function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: CORS });
+function json(req: Request, body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), { status, headers: corsHeaders(req) });
 }
 
 function serviceStatus() {
@@ -224,7 +251,16 @@ function shapeAccount(row: any, profile: any, fromCache: boolean, noticeOverride
 }
 
 Deno.serve(async (req: Request) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
+  const origin = req.headers.get("Origin");
+  if (origin && !isAllowedOrigin(origin)) {
+    return new Response(
+      JSON.stringify({ ok: false, code: "origin_not_allowed", error: "Origin not allowed." }),
+      { status: 403, headers: { ...BASE_CORS, Vary: "Origin" } },
+    );
+  }
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders(req) });
+  }
 
   try {
     const status = serviceStatus();
@@ -256,8 +292,8 @@ Deno.serve(async (req: Request) => {
       throw new PublicError("unauthorized", "Sign in to continue.", 401);
     }
 
-    if (req.method === "GET") return json({ service: status });
-    if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
+    if (req.method === "GET") return json(req, { service: status });
+    if (req.method !== "POST") return json(req, { error: "Method not allowed" }, 405);
 
     const input = (await req.json().catch(() => ({}))) as Record<string, unknown>;
     const action = input.action === "refresh" ? "refresh" : "connect";
@@ -293,7 +329,7 @@ Deno.serve(async (req: Request) => {
           .eq("id", profileId)
           .single();
         const wait = Math.ceil((REFRESH_COOLDOWN_MS - elapsed) / 60000);
-        return json({
+        return json(req, {
           ok: true,
           account: shapeAccount(
             existing,
@@ -436,20 +472,20 @@ Deno.serve(async (req: Request) => {
       .eq("id", profileId)
       .single();
 
-    return json({
+    return json(req, {
       ok: true,
       account: shapeAccount(upsert.data, profileAfter.data, false),
       service: status,
     });
   } catch (error) {
     if (error instanceof PublicError) {
-      return json(
+      return json(req, 
         { ok: false, code: error.code, error: error.message, service: serviceStatus() },
         error.status,
       );
     }
     console.error("[riot-sync] unexpected error", { name: (error as Error)?.name });
-    return json(
+    return json(req, 
       {
         ok: false,
         code: "unknown",
