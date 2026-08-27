@@ -244,7 +244,36 @@ function connectionNotice(tier: string, accountLevel: number | null) {
   return null;
 }
 
-function shapeAccount(row: any, profile: any, fromCache: boolean, noticeOverride?: string | null) {
+type RiotAccountRow = {
+  riot_id?: string | null;
+  game_name?: string | null;
+  tag_line?: string | null;
+  platform?: string | null;
+  solo_tier?: string | null;
+  solo_rank?: string | null;
+  solo_lp?: number | null;
+  wins?: number | null;
+  losses?: number | null;
+  queue_type?: string | null;
+  account_level?: number | null;
+  account_level_synced_at?: string | null;
+  data_verified?: boolean | null;
+  ownership_verified?: boolean | null;
+  verification_method?: string | null;
+  last_synced_at?: string | null;
+};
+
+type ProfileShape = {
+  eligibility?: string | null;
+  division?: { code?: string | null; name?: string | null } | null;
+};
+
+function shapeAccount(
+  row: RiotAccountRow,
+  profile: ProfileShape | null,
+  fromCache: boolean,
+  noticeOverride?: string | null,
+) {
   const tier = row.solo_tier ?? "UNRANKED";
   return {
     riotId: row.riot_id,
