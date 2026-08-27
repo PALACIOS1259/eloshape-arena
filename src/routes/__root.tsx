@@ -13,6 +13,9 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { PageShell } from "../components/layout/PageShell";
 import { Toaster } from "../components/ui/sonner";
 
+const siteUrl = import.meta.env.VITE_SITE_URL?.replace(/\/+$/, "");
+const socialImage = siteUrl ? `${siteUrl}/og-image.svg` : "/og-image.svg";
+
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -81,13 +84,24 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "EloShape is a competitive League of Legends platform for amateur players: skill-based divisions, city-to-region tournaments and rankings earned only on the circuit.",
       },
       { name: "author", content: "EloShape" },
+      { property: "og:site_name", content: "EloShape" },
       { property: "og:title", content: "EloShape — Competitive League of Legends circuit" },
       {
         property: "og:description",
         content: "Skill-based divisions, city-to-region tournaments and honest rankings.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:image", content: socialImage },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: "EloShape competitive circuit" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "EloShape — Competitive League of Legends circuit" },
+      {
+        name: "twitter:description",
+        content: "No necesitás ser Challenger para competir.",
+      },
+      { name: "twitter:image", content: socialImage },
     ],
 
     links: [
