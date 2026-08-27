@@ -53,41 +53,61 @@ export function TournamentRegisterButton({
   const soloRegisterMutation = useMutation({
     mutationFn: () => registerSolo({ data: { slug } }),
     onSuccess: (result) => {
-      if (!result.ok) return toast.error(result.error);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
       toast.success(`Registered for ${result.entry.tournamentName}.`);
       invalidate();
     },
-    onError: () => toast.error("Could not register for this tournament."),
+    onError: () => {
+      toast.error("Could not register for this tournament.");
+    },
   });
 
   const teamRegisterMutation = useMutation({
     mutationFn: () => registerTeam({ data: { slug } }),
     onSuccess: (result) => {
-      if (!result.ok) return toast.error(result.error);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
       toast.success("Team registered.");
       invalidate();
     },
-    onError: () => toast.error("Could not register your team."),
+    onError: () => {
+      toast.error("Could not register your team.");
+    },
   });
 
   const soloCheckInMutation = useMutation({
     mutationFn: () => checkInSolo({ data: { slug } }),
     onSuccess: (result) => {
-      if (!result.ok) return toast.error(result.error);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
       toast.success("Checked in.");
       invalidate();
     },
-    onError: () => toast.error("Could not check in."),
+    onError: () => {
+      toast.error("Could not check in.");
+    },
   });
 
   const teamCheckInMutation = useMutation({
     mutationFn: () => checkInTeam({ data: { slug } }),
     onSuccess: (result) => {
-      if (!result.ok) return toast.error(result.error);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
       toast.success("Team checked in.");
       invalidate();
     },
-    onError: () => toast.error("Could not check in your team."),
+    onError: () => {
+      toast.error("Could not check in your team.");
+    },
   });
 
   if (loading) return null;
