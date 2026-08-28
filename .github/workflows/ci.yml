@@ -31,12 +31,8 @@ jobs:
           VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_Yp0co0GeldsRyVLVY2p5dA_8DFcUOP7
         run: bun run build
 
-      - name: Export generated route tree
-        uses: actions/upload-artifact@v4
-        with:
-          name: generated-route-tree
-          path: src/routeTree.gen.ts
-          retention-days: 1
+      - name: Verify generated route tree is committed
+        run: git diff --exit-code -- src/routeTree.gen.ts
 
       - name: Typecheck
         run: bunx tsc --noEmit
