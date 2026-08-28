@@ -18,6 +18,8 @@ function friendly(message: string) {
   if (code.includes("already_team_captain")) return "That player is already the team captain.";
   if (code.includes("roster_locked_for_tournament"))
     return "Roster changes are locked while your team is checked in to an active tournament.";
+  if (code.includes("team_active_tournament"))
+    return "You cannot disband the team while it is checked in to or competing in an active tournament.";
   return message;
 }
 
@@ -67,6 +69,22 @@ export const transferMyTeamCaptain = createServerFn({ method: "POST" })
       return {
         ok: false as const,
         error: error instanceof Error ? error.message : "Could not transfer team captaincy.",
+      };
+    }
+  });
+
+export const archiveMyTeam = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    try {
+      return {
+        ok: true as const,
+        data: await rpc<Json>(context.accessToken, "archive_my_team", {}),
+      };
+    } catch (error) {
+      return {
+        ok: false as const,
+        error: error instanceof Error ? error.message : "Could not disband team.",
       };
     }
   });
