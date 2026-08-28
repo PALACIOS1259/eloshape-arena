@@ -19,6 +19,9 @@ import { Route as RulesRouteImport } from './routes/rules'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticated/support'
+import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/team'
+import { Route as AuthResetPasswordRouteImport } from './routes/auth_.reset-password'
 import { Route as PlayersHandleRouteImport } from './routes/players.$handle'
 import { Route as SplitsIndexRouteImport } from './routes/splits.index'
 import { Route as SplitsSlugRouteImport } from './routes/splits.$slug'
@@ -26,6 +29,12 @@ import { Route as TeamsIndexRouteImport } from './routes/teams.index'
 import { Route as TeamsSlugRouteImport } from './routes/teams.$slug'
 import { Route as TournamentsIndexRouteImport } from './routes/tournaments.index'
 import { Route as TournamentsSlugRouteImport } from './routes/tournaments.$slug'
+import { Route as AuthenticatedAdminDisputesRouteImport } from './routes/_authenticated/admin_.disputes'
+import { Route as AuthenticatedAdminSplitsRouteImport } from './routes/_authenticated/admin_.splits'
+import { Route as AuthenticatedAdminSupportRouteImport } from './routes/_authenticated/admin_.support'
+import { Route as AuthenticatedMatchesMatchIdRouteImport } from './routes/_authenticated/matches.$matchId'
+import { Route as AuthenticatedTeamPlayersRouteImport } from './routes/_authenticated/team_.players'
+import { Route as AuthenticatedTeamSettingsRouteImport } from './routes/_authenticated/team_.settings'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -76,6 +85,21 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSupportRoute = AuthenticatedSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedTeamRoute = AuthenticatedTeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
+  id: '/auth_/reset-password',
+  path: '/auth/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PlayersHandleRoute = PlayersHandleRouteImport.update({
   id: '/players/$handle',
   path: '/players/$handle',
@@ -111,6 +135,42 @@ const TournamentsSlugRoute = TournamentsSlugRouteImport.update({
   path: '/tournaments/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminDisputesRoute =
+  AuthenticatedAdminDisputesRouteImport.update({
+    id: '/admin_/disputes',
+    path: '/admin/disputes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminSplitsRoute =
+  AuthenticatedAdminSplitsRouteImport.update({
+    id: '/admin_/splits',
+    path: '/admin/splits',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminSupportRoute =
+  AuthenticatedAdminSupportRouteImport.update({
+    id: '/admin_/support',
+    path: '/admin/support',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMatchesMatchIdRoute =
+  AuthenticatedMatchesMatchIdRouteImport.update({
+    id: '/matches/$matchId',
+    path: '/matches/$matchId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedTeamPlayersRoute =
+  AuthenticatedTeamPlayersRouteImport.update({
+    id: '/team_/players',
+    path: '/team/players',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedTeamSettingsRoute =
+  AuthenticatedTeamSettingsRouteImport.update({
+    id: '/team_/settings',
+    path: '/team/settings',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -122,6 +182,9 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/support': typeof AuthenticatedSupportRoute
+  '/team': typeof AuthenticatedTeamRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
   '/players/$handle': typeof PlayersHandleRoute
   '/splits/$slug': typeof SplitsSlugRoute
   '/teams/$slug': typeof TeamsSlugRoute
@@ -129,6 +192,12 @@ export interface FileRoutesByFullPath {
   '/splits/': typeof SplitsIndexRoute
   '/teams/': typeof TeamsIndexRoute
   '/tournaments/': typeof TournamentsIndexRoute
+  '/admin/disputes': typeof AuthenticatedAdminDisputesRoute
+  '/admin/splits': typeof AuthenticatedAdminSplitsRoute
+  '/admin/support': typeof AuthenticatedAdminSupportRoute
+  '/matches/$matchId': typeof AuthenticatedMatchesMatchIdRoute
+  '/team/players': typeof AuthenticatedTeamPlayersRoute
+  '/team/settings': typeof AuthenticatedTeamSettingsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -140,6 +209,9 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/support': typeof AuthenticatedSupportRoute
+  '/team': typeof AuthenticatedTeamRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
   '/players/$handle': typeof PlayersHandleRoute
   '/splits/$slug': typeof SplitsSlugRoute
   '/teams/$slug': typeof TeamsSlugRoute
@@ -147,6 +219,12 @@ export interface FileRoutesByTo {
   '/splits': typeof SplitsIndexRoute
   '/teams': typeof TeamsIndexRoute
   '/tournaments': typeof TournamentsIndexRoute
+  '/admin/disputes': typeof AuthenticatedAdminDisputesRoute
+  '/admin/splits': typeof AuthenticatedAdminSplitsRoute
+  '/admin/support': typeof AuthenticatedAdminSupportRoute
+  '/matches/$matchId': typeof AuthenticatedMatchesMatchIdRoute
+  '/team/players': typeof AuthenticatedTeamPlayersRoute
+  '/team/settings': typeof AuthenticatedTeamSettingsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -160,6 +238,9 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/support': typeof AuthenticatedSupportRoute
+  '/_authenticated/team': typeof AuthenticatedTeamRoute
+  '/auth_/reset-password': typeof AuthResetPasswordRoute
   '/players/$handle': typeof PlayersHandleRoute
   '/splits/$slug': typeof SplitsSlugRoute
   '/teams/$slug': typeof TeamsSlugRoute
@@ -167,6 +248,12 @@ export interface FileRoutesById {
   '/splits/': typeof SplitsIndexRoute
   '/teams/': typeof TeamsIndexRoute
   '/tournaments/': typeof TournamentsIndexRoute
+  '/_authenticated/admin_/disputes': typeof AuthenticatedAdminDisputesRoute
+  '/_authenticated/admin_/splits': typeof AuthenticatedAdminSplitsRoute
+  '/_authenticated/admin_/support': typeof AuthenticatedAdminSupportRoute
+  '/_authenticated/matches/$matchId': typeof AuthenticatedMatchesMatchIdRoute
+  '/_authenticated/team_/players': typeof AuthenticatedTeamPlayersRoute
+  '/_authenticated/team_/settings': typeof AuthenticatedTeamSettingsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -180,6 +267,9 @@ export interface FileRouteTypes {
     | '/terms'
     | '/admin'
     | '/dashboard'
+    | '/support'
+    | '/team'
+    | '/auth/reset-password'
     | '/players/$handle'
     | '/splits/$slug'
     | '/teams/$slug'
@@ -187,6 +277,12 @@ export interface FileRouteTypes {
     | '/splits/'
     | '/teams/'
     | '/tournaments/'
+    | '/admin/disputes'
+    | '/admin/splits'
+    | '/admin/support'
+    | '/matches/$matchId'
+    | '/team/players'
+    | '/team/settings'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -198,6 +294,9 @@ export interface FileRouteTypes {
     | '/terms'
     | '/admin'
     | '/dashboard'
+    | '/support'
+    | '/team'
+    | '/auth/reset-password'
     | '/players/$handle'
     | '/splits/$slug'
     | '/teams/$slug'
@@ -205,6 +304,12 @@ export interface FileRouteTypes {
     | '/splits'
     | '/teams'
     | '/tournaments'
+    | '/admin/disputes'
+    | '/admin/splits'
+    | '/admin/support'
+    | '/matches/$matchId'
+    | '/team/players'
+    | '/team/settings'
   id:
     | '__root__'
     | '/'
@@ -217,6 +322,9 @@ export interface FileRouteTypes {
     | '/terms'
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
+    | '/_authenticated/support'
+    | '/_authenticated/team'
+    | '/auth_/reset-password'
     | '/players/$handle'
     | '/splits/$slug'
     | '/teams/$slug'
@@ -224,6 +332,12 @@ export interface FileRouteTypes {
     | '/splits/'
     | '/teams/'
     | '/tournaments/'
+    | '/_authenticated/admin_/disputes'
+    | '/_authenticated/admin_/splits'
+    | '/_authenticated/admin_/support'
+    | '/_authenticated/matches/$matchId'
+    | '/_authenticated/team_/players'
+    | '/_authenticated/team_/settings'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -235,6 +349,7 @@ export interface RootRouteChildren {
   RankingsRoute: typeof RankingsRoute
   RulesRoute: typeof RulesRoute
   TermsRoute: typeof TermsRoute
+  AuthResetPasswordRoute: typeof AuthResetPasswordRoute
   PlayersHandleRoute: typeof PlayersHandleRoute
   SplitsSlugRoute: typeof SplitsSlugRoute
   TeamsSlugRoute: typeof TeamsSlugRoute
@@ -316,6 +431,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/support': {
+      id: '/_authenticated/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof AuthenticatedSupportRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/team': {
+      id: '/_authenticated/team'
+      path: '/team'
+      fullPath: '/team'
+      preLoaderRoute: typeof AuthenticatedTeamRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/auth_/reset-password': {
+      id: '/auth_/reset-password'
+      path: '/auth/reset-password'
+      fullPath: '/auth/reset-password'
+      preLoaderRoute: typeof AuthResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/players/$handle': {
       id: '/players/$handle'
       path: '/players/$handle'
@@ -365,17 +501,75 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TournamentsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin_/disputes': {
+      id: '/_authenticated/admin_/disputes'
+      path: '/admin/disputes'
+      fullPath: '/admin/disputes'
+      preLoaderRoute: typeof AuthenticatedAdminDisputesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin_/splits': {
+      id: '/_authenticated/admin_/splits'
+      path: '/admin/splits'
+      fullPath: '/admin/splits'
+      preLoaderRoute: typeof AuthenticatedAdminSplitsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin_/support': {
+      id: '/_authenticated/admin_/support'
+      path: '/admin/support'
+      fullPath: '/admin/support'
+      preLoaderRoute: typeof AuthenticatedAdminSupportRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/matches/$matchId': {
+      id: '/_authenticated/matches/$matchId'
+      path: '/matches/$matchId'
+      fullPath: '/matches/$matchId'
+      preLoaderRoute: typeof AuthenticatedMatchesMatchIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/team_/players': {
+      id: '/_authenticated/team_/players'
+      path: '/team/players'
+      fullPath: '/team/players'
+      preLoaderRoute: typeof AuthenticatedTeamPlayersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/team_/settings': {
+      id: '/_authenticated/team_/settings'
+      path: '/team/settings'
+      fullPath: '/team/settings'
+      preLoaderRoute: typeof AuthenticatedTeamSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedSupportRoute: typeof AuthenticatedSupportRoute
+  AuthenticatedTeamRoute: typeof AuthenticatedTeamRoute
+  AuthenticatedAdminDisputesRoute: typeof AuthenticatedAdminDisputesRoute
+  AuthenticatedAdminSplitsRoute: typeof AuthenticatedAdminSplitsRoute
+  AuthenticatedAdminSupportRoute: typeof AuthenticatedAdminSupportRoute
+  AuthenticatedMatchesMatchIdRoute: typeof AuthenticatedMatchesMatchIdRoute
+  AuthenticatedTeamPlayersRoute: typeof AuthenticatedTeamPlayersRoute
+  AuthenticatedTeamSettingsRoute: typeof AuthenticatedTeamSettingsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedSupportRoute: AuthenticatedSupportRoute,
+  AuthenticatedTeamRoute: AuthenticatedTeamRoute,
+  AuthenticatedAdminDisputesRoute: AuthenticatedAdminDisputesRoute,
+  AuthenticatedAdminSplitsRoute: AuthenticatedAdminSplitsRoute,
+  AuthenticatedAdminSupportRoute: AuthenticatedAdminSupportRoute,
+  AuthenticatedMatchesMatchIdRoute: AuthenticatedMatchesMatchIdRoute,
+  AuthenticatedTeamPlayersRoute: AuthenticatedTeamPlayersRoute,
+  AuthenticatedTeamSettingsRoute: AuthenticatedTeamSettingsRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -390,6 +584,7 @@ const rootRouteChildren: RootRouteChildren = {
   RankingsRoute: RankingsRoute,
   RulesRoute: RulesRoute,
   TermsRoute: TermsRoute,
+  AuthResetPasswordRoute: AuthResetPasswordRoute,
   PlayersHandleRoute: PlayersHandleRoute,
   SplitsSlugRoute: SplitsSlugRoute,
   TeamsSlugRoute: TeamsSlugRoute,
