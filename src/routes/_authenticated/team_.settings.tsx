@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { archiveMyTeam } from "@/lib/team-management.functions";
-import { getMyTeamHub } from "@/lib/team.functions";
+import { getMyTeamHub, type TeamHub } from "@/lib/team.functions";
 
 export const Route = createFileRoute("/_authenticated/team_/settings")({
   head: () => ({
@@ -70,7 +70,7 @@ function TeamSettingsPage() {
   );
 }
 
-function Settings({ team }: { team: NonNullable<Awaited<ReturnType<typeof getMyTeamHub>>["team"]> }) {
+function Settings({ team }: { team: NonNullable<TeamHub["team"]> }) {
   if (!team.isCaptain) {
     return (
       <EmptyState
