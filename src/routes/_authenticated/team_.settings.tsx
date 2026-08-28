@@ -122,8 +122,8 @@ function DangerZone({ team }: { team: { name: string; tag: string; slug: string 
         </div>
         <p className="mt-3 text-sm text-muted-foreground">
           Disbanding releases every current member and cancels pending invitations. Registrations
-          that have not gone live are withdrawn automatically. Historical tournament entries,
-          locked rosters, results and ranking records remain intact.
+          that have not gone live are withdrawn automatically. Historical tournament entries, locked
+          rosters, results and ranking records remain intact.
         </p>
       </section>
 
