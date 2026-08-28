@@ -1,34 +1,47 @@
 # EloShape environments
 
-## Current policy
+## Current topology
 
-EloShape must keep development/QA data separate from the future public production environment.
+EloShape keeps synthetic development/QA data separate from the environment reserved for public traffic.
 
 ### Staging / development
 
-- Supabase project: `eloshape-arena`
+- Supabase project: `PALACIOS1259's Project` (`ujlzcdmotrihwgjshdcs`).
 - Purpose: local development, QA, Riot integration testing, staff workflow testing and pre-launch validation.
-- Synthetic tournament fixtures are allowed only when they are transaction-scoped and rolled back, or explicitly marked as disposable staging data.
+- The project was the existing empty project selected for staging on 2026-08-28.
+- All repository migrations are applied.
+- Disposable synthetic tournament fixtures are allowed here and must use unmistakable QA names.
 - The repeatable full-circuit stress test lives at `supabase/tests/prelaunch_16_team_semisplit.test.sql` and ends with `ROLLBACK`.
+- Rename the project to `EloShape Staging` in the Supabase dashboard when dashboard access is available.
 
-### Production reserved
+### Production
 
-- The second currently empty Supabase project in the same organization is reserved for the public production environment.
-- It currently has no application migrations, no public application tables and no auth users.
-- Do not point local development or QA tooling at this project.
-- Do not populate it until the migration history/bootstrap has been reconciled and the production promotion checklist is complete.
+- Supabase project: `eloshape-arena` (`hdlktzhjsswzcbgrnhql`).
+- Purpose: the existing application data and the future public environment.
+- Do not run synthetic tournament fixtures or destructive QA against this project.
+- Promote only reviewed migrations and Edge Functions from the repository.
+- Production received no QA users, teams or players during the staging validation on 2026-08-28.
 
-## Promotion rules
+## Deployment rules
 
-Before production receives application traffic:
+Before staging receives application traffic:
 
-1. Reconcile repository migration history against the working staging schema. Do not blindly run `supabase db push` while migration history differs.
-2. Apply a reviewed production bootstrap/migration sequence to the empty production project.
-3. Deploy the required Edge Functions and production-only secrets there.
-4. Configure Supabase Auth Site URL and Redirect URLs for the final public domain.
-5. Configure strong server-side password requirements.
-6. Set the public site URL and allowed Riot CORS origins to the final domain.
-7. Run smoke tests against production without inserting fake competitive history.
+1. Connect the Git branch `staging` to a separate deployment.
+2. Configure all Supabase public variables with the staging project values.
+3. Configure staging Auth Site URL and Redirect URLs.
+4. Deploy the required Edge Functions and staging-only secrets.
+5. Set `VITE_SITE_URL` and the Riot CORS allowed origin to the staging deployment origin.
+6. Run browser smoke tests against the deployed application.
+
+Before production receives public traffic:
+
+1. Apply only reviewed repository migrations to production.
+2. Deploy the required Edge Functions and production-only secrets.
+3. Configure Supabase Auth Site URL and Redirect URLs for the final public domain.
+4. Configure strong server-side password requirements.
+5. Set `VITE_SITE_URL` and the Riot CORS allowed origin to the final domain.
+6. Verify the deployed Riot API key is a persistent production key.
+7. Run smoke tests without inserting fake competitive history.
 8. Open closed beta only after the latest GitHub CI and database QA checks are green.
 
 ## Pre-launch competition QA
@@ -44,6 +57,6 @@ The full 16-team Semi-Split stress test verifies:
 - a 16-team playoff with zero byes and 15 matches;
 - full playoff completion;
 - expected 16-team champion scoring of 115 EloShape points;
-- complete rollback with zero QA fixtures left behind.
+- complete rollback when run through the repository test.
 
-The test was successfully executed against staging on 2026-08-27 before this document was added.
+A persistent staging-only fixture was also completed successfully on 2026-08-28: four qualifiers, 60 qualifier matches, 16 unique qualifications and all 15 playoff matches. Production remained untouched.
