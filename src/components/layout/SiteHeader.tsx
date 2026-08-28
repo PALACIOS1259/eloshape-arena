@@ -42,9 +42,14 @@ export function SiteHeader() {
 
         <div className="flex shrink-0 items-center gap-2">
           {user ? (
-            <Button asChild size="sm" className="hidden sm:inline-flex">
-              <Link to="/dashboard">Dashboard</Link>
-            </Button>
+            <>
+              <Button asChild variant="ghost" size="sm" className="hidden md:inline-flex">
+                <Link to="/team/settings">Team settings</Link>
+              </Button>
+              <Button asChild size="sm" className="hidden sm:inline-flex">
+                <Link to="/dashboard">Dashboard</Link>
+              </Button>
+            </>
           ) : (
             <>
               <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
@@ -82,9 +87,17 @@ export function SiteHeader() {
                 ))}
                 <div className="mt-4 flex flex-col gap-2 border-t border-border pt-4">
                   {user ? (
-                    <Button asChild onClick={() => setOpen(false)}>
-                      <Link to="/dashboard">Dashboard</Link>
-                    </Button>
+                    <>
+                      <Button asChild variant="outline" onClick={() => setOpen(false)}>
+                        <Link to="/team">My team</Link>
+                      </Button>
+                      <Button asChild variant="outline" onClick={() => setOpen(false)}>
+                        <Link to="/team/settings">Team settings</Link>
+                      </Button>
+                      <Button asChild onClick={() => setOpen(false)}>
+                        <Link to="/dashboard">Dashboard</Link>
+                      </Button>
+                    </>
                   ) : (
                     <>
                       <Button asChild variant="outline" onClick={() => setOpen(false)}>
