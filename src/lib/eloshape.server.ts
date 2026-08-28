@@ -87,7 +87,12 @@ export async function loadHomeSnapshot() {
       .select(PLAYER_CARD_SELECT)
       .order("points_season", { ascending: false })
       .limit(6),
-    db.from("teams").select(TEAM_CARD_SELECT).order("points_season", { ascending: false }).limit(4),
+    db
+      .from("teams")
+      .select(TEAM_CARD_SELECT)
+      .is("archived_at" as never, null)
+      .order("points_season", { ascending: false })
+      .limit(4),
     db.from("profiles").select("id", { count: "exact", head: true }),
     db.from("tournaments").select("id", { count: "exact", head: true }),
   ]);
@@ -294,6 +299,10 @@ export async function loadTeam(slug: string) {
 export async function loadTeams() {
   const db = createPublicClient();
   return rows(
-    await db.from("teams").select(TEAM_CARD_SELECT).order("points_season", { ascending: false }),
+    await db
+      .from("teams")
+      .select(TEAM_CARD_SELECT)
+      .is("archived_at" as never, null)
+      .order("points_season", { ascending: false }),
   );
 }
