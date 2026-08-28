@@ -13,8 +13,23 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { PageShell } from "../components/layout/PageShell";
 import { Toaster } from "../components/ui/sonner";
 
-const siteUrl = import.meta.env["VITE_SITE_URL"]?.replace(/\/+$/, "");
-const socialImage = siteUrl ? `${siteUrl}/og-image.svg` : "/og-image.svg";
+function parseSiteOrigin(value: unknown): string | undefined {
+  if (typeof value !== "string" || value.trim() === "") return undefined;
+
+  try {
+    const url = new URL(value.trim());
+    const isWebUrl = url.protocol === "https:" || url.protocol === "http:";
+    const isOriginOnly =
+      url.pathname === "/" && !url.search && !url.hash && !url.username && !url.password;
+
+    return isWebUrl && isOriginOnly ? url.origin : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+const siteUrl = parseSiteOrigin(import.meta.env["VITE_SITE_URL"]);
+const socialImage = siteUrl ? `${siteUrl}/og-image.jpg` : "/og-image.jpg";
 
 function NotFoundComponent() {
   return (
@@ -92,6 +107,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { property: "og:image", content: socialImage },
+      { property: "og:image:type", content: "image/jpeg" },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
       { property: "og:image:alt", content: "EloShape competitive circuit" },
@@ -102,6 +118,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content: "No necesitás ser Challenger para competir.",
       },
       { name: "twitter:image", content: socialImage },
+      { name: "twitter:image:alt", content: "EloShape competitive circuit" },
     ],
 
     links: [
