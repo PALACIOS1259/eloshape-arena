@@ -10,6 +10,7 @@ import { PageContainer, PageHeading } from "@/components/layout/PageShell";
 import { Badge } from "@/components/ui/badge";
 import { formatDate, formatDateTime, formatPoints } from "@/lib/format";
 import { bracketQuery, splitDetailQuery } from "@/lib/split-queries";
+import { canonicalMetadata } from "@/lib/site-metadata";
 
 const STAGES = [
   { key: "qualifiers", label: "Open Qualifiers" },
@@ -29,6 +30,9 @@ export const Route = createFileRoute("/splits/$slug")({
   head: ({ loaderData }) => {
     const name = loaderData?.split.name ?? "Semi-Split";
     const description = `Standings, qualifier results and the playoff bracket for ${name} on EloShape.`;
+    const canonical = loaderData?.split.slug
+      ? canonicalMetadata(`/splits/${encodeURIComponent(loaderData.split.slug)}`)
+      : canonicalMetadata("/splits");
     return {
       meta: [
         { title: `${name} — EloShape Semi-Split` },
@@ -37,7 +41,9 @@ export const Route = createFileRoute("/splits/$slug")({
         { property: "og:description", content: description },
         { property: "og:type", content: "website" },
         { name: "twitter:card", content: "summary_large_image" },
+        ...canonical.meta,
       ],
+      links: canonical.links,
     };
   },
   errorComponent: () => (

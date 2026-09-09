@@ -11,26 +11,11 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { absoluteSiteUrl } from "../lib/site-metadata";
 import { PageShell } from "../components/layout/PageShell";
 import { Toaster } from "../components/ui/sonner";
 
-function parseSiteOrigin(value: unknown): string | undefined {
-  if (typeof value !== "string" || value.trim() === "") return undefined;
-
-  try {
-    const url = new URL(value.trim());
-    const isWebUrl = url.protocol === "https:" || url.protocol === "http:";
-    const isOriginOnly =
-      url.pathname === "/" && !url.search && !url.hash && !url.username && !url.password;
-
-    return isWebUrl && isOriginOnly ? url.origin : undefined;
-  } catch {
-    return undefined;
-  }
-}
-
-const siteUrl = parseSiteOrigin(import.meta.env["VITE_SITE_URL"]);
-const socialImage = siteUrl ? `${siteUrl}/og-image.jpg` : "/og-image.jpg";
+const socialImage = absoluteSiteUrl("/og-image.jpg") ?? "/og-image.jpg";
 const maintenanceMode = import.meta.env["VITE_MAINTENANCE_MODE"] === "true";
 const maintenanceAllowedPaths = new Set([
   "/maintenance",

@@ -13,12 +13,13 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDateTime, formatPoints, placementLabel } from "@/lib/format";
 import { tournamentDetailQuery } from "@/lib/queries";
+import { canonicalMetadata } from "@/lib/site-metadata";
 
 export const Route = createFileRoute("/tournaments/$slug")({
   loader: async ({ context, params }) => {
     const data = await context.queryClient.ensureQueryData(tournamentDetailQuery(params.slug));
     if (!data) throw notFound();
-    return { name: data.tournament.name, subtitle: data.tournament.subtitle };
+    return { name: data.tournament.name, subtitle: data.tournament.subtitle, slug: params.slug };
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
@@ -32,13 +33,16 @@ export const Route = createFileRoute("/tournaments/$slug")({
     const title = `${loaderData.name} — EloShape tournament`;
     const description =
       loaderData.subtitle ?? "Bracket, participants and results for this EloShape tournament.";
+    const canonical = canonicalMetadata(`/tournaments/${encodeURIComponent(loaderData.slug)}`);
     return {
       meta: [
         { title },
         { name: "description", content: description },
         { property: "og:title", content: title },
         { property: "og:description", content: description },
+        ...canonical.meta,
       ],
+      links: canonical.links,
     };
   },
   notFoundComponent: () => (

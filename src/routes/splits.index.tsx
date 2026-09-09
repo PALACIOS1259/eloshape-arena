@@ -6,26 +6,32 @@ import { StatusBadge } from "@/components/eloshape/StatusBadge";
 import { PageContainer, PageHeading } from "@/components/layout/PageShell";
 import { formatDate } from "@/lib/format";
 import { splitsQuery } from "@/lib/split-queries";
+import { canonicalMetadata } from "@/lib/site-metadata";
 
 export const Route = createFileRoute("/splits/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(splitsQuery()),
-  head: () => ({
-    meta: [
-      { title: "Semi-Splits — EloShape competitive calendar" },
-      {
-        name: "description",
-        content:
-          "Every EloShape Semi-Split: four Open Qualifiers, a 16-team Playoff bracket, Semifinals and the Grand Final.",
-      },
-      { property: "og:title", content: "EloShape Semi-Splits" },
-      {
-        property: "og:description",
-        content: "Qualifiers, standings and playoff brackets for each EloShape Semi-Split.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
+  head: () => {
+    const canonical = canonicalMetadata("/splits");
+    return {
+      meta: [
+        { title: "Semi-Splits — EloShape competitive calendar" },
+        {
+          name: "description",
+          content:
+            "Every EloShape Semi-Split: four Open Qualifiers, a 16-team Playoff bracket, Semifinals and the Grand Final.",
+        },
+        { property: "og:title", content: "EloShape Semi-Splits" },
+        {
+          property: "og:description",
+          content: "Qualifiers, standings and playoff brackets for each EloShape Semi-Split.",
+        },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary_large_image" },
+        ...canonical.meta,
+      ],
+      links: canonical.links,
+    };
+  },
   errorComponent: () => (
     <PageContainer className="py-16">
       <EmptyState title="Splits unavailable" description="Please try again in a moment." />

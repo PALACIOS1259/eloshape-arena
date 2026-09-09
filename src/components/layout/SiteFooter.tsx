@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 
 import { EloShapeLogo } from "@/components/brand/EloShapeLogo";
+import { RIOT_LEGAL_NOTICE } from "@/lib/riot-legal";
 
 export function SiteFooter() {
   return (
@@ -43,8 +44,7 @@ export function SiteFooter() {
       </div>
 
       <div className="border-t border-border px-4 py-5 text-center text-xs text-muted-foreground sm:px-6">
-        EloShape is not endorsed by Riot Games and does not reflect the views of Riot Games or
-        anyone officially involved in producing League of Legends.
+        {RIOT_LEGAL_NOTICE}
       </div>
     </footer>
   );
