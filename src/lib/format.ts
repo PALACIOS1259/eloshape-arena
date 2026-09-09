@@ -7,12 +7,15 @@ export const TOURNAMENT_STATUS_LABEL: Record<string, string> = {
   cancelled: "Cancelled",
 };
 
+const CIRCUIT_TIME_ZONE = "America/Argentina/Buenos_Aires";
+
 export function formatDate(value: string | null | undefined) {
   if (!value) return "TBD";
   return new Date(value).toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "short",
     year: "numeric",
+    timeZone: CIRCUIT_TIME_ZONE,
   });
 }
 
@@ -23,6 +26,7 @@ export function formatDateTime(value: string | null | undefined) {
     month: "short",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: CIRCUIT_TIME_ZONE,
   });
 }
 
