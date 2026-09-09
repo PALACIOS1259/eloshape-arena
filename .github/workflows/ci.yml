@@ -2,7 +2,7 @@ name: EloShape CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, staging]
   pull_request:
     branches: [main]
 
@@ -30,6 +30,9 @@ jobs:
           VITE_SUPABASE_URL: https://hdlktzhjsswzcbgrnhql.supabase.co
           VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_Yp0co0GeldsRyVLVY2p5dA_8DFcUOP7
         run: bun run build
+
+      - name: Verify generated route tree is committed
+        run: git diff --exit-code -- src/routeTree.gen.ts
 
       - name: Typecheck
         run: bunx tsc --noEmit
