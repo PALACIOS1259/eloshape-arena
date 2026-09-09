@@ -19,6 +19,7 @@ create temp table qa16_summary (
 do $$
 declare
   v_actor uuid := gen_random_uuid();
+  v_run text := lower(substr(replace(gen_random_uuid()::text, '-', ''), 1, 6));
   v_season uuid;
   v_division uuid;
   v_split uuid;
@@ -49,18 +50,18 @@ begin
   insert into public.user_roles(user_id, role) values (v_actor, 'admin');
 
   insert into public.seasons(slug, name, starts_at, ends_at, is_active)
-  values ('qa16-season', 'QA16 Season', now() - interval '1 day', now() + interval '90 days', false)
+  values ('qa16-' || v_run || '-season', 'QA16 Season ' || v_run, now() - interval '1 day', now() + interval '90 days', false)
   returning id into v_season;
 
   insert into public.divisions(code, name, sort_order, riot_tiers, accent)
-  values ('QA16', 'QA16 Gold', 9999, array['GOLD'], 'gold')
+  values (upper('Q' || substr(v_run, 1, 5)), 'QA16 Gold ' || v_run, 9999, array['GOLD'], 'gold')
   returning id into v_division;
 
   insert into public.competitive_splits(
     season_id, slug, name, division_id, starts_at, ends_at,
     status, playoff_size, qualification_slots_per_qualifier
   ) values (
-    v_season, 'qa16-split', 'QA16 Semi-Split', v_division,
+    v_season, 'qa16-' || v_run || '-split', 'QA16 Semi-Split ' || v_run, v_division,
     now() - interval '1 hour', now() + interval '60 days',
     'qualifiers', 16, 4
   ) returning id into v_split;
@@ -68,9 +69,9 @@ begin
   for i in 1..52 loop
     insert into public.teams(slug, name, tag, division_id)
     values (
-      'qa16-team-' || lpad(i::text, 2, '0'),
-      'QA16 Team ' || lpad(i::text, 2, '0'),
-      'Q' || lpad(i::text, 2, '0'),
+      'qa16-' || v_run || '-team-' || lpad(i::text, 2, '0'),
+      'QA16 ' || v_run || ' Team ' || lpad(i::text, 2, '0'),
+      upper(substr(v_run, 1, 4)) || lpad(i::text, 2, '0'),
       v_division
     ) returning id into v_team;
     v_teams := array_append(v_teams, v_team);
@@ -78,8 +79,8 @@ begin
     for j in 1..5 loop
       insert into public.profiles(handle, display_name, division_id, eligibility)
       values (
-        'qa16-p-' || i || '-' || j,
-        'QA16 Player ' || i || '-' || j,
+        'qa16-' || v_run || '-p-' || i || '-' || j,
+        'QA16 ' || v_run || ' Player ' || i || '-' || j,
         v_division,
         'eligible'
       ) returning id into v_profile;
@@ -89,7 +90,7 @@ begin
         verified, data_verified, ownership_verified, verification_method,
         account_level, account_level_synced_at
       ) values (
-        v_profile, 'QA16' || i || j || '#TST', 'la2', 'GOLD', 'IV',
+        v_profile, 'QA16' || v_run || i || j || '#TST', 'la2', 'GOLD', 'IV',
         true, true, true, 'qa', 100, now()
       );
 
@@ -108,7 +109,7 @@ begin
       split_phase, status, format, mode, max_participants, participants_count,
       starts_at, checkin_required, required_roster_size, min_account_level, required_platform
     ) values (
-      'qa16-qualifier-' || q, 'QA16 Qualifier ' || q,
+      'qa16-' || v_run || '-qualifier-' || q, 'QA16 ' || v_run || ' Qualifier ' || q,
       v_division, v_season, v_split, q,
       'qualifier', 'registration_open', 'single_elimination', 'team', 16, 0,
       now() + (q || ' days')::interval, true, 5, 30, 'la2'
