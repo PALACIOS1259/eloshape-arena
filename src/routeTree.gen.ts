@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DivisionsRouteImport } from './routes/divisions'
+import { Route as MaintenanceRouteImport } from './routes/maintenance'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RankingsRouteImport } from './routes/rankings'
 import { Route as RulesRouteImport } from './routes/rules'
@@ -53,6 +54,11 @@ const AuthRoute = AuthRouteImport.update({
 const DivisionsRoute = DivisionsRouteImport.update({
   id: '/divisions',
   path: '/divisions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MaintenanceRoute = MaintenanceRouteImport.update({
+  id: '/maintenance',
+  path: '/maintenance',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -176,6 +182,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/divisions': typeof DivisionsRoute
+  '/maintenance': typeof MaintenanceRoute
   '/privacy': typeof PrivacyRoute
   '/rankings': typeof RankingsRoute
   '/rules': typeof RulesRoute
@@ -203,6 +210,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/divisions': typeof DivisionsRoute
+  '/maintenance': typeof MaintenanceRoute
   '/privacy': typeof PrivacyRoute
   '/rankings': typeof RankingsRoute
   '/rules': typeof RulesRoute
@@ -232,6 +240,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/divisions': typeof DivisionsRoute
+  '/maintenance': typeof MaintenanceRoute
   '/privacy': typeof PrivacyRoute
   '/rankings': typeof RankingsRoute
   '/rules': typeof RulesRoute
@@ -261,6 +270,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/divisions'
+    | '/maintenance'
     | '/privacy'
     | '/rankings'
     | '/rules'
@@ -288,6 +298,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/divisions'
+    | '/maintenance'
     | '/privacy'
     | '/rankings'
     | '/rules'
@@ -316,6 +327,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/divisions'
+    | '/maintenance'
     | '/privacy'
     | '/rankings'
     | '/rules'
@@ -345,6 +357,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   DivisionsRoute: typeof DivisionsRoute
+  MaintenanceRoute: typeof MaintenanceRoute
   PrivacyRoute: typeof PrivacyRoute
   RankingsRoute: typeof RankingsRoute
   RulesRoute: typeof RulesRoute
@@ -387,6 +400,13 @@ declare module '@tanstack/react-router' {
       path: '/divisions'
       fullPath: '/divisions'
       preLoaderRoute: typeof DivisionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/maintenance': {
+      id: '/maintenance'
+      path: '/maintenance'
+      fullPath: '/maintenance'
+      preLoaderRoute: typeof MaintenanceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -580,6 +600,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   DivisionsRoute: DivisionsRoute,
+  MaintenanceRoute: MaintenanceRoute,
   PrivacyRoute: PrivacyRoute,
   RankingsRoute: RankingsRoute,
   RulesRoute: RulesRoute,

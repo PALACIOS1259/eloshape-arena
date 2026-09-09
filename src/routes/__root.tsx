@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   HeadContent,
+  redirect,
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
@@ -30,6 +31,8 @@ function parseSiteOrigin(value: unknown): string | undefined {
 
 const siteUrl = parseSiteOrigin(import.meta.env["VITE_SITE_URL"]);
 const socialImage = siteUrl ? `${siteUrl}/og-image.jpg` : "/og-image.jpg";
+const maintenanceMode = import.meta.env["VITE_MAINTENANCE_MODE"] === "true";
+const maintenanceAllowedPaths = new Set(["/maintenance", "/privacy", "/terms"]);
 
 function NotFoundComponent() {
   return (
@@ -88,22 +91,40 @@ function ErrorComponent({ error }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  beforeLoad: ({ location }) => {
+    if (maintenanceMode && !maintenanceAllowedPaths.has(location.pathname)) {
+      throw redirect({ to: "/maintenance", replace: true });
+    }
+  },
   head: () => ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "EloShape — Competitive League of Legends circuit" },
+      {
+        title: maintenanceMode
+          ? "EloShape — Próximamente"
+          : "EloShape — Competitive League of Legends circuit",
+      },
       {
         name: "description",
-        content:
-          "EloShape is a competitive League of Legends platform for amateur players: skill-based divisions, city-to-region tournaments and rankings earned only on the circuit.",
+        content: maintenanceMode
+          ? "EloShape está preparando su primera beta cerrada competitiva en Argentina."
+          : "EloShape is a competitive League of Legends platform for amateur players: skill-based divisions, city-to-region tournaments and rankings earned only on the circuit.",
       },
       { name: "author", content: "EloShape" },
+      ...(maintenanceMode ? [{ name: "robots", content: "noindex, nofollow" }] : []),
       { property: "og:site_name", content: "EloShape" },
-      { property: "og:title", content: "EloShape — Competitive League of Legends circuit" },
+      {
+        property: "og:title",
+        content: maintenanceMode
+          ? "EloShape — Próximamente"
+          : "EloShape — Competitive League of Legends circuit",
+      },
       {
         property: "og:description",
-        content: "Skill-based divisions, city-to-region tournaments and honest rankings.",
+        content: maintenanceMode
+          ? "Estamos preparando la primera beta cerrada de EloShape en Argentina."
+          : "Skill-based divisions, city-to-region tournaments and honest rankings.",
       },
       { property: "og:type", content: "website" },
       { property: "og:image", content: socialImage },
@@ -112,10 +133,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:image:height", content: "630" },
       { property: "og:image:alt", content: "EloShape competitive circuit" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "EloShape — Competitive League of Legends circuit" },
+      {
+        name: "twitter:title",
+        content: maintenanceMode
+          ? "EloShape — Próximamente"
+          : "EloShape — Competitive League of Legends circuit",
+      },
       {
         name: "twitter:description",
-        content: "No necesitás ser Challenger para competir.",
+        content: maintenanceMode
+          ? "Estamos preparando la primera beta cerrada de EloShape en Argentina."
+          : "No necesitás ser Challenger para competir.",
       },
       { name: "twitter:image", content: socialImage },
       { name: "twitter:image:alt", content: "EloShape competitive circuit" },
@@ -151,6 +179,16 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  if (maintenanceMode) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <div className="min-h-screen bg-background">
+          <Outlet />
+        </div>
+      </QueryClientProvider>
+    );
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
