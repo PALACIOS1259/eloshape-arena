@@ -32,7 +32,12 @@ function parseSiteOrigin(value: unknown): string | undefined {
 const siteUrl = parseSiteOrigin(import.meta.env["VITE_SITE_URL"]);
 const socialImage = siteUrl ? `${siteUrl}/og-image.jpg` : "/og-image.jpg";
 const maintenanceMode = import.meta.env["VITE_MAINTENANCE_MODE"] === "true";
-const maintenanceAllowedPaths = new Set(["/maintenance", "/privacy", "/terms"]);
+const maintenanceAllowedPaths = new Set([
+  "/maintenance",
+  "/auth/reset-password",
+  "/privacy",
+  "/terms",
+]);
 
 function NotFoundComponent() {
   return (
