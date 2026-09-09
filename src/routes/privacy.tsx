@@ -1,25 +1,32 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { PageContainer, PageHeading } from "@/components/layout/PageShell";
+import { RIOT_LEGAL_NOTICE } from "@/lib/riot-legal";
+import { canonicalMetadata } from "@/lib/site-metadata";
 
 export const Route = createFileRoute("/privacy")({
-  head: () => ({
-    meta: [
-      { title: "Privacy Policy — EloShape" },
-      {
-        name: "description",
-        content:
-          "How EloShape handles player accounts, Riot account linking data and competitive records.",
-      },
-      { property: "og:title", content: "EloShape Privacy Policy" },
-      {
-        property: "og:description",
-        content: "What data EloShape stores about players and Riot account links.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
+  head: () => {
+    const canonical = canonicalMetadata("/privacy");
+    return {
+      meta: [
+        { title: "Privacy Policy — EloShape" },
+        {
+          name: "description",
+          content:
+            "How EloShape handles player accounts, Riot account linking data and competitive records.",
+        },
+        { property: "og:title", content: "EloShape Privacy Policy" },
+        {
+          property: "og:description",
+          content: "What data EloShape stores about players and Riot account links.",
+        },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary" },
+        ...canonical.meta,
+      ],
+      links: canonical.links,
+    };
+  },
   component: PrivacyPage,
 });
 
@@ -89,12 +96,7 @@ function PrivacyPage() {
             past brackets and competitive records consistent.
           </p>
         </section>
-        <p className="border-t border-border pt-6 text-xs">
-          EloShape is not endorsed by Riot Games and does not reflect the views or opinions of Riot
-          Games or anyone officially involved in producing or managing Riot Games properties. League
-          of Legends and Riot Games are trademarks or registered trademarks of Riot Games, Inc.
-          League of Legends © Riot Games, Inc.
-        </p>
+        <p className="border-t border-border pt-6 text-xs">{RIOT_LEGAL_NOTICE}</p>
       </PageContainer>
     </div>
   );

@@ -12,24 +12,30 @@ import { PageContainer } from "@/components/layout/PageShell";
 import { Button } from "@/components/ui/button";
 import { directoryQuery, homeSnapshotQuery } from "@/lib/queries";
 import { formatPoints } from "@/lib/format";
+import { canonicalMetadata } from "@/lib/site-metadata";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "EloShape — Competitive League of Legends for amateur players" },
-      {
-        name: "description",
-        content:
-          "EloShape runs skill-based League of Legends tournaments from city to region. Iron to Gold divisions, verified eligibility, and rankings earned only on the EloShape circuit.",
-      },
-      { property: "og:title", content: "EloShape — The amateur LoL competitive circuit" },
-      {
-        property: "og:description",
-        content:
-          "Iron to Gold divisions, city-to-region brackets and a ranking that only counts EloShape results.",
-      },
-    ],
-  }),
+  head: () => {
+    const canonical = canonicalMetadata("/");
+    return {
+      meta: [
+        { title: "EloShape — Competitive League of Legends for amateur players" },
+        {
+          name: "description",
+          content:
+            "EloShape runs skill-based League of Legends tournaments from city to region. Iron to Gold divisions, verified eligibility, and rankings earned only on the EloShape circuit.",
+        },
+        { property: "og:title", content: "EloShape — The amateur LoL competitive circuit" },
+        {
+          property: "og:description",
+          content:
+            "Iron to Gold divisions, city-to-region brackets and a ranking that only counts EloShape results.",
+        },
+        ...canonical.meta,
+      ],
+      links: canonical.links,
+    };
+  },
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(homeSnapshotQuery());
     context.queryClient.ensureQueryData(directoryQuery());

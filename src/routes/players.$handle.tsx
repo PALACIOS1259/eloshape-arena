@@ -10,6 +10,7 @@ import { PageContainer } from "@/components/layout/PageShell";
 import { Button } from "@/components/ui/button";
 import { formatDate, formatPoints, placementLabel, riotRankLabel, winRate } from "@/lib/format";
 import { playerQuery } from "@/lib/queries";
+import { canonicalMetadata } from "@/lib/site-metadata";
 
 export const Route = createFileRoute("/players/$handle")({
   loader: async ({ context, params }) => {
@@ -25,13 +26,16 @@ export const Route = createFileRoute("/players/$handle")({
     }
     const title = `${loaderData.name} — EloShape player profile`;
     const description = `EloShape points, division, record, achievements and tournament history for ${loaderData.name}.`;
+    const canonical = canonicalMetadata(`/players/${encodeURIComponent(loaderData.handle)}`);
     return {
       meta: [
         { title },
         { name: "description", content: description },
         { property: "og:title", content: title },
         { property: "og:description", content: description },
+        ...canonical.meta,
       ],
+      links: canonical.links,
     };
   },
   notFoundComponent: () => (

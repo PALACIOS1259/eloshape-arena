@@ -12,27 +12,33 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { directoryQuery, rankingsQuery } from "@/lib/queries";
+import { canonicalMetadata } from "@/lib/site-metadata";
 
 type Search = { period?: "season" | "month"; division?: string; region?: string };
 type SearchInput = { period?: "season" | "month"; division?: string; region?: string };
 
 export const Route = createFileRoute("/rankings")({
   validateSearch: (search: SearchInput): Search => search,
-  head: () => ({
-    meta: [
-      { title: "Rankings — EloShape leaderboards by division and region" },
-      {
-        name: "description",
-        content:
-          "EloShape rankings for season and monthly periods, filtered by division and by region, country, province or city.",
-      },
-      { property: "og:title", content: "EloShape rankings" },
-      {
-        property: "og:description",
-        content: "Season and monthly leaderboards across every division and geography.",
-      },
-    ],
-  }),
+  head: () => {
+    const canonical = canonicalMetadata("/rankings");
+    return {
+      meta: [
+        { title: "Rankings — EloShape leaderboards by division and region" },
+        {
+          name: "description",
+          content:
+            "EloShape rankings for season and monthly periods, filtered by division and by region, country, province or city.",
+        },
+        { property: "og:title", content: "EloShape rankings" },
+        {
+          property: "og:description",
+          content: "Season and monthly leaderboards across every division and geography.",
+        },
+        ...canonical.meta,
+      ],
+      links: canonical.links,
+    };
+  },
   loaderDeps: ({ search }) => search,
   loader: ({ context, deps }) => {
     context.queryClient.ensureQueryData(

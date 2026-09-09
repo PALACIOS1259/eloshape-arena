@@ -6,23 +6,29 @@ import { DivisionBadge } from "@/components/eloshape/DivisionBadge";
 import { PageContainer, PageHeading } from "@/components/layout/PageShell";
 import { Button } from "@/components/ui/button";
 import { directoryQuery } from "@/lib/queries";
+import { canonicalMetadata } from "@/lib/site-metadata";
 
 export const Route = createFileRoute("/divisions")({
-  head: () => ({
-    meta: [
-      { title: "Divisions & eligibility — EloShape" },
-      {
-        name: "description",
-        content:
-          "How EloShape divisions work: Riot rank verifies which division you may enter, and points are earned only inside EloShape tournaments.",
-      },
-      { property: "og:title", content: "EloShape divisions & eligibility" },
-      {
-        property: "og:description",
-        content: "Iron, Bronze, Silver and Gold divisions with verified Riot-rank eligibility.",
-      },
-    ],
-  }),
+  head: () => {
+    const canonical = canonicalMetadata("/divisions");
+    return {
+      meta: [
+        { title: "Divisions & eligibility — EloShape" },
+        {
+          name: "description",
+          content:
+            "How EloShape divisions work: Riot rank verifies which division you may enter, and points are earned only inside EloShape tournaments.",
+        },
+        { property: "og:title", content: "EloShape divisions & eligibility" },
+        {
+          property: "og:description",
+          content: "Iron, Bronze, Silver and Gold divisions with verified Riot-rank eligibility.",
+        },
+        ...canonical.meta,
+      ],
+      links: canonical.links,
+    };
+  },
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(directoryQuery());
   },

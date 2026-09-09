@@ -4,23 +4,29 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageContainer, PageHeading } from "@/components/layout/PageShell";
 import { directoryQuery } from "@/lib/queries";
 import { formatPoints } from "@/lib/format";
+import { canonicalMetadata } from "@/lib/site-metadata";
 
 export const Route = createFileRoute("/rules")({
-  head: () => ({
-    meta: [
-      { title: "Points & rules — EloShape" },
-      {
-        name: "description",
-        content:
-          "The EloShape point system: configurable awards for participation, wins and placements, earned only in EloShape tournaments.",
-      },
-      { property: "og:title", content: "EloShape points & rules" },
-      {
-        property: "og:description",
-        content: "Transparent, configurable point awards for the EloShape competitive circuit.",
-      },
-    ],
-  }),
+  head: () => {
+    const canonical = canonicalMetadata("/rules");
+    return {
+      meta: [
+        { title: "Points & rules — EloShape" },
+        {
+          name: "description",
+          content:
+            "The EloShape point system: configurable awards for participation, wins and placements, earned only in EloShape tournaments.",
+        },
+        { property: "og:title", content: "EloShape points & rules" },
+        {
+          property: "og:description",
+          content: "Transparent, configurable point awards for the EloShape competitive circuit.",
+        },
+        ...canonical.meta,
+      ],
+      links: canonical.links,
+    };
+  },
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(directoryQuery());
   },

@@ -6,20 +6,26 @@ import { TeamCard } from "@/components/eloshape/TeamCard";
 import { PageContainer, PageHeading } from "@/components/layout/PageShell";
 import { Button } from "@/components/ui/button";
 import { teamsQuery } from "@/lib/queries";
+import { canonicalMetadata } from "@/lib/site-metadata";
 
 export const Route = createFileRoute("/teams/")({
-  head: () => ({
-    meta: [
-      { title: "Teams — EloShape 5v5 rosters" },
-      {
-        name: "description",
-        content:
-          "Every EloShape team roster with division, record, championships and season points earned on the circuit.",
-      },
-      { property: "og:title", content: "EloShape teams" },
-      { property: "og:description", content: "5v5 rosters competing on the EloShape circuit." },
-    ],
-  }),
+  head: () => {
+    const canonical = canonicalMetadata("/teams");
+    return {
+      meta: [
+        { title: "Teams — EloShape 5v5 rosters" },
+        {
+          name: "description",
+          content:
+            "Every EloShape team roster with division, record, championships and season points earned on the circuit.",
+        },
+        { property: "og:title", content: "EloShape teams" },
+        { property: "og:description", content: "5v5 rosters competing on the EloShape circuit." },
+        ...canonical.meta,
+      ],
+      links: canonical.links,
+    };
+  },
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(teamsQuery());
   },

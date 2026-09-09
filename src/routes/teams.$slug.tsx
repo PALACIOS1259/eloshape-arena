@@ -11,12 +11,13 @@ import { PageContainer } from "@/components/layout/PageShell";
 import { Button } from "@/components/ui/button";
 import { formatDate, formatPoints, initials, placementLabel, winRate } from "@/lib/format";
 import { teamQuery } from "@/lib/queries";
+import { canonicalMetadata } from "@/lib/site-metadata";
 
 export const Route = createFileRoute("/teams/$slug")({
   loader: async ({ context, params }) => {
     const data = await context.queryClient.ensureQueryData(teamQuery(params.slug));
     if (!data) throw notFound();
-    return { name: data.team.name, tag: data.team.tag };
+    return { name: data.team.name, tag: data.team.tag, slug: params.slug };
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
@@ -26,13 +27,16 @@ export const Route = createFileRoute("/teams/$slug")({
     }
     const title = `${loaderData.name} — EloShape team`;
     const description = `Roster, record and tournament history for ${loaderData.name} on the EloShape circuit.`;
+    const canonical = canonicalMetadata(`/teams/${encodeURIComponent(loaderData.slug)}`);
     return {
       meta: [
         { title },
         { name: "description", content: description },
         { property: "og:title", content: title },
         { property: "og:description", content: description },
+        ...canonical.meta,
       ],
+      links: canonical.links,
     };
   },
   notFoundComponent: () => (

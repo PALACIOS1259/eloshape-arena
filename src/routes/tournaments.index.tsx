@@ -13,27 +13,33 @@ import {
 } from "@/components/ui/select";
 import { directoryQuery, tournamentsQuery } from "@/lib/queries";
 import { TOURNAMENT_STATUS_LABEL } from "@/lib/format";
+import { canonicalMetadata } from "@/lib/site-metadata";
 
 type Search = { status?: string; division?: string; mode?: string };
 type SearchInput = { status?: string; division?: string; mode?: string };
 
 export const Route = createFileRoute("/tournaments/")({
   validateSearch: (search: SearchInput): Search => search,
-  head: () => ({
-    meta: [
-      { title: "Tournaments — EloShape competitive circuit" },
-      {
-        name: "description",
-        content:
-          "Browse open, live and completed EloShape League of Legends tournaments by division, format and region.",
-      },
-      { property: "og:title", content: "EloShape tournaments" },
-      {
-        property: "og:description",
-        content: "Open registrations, live brackets and completed events across the LAS circuit.",
-      },
-    ],
-  }),
+  head: () => {
+    const canonical = canonicalMetadata("/tournaments");
+    return {
+      meta: [
+        { title: "Tournaments — EloShape competitive circuit" },
+        {
+          name: "description",
+          content:
+            "Browse open, live and completed EloShape League of Legends tournaments by division, format and region.",
+        },
+        { property: "og:title", content: "EloShape tournaments" },
+        {
+          property: "og:description",
+          content: "Open registrations, live brackets and completed events across the LAS circuit.",
+        },
+        ...canonical.meta,
+      ],
+      links: canonical.links,
+    };
+  },
   loaderDeps: ({ search }) => search,
   loader: ({ context, deps }) => {
     context.queryClient.ensureQueryData(

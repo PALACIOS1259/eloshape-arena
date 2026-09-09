@@ -1,25 +1,32 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { PageContainer, PageHeading } from "@/components/layout/PageShell";
+import { RIOT_LEGAL_NOTICE } from "@/lib/riot-legal";
+import { canonicalMetadata } from "@/lib/site-metadata";
 
 export const Route = createFileRoute("/terms")({
-  head: () => ({
-    meta: [
-      { title: "Terms of Service — EloShape" },
-      {
-        name: "description",
-        content:
-          "The rules for competing on EloShape: eligibility, fair play, division integrity and account conduct.",
-      },
-      { property: "og:title", content: "EloShape Terms of Service" },
-      {
-        property: "og:description",
-        content: "Eligibility, fair play and account conduct rules for the EloShape circuit.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
+  head: () => {
+    const canonical = canonicalMetadata("/terms");
+    return {
+      meta: [
+        { title: "Terms of Service — EloShape" },
+        {
+          name: "description",
+          content:
+            "The rules for competing on EloShape: eligibility, fair play, division integrity and account conduct.",
+        },
+        { property: "og:title", content: "EloShape Terms of Service" },
+        {
+          property: "og:description",
+          content: "Eligibility, fair play and account conduct rules for the EloShape circuit.",
+        },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary" },
+        ...canonical.meta,
+      ],
+      links: canonical.links,
+    };
+  },
   component: TermsPage,
 });
 
@@ -77,12 +84,7 @@ function TermsPage() {
             profile. Impersonating staff, Riot Games or other players is not permitted.
           </p>
         </section>
-        <p className="border-t border-border pt-6 text-xs">
-          EloShape is not endorsed by Riot Games and does not reflect the views or opinions of Riot
-          Games or anyone officially involved in producing or managing Riot Games properties. League
-          of Legends and Riot Games are trademarks or registered trademarks of Riot Games, Inc.
-          League of Legends © Riot Games, Inc.
-        </p>
+        <p className="border-t border-border pt-6 text-xs">{RIOT_LEGAL_NOTICE}</p>
       </PageContainer>
     </div>
   );
