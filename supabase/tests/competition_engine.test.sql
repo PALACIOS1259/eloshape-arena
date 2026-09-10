@@ -19,6 +19,7 @@ declare
   v_seeds jsonb := '[]'::jsonb; v_matches jsonb; v_res jsonb; v_order integer[];
   i integer; j integer; v_int integer; v_uuid uuid; v_text text;
   v_m0 uuid; v_m1 uuid; v_final uuid; v_champion uuid; v_ledger integer;
+  v_old_winner uuid; v_new_winner uuid;
 begin
   raise notice '--- EloShape engine tests ---';
 
@@ -208,15 +209,59 @@ begin
 
   perform private.report_match_result(v_actor, v_m1, 1, 0);
 
+  -- A completed result can be corrected while its downstream match is untouched.
+  select winner_entry_id into v_old_winner from public.matches where id = v_m1;
+  v_res := private.correct_completed_match_result(
+    v_actor,
+    v_m1,
+    0,
+    1,
+    'staff verified the submitted screenshot'
+  );
+  if v_res->>'status' <> 'corrected' or not (v_res->>'winner_changed')::boolean then
+    raise exception 'FAIL result correction: %', v_res;
+  end if;
+  select winner_entry_id into v_new_winner from public.matches where id = v_m1;
+  if v_new_winner = v_old_winner then
+    raise exception 'FAIL result correction: winner did not change.';
+  end if;
+  if (select entry_b_id from public.matches where id = v_final) is distinct from v_new_winner then
+    raise exception 'FAIL result correction: corrected winner did not replace the next-round entrant.';
+  end if;
+  if (select eliminated_in_round from public.tournament_entries where id = v_new_winner) is not null
+     or (select eliminated_in_round from public.tournament_entries where id = v_old_winner) <> 0 then
+    raise exception 'FAIL result correction: elimination state was not reversed.';
+  end if;
+  if not exists (
+    select 1 from public.competition_audit_log
+    where entity_id = v_m1 and action = 'match_result_corrected'
+  ) then
+    raise exception 'FAIL result correction: audit entry missing.';
+  end if;
+
   -- Winners must sit in the final at the derived coordinate.
   select entry_a_id into v_uuid from public.matches where id = v_final;
   if v_uuid is null then raise exception 'FAIL advancement: final slot A is empty.'; end if;
   select entry_b_id into v_uuid from public.matches where id = v_final;
   if v_uuid is null then raise exception 'FAIL advancement: final slot B is empty.'; end if;
-  raise notice 'ok  walkover is unscored/audited and result reporting is single-shot';
+  raise notice 'ok  walkover and pre-downstream result correction are safe and audited';
 
   perform private.report_match_result(v_actor, v_final, 1, 0);
   select winner_entry_id into v_champion from public.matches where id = v_final;
+
+  begin
+    perform private.correct_completed_match_result(
+      v_actor,
+      v_m1,
+      1,
+      0,
+      'attempt after downstream completion'
+    );
+    raise exception 'FAIL result correction: winner changed after downstream completion.';
+  exception when others then
+    if sqlerrm not like '%downstream_match_already_started%' then raise; end if;
+  end;
+  raise notice 'ok  winner correction is blocked after downstream activity';
 
   -- ---------- test 5: finalization + idempotency + snapshot-based awards ----------
   v_res := private.finalize_tournament(v_actor, v_qualifier);
@@ -253,6 +298,19 @@ begin
   if v_int <> v_ledger then
     raise exception 'FAIL finalize idempotency: ledger grew from % to %.', v_ledger, v_int;
   end if;
+
+  begin
+    perform private.correct_completed_match_result(
+      v_actor,
+      v_final,
+      0,
+      1,
+      'attempt after tournament finalization'
+    );
+    raise exception 'FAIL result correction: finalized tournament result changed.';
+  exception when others then
+    if sqlerrm not like '%tournament_finalized%' then raise; end if;
+  end;
   raise notice 'ok  finalization scoring and idempotency';
 
   -- ---------- test 6: qualification allocation ----------
@@ -289,9 +347,12 @@ begin
     if sqlerrm not like '%override_reason_required%' then raise; end if;
   end;
 
-  -- Three qualified teams force an odd field: size 4 with two byes.
+  -- Add the now-unqualified original semifinal winner as the third team.
+  -- Three qualified teams force an odd field: size 4 with one bye.
   insert into public.split_qualifications(split_id, team_id, qualification_position, status)
-  values (v_split, v_teams[3], 3, 'qualified')
+  select v_split, team_id, 3, 'qualified'
+  from public.tournament_entries
+  where id = v_old_winner
   on conflict (split_id, team_id) do nothing;
 
   v_res := private.generate_split_playoffs(v_actor, v_split, 3, true, 'integration test');

@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { BracketView, entryLabels } from "@/components/eloshape/BracketView";
+import { BracketView, entryLabels, type BracketMatchRow } from "@/components/eloshape/BracketView";
 import { EmptyState } from "@/components/eloshape/EmptyState";
 import { StatusBadge } from "@/components/eloshape/StatusBadge";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +14,7 @@ import {
   advanceSplitStatus,
   buildSplitPlayoffs,
   closeTournament,
+  correctCompletedMatchResult,
   generateBracket,
   getStaffSplits,
   getTournamentOps,
@@ -154,6 +155,123 @@ function MatchReporter({
   );
 }
 
+function CompletedMatchCorrection({
+  match,
+  entryA,
+  entryB,
+  onDone,
+}: {
+  match: BracketMatchRow;
+  entryA: { id: string; label: string };
+  entryB: { id: string; label: string };
+  onDone: () => void;
+}) {
+  const [scoreA, setScoreA] = useState(String(match.score_a));
+  const [scoreB, setScoreB] = useState(String(match.score_b));
+  const [note, setNote] = useState("");
+  const correct = useServerFn(correctCompletedMatchResult);
+
+  const mutation = useMutation({
+    mutationFn: () =>
+      correct({
+        data: {
+          matchId: match.id,
+          scoreA: Number(scoreA),
+          scoreB: Number(scoreB),
+          note,
+        },
+      }),
+    onSuccess: (result) => {
+      if (!result.ok) {
+        const message = result.error.includes("downstream_match_already_started")
+          ? "The next-round match already has activity. This result cannot be changed safely."
+          : result.error.includes("tournament_finalized")
+            ? "Finalized tournaments cannot be corrected."
+            : result.error;
+        toast.error(message);
+        return;
+      }
+      toast.success("Result corrected and added to the audit trail.");
+      setNote("");
+      onDone();
+    },
+    onError: () => toast.error("Could not correct the result."),
+  });
+
+  const parsedA = Number(scoreA);
+  const parsedB = Number(scoreB);
+  const scoresAreIntegers = Number.isInteger(parsedA) && Number.isInteger(parsedB);
+  const winsRequired = Math.floor(match.best_of / 2) + 1;
+  const validSeriesScore =
+    scoresAreIntegers &&
+    parsedA >= 0 &&
+    parsedB >= 0 &&
+    parsedA !== parsedB &&
+    parsedA + parsedB <= match.best_of &&
+    Math.max(parsedA, parsedB) === winsRequired;
+  const changed = parsedA !== match.score_a || parsedB !== match.score_b;
+
+  const confirmCorrection = () => {
+    const newWinner = parsedA > parsedB ? entryA : entryB;
+    const winnerChanges = newWinner.id !== match.winner_entry_id;
+    const warning = winnerChanges
+      ? ` This changes the winner to ${newWinner.label} and will replace the entrant in the next round only if that match has not started.`
+      : "";
+    if (
+      window.confirm(
+        `Correct ${entryA.label} vs ${entryB.label} to ${parsedA}-${parsedB}?${warning} This action is permanent and audited.`,
+      )
+    ) {
+      mutation.mutate();
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <Input
+          aria-label={`Corrected score for ${entryA.label}`}
+          className="w-16"
+          inputMode="numeric"
+          value={scoreA}
+          onChange={(event) => setScoreA(event.target.value)}
+        />
+        <span className="text-xs text-muted-foreground">Bo{match.best_of}</span>
+        <Input
+          aria-label={`Corrected score for ${entryB.label}`}
+          className="w-16"
+          inputMode="numeric"
+          value={scoreB}
+          onChange={(event) => setScoreB(event.target.value)}
+        />
+      </div>
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <Input
+          aria-label="Result correction reason"
+          className="min-w-52 flex-1"
+          maxLength={1000}
+          placeholder="Required correction reason"
+          value={note}
+          onChange={(event) => setNote(event.target.value)}
+        />
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={mutation.isPending || !validSeriesScore || !changed || note.trim().length < 3}
+          onClick={confirmCorrection}
+        >
+          Correct result
+        </Button>
+      </div>
+      {!validSeriesScore && scoreA !== "" && scoreB !== "" ? (
+        <p className="text-right text-xs text-destructive">
+          Enter a valid best-of-{match.best_of} series score.
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
 function TournamentOps({ tournamentId }: { tournamentId: string }) {
   const queryClient = useQueryClient();
   const fetchOps = useServerFn(getTournamentOps);
@@ -190,6 +308,17 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
   if (!data?.tournament) return <EmptyState title="Tournament not found" />;
 
   const t = data.tournament;
+  const labels = entryLabels(data.entries);
+  const byId = new Map(labels.map((entry) => [entry.id, entry.label]));
+  const openMatches = data.matches.filter((match) => match.status !== "completed" && !match.is_bye);
+  const correctableMatches = data.matches.filter(
+    (match) =>
+      match.status === "completed" &&
+      !match.is_bye &&
+      match.resolution_type === "played" &&
+      match.entry_a_id &&
+      match.entry_b_id,
+  );
   const pending = lockMutation.isPending || bracketMutation.isPending || closeMutation.isPending;
 
   return (
@@ -239,13 +368,10 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
 
       {data.matches.length ? (
         <>
-          <BracketView matches={data.matches} entries={entryLabels(data.entries)} />
-          <div className="bg-surface-gradient overflow-hidden rounded-lg border border-border">
-            {data.matches
-              .filter((match) => match.status !== "completed" && !match.is_bye)
-              .map((match) => {
-                const labels = entryLabels(data.entries);
-                const byId = new Map(labels.map((entry) => [entry.id, entry.label]));
+          <BracketView matches={data.matches} entries={labels} />
+          {openMatches.length ? (
+            <div className="bg-surface-gradient overflow-hidden rounded-lg border border-border">
+              {openMatches.map((match) => {
                 const ready = match.entry_a_id && match.entry_b_id;
                 return (
                   <div
@@ -275,7 +401,52 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
                   </div>
                 );
               })}
-          </div>
+            </div>
+          ) : null}
+
+          {correctableMatches.length ? (
+            <details className="bg-surface-gradient overflow-hidden rounded-lg border border-border">
+              <summary className="cursor-pointer p-4 text-sm font-semibold text-foreground">
+                Completed results ({correctableMatches.length})
+              </summary>
+              {t.finalized_at ? (
+                <p className="border-t border-border p-4 text-sm text-muted-foreground">
+                  This tournament is finalized. Results are read-only.
+                </p>
+              ) : (
+                correctableMatches.map((match) => {
+                  const entryA = {
+                    id: match.entry_a_id!,
+                    label: byId.get(match.entry_a_id!) ?? "Entry A",
+                  };
+                  const entryB = {
+                    id: match.entry_b_id!,
+                    label: byId.get(match.entry_b_id!) ?? "Entry B",
+                  };
+                  return (
+                    <div
+                      key={match.id}
+                      className="grid gap-3 border-t border-border p-4 sm:grid-cols-[minmax(0,1fr)_minmax(20rem,1.4fr)] sm:items-center"
+                    >
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-foreground">
+                          {match.round_label} · {entryA.label} {match.score_a}–{match.score_b}{" "}
+                          {entryB.label}
+                        </p>
+                        <p className="eyebrow mt-1">Audited correction</p>
+                      </div>
+                      <CompletedMatchCorrection
+                        match={match}
+                        entryA={entryA}
+                        entryB={entryB}
+                        onDone={invalidate}
+                      />
+                    </div>
+                  );
+                })
+              )}
+            </details>
+          ) : null}
         </>
       ) : (
         <EmptyState title="No bracket yet" description="Lock rosters, then generate the bracket." />

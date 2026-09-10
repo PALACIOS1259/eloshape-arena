@@ -1388,6 +1388,10 @@ export type Database = {
         Args: { p_matches: Json; p_seeds: Json; p_tournament: string };
         Returns: Json;
       };
+      staff_correct_match_result: {
+        Args: { p_match: string; p_note: string; p_score_a: number; p_score_b: number };
+        Returns: Json;
+      };
       staff_finalize_tournament: {
         Args: { p_tournament: string };
         Returns: Json;

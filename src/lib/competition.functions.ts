@@ -106,6 +106,30 @@ export const recordMatchWalkover = createServerFn({ method: "POST" })
     }),
   );
 
+export const correctCompletedMatchResult = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: { matchId: string; scoreA: number; scoreB: number; note: string }) => {
+    if (!Number.isInteger(input.scoreA) || !Number.isInteger(input.scoreB)) {
+      throw new Error("Scores must be whole numbers.");
+    }
+    if (input.scoreA < 0 || input.scoreB < 0) {
+      throw new Error("Scores cannot be negative.");
+    }
+    const note = input.note.trim();
+    if (note.length < 3 || note.length > 1000) {
+      throw new Error("A correction reason between 3 and 1000 characters is required.");
+    }
+    return { ...input, note };
+  })
+  .handler(async ({ data, context }) =>
+    guarded(async () => {
+      const supabase = clientFor(context.accessToken);
+      await assertStaff(supabase, context.userId);
+      const { correctCompletedMatchResult: correct } = await import("./competition.server");
+      return correct(supabase, data.matchId, data.scoreA, data.scoreB, data.note);
+    }),
+  );
+
 export const closeTournament = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: { tournamentId: string }) => input)

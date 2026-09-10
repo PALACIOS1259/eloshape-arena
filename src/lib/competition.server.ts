@@ -110,6 +110,23 @@ export async function recordMatchWalkover(
   return data;
 }
 
+export async function correctCompletedMatchResult(
+  client: Client,
+  matchId: string,
+  scoreA: number,
+  scoreB: number,
+  note: string,
+) {
+  const { data, error } = await client.rpc("staff_correct_match_result", {
+    p_match: matchId,
+    p_score_a: scoreA,
+    p_score_b: scoreB,
+    p_note: note,
+  });
+  fail(error);
+  return data;
+}
+
 export async function finalizeTournament(client: Client, tournamentId: string) {
   const { data, error } = await client.rpc("staff_finalize_tournament", {
     p_tournament: tournamentId,
