@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 76 76" role="img" aria-labelledby="title">
+  <title id="title">EloShape</title>
+  <defs>
+    <linearGradient id="silver" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f0f1f3"/>
+      <stop offset="1" stop-color="#8e929a"/>
+    </linearGradient>
+    <linearGradient id="brand" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffc140"/>
+      <stop offset="1" stop-color="#e07a2a"/>
+    </linearGradient>
+  </defs>
+  <rect width="76" height="76" rx="14" fill="#0b0c0f"/>
+  <g transform="translate(6)" fill="url(#silver)">
+    <path d="M31 3 9 19v38l22 16V63L18 53V23l13-10Z"/>
+    <path d="m22 27 9-7v9l-5 4h5v8h-9Z"/>
+    <path d="M22 46h9v11l-9-6Z"/>
+  </g>
+  <g transform="translate(6)" fill="url(#brand)">
+    <path d="m33 3 22 16v38L33 73V63l13-10V23L33 13Z"/>
+    <path d="m33 20 9 7v6h-6l6 4v10l-9 7v-8l3-3-3-2v-8Z"/>
+  </g>
+</svg>
