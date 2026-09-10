@@ -1,1 +1,13 @@
 project_id = "hdlktzhjsswzcbgrnhql"
+
+[auth.email.template.confirmation]
+subject = "Confirmá tu cuenta de EloShape"
+content_path = "./supabase/templates/confirmation.html"
+
+[auth.email.template.recovery]
+subject = "Restablecé tu contraseña de EloShape"
+content_path = "./supabase/templates/recovery.html"
+
+[auth.email.template.email_change]
+subject = "Confirmá tu nuevo correo de EloShape"
+content_path = "./supabase/templates/email-change.html"

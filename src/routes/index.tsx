@@ -8,6 +8,7 @@ import { SectionHeader } from "@/components/eloshape/SectionHeader";
 import { StatTile } from "@/components/eloshape/StatTile";
 import { TeamCard } from "@/components/eloshape/TeamCard";
 import { TournamentCard } from "@/components/eloshape/TournamentCard";
+import { IntroVideoSection } from "@/components/launch/IntroVideoSection";
 import { PageContainer } from "@/components/layout/PageShell";
 import { Button } from "@/components/ui/button";
 import { directoryQuery, homeSnapshotQuery } from "@/lib/queries";
@@ -119,6 +120,8 @@ function HomePage() {
           </div>
         </PageContainer>
       </section>
+
+      <IntroVideoSection />
 
       {/* Divisions */}
       <PageContainer className="py-16">
