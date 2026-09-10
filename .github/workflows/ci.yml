@@ -25,10 +25,10 @@ jobs:
 
       - name: Build application and generate routes
         env:
-          SUPABASE_URL: https://hdlktzhjsswzcbgrnhql.supabase.co
-          SUPABASE_PUBLISHABLE_KEY: sb_publishable_Yp0co0GeldsRyVLVY2p5dA_8DFcUOP7
-          VITE_SUPABASE_URL: https://hdlktzhjsswzcbgrnhql.supabase.co
-          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_Yp0co0GeldsRyVLVY2p5dA_8DFcUOP7
+          SUPABASE_URL: https://ujlzcdmotrihwgjshdcs.supabase.co
+          SUPABASE_PUBLISHABLE_KEY: sb_publishable_WRqpmHg33JlYlJjzc8nlWw_6C8P7-vi
+          VITE_SUPABASE_URL: https://ujlzcdmotrihwgjshdcs.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_WRqpmHg33JlYlJjzc8nlWw_6C8P7-vi
         run: bun run build
 
       - name: Verify generated route tree is committed

@@ -24,14 +24,14 @@ EloShape keeps synthetic development/QA data separate from the environment reser
 
 ## Deployment rules
 
-Before staging receives application traffic:
+Staging deployment, Auth redirects, Edge Function secrets and the reviewer URL are configured. Recheck these items after any provider or domain change:
 
-1. Connect the Git branch `staging` to a separate deployment.
-2. Configure all Supabase public variables with the staging project values.
-3. Configure staging Auth Site URL and Redirect URLs.
-4. Deploy the required Edge Functions and staging-only secrets.
-5. Set `VITE_SITE_URL` and the Riot CORS allowed origin to the staging deployment origin.
-6. Run browser smoke tests against the deployed application.
+1. Keep the Git branch `staging` connected to its separate Vercel deployment.
+2. Keep all public variables pointed at the staging Supabase project.
+3. Keep staging Auth Site URL and Redirect URLs aligned with the reviewer URL.
+4. Keep required Edge Functions and staging-only secrets deployed.
+5. Keep `VITE_SITE_URL` and the Riot CORS allowed origin aligned with staging.
+6. Run browser smoke tests after every launch-related change.
 
 Before production receives public traffic:
 
@@ -43,6 +43,8 @@ Before production receives public traffic:
 6. Verify the deployed Riot API key is a persistent production key.
 7. Run smoke tests without inserting fake competitive history.
 8. Open closed beta only after the latest GitHub CI and database QA checks are green.
+
+CI builds use the staging project's public Supabase connection values. Production public values must not be used by the `staging` branch or by routine local development.
 
 ## Pre-launch competition QA
 

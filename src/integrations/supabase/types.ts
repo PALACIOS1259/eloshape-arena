@@ -289,6 +289,10 @@ export type Database = {
           entry_b_id: string | null;
           id: string;
           is_bye: boolean;
+          resolution_note: string | null;
+          resolution_type: string;
+          resolved_at: string | null;
+          resolved_by_user_id: string | null;
           round_index: number;
           round_label: string;
           scheduled_at: string | null;
@@ -306,6 +310,10 @@ export type Database = {
           entry_b_id?: string | null;
           id?: string;
           is_bye?: boolean;
+          resolution_note?: string | null;
+          resolution_type?: string;
+          resolved_at?: string | null;
+          resolved_by_user_id?: string | null;
           round_index?: number;
           round_label: string;
           scheduled_at?: string | null;
@@ -323,6 +331,10 @@ export type Database = {
           entry_b_id?: string | null;
           id?: string;
           is_bye?: boolean;
+          resolution_note?: string | null;
+          resolution_type?: string;
+          resolved_at?: string | null;
+          resolved_by_user_id?: string | null;
           round_index?: number;
           round_label?: string;
           scheduled_at?: string | null;
@@ -1395,6 +1407,10 @@ export type Database = {
       };
       staff_replace_withdrawn_qualifier: {
         Args: { p_split: string; p_team: string };
+        Returns: Json;
+      };
+      staff_record_match_walkover: {
+        Args: { p_match: string; p_note: string; p_winner_entry: string };
         Returns: Json;
       };
       staff_report_match_result: {

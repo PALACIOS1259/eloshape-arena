@@ -172,7 +172,7 @@ begin
   end if;
   raise notice 'ok  bracket generation from locked entries only';
 
-  -- ---------- test 4: result reporting concurrency ----------
+  -- ---------- test 4: walkover + result reporting concurrency ----------
   select id into v_m0 from public.matches where tournament_id = v_qualifier
     and round_index = 0 and bracket_slot = 0;
   select id into v_m1 from public.matches where tournament_id = v_qualifier
@@ -180,8 +180,24 @@ begin
   select id into v_final from public.matches where tournament_id = v_qualifier
     and round_index = 1 and bracket_slot = 0;
 
-  v_res := private.report_match_result(v_actor, v_m0, 1, 0);
-  if v_res->>'status' <> 'completed' then raise exception 'FAIL report: %', v_res; end if;
+  v_res := private.record_match_walkover(v_actor, v_m0, v_entries[v_order[1]], 'opponent no-show');
+  if v_res->>'resolution_type' <> 'walkover' then
+    raise exception 'FAIL walkover: %', v_res;
+  end if;
+  if not exists (
+    select 1 from public.matches
+    where id = v_m0 and status = 'completed' and is_bye
+      and resolution_type = 'walkover' and score_a = 0 and score_b = 0
+      and resolution_note = 'opponent no-show'
+  ) then
+    raise exception 'FAIL walkover: match was not stored as a non-played audited ruling.';
+  end if;
+  if not exists (
+    select 1 from public.competition_audit_log
+    where entity_id = v_m0 and action = 'match_walkover_recorded'
+  ) then
+    raise exception 'FAIL walkover: audit entry missing.';
+  end if;
 
   begin
     perform private.report_match_result(v_actor, v_m0, 0, 1);
@@ -197,7 +213,7 @@ begin
   if v_uuid is null then raise exception 'FAIL advancement: final slot A is empty.'; end if;
   select entry_b_id into v_uuid from public.matches where id = v_final;
   if v_uuid is null then raise exception 'FAIL advancement: final slot B is empty.'; end if;
-  raise notice 'ok  result reporting is single-shot and advances winners';
+  raise notice 'ok  walkover is unscored/audited and result reporting is single-shot';
 
   perform private.report_match_result(v_actor, v_final, 1, 0);
   select winner_entry_id into v_champion from public.matches where id = v_final;
@@ -210,8 +226,8 @@ begin
   end if;
 
   select points_awarded into v_int from public.tournament_entries where id = v_champion;
-  if v_int <> 95 then
-    raise exception 'FAIL scoring: champion received %, expected 95 (5 + 2x10 + 70).', v_int;
+  if v_int <> 85 then
+    raise exception 'FAIL scoring: champion received %, expected 85 (5 + 1x10 + 70; walkover excluded).', v_int;
   end if;
   if (select placement from public.tournament_entries where id = v_champion) <> 1 then
     raise exception 'FAIL scoring: champion placement is not 1.';

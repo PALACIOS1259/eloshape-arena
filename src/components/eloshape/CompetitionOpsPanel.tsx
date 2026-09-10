@@ -18,6 +18,7 @@ import {
   getStaffSplits,
   getTournamentOps,
   lockEntries,
+  recordMatchWalkover,
   submitMatchResult,
 } from "@/lib/competition.functions";
 import { formatDate } from "@/lib/format";
@@ -43,15 +44,21 @@ function useOp(invalidate: () => void) {
 function MatchReporter({
   matchId,
   bestOf,
+  entryA,
+  entryB,
   onDone,
 }: {
   matchId: string;
   bestOf: number;
+  entryA: { id: string; label: string };
+  entryB: { id: string; label: string };
   onDone: () => void;
 }) {
   const [scoreA, setScoreA] = useState("");
   const [scoreB, setScoreB] = useState("");
+  const [walkoverNote, setWalkoverNote] = useState("");
   const report = useServerFn(submitMatchResult);
+  const walkover = useServerFn(recordMatchWalkover);
   const mutation = useMutation({
     mutationFn: () => report({ data: { matchId, scoreA: Number(scoreA), scoreB: Number(scoreB) } }),
     onSuccess: (result) => {
@@ -66,31 +73,83 @@ function MatchReporter({
     },
     onError: () => toast.error("Could not record the result."),
   });
+  const walkoverMutation = useMutation({
+    mutationFn: (winnerEntryId: string) =>
+      walkover({ data: { matchId, winnerEntryId, note: walkoverNote } }),
+    onSuccess: (result) => {
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success("Walkover recorded.");
+      setWalkoverNote("");
+      onDone();
+    },
+    onError: () => toast.error("Could not record the walkover."),
+  });
+
+  const pending = mutation.isPending || walkoverMutation.isPending;
+  const confirmWalkover = (entry: { id: string; label: string }) => {
+    const confirmed = window.confirm(
+      `Advance ${entry.label} by walkover? This records a final 0–0 administrative ruling.`,
+    );
+    if (confirmed) walkoverMutation.mutate(entry.id);
+  };
 
   return (
-    <div className="flex items-center gap-2">
-      <Input
-        aria-label="Score A"
-        className="w-16"
-        inputMode="numeric"
-        value={scoreA}
-        onChange={(event) => setScoreA(event.target.value)}
-      />
-      <span className="text-xs text-muted-foreground">Bo{bestOf}</span>
-      <Input
-        aria-label="Score B"
-        className="w-16"
-        inputMode="numeric"
-        value={scoreB}
-        onChange={(event) => setScoreB(event.target.value)}
-      />
-      <Button
-        size="sm"
-        disabled={mutation.isPending || scoreA === "" || scoreB === ""}
-        onClick={() => mutation.mutate()}
-      >
-        Report
-      </Button>
+    <div className="space-y-2">
+      <div className="flex items-center justify-end gap-2">
+        <Input
+          aria-label="Score A"
+          className="w-16"
+          inputMode="numeric"
+          value={scoreA}
+          onChange={(event) => setScoreA(event.target.value)}
+        />
+        <span className="text-xs text-muted-foreground">Bo{bestOf}</span>
+        <Input
+          aria-label="Score B"
+          className="w-16"
+          inputMode="numeric"
+          value={scoreB}
+          onChange={(event) => setScoreB(event.target.value)}
+        />
+        <Button
+          size="sm"
+          disabled={pending || scoreA === "" || scoreB === ""}
+          onClick={() => mutation.mutate()}
+        >
+          Report
+        </Button>
+      </div>
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <Input
+          aria-label="Walkover reason"
+          className="min-w-48 flex-1"
+          maxLength={1000}
+          placeholder="Walkover reason"
+          value={walkoverNote}
+          onChange={(event) => setWalkoverNote(event.target.value)}
+        />
+        <Button
+          aria-label={`Advance ${entryA.label} by walkover`}
+          size="sm"
+          variant="outline"
+          disabled={pending || walkoverNote.trim().length < 3}
+          onClick={() => confirmWalkover(entryA)}
+        >
+          A by W/O
+        </Button>
+        <Button
+          aria-label={`Advance ${entryB.label} by walkover`}
+          size="sm"
+          variant="outline"
+          disabled={pending || walkoverNote.trim().length < 3}
+          onClick={() => confirmWalkover(entryB)}
+        >
+          B by W/O
+        </Button>
+      </div>
     </div>
   );
 }
@@ -206,6 +265,8 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
                       <MatchReporter
                         matchId={match.id}
                         bestOf={match.best_of}
+                        entryA={{ id: match.entry_a_id!, label: byId.get(match.entry_a_id!)! }}
+                        entryB={{ id: match.entry_b_id!, label: byId.get(match.entry_b_id!)! }}
                         onDone={invalidate}
                       />
                     ) : (

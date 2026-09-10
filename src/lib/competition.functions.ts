@@ -88,6 +88,24 @@ export const submitMatchResult = createServerFn({ method: "POST" })
     }),
   );
 
+export const recordMatchWalkover = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: { matchId: string; winnerEntryId: string; note: string }) => {
+    const note = input.note.trim();
+    if (note.length < 3 || note.length > 1000) {
+      throw new Error("A walkover reason between 3 and 1000 characters is required.");
+    }
+    return { ...input, note };
+  })
+  .handler(async ({ data, context }) =>
+    guarded(async () => {
+      const supabase = clientFor(context.accessToken);
+      await assertStaff(supabase, context.userId);
+      const { recordMatchWalkover: record } = await import("./competition.server");
+      return record(supabase, data.matchId, data.winnerEntryId, data.note);
+    }),
+  );
+
 export const closeTournament = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: { tournamentId: string }) => input)

@@ -1,4 +1,4 @@
-project_id = "hdlktzhjsswzcbgrnhql"
+project_id = "eloshape-arena"
 
 [auth.email.template.confirmation]
 subject = "Confirmá tu cuenta de EloShape"

@@ -20,6 +20,7 @@ export type BracketMatchRow = {
   score_b: number;
   winner_entry_id: string | null;
   is_bye: boolean;
+  resolution_type?: string;
 };
 
 function Side({
@@ -98,9 +99,11 @@ export function BracketView({
                       decided={decided && !match.is_bye}
                     />
                     <p className="px-3 py-1.5 text-[11px] tracking-wide text-muted-foreground uppercase">
-                      {match.is_bye
-                        ? "Bye — no points awarded"
-                        : `Bo${match.best_of} · ${match.status}`}
+                      {match.resolution_type === "walkover"
+                        ? "Walkover — no match-win points"
+                        : match.is_bye
+                          ? "Bye — no points awarded"
+                          : `Bo${match.best_of} · ${match.status}`}
                     </p>
                   </div>
                 );

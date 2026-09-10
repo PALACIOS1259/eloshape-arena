@@ -95,6 +95,21 @@ export async function reportMatchResult(
   return data;
 }
 
+export async function recordMatchWalkover(
+  client: Client,
+  matchId: string,
+  winnerEntryId: string,
+  note: string,
+) {
+  const { data, error } = await client.rpc("staff_record_match_walkover", {
+    p_match: matchId,
+    p_winner_entry: winnerEntryId,
+    p_note: note,
+  });
+  fail(error);
+  return data;
+}
+
 export async function finalizeTournament(client: Client, tournamentId: string) {
   const { data, error } = await client.rpc("staff_finalize_tournament", {
     p_tournament: tournamentId,
@@ -137,7 +152,7 @@ export async function generateSplitPlayoffs(
 }
 
 export async function loadTournamentOps(client: Client, tournamentId: string) {
-  const [tournament, entries, matches, log] = await Promise.all([
+  const [tournament, entries, matches] = await Promise.all([
     client
       .from("tournaments")
       .select(
@@ -160,15 +175,21 @@ export async function loadTournamentOps(client: Client, tournamentId: string) {
       .eq("tournament_id", tournamentId)
       .order("round_index")
       .order("bracket_slot"),
-    client
-      .from("competition_audit_log")
-      .select("*")
-      .eq("entity_id", tournamentId)
-      .order("created_at", { ascending: false })
-      .limit(25),
   ]);
 
   fail(tournament.error);
+  fail(entries.error);
+  fail(matches.error);
+
+  const auditedEntityIds = [tournamentId, ...(matches.data ?? []).map((match) => match.id)];
+  const log = await client
+    .from("competition_audit_log")
+    .select("*")
+    .in("entity_id", auditedEntityIds)
+    .order("created_at", { ascending: false })
+    .limit(25);
+  fail(log.error);
+
   return {
     tournament: tournament.data,
     entries: entries.data ?? [],

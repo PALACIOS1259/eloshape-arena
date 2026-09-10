@@ -3,7 +3,7 @@
 > Plataforma competitiva de League of Legends para jugadores amateur / elo bajo.
 > Idea de marca: **“No necesitás ser Challenger para competir.”**
 
-Última actualización: 25/08/2026
+Última actualización: 10/09/2026
 
 ---
 
@@ -26,14 +26,14 @@ Reglas competitivas del modelo:
 
 ### Sistema de puntos (configurable en `point_rules`)
 
-| Regla | Puntos |
-| --- | --- |
-| Participación | +5 |
-| Victoria de partida | +10 |
-| Cuartos de final | +15 |
-| Semifinal | +25 |
-| Subcampeón | +40 |
-| Campeón | +70 |
+| Regla               | Puntos |
+| ------------------- | ------ |
+| Participación       | +5     |
+| Victoria de partida | +10    |
+| Cuartos de final    | +15    |
+| Semifinal           | +25    |
+| Subcampeón          | +40    |
+| Campeón             | +70    |
 
 Cambiar valores = editar filas de `point_rules`; no hay números hardcodeados en la UI.
 
@@ -41,21 +41,21 @@ Cambiar valores = editar filas de `point_rules`; no hay números hardcodeados en
 
 ## 2. Stack técnico
 
-- **Framework**: TanStack Start v1 (React 19, SSR) con Vite 7.
+- **Framework**: TanStack Start v1 (React 19, SSR) con Vite 8.
 - **Routing**: TanStack Router, file-based en `src/routes/`.
 - **Datos cliente**: TanStack Query (`src/lib/queries.ts`).
 - **Estilos**: Tailwind CSS v4 vía `src/styles.css` (tokens semánticos OKLCH).
 - **UI**: shadcn/ui + componentes propios en `src/components/eloshape/`.
-- **Backend**: Lovable Cloud (Postgres + Auth + RLS + storage).
+- **Backend**: Supabase (Postgres + Auth + RLS + Edge Functions).
 - **Lógica servidor**: `createServerFn` de `@tanstack/react-start`.
 
 ### Convención de archivos servidor/cliente
 
-| Patrón | Rol |
-| --- | --- |
+| Patrón           | Rol                                                                     |
+| ---------------- | ----------------------------------------------------------------------- |
 | `*.functions.ts` | Wrappers RPC delgados (`createServerFn`), importables desde componentes |
-| `*.server.ts` | Lógica privilegiada, solo servidor, nunca importada desde el cliente |
-| `queries.ts` | `queryOptions` de TanStack Query para lecturas públicas |
+| `*.server.ts`    | Lógica privilegiada, solo servidor, nunca importada desde el cliente    |
+| `queries.ts`     | `queryOptions` de TanStack Query para lecturas públicas                 |
 
 ---
 
@@ -83,27 +83,27 @@ verticalmente simétrico (plata a la izquierda, naranja/dorado a la derecha).
 
 Migraciones en `supabase/migrations/`. Tablas del esquema `public`:
 
-| Tabla | Propósito |
-| --- | --- |
-| `regions` | Jerarquía Región → País → Provincia → Ciudad (LAS, Argentina, Santa Fe, Rosario…) |
-| `divisions` | Iron / Bronze / Silver / Gold (código, nombre, acento visual) |
-| `seasons` | Temporadas competitivas |
-| `point_rules` | Configuración de puntos por evento |
-| `profiles` | Perfil del jugador: handle, display name, avatar, bio, puntos temporada/mes, W/L, torneos jugados, movimiento de ranking, riot_id / riot_tier / riot_rank, elegibilidad, completitud, geografía (city/province/country/region) |
-| `user_roles` | Roles separados del perfil: `admin`, `moderator`, `player` |
-| `riot_accounts` | Cuenta Riot vinculada: game name, tag line, PUUID (privado), tier/rank, wins/losses, verificación, último sync |
-| `teams` / `team_members` | Equipos y roster con roles (capitán, titular, suplente) |
-| `tournaments` | Torneos: slug, nombre, división, región, modo, estado, fechas, cupos, `checkin_required`, `required_roster_size`, `min_account_level`, `required_platform`, hitos (`entries_locked_at`, `bracket_generated_at`, `finalized_at`) |
-| `tournament_entries` | Inscripciones: estado (registrado / check-in / descalificado), seed, placement, `roster_locked_at`, puntos otorgados |
-| `tournament_roster_members` | **Snapshot inmutable** del roster al cerrar inscripciones (jugador, rol, Riot ID, tier, nivel de cuenta) |
-| `matches` / `match_players` | Bracket con coordenadas base cero `(round_index, bracket_slot)`, byes, resultados y estadísticas por jugador |
-| `competitive_splits` | Semi-Splits: ventana, estado, `playoff_size`, `qualification_slots_per_qualifier` |
-| `split_qualifications` | Clasificados por qualifier: posición, seed de playoffs, reemplazos |
-| `ranking_points` / `team_ranking_points` | Ledger inmutable de puntos (jugador / equipo) con regla, torneo y `event_key` idempotente |
-| `competition_audit_log` | Auditoría de toda operación de staff (locks, brackets, resultados, cierres) |
-| `achievements` | Logros del jugador |
-| `reports` | Reportes de usuarios |
-| `eligibility_reviews` | Revisión manual anti-smurf con estados y notas del staff |
+| Tabla                                    | Propósito                                                                                                                                                                                                                       |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `regions`                                | Jerarquía Región → País → Provincia → Ciudad (LAS, Argentina, Santa Fe, Rosario…)                                                                                                                                               |
+| `divisions`                              | Iron / Bronze / Silver / Gold (código, nombre, acento visual)                                                                                                                                                                   |
+| `seasons`                                | Temporadas competitivas                                                                                                                                                                                                         |
+| `point_rules`                            | Configuración de puntos por evento                                                                                                                                                                                              |
+| `profiles`                               | Perfil del jugador: handle, display name, avatar, bio, puntos temporada/mes, W/L, torneos jugados, movimiento de ranking, riot_id / riot_tier / riot_rank, elegibilidad, completitud, geografía (city/province/country/region)  |
+| `user_roles`                             | Roles separados del perfil: `admin`, `moderator`, `player`                                                                                                                                                                      |
+| `riot_accounts`                          | Cuenta Riot vinculada: game name, tag line, PUUID (privado), tier/rank, wins/losses, verificación, último sync                                                                                                                  |
+| `teams` / `team_members`                 | Equipos y roster con roles (capitán, titular, suplente)                                                                                                                                                                         |
+| `tournaments`                            | Torneos: slug, nombre, división, región, modo, estado, fechas, cupos, `checkin_required`, `required_roster_size`, `min_account_level`, `required_platform`, hitos (`entries_locked_at`, `bracket_generated_at`, `finalized_at`) |
+| `tournament_entries`                     | Inscripciones: estado (registrado / check-in / descalificado), seed, placement, `roster_locked_at`, puntos otorgados                                                                                                            |
+| `tournament_roster_members`              | **Snapshot inmutable** del roster al cerrar inscripciones (jugador, rol, Riot ID, tier, nivel de cuenta)                                                                                                                        |
+| `matches` / `match_players`              | Bracket con coordenadas base cero `(round_index, bracket_slot)`, byes, resultados y estadísticas por jugador                                                                                                                    |
+| `competitive_splits`                     | Semi-Splits: ventana, estado, `playoff_size`, `qualification_slots_per_qualifier`                                                                                                                                               |
+| `split_qualifications`                   | Clasificados por qualifier: posición, seed de playoffs, reemplazos                                                                                                                                                              |
+| `ranking_points` / `team_ranking_points` | Ledger inmutable de puntos (jugador / equipo) con regla, torneo y `event_key` idempotente                                                                                                                                       |
+| `competition_audit_log`                  | Auditoría de toda operación de staff (locks, brackets, resultados, cierres)                                                                                                                                                     |
+| `achievements`                           | Logros del jugador                                                                                                                                                                                                              |
+| `reports`                                | Reportes de usuarios                                                                                                                                                                                                            |
+| `eligibility_reviews`                    | Revisión manual anti-smurf con estados y notas del staff                                                                                                                                                                        |
 
 Datos demo sembrados: 24 jugadores (Argentina, Uruguay, Chile), 4 equipos,
 6 torneos en distintos estados, historial completo del “Rosario Silver
@@ -221,26 +221,26 @@ EloShape no está endorsado por Riot Games; el aviso está en `/terms` y `/priva
 
 ### Públicas
 
-| Ruta | Contenido |
-| --- | --- |
-| `/` | Hero, tagline, CTA “Compete Now”, próximo torneo, preview de leaderboard, divisiones, cómo funciona |
-| `/tournaments` | Listado con filtros de división / región / estado / modo, cupos y estado de inscripción |
+| Ruta                 | Contenido                                                                                             |
+| -------------------- | ----------------------------------------------------------------------------------------------------- |
+| `/`                  | Hero, tagline, CTA “Compete Now”, próximo torneo, preview de leaderboard, divisiones, cómo funciona   |
+| `/tournaments`       | Listado con filtros de división / región / estado / modo, cupos y estado de inscripción               |
 | `/tournaments/$slug` | Overview, reglas, participantes, bracket, calendario de matches, resultados, CTA de registro/check-in |
-| `/rankings` | Leaderboard con filtros mes/temporada, división y geografía (ciudad/provincia/país) |
-| `/players/$handle` | Riot ID, rank actual, puntos, rankings geográficos, stats, historial, logros, ledger |
-| `/teams` | Directorio de equipos |
-| `/teams/$slug` | Roster, división, ranking regional, W/L, historial, campeonatos |
-| `/divisions` | Explicación de divisiones y elegibilidad |
-| `/rules` | Reglamento competitivo y sistema de puntos |
-| `/auth` | Registro / inicio de sesión |
-| `/privacy`, `/terms` | Legales + aviso de no endorsement de Riot |
+| `/rankings`          | Leaderboard con filtros mes/temporada, división y geografía (ciudad/provincia/país)                   |
+| `/players/$handle`   | Riot ID, rank actual, puntos, rankings geográficos, stats, historial, logros, ledger                  |
+| `/teams`             | Directorio de equipos                                                                                 |
+| `/teams/$slug`       | Roster, división, ranking regional, W/L, historial, campeonatos                                       |
+| `/divisions`         | Explicación de divisiones y elegibilidad                                                              |
+| `/rules`             | Reglamento competitivo y sistema de puntos                                                            |
+| `/auth`              | Registro / inicio de sesión                                                                           |
+| `/privacy`, `/terms` | Legales + aviso de no endorsement de Riot                                                             |
 
 ### Autenticadas (`src/routes/_authenticated/`)
 
-| Ruta | Contenido |
-| --- | --- |
+| Ruta         | Contenido                                                                                                                                 |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | `/dashboard` | Checklist de onboarding, tarjeta de cuenta Riot, ajustes de perfil y ubicación, torneos inscriptos, próximos matches, puntos y movimiento |
-| `/admin` | Consola de staff: torneos, usuarios, reportes y cola de revisión de elegibilidad con acciones manuales |
+| `/admin`     | Consola de staff: torneos, usuarios, reportes y cola de revisión de elegibilidad con acciones manuales                                    |
 
 El gate `_authenticated/route.tsx` redirige a `/auth` antes de que corran los
 loaders, por lo que ninguna función protegida se ejecuta sin sesión.
@@ -264,6 +264,7 @@ loaders, por lo que ninguna función protegida se ejecuta sin sesión.
 ## 9. Flujos clave
 
 ### Registro de jugador
+
 1. Sign up en `/auth` → trigger crea perfil + rol `player`.
 2. `/dashboard` muestra checklist: handle, ubicación, cuenta Riot, rank
    detectado, elegibilidad.
@@ -271,47 +272,57 @@ loaders, por lo que ninguna función protegida se ejecuta sin sesión.
 4. Elegibilidad arranca en `pending_review`; el staff confirma en `/admin`.
 
 ### Inscripción a torneo
+
 1. `TournamentRegisterButton` llama a `registerForTournament`.
 2. `src/lib/tournament-entry.server.ts` valida en servidor: elegibilidad,
    división correcta, geografía, cupo y estado del torneo.
 3. Check-in es una segunda función con su propia ventana de validación.
 
 ### Otorgamiento de puntos
+
 Solo desde servidor: se inserta en `ranking_points` con `rule_code` de
 `point_rules` y referencia al torneo; los agregados del perfil se recalculan.
 
 ---
 
-## 10. Qué está mockeado / pendiente
+## 10. Estado real y pendientes
 
-- **Riot API** funciona real si hay `RIOT_API_KEY`; sin clave usa mock
-  determinístico. No hay OAuth RSO (login con Riot) todavía.
-- **Bracket**: se renderiza desde `matches`, pero no hay generador automático de
-  bracket ni avance automático de ganadores.
-- **Puntuación automática**: la asignación tras un torneo es manual/servidor,
-  sin job de cierre de torneo.
-- **Equipos**: alta y gestión de roster desde la UI aún no está expuesta.
-- **Datos demo** conviven con datos reales (flag `is_demo` en `profiles`).
+Ya están implementados y probados en staging:
+
+- creación y gestión de equipos, invitaciones y archivo seguro;
+- inscripción y check-in de equipos con roster de cinco jugadores;
+- snapshot inmutable del roster, generación automática de bracket y avance del ganador;
+- confirmación de resultados, disputas y resolución auditada por staff;
+- cierre idempotente, ledger de puntos y clasificación a Semi-Splits;
+- prueba integral de cuatro qualifiers de 16 equipos y playoffs de 16 equipos;
+- soporte, solicitud de eliminación de cuenta y correo transaccional de EloShape.
+
+Pendientes antes de una apertura pública:
+
+- aprobación de la Production API de Riot y reemplazo de la clave temporal;
+- Riot Sign On cuando Riot habilite RSO; el lookup actual no verifica propiedad;
+- ensayo operativo del torneo cero y beta cerrada por invitación;
+- validación del flujo de walkover/no-show durante el torneo cero;
+- monitoreo de producción y política definitiva para menores de edad.
+
+El video de presentación es una mejora de lanzamiento opcional y permanece oculto
+hasta configurar `VITE_INTRO_VIDEO_URL`.
 
 ---
 
-## 11. Próximos 5 pasos recomendados
+## 11. Próximos pasos recomendados
 
-1. **Motor de brackets**: generación de single elimination, seeding por puntos y
-   avance automático al reportar resultado.
-2. **Cierre de torneo automatizado**: función de servidor que calcula placements
-   y escribe el ledger de `ranking_points` según `point_rules`.
-3. **Gestión de equipos en UI**: crear equipo, invitar/aceptar miembros, roles.
-4. **Reporte de resultados con evidencia**: subida de screenshot a storage +
-   flujo de disputa hacia `reports`.
-5. **Login con Riot (RSO)** y verificación automática anti-smurf usando historial
-   de rank, reduciendo la revisión manual.
+1. Ejecutar el checklist de `docs/TOURNAMENT_ZERO_RUNBOOK.md` con cuatro equipos.
+2. Validar la resolución formal de walkover/no-show con el equipo de operación.
+3. Completar una beta cerrada, registrar incidentes y repetir el ensayo.
+4. Activar monitoreo y alertas antes de quitar el modo mantenimiento de producción.
+5. Implementar RSO únicamente después de la autorización de Riot.
 
 ---
 
 ## 12. Operación
 
-- Secretos: se administran desde el backend de Lovable Cloud
+- Secretos: se administran en Supabase Edge Function Secrets
   (`RIOT_API_KEY`). Nunca en el repo ni en variables `VITE_*`.
 - Variables `VITE_*` son públicas por definición: solo URL y clave publicable.
 - Migraciones: siempre `CREATE TABLE` → `GRANT` → `ENABLE RLS` → `CREATE POLICY`.
