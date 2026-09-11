@@ -271,8 +271,8 @@ begin
   end if;
 
   select points_awarded into v_int from public.tournament_entries where id = v_champion;
-  if v_int <> 85 then
-    raise exception 'FAIL scoring: champion received %, expected 85 (5 + 1x10 + 70; walkover excluded).', v_int;
+  if v_int <> 95 then
+    raise exception 'FAIL scoring: champion received %, expected 95 (5 + 2x10 + 70; walkover counts as a win).', v_int;
   end if;
   if (select placement from public.tournament_entries where id = v_champion) <> 1 then
     raise exception 'FAIL scoring: champion placement is not 1.';
