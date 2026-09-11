@@ -51,8 +51,9 @@ export async function loadAdminOverview(supabase: AuthenticatedSupabaseClient) {
         `id, status, reason, notes, created_at,
          profile:profiles!eligibility_reviews_profile_id_fkey(id, handle, display_name, riot_tier, riot_rank, eligibility)`,
       )
+      .eq("status", "pending_review")
       .order("created_at", { ascending: false })
-      .limit(20),
+      .limit(50),
     // Safe Riot review projection: no PUUID, no credentials.
     supabase
       .from("riot_accounts")
@@ -70,6 +71,19 @@ export async function loadAdminOverview(supabase: AuthenticatedSupabaseClient) {
     if (result.error) throw new Error(result.error.message);
   }
 
+  // eligibility_reviews is also an audit/history table. The admin queue should
+  // only expose the latest pending review for players whose CURRENT profile
+  // eligibility still requires a decision. Once staff approves/rejects/suspends
+  // a player, the old pending row remains in history but disappears from here.
+  const seenPendingProfiles = new Set<string>();
+  const activeReviews = (reviews.data ?? []).filter((review) => {
+    const profile = review.profile;
+    if (!profile || profile.eligibility !== "pending_review") return false;
+    if (seenPendingProfiles.has(profile.id)) return false;
+    seenPendingProfiles.add(profile.id);
+    return true;
+  });
+
   return {
     counts: {
       players: players.count ?? 0,
@@ -77,7 +91,7 @@ export async function loadAdminOverview(supabase: AuthenticatedSupabaseClient) {
       tournaments: tournaments.count ?? 0,
     },
     reports: reports.data ?? [],
-    reviews: reviews.data ?? [],
+    reviews: activeReviews,
     riotAccounts: riot.data ?? [],
   };
 }
