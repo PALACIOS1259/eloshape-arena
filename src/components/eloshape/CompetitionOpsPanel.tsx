@@ -38,7 +38,15 @@ import {
 import { formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
-const SPLIT_STAGES = ["upcoming", "qualifiers", "seeding", "playoffs", "semifinals", "final", "completed"];
+const SPLIT_STAGES = [
+  "upcoming",
+  "qualifiers",
+  "seeding",
+  "playoffs",
+  "semifinals",
+  "final",
+  "completed",
+];
 const NEXT_SPLIT_STAGE: Record<string, string | null> = {
   upcoming: "qualifiers",
   qualifiers: "seeding",
@@ -157,7 +165,9 @@ function MatchReporter({
 
         <div className="grid gap-2">
           <label className="grid grid-cols-[minmax(0,1fr)_4.5rem] items-center gap-3 rounded-md border border-border bg-card/60 px-3 py-2">
-            <span className="min-w-0 truncate text-sm font-medium text-foreground">{entryA.label}</span>
+            <span className="min-w-0 truncate text-sm font-medium text-foreground">
+              {entryA.label}
+            </span>
             <Input
               aria-label={`Score for ${entryA.label}`}
               className="text-center"
@@ -168,7 +178,9 @@ function MatchReporter({
             />
           </label>
           <label className="grid grid-cols-[minmax(0,1fr)_4.5rem] items-center gap-3 rounded-md border border-border bg-card/60 px-3 py-2">
-            <span className="min-w-0 truncate text-sm font-medium text-foreground">{entryB.label}</span>
+            <span className="min-w-0 truncate text-sm font-medium text-foreground">
+              {entryB.label}
+            </span>
             <Input
               aria-label={`Score for ${entryB.label}`}
               className="text-center"
@@ -206,8 +218,8 @@ function MatchReporter({
         <div className="border-t border-border p-4">
           <p className="text-sm font-semibold text-foreground">Declare walkover</p>
           <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-            Use only for a documented no-show or administrative ruling. A walkover advances the winner
-            and counts exactly like a played match win for EloShape points.
+            Use only for a documented no-show or administrative ruling. A walkover advances the
+            winner and counts exactly like a played match win for EloShape points.
           </p>
           <Input
             aria-label="Walkover reason"
@@ -328,8 +340,8 @@ function CompletedMatchCorrection({
       </summary>
       <div className="border-t border-border p-4">
         <div className="mb-3 rounded-md border border-amber-500/20 bg-amber-500/5 p-3 text-xs leading-relaxed text-muted-foreground">
-          Corrections are audited. If changing the winner would conflict with activity in the next round,
-          EloShape blocks the change automatically.
+          Corrections are audited. If changing the winner would conflict with activity in the next
+          round, EloShape blocks the change automatically.
         </div>
         <div className="grid gap-2 sm:grid-cols-2">
           <label className="space-y-1">
@@ -360,7 +372,9 @@ function CompletedMatchCorrection({
           onChange={(event) => setNote(event.target.value)}
         />
         {!validSeriesScore && scoreA !== "" && scoreB !== "" ? (
-          <p className="mt-2 text-xs text-destructive">Enter a valid best-of-{match.best_of} result.</p>
+          <p className="mt-2 text-xs text-destructive">
+            Enter a valid best-of-{match.best_of} result.
+          </p>
         ) : null}
         <div className="mt-3 flex justify-end">
           <Button
@@ -376,13 +390,7 @@ function CompletedMatchCorrection({
   );
 }
 
-function WorkflowStep({
-  label,
-  state,
-}: {
-  label: string;
-  state: "done" | "current" | "pending";
-}) {
+function WorkflowStep({ label, state }: { label: string; state: "done" | "current" | "pending" }) {
   return (
     <div
       className={cn(
@@ -451,9 +459,7 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
   );
   const waitingMatches = data.matches.filter(
     (match) =>
-      match.status !== "completed" &&
-      !match.is_bye &&
-      !(match.entry_a_id && match.entry_b_id),
+      match.status !== "completed" && !match.is_bye && !(match.entry_a_id && match.entry_b_id),
   );
   const correctableMatches = data.matches.filter(
     (match) =>
@@ -529,7 +535,9 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
             <WorkflowStep
               key={label}
               label={label}
-              state={index < workflowCurrent ? "done" : index === workflowCurrent ? "current" : "pending"}
+              state={
+                index < workflowCurrent ? "done" : index === workflowCurrent ? "current" : "pending"
+              }
             />
           ))}
         </div>
@@ -540,9 +548,12 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
             <div>
               <p className="eyebrow text-primary">Next action</p>
-              <h3 className="mt-1 text-base font-semibold text-foreground">Lock tournament rosters</h3>
+              <h3 className="mt-1 text-base font-semibold text-foreground">
+                Lock tournament rosters
+              </h3>
               <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                Freeze the checked-in eligible rosters before creating the bracket. This prevents live team changes from changing tournament eligibility.
+                Freeze the checked-in eligible rosters before creating the bracket. This prevents
+                live team changes from changing tournament eligibility.
               </p>
             </div>
             <Button disabled={pending} onClick={confirmLock}>
@@ -556,7 +567,8 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
               <p className="eyebrow text-primary">Next action</p>
               <h3 className="mt-1 text-base font-semibold text-foreground">Generate the bracket</h3>
               <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                Rosters are locked. Choose the series format and EloShape will seed the bracket from the locked field.
+                Rosters are locked. Choose the series format and EloShape will seed the bracket from
+                the locked field.
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -579,22 +591,31 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
             <div>
               <p className="eyebrow text-primary">Tournament live</p>
-              <h3 className="mt-1 text-base font-semibold text-foreground">Run the ready matches</h3>
+              <h3 className="mt-1 text-base font-semibold text-foreground">
+                Run the ready matches
+              </h3>
               <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                {competitiveCompleted} competitive result{competitiveCompleted === 1 ? "" : "s"} recorded · {readyMatches.length} ready now · {waitingMatches.length} waiting on an earlier round.
+                {competitiveCompleted} competitive result{competitiveCompleted === 1 ? "" : "s"}{" "}
+                recorded · {readyMatches.length} ready now · {waitingMatches.length} waiting on an
+                earlier round.
               </p>
             </div>
             <Badge variant={readyMatches.length ? "default" : "outline"}>
-              {readyMatches.length ? `${readyMatches.length} need action` : "Waiting for bracket progression"}
+              {readyMatches.length
+                ? `${readyMatches.length} need action`
+                : "Waiting for bracket progression"}
             </Badge>
           </div>
         ) : !t.finalized_at ? (
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
             <div>
               <p className="eyebrow text-primary">Final complete</p>
-              <h3 className="mt-1 text-base font-semibold text-foreground">Finalize and award points</h3>
+              <h3 className="mt-1 text-base font-semibold text-foreground">
+                Finalize and award points
+              </h3>
               <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                The champion is decided. Finalization calculates placements, match wins, phase rewards and qualification results.
+                The champion is decided. Finalization calculates placements, match wins, phase
+                rewards and qualification results.
               </p>
             </div>
             <Button disabled={pending} onClick={confirmFinalize}>
@@ -637,10 +658,13 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
               <div>
                 <p className="text-sm font-semibold text-foreground">Matches requiring action</p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Ready matches appear first. Waiting matches unlock automatically as winners advance.
+                  Ready matches appear first. Waiting matches unlock automatically as winners
+                  advance.
                 </p>
               </div>
-              <Badge variant={readyMatches.length ? "default" : "outline"}>{readyMatches.length} ready</Badge>
+              <Badge variant={readyMatches.length ? "default" : "outline"}>
+                {readyMatches.length} ready
+              </Badge>
             </div>
 
             {readyMatches.length ? (
@@ -655,12 +679,18 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
                     label: byId.get(match.entry_b_id!) ?? "Team B",
                   };
                   return (
-                    <div key={match.id} className="rounded-lg border border-border bg-surface-gradient p-4 sm:p-5">
+                    <div
+                      key={match.id}
+                      className="rounded-lg border border-border bg-surface-gradient p-4 sm:p-5"
+                    >
                       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
                         <div>
-                          <p className="eyebrow">{match.round_label} · Match {match.bracket_slot + 1}</p>
+                          <p className="eyebrow">
+                            {match.round_label} · Match {match.bracket_slot + 1}
+                          </p>
                           <h4 className="mt-1 text-base font-semibold text-foreground">
-                            {entryA.label} <span className="text-muted-foreground">vs</span> {entryB.label}
+                            {entryA.label} <span className="text-muted-foreground">vs</span>{" "}
+                            {entryB.label}
                           </h4>
                         </div>
                         <Badge variant="outline">Bo{match.best_of}</Badge>
@@ -690,13 +720,17 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
                 </summary>
                 <div className="border-t border-border">
                   {waitingMatches.map((match) => (
-                    <div key={match.id} className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 last:border-0">
+                    <div
+                      key={match.id}
+                      className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 last:border-0"
+                    >
                       <div>
                         <p className="text-sm font-medium text-foreground">
                           {match.round_label} · Match {match.bracket_slot + 1}
                         </p>
                         <p className="mt-1 text-xs text-muted-foreground">
-                          {byId.get(match.entry_a_id ?? "") ?? "TBD"} vs {byId.get(match.entry_b_id ?? "") ?? "TBD"}
+                          {byId.get(match.entry_a_id ?? "") ?? "TBD"} vs{" "}
+                          {byId.get(match.entry_b_id ?? "") ?? "TBD"}
                         </p>
                       </div>
                       <Badge variant="outline">Waiting</Badge>
@@ -746,7 +780,10 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
           ) : null}
         </>
       ) : (
-        <EmptyState title="No bracket yet" description="Lock rosters first, then generate the bracket." />
+        <EmptyState
+          title="No bracket yet"
+          description="Lock rosters first, then generate the bracket."
+        />
       )}
 
       {data.auditLog.length ? (
@@ -760,9 +797,16 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
           </summary>
           <div className="border-t border-border">
             {data.auditLog.map((entry) => (
-              <div key={entry.id} className="grid gap-1 border-b border-border px-4 py-3 last:border-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
-                <span className="text-sm font-medium text-foreground">{humanize(entry.action)}</span>
-                <span className="text-xs text-muted-foreground">{formatDate(entry.created_at)}</span>
+              <div
+                key={entry.id}
+                className="grid gap-1 border-b border-border px-4 py-3 last:border-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+              >
+                <span className="text-sm font-medium text-foreground">
+                  {humanize(entry.action)}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {formatDate(entry.created_at)}
+                </span>
               </div>
             ))}
           </div>
@@ -772,9 +816,19 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
   );
 }
 
-function TournamentStageLabel({ tournament }: { tournament: { entries_locked_at: string | null; bracket_generated_at: string | null; finalized_at: string | null; status: string } }) {
+function TournamentStageLabel({
+  tournament,
+}: {
+  tournament: {
+    entries_locked_at: string | null;
+    bracket_generated_at: string | null;
+    finalized_at: string | null;
+    status: string;
+  };
+}) {
   if (tournament.finalized_at) return <Badge>Complete</Badge>;
-  if (!tournament.entries_locked_at) return <Badge variant="outline">Registration / check-in</Badge>;
+  if (!tournament.entries_locked_at)
+    return <Badge variant="outline">Registration / check-in</Badge>;
   if (!tournament.bracket_generated_at) return <Badge variant="outline">Needs bracket</Badge>;
   return <Badge variant="outline">Tournament running</Badge>;
 }
@@ -783,24 +837,26 @@ function SplitStageRail({ current }: { current: string }) {
   const currentIndex = SPLIT_STAGES.indexOf(current);
   return (
     <div className="mt-3 flex flex-wrap gap-1.5">
-      {SPLIT_STAGES.filter((stage) => stage !== "upcoming" || current === "upcoming").map((stage) => {
-        const index = SPLIT_STAGES.indexOf(stage);
-        const active = stage === current;
-        const complete = currentIndex >= 0 && index < currentIndex;
-        return (
-          <span
-            key={stage}
-            className={cn(
-              "rounded-full border px-2.5 py-1 text-[11px] font-medium",
-              active && "border-primary/40 bg-primary/10 text-foreground",
-              complete && "border-emerald-500/20 bg-emerald-500/5 text-emerald-300",
-              !active && !complete && "border-border text-muted-foreground",
-            )}
-          >
-            {humanize(stage)}
-          </span>
-        );
-      })}
+      {SPLIT_STAGES.filter((stage) => stage !== "upcoming" || current === "upcoming").map(
+        (stage) => {
+          const index = SPLIT_STAGES.indexOf(stage);
+          const active = stage === current;
+          const complete = currentIndex >= 0 && index < currentIndex;
+          return (
+            <span
+              key={stage}
+              className={cn(
+                "rounded-full border px-2.5 py-1 text-[11px] font-medium",
+                active && "border-primary/40 bg-primary/10 text-foreground",
+                complete && "border-emerald-500/20 bg-emerald-500/5 text-emerald-300",
+                !active && !complete && "border-border text-muted-foreground",
+              )}
+            >
+              {humanize(stage)}
+            </span>
+          );
+        },
+      )}
     </div>
   );
 }
@@ -836,9 +892,13 @@ export function CompetitionOpsPanel() {
   if (isPending) return <Skeleton className="h-64 w-full" />;
   if (!data) return <EmptyState title="Staff access required" />;
 
-  const activeTournaments = data.tournaments.filter((tournament) => !tournament.finalized_at).length;
+  const activeTournaments = data.tournaments.filter(
+    (tournament) => !tournament.finalized_at,
+  ).length;
   const completedTournaments = data.tournaments.length - activeTournaments;
-  const activeSplits = data.splits.filter((split) => !["completed", "cancelled"].includes(split.status)).length;
+  const activeSplits = data.splits.filter(
+    (split) => !["completed", "cancelled"].includes(split.status),
+  ).length;
 
   return (
     <div className="space-y-5">
@@ -884,7 +944,8 @@ export function CompetitionOpsPanel() {
           <div>
             <p className="text-sm font-semibold text-foreground">Tournament operations</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Open one tournament at a time. The workspace guides you from roster lock to final scoring.
+              Open one tournament at a time. The workspace guides you from roster lock to final
+              scoring.
             </p>
           </div>
 
@@ -897,7 +958,9 @@ export function CompetitionOpsPanel() {
                     <div className="grid gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <p className="truncate text-sm font-semibold text-foreground">{tournament.name}</p>
+                          <p className="truncate text-sm font-semibold text-foreground">
+                            {tournament.name}
+                          </p>
                           {tournament.qualifier_index ? (
                             <Badge variant="outline">Qualifier #{tournament.qualifier_index}</Badge>
                           ) : null}
@@ -915,7 +978,9 @@ export function CompetitionOpsPanel() {
                         onClick={() => setSelected(isSelected ? null : tournament.id)}
                       >
                         {isSelected ? "Close workspace" : "Open workspace"}
-                        <ChevronRight className={cn("transition-transform", isSelected && "rotate-90")} />
+                        <ChevronRight
+                          className={cn("transition-transform", isSelected && "rotate-90")}
+                        />
                       </Button>
                     </div>
                     {isSelected ? <TournamentOps tournamentId={tournament.id} /> : null}
@@ -932,7 +997,8 @@ export function CompetitionOpsPanel() {
           <div>
             <p className="text-sm font-semibold text-foreground">Semi-Split progression</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Only the next valid stage is offered. Playoff generation is separated from stage progression so it is harder to click the wrong action.
+              Only the next valid stage is offered. Playoff generation is separated from stage
+              progression so it is harder to click the wrong action.
             </p>
           </div>
 
@@ -942,12 +1008,18 @@ export function CompetitionOpsPanel() {
                 const nextStage = NEXT_SPLIT_STAGE[split.status] ?? null;
                 const isSeeding = split.status === "seeding";
                 return (
-                  <div key={split.id} className="rounded-lg border border-border bg-surface-gradient p-4 sm:p-5">
+                  <div
+                    key={split.id}
+                    className="rounded-lg border border-border bg-surface-gradient p-4 sm:p-5"
+                  >
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-foreground">{split.name}</p>
+                        <p className="truncate text-sm font-semibold text-foreground">
+                          {split.name}
+                        </p>
                         <p className="mt-1 text-xs text-muted-foreground">
-                          {formatDate(split.starts_at)} — {formatDate(split.ends_at)} · {split.playoff_size} playoff slots
+                          {formatDate(split.starts_at)} — {formatDate(split.ends_at)} ·{" "}
+                          {split.playoff_size} playoff slots
                         </p>
                       </div>
                       <StatusBadge status={split.status} />
@@ -959,9 +1031,12 @@ export function CompetitionOpsPanel() {
                       {isSeeding ? (
                         <div className="space-y-3">
                           <div>
-                            <p className="text-sm font-semibold text-foreground">Build the playoff field</p>
+                            <p className="text-sm font-semibold text-foreground">
+                              Build the playoff field
+                            </p>
                             <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                              Generate the {split.playoff_size}-team playoff bracket from qualified teams before moving the split into playoffs.
+                              Generate the {split.playoff_size}-team playoff bracket from qualified
+                              teams before moving the split into playoffs.
                             </p>
                           </div>
                           <div className="flex flex-wrap gap-2">
@@ -983,7 +1058,8 @@ export function CompetitionOpsPanel() {
                               </summary>
                               <div className="mt-3 max-w-xl rounded-md border border-amber-500/25 bg-amber-500/5 p-3">
                                 <p className="text-xs leading-relaxed text-muted-foreground">
-                                  Emergency only. EloShape requires a written reason before creating playoffs with fewer than {split.playoff_size} qualified teams.
+                                  Emergency only. EloShape requires a written reason before creating
+                                  playoffs with fewer than {split.playoff_size} qualified teams.
                                 </p>
                                 <Button
                                   className="mt-3"
@@ -1011,9 +1087,12 @@ export function CompetitionOpsPanel() {
                       ) : nextStage ? (
                         <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
                           <div>
-                            <p className="text-sm font-semibold text-foreground">Next stage: {humanize(nextStage)}</p>
+                            <p className="text-sm font-semibold text-foreground">
+                              Next stage: {humanize(nextStage)}
+                            </p>
                             <p className="mt-1 text-xs text-muted-foreground">
-                              Advance only after the current stage's tournament work and reviews are complete.
+                              Advance only after the current stage's tournament work and reviews are
+                              complete.
                             </p>
                           </div>
                           <Button
@@ -1040,7 +1119,9 @@ export function CompetitionOpsPanel() {
                             <p className="text-sm font-semibold text-foreground">
                               {split.status === "cancelled" ? "Split cancelled" : "Split complete"}
                             </p>
-                            <p className="mt-1 text-xs text-muted-foreground">No stage action is available.</p>
+                            <p className="mt-1 text-xs text-muted-foreground">
+                              No stage action is available.
+                            </p>
                           </div>
                         </div>
                       )}

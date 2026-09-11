@@ -28,7 +28,10 @@ export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
     meta: [
       { title: "Admin control center — EloShape" },
-      { name: "description", content: "EloShape staff operations, moderation and competition control." },
+      {
+        name: "description",
+        content: "EloShape staff operations, moderation and competition control.",
+      },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -174,9 +177,12 @@ function AdminPage() {
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <p className="eyebrow">System overview</p>
-                  <h2 className="mt-2 text-xl font-semibold text-foreground">What needs your attention</h2>
+                  <h2 className="mt-2 text-xl font-semibold text-foreground">
+                    What needs your attention
+                  </h2>
                   <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                    Start with queues that have pending work. Routine data and technical controls stay out of the way until you need them.
+                    Start with queues that have pending work. Routine data and technical controls
+                    stay out of the way until you need them.
                   </p>
                 </div>
                 <Badge variant={data.reviews.length + data.reports.length ? "default" : "outline"}>
@@ -188,7 +194,9 @@ function AdminPage() {
               <div className="mt-5 grid gap-3 sm:grid-cols-3">
                 <div className="rounded-lg border border-border bg-background/35 p-4">
                   <p className="eyebrow">Players</p>
-                  <p className="mt-2 text-2xl font-semibold text-foreground">{data.counts.players}</p>
+                  <p className="mt-2 text-2xl font-semibold text-foreground">
+                    {data.counts.players}
+                  </p>
                 </div>
                 <div className="rounded-lg border border-border bg-background/35 p-4">
                   <p className="eyebrow">Teams</p>
@@ -196,7 +204,9 @@ function AdminPage() {
                 </div>
                 <div className="rounded-lg border border-border bg-background/35 p-4">
                   <p className="eyebrow">Tournaments</p>
-                  <p className="mt-2 text-2xl font-semibold text-foreground">{data.counts.tournaments}</p>
+                  <p className="mt-2 text-2xl font-semibold text-foreground">
+                    {data.counts.tournaments}
+                  </p>
                 </div>
               </div>
             </section>
@@ -208,7 +218,11 @@ function AdminPage() {
                 description="Approve, reject or hold players that require a manual competitive eligibility decision."
                 count={data.reviews.length}
                 action={
-                  <Button asChild className="w-full" variant={data.reviews.length ? "default" : "outline"}>
+                  <Button
+                    asChild
+                    className="w-full"
+                    variant={data.reviews.length ? "default" : "outline"}
+                  >
                     <a href="#eligibility">
                       Review players
                       <ChevronRight />
@@ -261,18 +275,26 @@ function AdminPage() {
               <div className="flex flex-wrap items-end justify-between gap-3">
                 <div>
                   <p className="eyebrow">Eligibility</p>
-                  <h2 className="mt-1 text-lg font-semibold text-foreground">Players waiting for review</h2>
+                  <h2 className="mt-1 text-lg font-semibold text-foreground">
+                    Players waiting for review
+                  </h2>
                   <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-                    This is the action queue. Linked Riot accounts that do not require a decision are kept in a separate reference section below.
+                    This is the action queue. Linked Riot accounts that do not require a decision
+                    are kept in a separate reference section below.
                   </p>
                 </div>
-                <Badge variant={data.reviews.length ? "default" : "outline"}>{data.reviews.length} pending</Badge>
+                <Badge variant={data.reviews.length ? "default" : "outline"}>
+                  {data.reviews.length} pending
+                </Badge>
               </div>
 
               <div className="mt-4 overflow-hidden rounded-lg border border-border bg-surface-gradient">
                 {data.reviews.length ? (
                   data.reviews.map((review) => (
-                    <div key={review.id} className="border-b border-border p-4 last:border-0 sm:p-5">
+                    <div
+                      key={review.id}
+                      className="border-b border-border p-4 last:border-0 sm:p-5"
+                    >
                       <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
                         <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-2">
@@ -282,12 +304,15 @@ function AdminPage() {
                             <Badge variant="outline">{review.status.replace("_", " ")}</Badge>
                           </div>
                           <p className="mt-1 text-xs text-muted-foreground">
-                            {riotRankLabel(review.profile?.riot_tier, review.profile?.riot_rank)} · submitted {formatDate(review.created_at)}
+                            {riotRankLabel(review.profile?.riot_tier, review.profile?.riot_rank)} ·
+                            submitted {formatDate(review.created_at)}
                           </p>
                           {review.reason ? (
                             <div className="mt-3 rounded-md border border-border bg-background/30 p-3">
                               <p className="text-xs font-medium text-foreground">Review reason</p>
-                              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{review.reason}</p>
+                              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                                {review.reason}
+                              </p>
                             </div>
                           ) : null}
                         </div>
@@ -298,7 +323,10 @@ function AdminPage() {
                   ))
                 ) : (
                   <div className="p-8">
-                    <EmptyState title="Eligibility queue clear" description="No player currently requires a manual decision." />
+                    <EmptyState
+                      title="Eligibility queue clear"
+                      description="No player currently requires a manual decision."
+                    />
                   </div>
                 )}
               </div>
@@ -309,20 +337,29 @@ function AdminPage() {
                 <div className="flex flex-wrap items-end justify-between gap-3">
                   <div>
                     <p className="eyebrow">Reports</p>
-                    <h2 className="mt-1 text-lg font-semibold text-foreground">Open moderation reports</h2>
+                    <h2 className="mt-1 text-lg font-semibold text-foreground">
+                      Open moderation reports
+                    </h2>
                   </div>
                   <Badge>{data.reports.length}</Badge>
                 </div>
                 <div className="mt-4 overflow-hidden rounded-lg border border-border bg-surface-gradient">
                   {data.reports.map((report) => (
-                    <div key={report.id} className="grid gap-3 border-b border-border p-4 last:border-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
+                    <div
+                      key={report.id}
+                      className="grid gap-3 border-b border-border p-4 last:border-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start"
+                    >
                       <div className="min-w-0">
                         <p className="text-sm font-semibold text-foreground">
                           {report.reason} · {report.reported?.display_name ?? "No reported player"}
                         </p>
-                        <p className="mt-1 text-xs text-muted-foreground">{formatDate(report.created_at)}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {formatDate(report.created_at)}
+                        </p>
                         {report.details ? (
-                          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{report.details}</p>
+                          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                            {report.details}
+                          </p>
                         ) : null}
                       </div>
                       <Badge variant="outline">{report.status}</Badge>
@@ -337,9 +374,12 @@ function AdminPage() {
                 <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
                   <div>
                     <p className="eyebrow">Competition</p>
-                    <h2 className="mt-1 text-lg font-semibold text-foreground">Tournament control room</h2>
+                    <h2 className="mt-1 text-lg font-semibold text-foreground">
+                      Tournament control room
+                    </h2>
                     <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                      Guided operations for rosters, brackets, match results, walkovers, corrections, scoring and Semi-Split progression.
+                      Guided operations for rosters, brackets, match results, walkovers,
+                      corrections, scoring and Semi-Split progression.
                     </p>
                   </div>
                   <Button asChild variant="outline">
@@ -361,9 +401,12 @@ function AdminPage() {
                       <Activity className="size-4" />
                     </span>
                     <div>
-                      <p className="text-sm font-semibold text-foreground">Riot account reference</p>
+                      <p className="text-sm font-semibold text-foreground">
+                        Riot account reference
+                      </p>
                       <p className="mt-1 text-xs text-muted-foreground">
-                        {data.riotAccounts.length} linked account{data.riotAccounts.length === 1 ? "" : "s"} · reference data only
+                        {data.riotAccounts.length} linked account
+                        {data.riotAccounts.length === 1 ? "" : "s"} · reference data only
                       </p>
                     </div>
                   </div>
@@ -382,20 +425,28 @@ function AdminPage() {
                           </span>
                           <span className="mt-1 block text-xs text-muted-foreground">
                             {riotRankLabel(account.solo_tier, account.solo_rank)}
-                            {account.solo_lp != null ? ` · ${account.solo_lp} LP` : ""} · {account.platform.toUpperCase()} · synced {formatDate(account.last_synced_at)}
+                            {account.solo_lp != null ? ` · ${account.solo_lp} LP` : ""} ·{" "}
+                            {account.platform.toUpperCase()} · synced{" "}
+                            {formatDate(account.last_synced_at)}
                           </span>
                           <div className="mt-2 flex flex-wrap items-center gap-2">
-                            {account.profile?.division ? <DivisionBadge division={account.profile.division} /> : null}
+                            {account.profile?.division ? (
+                              <DivisionBadge division={account.profile.division} />
+                            ) : null}
                             <Badge variant={account.data_verified ? "default" : "outline"}>
                               {account.data_verified ? "Riot data verified" : "Unverified data"}
                             </Badge>
                             <Badge variant="outline">
-                              {account.ownership_verified ? "Ownership verified" : "Ownership unverified"}
+                              {account.ownership_verified
+                                ? "Ownership verified"
+                                : "Ownership unverified"}
                             </Badge>
                             <Badge variant="outline">{account.profile?.eligibility}</Badge>
                           </div>
                         </div>
-                        {account.profile ? <EligibilityActions profileId={account.profile.id} /> : null}
+                        {account.profile ? (
+                          <EligibilityActions profileId={account.profile.id} />
+                        ) : null}
                       </div>
                     ))
                   ) : (
