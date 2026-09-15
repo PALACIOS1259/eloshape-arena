@@ -8,11 +8,14 @@ import type { Json } from "@/integrations/supabase/types";
 
 type RpcResult<T> = { data: T | null; error: { message: string } | null };
 
+export type LaneRole = "top" | "jungle" | "mid" | "bot" | "support";
+
 type TeamMember = {
   profileId: string;
   handle: string;
   displayName: string;
   role: "player" | "substitute";
+  laneRole: LaneRole | null;
   isCaptain: boolean;
   eligibility: string;
   riotTier: string | null;
