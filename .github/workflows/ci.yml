@@ -39,3 +39,43 @@ jobs:
 
       - name: Run unit tests
         run: bunx vitest run
+
+  database:
+    name: Database integration tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Start local Supabase database
+        run: supabase db start
+
+      - name: Run competition engine integration tests
+        env:
+          PGPASSWORD: postgres
+        run: >-
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres
+          -v ON_ERROR_STOP=1
+          -f supabase/tests/competition_engine.test.sql
+
+      - name: Run 16-team Semi-Split stress test
+        env:
+          PGPASSWORD: postgres
+        run: >-
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres
+          -v ON_ERROR_STOP=1
+          -f supabase/tests/prelaunch_16_team_semisplit.test.sql
+
+      - name: Stop local Supabase database
+        if: always()
+        run: supabase stop --no-backup
