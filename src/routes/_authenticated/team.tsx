@@ -11,7 +11,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
-import { transferMyTeamCaptain, updateMyTeamMemberRole } from "@/lib/team-management.functions";
+import {
+  transferMyTeamCaptain,
+  updateMyTeamMemberLaneRole,
+  updateMyTeamMemberRole,
+  type LaneRole,
+} from "@/lib/team-management.functions";
 import {
   cancelMyTeamInvite,
   createMyTeam,
@@ -23,6 +28,18 @@ import {
   updateMyTeam,
   type TeamHub,
 } from "@/lib/team.functions";
+
+const LANE_OPTIONS: Array<{ value: LaneRole; label: string }> = [
+  { value: "top", label: "Top" },
+  { value: "jungle", label: "Jungle" },
+  { value: "mid", label: "Mid" },
+  { value: "bot", label: "ADC" },
+  { value: "support", label: "Support" },
+];
+
+function laneLabel(role: LaneRole | null) {
+  return LANE_OPTIONS.find((option) => option.value === role)?.label ?? "Role unassigned";
+}
 
 export const Route = createFileRoute("/_authenticated/team")({
   head: () => ({
@@ -48,7 +65,7 @@ function TeamHubPage() {
       <PageHeading
         eyebrow="5v5"
         title="My team"
-        description="Build a five-player starting roster, add substitutes, and enter team-mode EloShape brackets."
+        description="Build a five-player starting roster, assign League roles, add substitutes, and enter team-mode EloShape brackets."
         aside={
           data?.team ? (
             <div className="flex flex-wrap gap-2">
@@ -214,7 +231,8 @@ function CreateTeamCard() {
 
 function ExistingTeam({ hub }: { hub: TeamHub }) {
   const team = hub.team!;
-  const starters = team.members.filter((member) => member.role !== "substitute").length;
+  const starters = team.members.filter((member) => member.role !== "substitute");
+  const assignedStarterRoles = starters.filter((member) => member.laneRole).length;
   return (
     <div className="space-y-8">
       <section className="bg-surface-gradient rounded-lg border border-border p-6 shadow-card">
@@ -231,10 +249,19 @@ function ExistingTeam({ hub }: { hub: TeamHub }) {
               championships
             </p>
           </div>
-          <div className="text-right">
-            <p className="eyebrow">Starting roster</p>
-            <p className="mt-1 text-2xl font-black text-foreground">{starters}/5</p>
-            <Badge className="mt-2" variant={team.eligibility.eligible ? "default" : "outline"}>
+          <div className="grid grid-cols-2 gap-5 text-right">
+            <div>
+              <p className="eyebrow">Starting roster</p>
+              <p className="mt-1 text-2xl font-black text-foreground">{starters.length}/5</p>
+            </div>
+            <div>
+              <p className="eyebrow">Roles assigned</p>
+              <p className="mt-1 text-2xl font-black text-foreground">{assignedStarterRoles}/5</p>
+            </div>
+            <Badge
+              className="col-span-2 justify-self-end"
+              variant={team.eligibility.eligible ? "default" : "outline"}
+            >
               {team.eligibility.eligible ? "Tournament ready" : "Roster not ready"}
             </Badge>
           </div>
@@ -250,6 +277,7 @@ function ExistingTeam({ hub }: { hub: TeamHub }) {
 function Roster({ team }: { team: NonNullable<TeamHub["team"]> }) {
   const queryClient = useQueryClient();
   const updateRole = useServerFn(updateMyTeamMemberRole);
+  const updateLaneRole = useServerFn(updateMyTeamMemberLaneRole);
   const transferCaptain = useServerFn(transferMyTeamCaptain);
   const remove = useServerFn(removeMyTeamMember);
 
@@ -267,7 +295,21 @@ function Roster({ team }: { team: NonNullable<TeamHub["team"]> }) {
 
         return;
       }
-      toast.success("Roster role updated.");
+      toast.success("Roster status updated.");
+      refresh();
+    },
+  });
+
+  const laneMutation = useMutation({
+    mutationFn: (input: { handle: string; laneRole: LaneRole | null }) =>
+      updateLaneRole({ data: input }),
+    onSuccess: (result) => {
+      if (!result.ok) {
+        toast.error(result.error);
+
+        return;
+      }
+      toast.success("League role updated.");
       refresh();
     },
   });
@@ -305,8 +347,9 @@ function Roster({ team }: { team: NonNullable<TeamHub["team"]> }) {
           <p className="eyebrow">Roster</p>
           <h3 className="mt-1 text-xl font-black">Players</h3>
         </div>
-        <span className="text-sm text-muted-foreground">
-          Exactly 5 starters required for team brackets
+        <span className="max-w-xl text-right text-sm text-muted-foreground">
+          Starter/Substitute controls tournament eligibility. League role identifies each player as
+          Top, Jungle, Mid, ADC or Support.
         </span>
       </div>
       <div className="mt-3 overflow-hidden rounded-lg border border-border">
@@ -328,6 +371,9 @@ function Roster({ team }: { team: NonNullable<TeamHub["team"]> }) {
                 <Badge variant="outline">
                   {member.role === "substitute" ? "Substitute" : "Starter"}
                 </Badge>
+                <Badge variant={member.laneRole ? "default" : "outline"}>
+                  {laneLabel(member.laneRole)}
+                </Badge>
               </div>
               <p className="mt-1 text-sm text-muted-foreground">
                 @{member.handle} · {member.riotTier ?? "Unranked"} {member.riotRank ?? ""}
@@ -343,41 +389,67 @@ function Roster({ team }: { team: NonNullable<TeamHub["team"]> }) {
               </div>
             </div>
 
-            {team.isCaptain && !member.isCaptain ? (
+            {team.isCaptain ? (
               <div className="flex flex-wrap items-center gap-2 lg:justify-end">
                 <select
-                  value={member.role}
-                  onChange={(event) =>
-                    roleMutation.mutate({
+                  aria-label={`League role for ${member.displayName}`}
+                  value={member.laneRole ?? ""}
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    laneMutation.mutate({
                       handle: member.handle,
-                      role: event.target.value as "player" | "substitute",
-                    })
-                  }
-                  disabled={roleMutation.isPending}
+                      laneRole: value ? (value as LaneRole) : null,
+                    });
+                  }}
+                  disabled={laneMutation.isPending}
                   className="h-9 rounded-md border border-input bg-background px-3 text-sm"
                 >
-                  <option value="player">Starter</option>
-                  <option value="substitute">Substitute</option>
+                  <option value="">League role</option>
+                  {LANE_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
                 </select>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => {
-                    if (window.confirm(`Transfer team captaincy to ${member.displayName}?`))
-                      captainMutation.mutate(member.handle);
-                  }}
-                  disabled={captainMutation.isPending}
-                >
-                  <ShieldCheck className="mr-2 size-4" /> Make captain
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => removeMutation.mutate(member.handle)}
-                  disabled={removeMutation.isPending}
-                >
-                  Remove
-                </Button>
+
+                {!member.isCaptain ? (
+                  <>
+                    <select
+                      aria-label={`Roster status for ${member.displayName}`}
+                      value={member.role}
+                      onChange={(event) =>
+                        roleMutation.mutate({
+                          handle: member.handle,
+                          role: event.target.value as "player" | "substitute",
+                        })
+                      }
+                      disabled={roleMutation.isPending}
+                      className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+                    >
+                      <option value="player">Starter</option>
+                      <option value="substitute">Substitute</option>
+                    </select>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        if (window.confirm(`Transfer team captaincy to ${member.displayName}?`))
+                          captainMutation.mutate(member.handle);
+                      }}
+                      disabled={captainMutation.isPending}
+                    >
+                      <ShieldCheck className="mr-2 size-4" /> Make captain
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => removeMutation.mutate(member.handle)}
+                      disabled={removeMutation.isPending}
+                    >
+                      Remove
+                    </Button>
+                  </>
+                ) : null}
               </div>
             ) : null}
           </div>
@@ -457,6 +529,10 @@ function CaptainTools({ team }: { team: NonNullable<TeamHub["team"]> }) {
             </Link>
           </Button>
         </div>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Invite them as a starter or substitute. After they accept, assign their League role in the
+          roster above.
+        </p>
         <div className="mt-4 flex gap-2">
           <Input
             value={handle}
