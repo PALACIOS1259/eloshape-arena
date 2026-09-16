@@ -349,7 +349,9 @@ function AdminPage() {
                   <div className="flex items-center gap-3">
                     <Activity className="size-4 text-muted-foreground" />
                     <div>
-                      <p className="text-sm font-semibold text-foreground">Eligibility decision history</p>
+                      <p className="text-sm font-semibold text-foreground">
+                        Eligibility decision history
+                      </p>
                       <p className="mt-1 text-xs text-muted-foreground">
                         Recent completed staff decisions · read-only
                       </p>
@@ -366,7 +368,9 @@ function AdminPage() {
                       >
                         <div className="min-w-0">
                           <p className="truncate text-sm font-medium text-foreground">
-                            {review.profile?.display_name ?? review.profile?.handle ?? "Unknown player"}
+                            {review.profile?.display_name ??
+                              review.profile?.handle ??
+                              "Unknown player"}
                           </p>
                           <p className="mt-1 text-xs text-muted-foreground">
                             {formatDate(review.created_at)}
