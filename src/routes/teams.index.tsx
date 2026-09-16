@@ -47,9 +47,7 @@ function TeamsPage() {
     () =>
       Array.from(
         new Set(
-          teams
-            .map((team) => team.division?.name)
-            .filter((name): name is string => Boolean(name)),
+          teams.map((team) => team.division?.name).filter((name): name is string => Boolean(name)),
         ),
       ).sort((a, b) => a.localeCompare(b)),
     [teams],
