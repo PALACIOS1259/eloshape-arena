@@ -2,14 +2,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import {
-  CheckCircle2,
-  CircleAlert,
-  Search,
-  ShieldCheck,
-  UserPlus,
-  Users,
-} from "lucide-react";
+import { CheckCircle2, CircleAlert, Search, ShieldCheck, UserPlus, Users } from "lucide-react";
 import { toast } from "sonner";
 
 import { EmptyState } from "@/components/eloshape/EmptyState";
@@ -178,6 +171,9 @@ function RecruitingWorkspace({
   const substitutes = team.members.filter((member) => member.role === "substitute");
   const remainingStarterSlots = Math.max(0, 5 - starters.length);
   const starterComplete = remainingStarterSlots === 0;
+  const rosterStatus = starterComplete
+    ? "Starting five complete"
+    : `${remainingStarterSlots} starter slot${remainingStarterSlots === 1 ? "" : "s"} open`;
 
   return (
     <>
@@ -187,21 +183,28 @@ function RecruitingWorkspace({
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="outline">[{team.tag}]</Badge>
-              <Badge variant={starterComplete ? "default" : "secondary"}>
-                {starterComplete ? "Starting five complete" : `${remainingStarterSlots} starter slot${remainingStarterSlots === 1 ? "" : "s"} open`}
-              </Badge>
+              <Badge variant={starterComplete ? "default" : "secondary"}>{rosterStatus}</Badge>
             </div>
             <h2 className="mt-3 text-2xl font-black tracking-tight text-foreground">
               Build {team.name}
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-              Starter invitations require the player to pass EloShape readiness checks. Bench invitations stay available for flexible roster depth.
+              Starter invitations require the player to pass EloShape readiness checks. Bench
+              invitations stay available for flexible roster depth.
             </p>
           </div>
 
           <div className="grid grid-cols-3 gap-2 text-center">
-            <RecruitingStat label="Starters" value={`${starters.length}/5`} active={starterComplete} />
-            <RecruitingStat label="Open" value={String(remainingStarterSlots)} active={!starterComplete} />
+            <RecruitingStat
+              label="Starters"
+              value={`${starters.length}/5`}
+              active={starterComplete}
+            />
+            <RecruitingStat
+              label="Open"
+              value={String(remainingStarterSlots)}
+              active={!starterComplete}
+            />
             <RecruitingStat label="Bench" value={String(substitutes.length)} />
           </div>
         </div>
@@ -264,7 +267,8 @@ function RecruitingWorkspace({
           <div className="flex items-start gap-2 rounded-lg border border-border/70 bg-background/20 p-3 text-xs text-muted-foreground">
             <ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />
             <span>
-              Starter ready means eligible, Riot verified, level 30+ and compatible with the team division.
+              Starter ready means eligible, Riot verified, level 30+ and compatible with the team
+              division.
             </span>
           </div>
           <div className="flex items-start gap-2 rounded-lg border border-border/70 bg-background/20 p-3 text-xs text-muted-foreground">
@@ -285,9 +289,7 @@ function RecruitingWorkspace({
               Players already attached to another active team are excluded automatically.
             </p>
           </div>
-          {candidates ? (
-            <Badge variant="outline">{candidates.length} available</Badge>
-          ) : null}
+          {candidates ? <Badge variant="outline">{candidates.length} available</Badge> : null}
         </div>
 
         {candidatesPending ? (
@@ -431,7 +433,9 @@ function CandidateCheck({ label, done }: { label: string; done: boolean }) {
       ) : (
         <CircleAlert className="size-3.5 shrink-0 text-muted-foreground" />
       )}
-      <span className={done ? "font-medium text-foreground" : "text-muted-foreground"}>{label}</span>
+      <span className={done ? "font-medium text-foreground" : "text-muted-foreground"}>
+        {label}
+      </span>
     </div>
   );
 }
