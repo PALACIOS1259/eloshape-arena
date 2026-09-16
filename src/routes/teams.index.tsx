@@ -117,7 +117,9 @@ function TeamsPage() {
                 <span className="grid size-9 place-items-center rounded-lg border border-border bg-background/45 text-primary">
                   <Users className="size-4" />
                 </span>
-                <p className="mt-4 text-2xl font-black tabular-nums text-foreground">{teams.length}</p>
+                <p className="mt-4 text-2xl font-black tabular-nums text-foreground">
+                  {teams.length}
+                </p>
                 <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Active teams
                 </p>
