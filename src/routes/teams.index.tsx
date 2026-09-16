@@ -121,14 +121,31 @@ function TeamsPage() {
                     Every roster. One circuit.
                   </h2>
                   <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                    Search by team, tag or city. Filter by division and sort by the metric that matters to you.
+                    Search by team, tag or city. Filter by division and sort by the metric that
+                    matters to you.
                   </p>
                 </div>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                  <CircuitStat icon={<Users className="size-4" />} label="Teams" value={String(teams.length)} />
-                  <CircuitStat icon={<Swords className="size-4" />} label="Divisions" value={String(divisions.length)} />
-                  <CircuitStat icon={<BarChart3 className="size-4" />} label="Games" value={String(totalGames)} />
-                  <CircuitStat icon={<Trophy className="size-4" />} label="Titles" value={String(totalTitles)} />
+                  <CircuitStat
+                    icon={<Users className="size-4" />}
+                    label="Teams"
+                    value={String(teams.length)}
+                  />
+                  <CircuitStat
+                    icon={<Swords className="size-4" />}
+                    label="Divisions"
+                    value={String(divisions.length)}
+                  />
+                  <CircuitStat
+                    icon={<BarChart3 className="size-4" />}
+                    label="Games"
+                    value={String(totalGames)}
+                  />
+                  <CircuitStat
+                    icon={<Trophy className="size-4" />}
+                    label="Titles"
+                    value={String(totalTitles)}
+                  />
                 </div>
               </div>
             </section>
@@ -187,7 +204,8 @@ function TeamsPage() {
               </div>
               <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/70 px-4 py-3 text-xs text-muted-foreground">
                 <span>
-                  Showing <strong className="text-foreground">{visibleTeams.length}</strong> of {teams.length} teams
+                  Showing <strong className="text-foreground">{visibleTeams.length}</strong> of{" "}
+                  {teams.length} teams
                 </span>
                 <span>Team points are separate from individual player rankings.</span>
               </div>
