@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getMyTeamHub, inviteMyTeamMember } from "@/lib/team.functions";
+import { getMyTeamHub, inviteMyTeamMember, type TeamHub } from "@/lib/team.functions";
 import { searchMyTeamCandidates, type TeamCandidate } from "@/lib/team-search.functions";
 
 export const Route = createFileRoute("/_authenticated/team_/players")({
@@ -126,8 +126,11 @@ function TeamPlayerFinderPage() {
                 role={role}
                 setRole={setRole}
                 runSearch={runSearch}
-                candidates={candidates}
-                inviteMutation={inviteMutation}
+                candidates={candidates.data}
+                candidatesPending={candidates.isPending}
+                candidatesError={candidates.error}
+                invitePending={inviteMutation.isPending}
+                onInvite={(candidate) => inviteMutation.mutate(candidate)}
               />
             )}
           </div>
@@ -146,17 +149,23 @@ function RecruitingWorkspace({
   setRole,
   runSearch,
   candidates,
-  inviteMutation,
+  candidatesPending,
+  candidatesError,
+  invitePending,
+  onInvite,
 }: {
-  team: NonNullable<Awaited<ReturnType<ReturnType<typeof useServerFn<typeof getMyTeamHub>>>>>["team"];
+  team: NonNullable<TeamHub["team"]>;
   input: string;
   setInput: (value: string) => void;
   query: string;
   role: "player" | "substitute";
   setRole: (value: "player" | "substitute") => void;
   runSearch: () => void;
-  candidates: ReturnType<typeof useQuery<TeamCandidate[]>>;
-  inviteMutation: ReturnType<typeof useMutation<unknown, Error, TeamCandidate>>;
+  candidates: TeamCandidate[] | undefined;
+  candidatesPending: boolean;
+  candidatesError: Error | null;
+  invitePending: boolean;
+  onInvite: (candidate: TeamCandidate) => void;
 }) {
   const starters = team.members.filter((member) => member.role !== "substitute");
   const substitutes = team.members.filter((member) => member.role === "substitute");
@@ -231,32 +240,32 @@ function RecruitingWorkspace({
               {query ? `Results for “${query}”` : "Available players"}
             </h2>
           </div>
-          {candidates.data ? (
-            <span className="text-sm text-muted-foreground">{candidates.data.length} found</span>
+          {candidates ? (
+            <span className="text-sm text-muted-foreground">{candidates.length} found</span>
           ) : null}
         </div>
 
-        {candidates.isPending ? (
+        {candidatesPending ? (
           <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {Array.from({ length: 6 }).map((_, index) => (
               <Skeleton key={index} className="h-56 w-full" />
             ))}
           </div>
-        ) : candidates.error ? (
+        ) : candidatesError ? (
           <div className="mt-4 rounded-xl border border-border p-5 text-sm text-muted-foreground">
             Could not load the free-agent pool right now.
           </div>
-        ) : candidates.data?.length ? (
+        ) : candidates?.length ? (
           <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {candidates.data.map((candidate) => {
+            {candidates.map((candidate) => {
               const starterBlocked = role === "player" && !candidate.ready;
               return (
                 <CandidateCard
                   key={candidate.profileId}
                   candidate={candidate}
                   role={role}
-                  disabled={inviteMutation.isPending || starterBlocked}
-                  onInvite={() => inviteMutation.mutate(candidate)}
+                  disabled={invitePending || starterBlocked}
+                  onInvite={() => onInvite(candidate)}
                 />
               );
             })}
@@ -327,7 +336,11 @@ function CandidateCard({
         <CandidateCheck label="Riot account verified" done={candidate.riotVerified} />
         <CandidateCheck label="Competitive eligibility" done={eligible} />
         <CandidateCheck
-          label={candidate.accountLevel != null ? `Account level ${candidate.accountLevel}` : "Account level unknown"}
+          label={
+            candidate.accountLevel != null
+              ? `Account level ${candidate.accountLevel}`
+              : "Account level unknown"
+          }
           done={levelReady}
         />
       </div>
