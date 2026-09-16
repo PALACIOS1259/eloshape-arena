@@ -252,15 +252,7 @@ function HeroStat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function SplitMetric({
-  icon,
-  label,
-  value,
-}: {
-  icon: ReactNode;
-  label: string;
-  value: string;
-}) {
+function SplitMetric({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
     <div className="rounded-xl border border-border bg-background/25 p-3">
       <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">
