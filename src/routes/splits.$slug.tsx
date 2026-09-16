@@ -1,14 +1,7 @@
+import type { ReactNode } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import {
-  CalendarDays,
-  CheckCircle2,
-  ChevronRight,
-  Circle,
-  Swords,
-  Trophy,
-  Users,
-} from "lucide-react";
+import { CalendarDays, CheckCircle2, ChevronRight, Swords, Trophy, Users } from "lucide-react";
 
 import { BracketView, entryLabels } from "@/components/eloshape/BracketView";
 import { EmptyState } from "@/components/eloshape/EmptyState";
@@ -93,7 +86,9 @@ function SplitPage() {
     .filter((tournament) => tournament.qualifier_index != null)
     .sort((a, b) => (a.qualifier_index ?? 0) - (b.qualifier_index ?? 0));
   const playoffs = tournaments.find((tournament) => tournament.split_phase === "playoffs");
-  const qualifiedCount = qualifications.filter((qualification) => qualification.status === "qualified").length;
+  const qualifiedCount = qualifications.filter(
+    (qualification) => qualification.status === "qualified",
+  ).length;
   const currentStageIndex = Math.max(
     0,
     STAGES.findIndex((stage) => stage.key === split.status),
@@ -225,7 +220,10 @@ function SplitPage() {
                         </span>
                       </div>
                       <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-background/50">
-                        <div className="h-full rounded-full bg-primary" style={{ width: `${fill}%` }} />
+                        <div
+                          className="h-full rounded-full bg-primary"
+                          style={{ width: `${fill}%` }}
+                        />
                       </div>
 
                       <div className="mt-5 flex items-center justify-between border-t border-border/70 pt-3 text-xs font-semibold text-muted-foreground">
@@ -277,9 +275,7 @@ function SplitPage() {
                     >
                       #{index + 1}
                     </span>
-                    {row.qualification_status === "qualified" ? (
-                      <Badge>Qualified</Badge>
-                    ) : null}
+                    {row.qualification_status === "qualified" ? <Badge>Qualified</Badge> : null}
                   </div>
                   <p className="mt-4 truncate text-lg font-black text-foreground group-hover:text-primary">
                     {row.team_name}
@@ -483,7 +479,8 @@ function StageRail({ activeIndex }: { activeIndex: number }) {
                     "mx-auto grid size-8 place-items-center rounded-full border text-xs font-black",
                     completed && "border-primary bg-primary text-primary-foreground",
                     active && "border-primary bg-primary/10 text-primary ring-4 ring-primary/5",
-                    !completed && !active &&
+                    !completed &&
+                      !active &&
                       "border-border bg-background/40 text-muted-foreground",
                   )}
                 >
@@ -522,7 +519,7 @@ function OverviewMetric({
   detail,
   gold = false,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   label: string;
   value: string;
   detail: string;
