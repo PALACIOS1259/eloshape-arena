@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CalendarDays, ChevronRight, Swords, Trophy, Users } from "lucide-react";
@@ -86,7 +87,9 @@ export const Route = createFileRoute("/splits/")({
 
 function SplitsPage() {
   const { data: splits } = useSuspenseQuery(splitsQuery());
-  const liveCount = splits.filter((split) => !["upcoming", "completed"].includes(split.status)).length;
+  const liveCount = splits.filter(
+    (split) => !["upcoming", "completed"].includes(split.status),
+  ).length;
   const completedCount = splits.filter((split) => split.status === "completed").length;
 
   return (
@@ -196,15 +199,28 @@ function SplitsPage() {
                     </div>
 
                     <div className="mt-6 grid grid-cols-3 gap-2">
-                      <SplitMetric icon={<Users className="size-3.5" />} label="Playoff field" value={`${split.playoff_size} teams`} />
-                      <SplitMetric icon={<Swords className="size-3.5" />} label="Current stage" value={stageLabel(split.status)} />
-                      <SplitMetric icon={<Trophy className="size-3.5" />} label="Format" value="Single elim." />
+                      <SplitMetric
+                        icon={<Users className="size-3.5" />}
+                        label="Playoff field"
+                        value={`${split.playoff_size} teams`}
+                      />
+                      <SplitMetric
+                        icon={<Swords className="size-3.5" />}
+                        label="Current stage"
+                        value={stageLabel(split.status)}
+                      />
+                      <SplitMetric
+                        icon={<Trophy className="size-3.5" />}
+                        label="Format"
+                        value="Single elim."
+                      />
                     </div>
 
                     <div className="mt-5 flex items-center justify-between border-t border-border/70 pt-4 text-xs font-semibold text-muted-foreground">
                       <span>Qualifiers · standings · bracket</span>
                       <span className="inline-flex items-center gap-1 text-primary">
-                        Open Semi-Split <ChevronRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+                        Open Semi-Split{" "}
+                        <ChevronRight className="size-4 transition-transform group-hover:translate-x-0.5" />
                       </span>
                     </div>
                   </div>
@@ -241,7 +257,7 @@ function SplitMetric({
   label,
   value,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   label: string;
   value: string;
 }) {
