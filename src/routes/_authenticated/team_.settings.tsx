@@ -279,8 +279,8 @@ function DangerZone({ team }: { team: { name: string; tag: string; slug: string 
           <h2 className="mt-1 text-xl font-black text-foreground">Disband team</h2>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
             This releases every current member and cancels pending invitations. Registrations that
-            have not gone live are withdrawn. Historical tournament entries, locked rosters,
-            results and ranking records remain preserved.
+            have not gone live are withdrawn. Historical tournament entries, locked rosters, results
+            and ranking records remain preserved.
           </p>
         </div>
       </div>
