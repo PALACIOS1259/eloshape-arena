@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { BarChart3, Search, SlidersHorizontal, Swords, Trophy, Users } from "lucide-react";
@@ -236,7 +236,7 @@ function TeamsPage() {
   );
 }
 
-function CircuitStat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+function CircuitStat({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
     <div className="min-w-24 rounded-xl border border-border bg-background/45 p-3">
       <div className="flex items-center gap-2 text-primary">{icon}</div>
