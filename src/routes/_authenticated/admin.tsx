@@ -142,6 +142,10 @@ function AdminPage() {
     retry: false,
   });
 
+  const queuedCount = data
+    ? data.counts.reviews + data.counts.reports + data.counts.disputes + data.counts.support
+    : 0;
+
   return (
     <div>
       <PageHeading
@@ -171,7 +175,7 @@ function AdminPage() {
             title="Staff access required"
             description="This console is limited to accounts with the admin or moderator role."
           />
-        ) : (
+        ) : data ? (
           <>
             <section className="rounded-xl border border-border bg-surface-gradient p-5 sm:p-6">
               <div className="flex flex-wrap items-start justify-between gap-4">
@@ -185,9 +189,8 @@ function AdminPage() {
                     stay out of the way until you need them.
                   </p>
                 </div>
-                <Badge variant={data.reviews.length + data.reports.length ? "default" : "outline"}>
-                  {data.reviews.length + data.reports.length} queued item
-                  {data.reviews.length + data.reports.length === 1 ? "" : "s"}
+                <Badge variant={queuedCount ? "default" : "outline"}>
+                  {queuedCount} queued item{queuedCount === 1 ? "" : "s"}
                 </Badge>
               </div>
 
@@ -216,12 +219,12 @@ function AdminPage() {
                 icon={<UserCheck className="size-4" />}
                 title="Eligibility reviews"
                 description="Approve, reject or hold players that require a manual competitive eligibility decision."
-                count={data.reviews.length}
+                count={data.counts.reviews}
                 action={
                   <Button
                     asChild
                     className="w-full"
-                    variant={data.reviews.length ? "default" : "outline"}
+                    variant={data.counts.reviews ? "default" : "outline"}
                   >
                     <a href="#eligibility">
                       Review players
@@ -234,8 +237,13 @@ function AdminPage() {
                 icon={<Gavel className="size-4" />}
                 title="Match disputes"
                 description="Resolve conflicting match submissions and competitive result disputes."
+                count={data.counts.disputes}
                 action={
-                  <Button asChild className="w-full" variant="outline">
+                  <Button
+                    asChild
+                    className="w-full"
+                    variant={data.counts.disputes ? "default" : "outline"}
+                  >
                     <Link to="/admin/disputes">
                       Open disputes
                       <ChevronRight />
@@ -247,8 +255,13 @@ function AdminPage() {
                 icon={<LifeBuoy className="size-4" />}
                 title="Support queue"
                 description="Read player support requests and respond without mixing them with tournament controls."
+                count={data.counts.support}
                 action={
-                  <Button asChild className="w-full" variant="outline">
+                  <Button
+                    asChild
+                    className="w-full"
+                    variant={data.counts.support ? "default" : "outline"}
+                  >
                     <Link to="/admin/support">
                       Open support
                       <ChevronRight />
@@ -279,12 +292,12 @@ function AdminPage() {
                     Players waiting for review
                   </h2>
                   <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-                    This is the action queue. Linked Riot accounts that do not require a decision
-                    are kept in a separate reference section below.
+                    This is the action queue. Once a decision is made, the player leaves this list
+                    and the decision remains available in history below.
                   </p>
                 </div>
-                <Badge variant={data.reviews.length ? "default" : "outline"}>
-                  {data.reviews.length} pending
+                <Badge variant={data.counts.reviews ? "default" : "outline"}>
+                  {data.counts.reviews} pending
                 </Badge>
               </div>
 
@@ -330,6 +343,46 @@ function AdminPage() {
                   </div>
                 )}
               </div>
+
+              <details className="group mt-4 rounded-lg border border-border bg-background/20">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4">
+                  <div className="flex items-center gap-3">
+                    <Activity className="size-4 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">Eligibility decision history</p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Recent completed staff decisions · read-only
+                      </p>
+                    </div>
+                  </div>
+                  <ChevronRight className="size-4 text-muted-foreground transition-transform group-open:rotate-90" />
+                </summary>
+                <div className="border-t border-border">
+                  {data.reviewHistory.length ? (
+                    data.reviewHistory.map((review) => (
+                      <div
+                        key={review.id}
+                        className="grid gap-2 border-b border-border p-4 last:border-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+                      >
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-medium text-foreground">
+                            {review.profile?.display_name ?? review.profile?.handle ?? "Unknown player"}
+                          </p>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            {formatDate(review.created_at)}
+                            {review.reason ? ` · ${review.reason}` : ""}
+                          </p>
+                        </div>
+                        <Badge variant="outline">{review.status.replace("_", " ")}</Badge>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-6">
+                      <EmptyState title="No completed decisions yet" />
+                    </div>
+                  )}
+                </div>
+              </details>
             </section>
 
             {data.reports.length ? (
@@ -338,10 +391,10 @@ function AdminPage() {
                   <div>
                     <p className="eyebrow">Reports</p>
                     <h2 className="mt-1 text-lg font-semibold text-foreground">
-                      Open moderation reports
+                      Active moderation reports
                     </h2>
                   </div>
-                  <Badge>{data.reports.length}</Badge>
+                  <Badge>{data.counts.reports}</Badge>
                 </div>
                 <div className="mt-4 overflow-hidden rounded-lg border border-border bg-surface-gradient">
                   {data.reports.map((report) => (
@@ -463,7 +516,7 @@ function AdminPage() {
               Competition and moderation actions remain server-validated and audited.
             </div>
           </>
-        )}
+        ) : null}
       </PageContainer>
     </div>
   );
