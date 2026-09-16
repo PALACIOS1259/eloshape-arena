@@ -25,7 +25,7 @@ export function TeamCard({
 }: {
   team: TeamCardData;
   className?: string;
-  rank?: number;
+  rank?: number | undefined;
 }) {
   return (
     <Link
