@@ -479,9 +479,7 @@ function StageRail({ activeIndex }: { activeIndex: number }) {
                     "mx-auto grid size-8 place-items-center rounded-full border text-xs font-black",
                     completed && "border-primary bg-primary text-primary-foreground",
                     active && "border-primary bg-primary/10 text-primary ring-4 ring-primary/5",
-                    !completed &&
-                      !active &&
-                      "border-border bg-background/40 text-muted-foreground",
+                    !completed && !active && "border-border bg-background/40 text-muted-foreground",
                   )}
                 >
                   {completed ? <CheckCircle2 className="size-4" /> : index + 1}
