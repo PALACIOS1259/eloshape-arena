@@ -2,6 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute, notFound } from "@tanstack/react-router";
 import { CalendarDays, MapPin, Trophy, Users } from "lucide-react";
 
+import { BracketView, entryLabels } from "@/components/eloshape/BracketView";
 import { DivisionBadge } from "@/components/eloshape/DivisionBadge";
 import { EmptyState } from "@/components/eloshape/EmptyState";
 import { PlayerAvatar } from "@/components/eloshape/PlayerRow";
@@ -67,7 +68,6 @@ function TournamentDetailPage() {
   if (!data) return null;
 
   const { tournament, entries, matches } = data;
-  const rounds = [...new Set(matches.map((m) => m.round_label))];
 
   return (
     <div>
@@ -221,51 +221,7 @@ function TournamentDetailPage() {
 
           <TabsContent value="bracket" className="mt-6">
             {matches.length ? (
-              <div className="grid gap-4 lg:grid-cols-3">
-                {rounds.map((round) => (
-                  <div key={round} className="min-w-0">
-                    <p className="eyebrow">{round}</p>
-                    <div className="mt-3 space-y-3">
-                      {matches
-                        .filter((match) => match.round_label === round)
-                        .map((match) => {
-                          const a = entries.find((e) => e.id === match.entry_a_id);
-                          const b = entries.find((e) => e.id === match.entry_b_id);
-                          const nameOf = (e: typeof a) =>
-                            e?.team?.name ?? e?.profile?.display_name ?? "TBD";
-                          return (
-                            <div
-                              key={match.id}
-                              className="bg-surface-gradient shadow-card rounded-lg border border-border p-3"
-                            >
-                              <MatchSide
-                                name={nameOf(a)}
-                                score={match.score_a}
-                                winner={match.winner_entry_id === match.entry_a_id}
-                              />
-                              <div className="my-2 h-px bg-border" />
-                              <MatchSide
-                                name={nameOf(b)}
-                                score={match.score_b}
-                                winner={match.winner_entry_id === match.entry_b_id}
-                              />
-                              <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-                                <p className="eyebrow">{match.status}</p>
-                                {!match.is_bye && match.entry_a_id && match.entry_b_id ? (
-                                  <Button asChild size="sm" variant="outline">
-                                    <Link to="/matches/$matchId" params={{ matchId: match.id }}>
-                                      Result / dispute
-                                    </Link>
-                                  </Button>
-                                ) : null}
-                              </div>
-                            </div>
-                          );
-                        })}
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <BracketView matches={matches} entries={entryLabels(entries)} linkMatches />
             ) : (
               <EmptyState
                 title="Bracket not generated yet"
@@ -275,37 +231,6 @@ function TournamentDetailPage() {
           </TabsContent>
         </Tabs>
       </PageContainer>
-    </div>
-  );
-}
-
-function MatchSide({
-  name,
-  score,
-  winner,
-}: {
-  name: string;
-  score: number | null;
-  winner: boolean;
-}) {
-  return (
-    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
-      <span
-        className={
-          winner
-            ? "truncate text-sm font-bold text-foreground"
-            : "truncate text-sm text-muted-foreground"
-        }
-      >
-        {name}
-      </span>
-      <span
-        className={
-          winner ? "tabular text-sm font-black text-brand" : "tabular text-sm text-muted-foreground"
-        }
-      >
-        {score ?? "–"}
-      </span>
     </div>
   );
 }
