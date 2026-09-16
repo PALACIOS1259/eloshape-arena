@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -12,7 +12,6 @@ import {
   ShieldCheck,
   Trophy,
   UserPlus,
-  Users,
   X,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -276,7 +275,11 @@ function CreateTeamExperience() {
             {[
               ["1", "Recruit your five", "Search free agents or invite friends by handle."],
               ["2", "Set the lineup", "Assign every starter a unique League role."],
-              ["3", "Get tournament ready", "Riot verification and eligibility are checked automatically."],
+              [
+                "3",
+                "Get tournament ready",
+                "Riot verification and eligibility are checked automatically.",
+              ],
             ].map(([step, title, description]) => (
               <div key={step} className="flex gap-3">
                 <span className="grid size-7 shrink-0 place-items-center rounded-full border border-primary/25 bg-primary/10 text-xs font-black text-primary">
@@ -284,7 +287,9 @@ function CreateTeamExperience() {
                 </span>
                 <div>
                   <p className="text-sm font-bold text-foreground">{title}</p>
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{description}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                    {description}
+                  </p>
                 </div>
               </div>
             ))}
@@ -300,8 +305,9 @@ function ExistingTeam({ hub }: { hub: TeamHub }) {
   const starters = team.members.filter((member) => member.role !== "substitute");
   const substitutes = team.members.filter((member) => member.role === "substitute");
   const assignedRoles = starters.filter((member) => member.laneRole).length;
-  const uniqueRoles = new Set(starters.flatMap((member) => (member.laneRole ? [member.laneRole] : [])))
-    .size;
+  const uniqueRoles = new Set(
+    starters.flatMap((member) => (member.laneRole ? [member.laneRole] : [])),
+  ).size;
 
   return (
     <div className="space-y-6">
@@ -383,7 +389,11 @@ function TeamIdentityHero({
       <div className="relative mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <HeroStat label="Season points" value={String(team.pointsSeason)} />
         <HeroStat label="Record" value={`${team.wins}-${team.losses}`} />
-        <HeroStat label="Titles" value={String(team.championships)} icon={<Trophy className="size-4" />} />
+        <HeroStat
+          label="Titles"
+          value={String(team.championships)}
+          icon={<Trophy className="size-4" />}
+        />
         <HeroStat label="Starters" value={`${starters}/5`} />
         <HeroStat label="Roles" value={`${assignedRoles}/5`} />
         <HeroStat label="Bench" value={String(substitutes)} />
@@ -392,7 +402,7 @@ function TeamIdentityHero({
   );
 }
 
-function HeroStat({ label, value, icon }: { label: string; value: string; icon?: React.ReactNode }) {
+function HeroStat({ label, value, icon }: { label: string; value: string; icon?: ReactNode }) {
   return (
     <div className="rounded-lg border border-border/80 bg-background/30 p-3">
       <p className="flex items-center gap-1.5 text-lg font-black tabular-nums text-foreground">
@@ -458,10 +468,7 @@ function ReadinessPanel({
             most important issues before you reach tournament day.
           </p>
         </div>
-        <Badge
-          className="w-fit"
-          variant={team.eligibility.eligible ? "default" : "outline"}
-        >
+        <Badge className="w-fit" variant={team.eligibility.eligible ? "default" : "outline"}>
           {team.eligibility.eligible ? (
             <>
               <CheckCircle2 className="mr-1 size-3.5" /> Tournament eligible
@@ -479,9 +486,7 @@ function ReadinessPanel({
           <div
             key={check.label}
             className={`rounded-lg border p-3 ${
-              check.done
-                ? "border-primary/20 bg-primary/5"
-                : "border-border bg-background/35"
+              check.done ? "border-primary/20 bg-primary/5" : "border-border bg-background/35"
             }`}
           >
             <div className="flex items-center gap-2">
@@ -696,7 +701,11 @@ function RosterManagement({ team }: { team: NonNullable<TeamHub["team"]> }) {
           title="Substitutes"
           description="Bench players stay with the team without occupying a starting slot."
           members={substitutes}
-          empty={team.isCaptain ? "No substitutes yet. Recruit depth for tournament day." : "No substitutes."}
+          empty={
+            team.isCaptain
+              ? "No substitutes yet. Recruit depth for tournament day."
+              : "No substitutes."
+          }
           team={team}
           busy={busy}
           onLaneRole={(handle, laneRole) => laneMutation.mutate({ handle, laneRole })}
@@ -875,10 +884,7 @@ function RosterMemberRow({
                 aria-label={`Roster status for ${member.displayName}`}
                 value={member.role}
                 onChange={(event) =>
-                  onRosterRole(
-                    member.handle,
-                    event.target.value as "player" | "substitute",
-                  )
+                  onRosterRole(member.handle, event.target.value as "player" | "substitute")
                 }
                 disabled={busy}
                 className="h-9 rounded-md border border-input bg-background px-3 text-sm"
