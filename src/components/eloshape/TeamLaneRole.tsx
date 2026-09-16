@@ -97,13 +97,7 @@ export function TeamLaneBadge({
   );
 }
 
-export function TeamLaneIcon({
-  role,
-  className,
-}: {
-  role: TeamLaneRole;
-  className?: string;
-}) {
+export function TeamLaneIcon({ role, className }: { role: TeamLaneRole; className?: string }) {
   const meta = laneMeta(role)!;
   const Icon = meta.icon;
   return (
