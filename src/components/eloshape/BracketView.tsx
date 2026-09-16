@@ -274,7 +274,7 @@ export function BracketView({
         <div className="min-w-max px-5 pb-6 pt-5">
           <div className="mb-4 flex" style={{ width: boardWidth }}>
             {rounds.map((roundIndex, position) => {
-              const currentRound = roundMatches[position];
+              const currentRound = roundMatches[position] ?? [];
               const label = currentRound[0]?.round_label ?? `Round ${roundIndex + 1}`;
               const isFinal = position === rounds.length - 1;
               return (
