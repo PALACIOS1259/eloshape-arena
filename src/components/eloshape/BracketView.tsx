@@ -39,9 +39,7 @@ const MATCH_HEIGHT = 118;
 const MATCH_PITCH = 142;
 
 function humanStatus(status: string) {
-  return status
-    .replaceAll("_", " ")
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  return status.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function matchMeta(match: BracketMatchRow) {
@@ -145,7 +143,7 @@ function MatchCard({
   return (
     <article
       className={cn(
-        "group absolute overflow-hidden rounded-xl border border-border bg-surface-gradient shadow-card transition-all hover:border-primary/35 hover:shadow-lg",
+        "group relative overflow-hidden rounded-xl border border-border bg-surface-gradient shadow-card transition-all hover:border-primary/35 hover:shadow-lg",
         isFinal && "border-gold/35 shadow-lg",
       )}
       style={{ width: ROUND_WIDTH, minHeight: MATCH_HEIGHT }}
@@ -224,9 +222,7 @@ export function BracketView({
   const boardHeight = Math.max(360, maxMatches * MATCH_PITCH);
   const boardWidth = rounds.length * ROUND_WIDTH + Math.max(0, rounds.length - 1) * ROUND_GAP;
   const finalMatch = roundMatches.at(-1)?.[0];
-  const champion = finalMatch?.winner_entry_id
-    ? byId.get(finalMatch.winner_entry_id)
-    : undefined;
+  const champion = finalMatch?.winner_entry_id ? byId.get(finalMatch.winner_entry_id) : undefined;
 
   const centerY = (roundPosition: number, matchPosition: number) => {
     const count = roundMatches[roundPosition]?.length || 1;
