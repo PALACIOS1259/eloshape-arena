@@ -1,14 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute, notFound } from "@tanstack/react-router";
-import {
-  ArrowLeft,
-  CalendarDays,
-  Crown,
-  MapPin,
-  ShieldCheck,
-  Trophy,
-  Users,
-} from "lucide-react";
+import { ArrowLeft, CalendarDays, Crown, MapPin, ShieldCheck, Trophy, Users } from "lucide-react";
 
 import { DivisionBadge } from "@/components/eloshape/DivisionBadge";
 import { EmptyState } from "@/components/eloshape/EmptyState";
@@ -234,12 +226,6 @@ function TeamPage() {
   );
 }
 
-type PublicTeamMember = NonNullable<
-  NonNullable<Awaited<ReturnType<typeof teamQuery>>["queryFn"]>
-> extends never
-  ? never
-  : never;
-
 function RosterSection({
   title,
   description,
@@ -304,7 +290,8 @@ function RosterSection({
                       </Badge>
                     </div>
                     <p className="mt-1 truncate text-xs text-muted-foreground">
-                      @{profile.handle} · {profile.riot_tier ?? "Unranked"} {profile.riot_rank ?? ""}
+                      @{profile.handle} · {profile.riot_tier ?? "Unranked"}{" "}
+                      {profile.riot_rank ?? ""}
                     </p>
                   </div>
                 </div>
