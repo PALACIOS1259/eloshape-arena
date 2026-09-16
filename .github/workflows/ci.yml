@@ -60,6 +60,14 @@ jobs:
       - name: Start local Supabase database
         run: supabase db start
 
+      - name: Run security boundary tests
+        env:
+          PGPASSWORD: postgres
+        run: >-
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres
+          -v ON_ERROR_STOP=1
+          -f supabase/tests/security_boundaries.test.sql
+
       - name: Run competition engine integration tests
         env:
           PGPASSWORD: postgres
