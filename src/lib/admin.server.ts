@@ -28,7 +28,10 @@ function callRpc<T>(
 
 function asRecords(value: unknown): JsonRecord[] {
   return Array.isArray(value)
-    ? value.filter((item): item is JsonRecord => Boolean(item) && typeof item === "object" && !Array.isArray(item))
+    ? value.filter(
+        (item): item is JsonRecord =>
+          Boolean(item) && typeof item === "object" && !Array.isArray(item),
+      )
     : [];
 }
 
