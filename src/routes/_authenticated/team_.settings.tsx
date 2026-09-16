@@ -152,8 +152,8 @@ function CaptainSettings({ team }: { team: NonNullable<TeamHub["team"]> }) {
               team page.
             </p>
             <p>
-              <strong className="text-foreground">Roster and roles</strong> stay in Team HQ so identity
-              changes never get mixed with lineup operations.
+              <strong className="text-foreground">Roster and roles</strong> stay in Team HQ so
+              identity changes never get mixed with lineup operations.
             </p>
           </div>
         </section>
@@ -195,7 +195,9 @@ function IdentitySettings({ team }: { team: NonNullable<TeamHub["team"]> }) {
             Keep your team recognizable everywhere it appears on the EloShape circuit.
           </p>
         </div>
-        <Badge variant={dirty ? "default" : "outline"}>{dirty ? "Unsaved changes" : "Up to date"}</Badge>
+        <Badge variant={dirty ? "default" : "outline"}>
+          {dirty ? "Unsaved changes" : "Up to date"}
+        </Badge>
       </div>
 
       <div className="p-5 sm:p-6">
@@ -298,7 +300,8 @@ function DangerZone({ team }: { team: { name: string; tag: string; slug: string 
           <p className="eyebrow text-destructive">Danger zone</p>
           <h2 className="mt-1 text-xl font-black text-foreground">Disband team</h2>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-            Current members are released and pending invitations are cancelled. Historical tournament entries, locked rosters, results and ranking records remain preserved.
+            Current members are released and pending invitations are cancelled. Historical
+            tournament entries, locked rosters, results and ranking records remain preserved.
           </p>
         </div>
       </div>
@@ -316,7 +319,8 @@ function DangerZone({ team }: { team: { name: string; tag: string; slug: string 
             autoComplete="off"
           />
           <p className="mt-2 text-xs text-muted-foreground">
-            This action is blocked while the team is checked in to or competing in an active tournament.
+            This action is blocked while the team is checked in to or competing in an active
+            tournament.
           </p>
           <Button
             className="mt-4"
