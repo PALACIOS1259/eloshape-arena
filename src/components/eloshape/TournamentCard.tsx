@@ -148,7 +148,9 @@ export function TournamentCard({
               <div className="flex items-center justify-between gap-3 text-[11px] font-semibold text-muted-foreground">
                 <span className="inline-flex items-center gap-1.5">
                   <Users className="size-3.5" />
-                  {spotsLeft === 0 ? "Field full" : `${spotsLeft} spot${spotsLeft === 1 ? "" : "s"} left`}
+                  {spotsLeft === 0
+                    ? "Field full"
+                    : `${spotsLeft} spot${spotsLeft === 1 ? "" : "s"} left`}
                 </span>
                 <span className="tabular-nums">{pct}% filled</span>
               </div>
@@ -183,15 +185,7 @@ export function TournamentCard({
   );
 }
 
-function TournamentFact({
-  icon,
-  label,
-  value,
-}: {
-  icon: ReactNode;
-  label: string;
-  value: string;
-}) {
+function TournamentFact({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
     <div className="min-w-0 rounded-xl border border-border/80 bg-background/30 p-3">
       <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
