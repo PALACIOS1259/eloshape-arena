@@ -286,7 +286,10 @@ function TournamentsPage() {
                   <div
                     key={tournament.slug}
                     className="animate-in fade-in-0 slide-in-from-bottom-2 fill-mode-backwards"
-                    style={{ animationDelay: `${Math.min(index * 55, 330)}ms`, animationDuration: "420ms" }}
+                    style={{
+                      animationDelay: `${Math.min(index * 55, 330)}ms`,
+                      animationDuration: "420ms",
+                    }}
                   >
                     <TournamentCard tournament={tournament} className="h-full" />
                   </div>
@@ -373,7 +376,6 @@ function Filter({
   );
 }
 
-
 function CircuitPill({
   icon,
   title,
@@ -402,7 +404,9 @@ function CircuitPill({
       </span>
       <span className="min-w-0">
         <span className="block text-xs font-black text-foreground">{title}</span>
-        <span className="mt-0.5 block truncate text-[11px] text-muted-foreground">{description}</span>
+        <span className="mt-0.5 block truncate text-[11px] text-muted-foreground">
+          {description}
+        </span>
       </span>
     </div>
   );
