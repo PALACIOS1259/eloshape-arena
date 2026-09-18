@@ -100,15 +100,15 @@ function TournamentDetailPage() {
 
   return (
     <div>
-      <section className="bg-hero relative overflow-hidden border-b border-border">
+      <section className="bg-hero relative overflow-hidden border-b border-border/80">
         {tournament.banner_url ? (
           <div className="absolute inset-0">
             <img
               src={tournament.banner_url}
               alt=""
-              className="size-full object-cover opacity-20 blur-[1px]"
+              className="size-full object-cover opacity-25 blur-[1px] scale-[1.03]"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-background via-background/92 to-background/70" />
+            <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/65" />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/40" />
           </div>
         ) : null}
@@ -165,7 +165,7 @@ function TournamentDetailPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-border bg-background/65 p-5 shadow-xl backdrop-blur">
+            <div className="rounded-2xl border border-border/80 bg-background/70 p-5 shadow-2xl shadow-background/30 backdrop-blur-xl transition-transform duration-300 hover:-translate-y-0.5">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="eyebrow">Tournament field</p>
@@ -230,7 +230,8 @@ function TournamentDetailPage() {
         <EventProgress status={tournament.status} currentStageIndex={currentStageIndex} />
 
         <Tabs defaultValue="overview" className="mt-7">
-          <TabsList className="grid h-auto w-full grid-cols-3 rounded-2xl border border-border bg-surface-gradient p-1.5 shadow-card sm:w-fit sm:min-w-[34rem]">
+          <div className="sticky top-16 z-30 -mx-2 rounded-2xl bg-background/70 p-2 backdrop-blur-xl supports-[backdrop-filter]:bg-background/55">
+            <TabsList className="grid h-auto w-full grid-cols-3 rounded-2xl border border-border/80 bg-surface-gradient p-1.5 shadow-xl sm:w-fit sm:min-w-[34rem]">
             <TabsTrigger
               value="overview"
               className="rounded-xl px-4 py-2.5 text-xs font-black data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
@@ -249,15 +250,16 @@ function TournamentDetailPage() {
             >
               Bracket · {matches.length}
             </TabsTrigger>
-          </TabsList>
+            </TabsList>
+          </div>
 
           <TabsContent
             value="overview"
-            className="mt-6 animate-in fade-in-0 slide-in-from-bottom-1 duration-300"
+            className="mt-6 animate-in fade-in-0 slide-in-from-bottom-2 duration-500"
           >
             <div className="grid gap-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(18rem,0.75fr)]">
               <div className="space-y-5">
-                <section className="overflow-hidden rounded-2xl border border-border bg-surface-gradient shadow-card">
+                <section className="overflow-hidden rounded-2xl border border-border/80 bg-surface-gradient shadow-card transition-shadow duration-300 hover:shadow-xl">
                   <div className="border-b border-border px-5 py-4 sm:px-6">
                     <p className="eyebrow">Event brief</p>
                     <h2 className="mt-1 text-xl font-black text-foreground">
@@ -284,7 +286,7 @@ function TournamentDetailPage() {
                   </div>
                 </section>
 
-                <section className="rounded-2xl border border-border bg-surface-gradient p-5 shadow-card sm:p-6">
+                <section className="rounded-2xl border border-border/80 bg-surface-gradient p-5 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl sm:p-6">
                   <div className="flex flex-wrap items-end justify-between gap-3">
                     <div>
                       <p className="eyebrow">Match day flow</p>
@@ -318,7 +320,7 @@ function TournamentDetailPage() {
               </div>
 
               <div className="space-y-5">
-                <section className="rounded-2xl border border-border bg-surface-gradient p-5 shadow-card">
+                <section className="rounded-2xl border border-border/80 bg-surface-gradient p-5 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl">
                   <p className="eyebrow">Tournament access</p>
                   <h2 className="mt-1 text-lg font-black text-foreground">Ready to compete?</h2>
                   <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
@@ -382,7 +384,7 @@ function TournamentDetailPage() {
 
           <TabsContent
             value="participants"
-            className="mt-6 animate-in fade-in-0 slide-in-from-bottom-1 duration-300"
+            className="mt-6 animate-in fade-in-0 slide-in-from-bottom-2 duration-500"
           >
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
@@ -496,7 +498,7 @@ function TournamentDetailPage() {
 
           <TabsContent
             value="bracket"
-            className="mt-6 animate-in fade-in-0 slide-in-from-bottom-1 duration-300"
+            className="mt-6 animate-in fade-in-0 slide-in-from-bottom-2 duration-500"
           >
             <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
               <div>
@@ -568,7 +570,7 @@ function EventProgress({
             <div
               key={stage.key}
               className={cn(
-                "relative border-b border-border p-4 last:border-b-0 sm:border-b-0 sm:border-r sm:last:border-r-0",
+                "relative border-b border-border p-4 transition-colors duration-300 last:border-b-0 sm:border-b-0 sm:border-r sm:last:border-r-0",
                 active && "bg-primary/[0.055]",
               )}
             >
@@ -612,8 +614,8 @@ function FlowStep({
   description: string;
 }) {
   return (
-    <div className="rounded-xl border border-border bg-background/25 p-4">
-      <span className="text-2xl font-black tabular-nums text-primary/40">{number}</span>
+    <div className="group rounded-xl border border-border/80 bg-background/25 p-4 transition-all duration-300 hover:-translate-y-1 hover:border-primary/20 hover:bg-background/40">
+      <span className="text-2xl font-black tabular-nums text-primary/40 transition-colors duration-300 group-hover:text-primary/70">{number}</span>
       <h3 className="mt-4 text-sm font-black text-foreground">{title}</h3>
       <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{description}</p>
     </div>
