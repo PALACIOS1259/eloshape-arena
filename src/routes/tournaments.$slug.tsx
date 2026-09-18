@@ -232,24 +232,24 @@ function TournamentDetailPage() {
         <Tabs defaultValue="overview" className="mt-7">
           <div className="sticky top-16 z-30 -mx-2 rounded-2xl bg-background/70 p-2 backdrop-blur-xl supports-[backdrop-filter]:bg-background/55">
             <TabsList className="grid h-auto w-full grid-cols-3 rounded-2xl border border-border/80 bg-surface-gradient p-1.5 shadow-xl sm:w-fit sm:min-w-[34rem]">
-            <TabsTrigger
-              value="overview"
-              className="rounded-xl px-4 py-2.5 text-xs font-black data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-            >
-              Overview
-            </TabsTrigger>
-            <TabsTrigger
-              value="participants"
-              className="rounded-xl px-4 py-2.5 text-xs font-black data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-            >
-              Participants · {entries.length}
-            </TabsTrigger>
-            <TabsTrigger
-              value="bracket"
-              className="rounded-xl px-4 py-2.5 text-xs font-black data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-            >
-              Bracket · {matches.length}
-            </TabsTrigger>
+              <TabsTrigger
+                value="overview"
+                className="rounded-xl px-4 py-2.5 text-xs font-black data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                Overview
+              </TabsTrigger>
+              <TabsTrigger
+                value="participants"
+                className="rounded-xl px-4 py-2.5 text-xs font-black data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                Participants · {entries.length}
+              </TabsTrigger>
+              <TabsTrigger
+                value="bracket"
+                className="rounded-xl px-4 py-2.5 text-xs font-black data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                Bracket · {matches.length}
+              </TabsTrigger>
             </TabsList>
           </div>
 
@@ -615,7 +615,9 @@ function FlowStep({
 }) {
   return (
     <div className="group rounded-xl border border-border/80 bg-background/25 p-4 transition-all duration-300 hover:-translate-y-1 hover:border-primary/20 hover:bg-background/40">
-      <span className="text-2xl font-black tabular-nums text-primary/40 transition-colors duration-300 group-hover:text-primary/70">{number}</span>
+      <span className="text-2xl font-black tabular-nums text-primary/40 transition-colors duration-300 group-hover:text-primary/70">
+        {number}
+      </span>
       <h3 className="mt-4 text-sm font-black text-foreground">{title}</h3>
       <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{description}</p>
     </div>
