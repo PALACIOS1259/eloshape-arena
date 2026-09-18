@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
+import { Check, LoaderCircle, LogIn, ShieldCheck, Swords } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -114,9 +115,13 @@ export function TournamentRegisterButton({
 
   if (!session) {
     return (
-      <Button asChild>
+      <Button
+        asChild
+        className="group h-11 rounded-xl px-5 font-black shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+      >
         <Link to="/auth" search={{ mode: "signin" }}>
-          Sign in to register
+          <LogIn className="size-4 transition-transform group-hover:translate-x-0.5" />
+          Sign in to compete
         </Link>
       </Button>
     );
@@ -124,8 +129,9 @@ export function TournamentRegisterButton({
 
   if (entryQuery.isPending) {
     return (
-      <Button variant="outline" disabled>
-        Checking entry…
+      <Button variant="outline" disabled className="h-11 rounded-xl px-5 font-black">
+        <LoaderCircle className="size-4 animate-spin" />
+        Checking eligibility…
       </Button>
     );
   }
@@ -134,7 +140,12 @@ export function TournamentRegisterButton({
 
   if (entry?.status === "checked_in") {
     return (
-      <Button variant="outline" disabled>
+      <Button
+        variant="outline"
+        disabled
+        className="h-11 rounded-xl border-primary/25 bg-primary/8 px-5 font-black text-primary opacity-100"
+      >
+        <Check className="size-4" />
         {isTeam ? "Team checked in" : "Checked in"}
       </Button>
     );
@@ -146,16 +157,27 @@ export function TournamentRegisterButton({
       return (
         <Button
           variant="outline"
+          className="group h-11 rounded-xl border-primary/30 bg-primary/8 px-5 font-black text-primary transition-all hover:-translate-y-0.5 hover:bg-primary/12"
           onClick={() => (isTeam ? teamCheckInMutation.mutate() : soloCheckInMutation.mutate())}
           disabled={pending}
         >
-          {pending ? "Checking in…" : isTeam ? "Check in team" : "Check in"}
+          {pending ? (
+            <LoaderCircle className="size-4 animate-spin" />
+          ) : (
+            <ShieldCheck className="size-4" />
+          )}
+          {pending ? "Checking in…" : isTeam ? "Check in team" : "Check in now"}
         </Button>
       );
     }
 
     return (
-      <Button variant="outline" disabled>
+      <Button
+        variant="outline"
+        disabled
+        className="h-11 rounded-xl border-gold/25 bg-gold/8 px-5 font-black text-gold opacity-100"
+      >
+        <Check className="size-4" />
         {isTeam ? "Team registered" : "Registered"}
       </Button>
     );
@@ -165,10 +187,16 @@ export function TournamentRegisterButton({
     const pending = isTeam ? teamRegisterMutation.isPending : soloRegisterMutation.isPending;
     return (
       <Button
+        className="group h-11 rounded-xl px-5 font-black shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
         onClick={() => (isTeam ? teamRegisterMutation.mutate() : soloRegisterMutation.mutate())}
         disabled={pending}
       >
-        {pending ? "Registering…" : isTeam ? "Register team" : "Register"}
+        {pending ? (
+          <LoaderCircle className="size-4 animate-spin" />
+        ) : (
+          <Swords className="size-4 transition-transform group-hover:rotate-6" />
+        )}
+        {pending ? "Registering…" : isTeam ? "Register my team" : "Enter tournament"}
       </Button>
     );
   }
