@@ -161,7 +161,25 @@ function TournamentsPage() {
       </section>
 
       <PageContainer className="py-8 sm:py-10">
-        <section className="overflow-hidden rounded-2xl border border-border bg-surface-gradient shadow-card">
+        <div className="mb-6 grid gap-3 sm:grid-cols-3">
+          <CircuitPill
+            icon={<ShieldCheck className="size-4" />}
+            title="Verified entry"
+            description="Eligibility checked server-side"
+          />
+          <CircuitPill
+            icon={<Swords className="size-4" />}
+            title="Live progression"
+            description="Bracket and results stay connected"
+          />
+          <CircuitPill
+            icon={<Trophy className="size-4" />}
+            title="Circuit impact"
+            description="Every official result builds your record"
+            gold
+          />
+        </div>
+        <section className="sticky top-16 z-20 overflow-hidden rounded-2xl border border-border/80 bg-background/85 shadow-xl shadow-background/20 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70">
           <div className="border-b border-border px-4 py-4 sm:px-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
@@ -263,9 +281,15 @@ function TournamentsPage() {
 
           <div className="mt-5">
             {tournaments.length ? (
-              <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                {tournaments.map((tournament) => (
-                  <TournamentCard key={tournament.slug} tournament={tournament} />
+              <div className="grid items-stretch gap-5 md:grid-cols-2 xl:grid-cols-3">
+                {tournaments.map((tournament, index) => (
+                  <div
+                    key={tournament.slug}
+                    className="animate-in fade-in-0 slide-in-from-bottom-2 fill-mode-backwards"
+                    style={{ animationDelay: `${Math.min(index * 55, 330)}ms`, animationDuration: "420ms" }}
+                  >
+                    <TournamentCard tournament={tournament} className="h-full" />
+                  </div>
                 ))}
               </div>
             ) : (
@@ -346,5 +370,40 @@ function Filter({
         </SelectContent>
       </Select>
     </label>
+  );
+}
+
+
+function CircuitPill({
+  icon,
+  title,
+  description,
+  gold = false,
+}: {
+  icon: ReactNode;
+  title: string;
+  description: string;
+  gold?: boolean;
+}) {
+  return (
+    <div
+      className={cn(
+        "group flex items-center gap-3 rounded-2xl border border-border/70 bg-background/30 px-4 py-3 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/25 hover:bg-background/45",
+        gold && "hover:border-gold/25",
+      )}
+    >
+      <span
+        className={cn(
+          "grid size-9 shrink-0 place-items-center rounded-xl border border-primary/20 bg-primary/8 text-primary transition-transform duration-300 group-hover:scale-105",
+          gold && "border-gold/20 bg-gold/8 text-gold",
+        )}
+      >
+        {icon}
+      </span>
+      <span className="min-w-0">
+        <span className="block text-xs font-black text-foreground">{title}</span>
+        <span className="mt-0.5 block truncate text-[11px] text-muted-foreground">{description}</span>
+      </span>
+    </div>
   );
 }
