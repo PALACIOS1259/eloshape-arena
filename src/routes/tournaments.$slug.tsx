@@ -176,8 +176,7 @@ function TournamentDetailPage() {
                 <span
                   className={cn(
                     "grid size-11 place-items-center rounded-xl border border-border bg-background/50 text-muted-foreground",
-                    tournament.status === "live" &&
-                      "border-primary/30 bg-primary/10 text-primary",
+                    tournament.status === "live" && "border-primary/30 bg-primary/10 text-primary",
                   )}
                 >
                   {tournament.status === "live" ? (
@@ -430,7 +429,10 @@ function TournamentDetailPage() {
                   const name = entry.team?.name ?? entry.profile?.display_name ?? "TBD";
                   const href =
                     entry.profile != null
-                      ? { to: "/players/$handle" as const, params: { handle: entry.profile.handle } }
+                      ? {
+                          to: "/players/$handle" as const,
+                          params: { handle: entry.profile.handle },
+                        }
                       : entry.team != null
                         ? { to: "/teams/$slug" as const, params: { slug: entry.team.slug } }
                         : null;
@@ -666,7 +668,9 @@ function PodiumCard({
         >
           {first ? <Crown className="size-4" /> : placement}
         </span>
-        <span className="text-xs font-black tabular-nums text-gold">+{formatPoints(points)} pts</span>
+        <span className="text-xs font-black tabular-nums text-gold">
+          +{formatPoints(points)} pts
+        </span>
       </div>
       <p className="mt-5 truncate text-lg font-black text-foreground">{name}</p>
       <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
