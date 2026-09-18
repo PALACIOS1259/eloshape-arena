@@ -1,5 +1,14 @@
 import { Link } from "@tanstack/react-router";
-import { CalendarDays, MapPin, Trophy, Users } from "lucide-react";
+import {
+  CalendarDays,
+  ChevronRight,
+  Clock3,
+  MapPin,
+  Radio,
+  Swords,
+  Trophy,
+  Users,
+} from "lucide-react";
 
 import { DivisionBadge, type DivisionLike } from "./DivisionBadge";
 import { StatusBadge } from "./StatusBadge";
@@ -15,11 +24,21 @@ export type TournamentCardData = {
   format?: string | null;
   prize?: string | null;
   starts_at: string | null;
+  registration_closes_at?: string | null;
   participants_count: number | null;
   max_participants: number | null;
+  banner_url?: string | null;
   division?: DivisionLike;
   region?: { name?: string | null } | null;
 };
+
+function actionLabel(status: string) {
+  if (status === "registration_open") return "Open registration";
+  if (status === "registration_closed") return "View seeded field";
+  if (status === "live") return "Follow live bracket";
+  if (status === "completed") return "View results";
+  return "Open tournament";
+}
 
 export function TournamentCard({
   tournament,
@@ -31,60 +50,153 @@ export function TournamentCard({
   const filled = tournament.participants_count ?? 0;
   const capacity = tournament.max_participants ?? 0;
   const pct = capacity ? Math.min(100, Math.round((filled / capacity) * 100)) : 0;
+  const spotsLeft = capacity ? Math.max(0, capacity - filled) : null;
+  const isLive = tournament.status === "live";
 
   return (
     <Link
       to="/tournaments/$slug"
       params={{ slug: tournament.slug }}
       className={cn(
-        "bg-surface-gradient shadow-card group flex flex-col rounded-lg border border-border p-5 transition-colors hover:border-brand/50",
+        "group relative flex min-h-[27rem] flex-col overflow-hidden rounded-2xl border border-border bg-surface-gradient shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-primary/35 hover:shadow-xl",
         className,
       )}
     >
-      <div className="flex flex-wrap items-center gap-2">
-        <StatusBadge status={tournament.status} />
-        <DivisionBadge division={tournament.division ?? null} />
-        <span className="eyebrow ml-auto">{tournament.mode === "team" ? "5v5 team" : "Solo"}</span>
+      <div className="relative h-36 overflow-hidden border-b border-border/70">
+        {tournament.banner_url ? (
+          <img
+            src={tournament.banner_url}
+            alt=""
+            className="size-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+          />
+        ) : (
+          <div className="size-full bg-[radial-gradient(circle_at_20%_0%,hsl(var(--primary)/0.25),transparent_45%),linear-gradient(135deg,hsl(var(--background)),hsl(var(--muted)/0.45))]" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/45 to-transparent" />
+        <div className="absolute inset-x-5 top-4 flex items-start justify-between gap-3">
+          <div className="flex flex-wrap gap-2">
+            <StatusBadge status={tournament.status} />
+            <DivisionBadge division={tournament.division ?? null} />
+          </div>
+          <span
+            className={cn(
+              "grid size-9 shrink-0 place-items-center rounded-xl border border-border/80 bg-background/75 text-muted-foreground shadow-sm backdrop-blur",
+              isLive && "border-primary/30 bg-primary/12 text-primary",
+            )}
+          >
+            {isLive ? <Radio className="size-4" /> : <Swords className="size-4" />}
+          </span>
+        </div>
+
+        <div className="absolute inset-x-5 bottom-4">
+          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-muted-foreground">
+            {tournament.mode === "team" ? "5v5 Team Tournament" : "Solo Tournament"}
+          </p>
+        </div>
       </div>
 
-      <h3 className="mt-4 text-lg font-bold leading-snug text-foreground group-hover:text-brand">
-        {tournament.name}
-      </h3>
-      {tournament.subtitle ? (
-        <p className="mt-1 text-sm text-muted-foreground">{tournament.subtitle}</p>
-      ) : null}
+      <div className="flex flex-1 flex-col p-5 sm:p-6">
+        <div>
+          <h3 className="text-xl font-black leading-tight tracking-tight text-foreground transition-colors group-hover:text-primary">
+            {tournament.name}
+          </h3>
+          {tournament.subtitle ? (
+            <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+              {tournament.subtitle}
+            </p>
+          ) : (
+            <p className="mt-2 text-sm text-muted-foreground">
+              Competitive EloShape bracket for the LAS circuit.
+            </p>
+          )}
+        </div>
 
-      <dl className="mt-4 grid gap-2 text-sm">
-        <div className="flex min-w-0 items-center gap-2 text-muted-foreground">
-          <CalendarDays className="size-4 shrink-0" />
-          <span className="tabular truncate">{formatDateTime(tournament.starts_at)}</span>
+        <div className="mt-5 grid grid-cols-2 gap-2">
+          <TournamentFact
+            icon={<CalendarDays className="size-3.5" />}
+            label="Starts"
+            value={formatDateTime(tournament.starts_at)}
+          />
+          <TournamentFact
+            icon={<MapPin className="size-3.5" />}
+            label="Region"
+            value={tournament.region?.name ?? "LAS"}
+          />
+          <TournamentFact
+            icon={<Swords className="size-3.5" />}
+            label="Format"
+            value={tournament.format ?? "TBD"}
+          />
+          <TournamentFact
+            icon={<Users className="size-3.5" />}
+            label="Field"
+            value={capacity ? `${filled}/${capacity}` : `${filled} entries`}
+          />
         </div>
-        <div className="flex min-w-0 items-center gap-2 text-muted-foreground">
-          <MapPin className="size-4 shrink-0" />
-          <span className="truncate">{tournament.region?.name ?? "Regional"}</span>
-        </div>
+
         {tournament.prize ? (
-          <div className="flex min-w-0 items-center gap-2 text-gold">
+          <div className="mt-4 flex items-center gap-2 rounded-xl border border-gold/25 bg-gold/8 px-3 py-2.5 text-sm font-semibold text-gold">
             <Trophy className="size-4 shrink-0" />
             <span className="truncate">{tournament.prize}</span>
           </div>
         ) : null}
-      </dl>
 
-      <div className="mt-5">
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1.5">
-            <Users className="size-3.5" />
-            <span className="tabular">
-              {filled}/{capacity || "∞"} slots
+        <div className="mt-auto pt-5">
+          {capacity ? (
+            <div>
+              <div className="flex items-center justify-between gap-3 text-[11px] font-semibold text-muted-foreground">
+                <span className="inline-flex items-center gap-1.5">
+                  <Users className="size-3.5" />
+                  {spotsLeft === 0 ? "Field full" : `${spotsLeft} spot${spotsLeft === 1 ? "" : "s"} left`}
+                </span>
+                <span className="tabular-nums">{pct}% filled</span>
+              </div>
+              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
+                <div
+                  className="bg-brand-gradient h-full rounded-full transition-[width] duration-500"
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            </div>
+          ) : tournament.registration_closes_at ? (
+            <p className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Clock3 className="size-3.5" />
+              Registration closes {formatDateTime(tournament.registration_closes_at)}
+            </p>
+          ) : null}
+
+          <div className="mt-4 flex items-center justify-between border-t border-border/70 pt-4">
+            <span
+              className={cn(
+                "text-xs font-black uppercase tracking-[0.1em] text-muted-foreground transition-colors group-hover:text-primary",
+                isLive && "text-primary",
+              )}
+            >
+              {actionLabel(tournament.status)}
             </span>
-          </span>
-          <span className="tabular">{pct}%</span>
-        </div>
-        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
-          <div className="bg-brand-gradient h-full rounded-full" style={{ width: `${pct}%` }} />
+            <ChevronRight className="size-4 text-muted-foreground transition-all duration-200 group-hover:translate-x-1 group-hover:text-primary" />
+          </div>
         </div>
       </div>
     </Link>
+  );
+}
+
+function TournamentFact({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="min-w-0 rounded-xl border border-border/80 bg-background/30 p-3">
+      <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+        {icon} {label}
+      </p>
+      <p className="mt-1.5 truncate text-xs font-black text-foreground">{value}</p>
+    </div>
   );
 }
