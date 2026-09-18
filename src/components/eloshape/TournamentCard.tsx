@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import type { ReactNode } from "react";\nimport { Link } from "@tanstack/react-router";
 import {
   CalendarDays,
   ChevronRight,
@@ -187,7 +187,7 @@ function TournamentFact({
   label,
   value,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   label: string;
   value: string;
 }) {
