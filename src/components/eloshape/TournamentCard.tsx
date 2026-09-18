@@ -59,21 +59,23 @@ export function TournamentCard({
       to="/tournaments/$slug"
       params={{ slug: tournament.slug }}
       className={cn(
-        "group relative flex min-h-[27rem] flex-col overflow-hidden rounded-2xl border border-border bg-surface-gradient shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-primary/35 hover:shadow-xl",
+        "group relative flex min-h-[27rem] flex-col overflow-hidden rounded-2xl border border-border/80 bg-surface-gradient shadow-card transition-all duration-500 ease-out hover:-translate-y-1.5 hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/5",
         className,
       )}
     >
-      <div className="relative h-36 overflow-hidden border-b border-border/70">
+      <div className="relative h-40 overflow-hidden border-b border-border/70">
         {tournament.banner_url ? (
           <img
             src={tournament.banner_url}
             alt=""
-            className="size-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+            className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.07]"
           />
         ) : (
           <div className="size-full bg-[radial-gradient(circle_at_20%_0%,hsl(var(--primary)/0.25),transparent_45%),linear-gradient(135deg,hsl(var(--background)),hsl(var(--muted)/0.45))]" />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/45 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+        <div className="absolute -right-12 -top-12 size-32 rounded-full bg-primary/15 blur-3xl opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
         <div className="absolute inset-x-5 top-4 flex items-start justify-between gap-3">
           <div className="flex flex-wrap gap-2">
             <StatusBadge status={tournament.status} />
@@ -96,9 +98,10 @@ export function TournamentCard({
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col p-5 sm:p-6">
+      <div className="relative flex flex-1 flex-col p-5 sm:p-6">
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-px bg-gradient-to-b from-primary/0 via-primary/45 to-primary/0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
         <div>
-          <h3 className="text-xl font-black leading-tight tracking-tight text-foreground transition-colors group-hover:text-primary">
+          <h3 className="text-xl font-black leading-tight tracking-tight text-foreground transition-colors duration-300 group-hover:text-primary">
             {tournament.name}
           </h3>
           {tournament.subtitle ? (
@@ -187,7 +190,7 @@ export function TournamentCard({
 
 function TournamentFact({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
-    <div className="min-w-0 rounded-xl border border-border/80 bg-background/30 p-3">
+    <div className="min-w-0 rounded-xl border border-border/70 bg-background/25 p-3 transition-colors duration-300 group-hover:border-border">
       <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
         {icon} {label}
       </p>
