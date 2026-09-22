@@ -109,7 +109,7 @@ function TournamentDetailPage() {
         qualification.status === "qualified" &&
         qualification.qualified_from_tournament_id === tournament.id,
     )
-    .sort((a, b) => a.qualification_position - b.qualification_position);
+    .sort((a, b) => (a.qualification_position ?? 999) - (b.qualification_position ?? 999));
   const isQualifier = tournament.split_phase === "qualifier" && tournament.qualifier_index != null;
 
   const qualificationLabel = (teamId: string | null | undefined) => {
