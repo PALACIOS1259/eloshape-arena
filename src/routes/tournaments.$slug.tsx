@@ -94,6 +94,7 @@ function TournamentDetailPage() {
   const capacity = tournament.max_participants ?? 0;
   const pct = capacity ? Math.min(100, Math.round((filled / capacity) * 100)) : 0;
   const currentStageIndex = EVENT_STAGES.findIndex((stage) => stage.key === tournament.status);
+  const isDemoFixture = tournament.slug.includes("-demo-");
   const podium = entries
     .filter((entry) => entry.placement && entry.placement <= 3)
     .sort((a, b) => (a.placement ?? 99) - (b.placement ?? 99));
@@ -133,6 +134,7 @@ function TournamentDetailPage() {
                 {tournament.season?.name ? (
                   <Badge variant="secondary">{tournament.season.name}</Badge>
                 ) : null}
+                {isDemoFixture ? <Badge variant="outline">Staging demo fixture</Badge> : null}
               </div>
 
               <h1 className="mt-5 max-w-4xl text-4xl font-black tracking-tight text-foreground sm:text-5xl">
@@ -396,6 +398,13 @@ function TournamentDetailPage() {
                   {entries.length} {entries.length === 1 ? "entry" : "entries"}
                   {capacity ? ` · ${capacity} total slots` : ""}.
                 </p>
+                {isDemoFixture && tournament.status === "completed" ? (
+                  <p className="mt-2 max-w-2xl text-xs leading-relaxed text-muted-foreground">
+                    Staging demo data can reuse rosters and deterministic outcomes across qualifiers.
+                    These standings belong to this tournament only; production qualifiers use their
+                    own registrations and match results.
+                  </p>
+                ) : null}
               </div>
               <Badge variant="outline">
                 {tournament.mode === "team" ? "Team field" : "Solo field"}
