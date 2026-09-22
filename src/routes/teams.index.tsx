@@ -300,7 +300,9 @@ function DirectoryMetric({
 }) {
   return (
     <span className="inline-flex items-baseline gap-1.5">
-      <strong className={cn("text-sm font-black tabular-nums text-foreground", accent && "text-gold")}>
+      <strong
+        className={cn("text-sm font-black tabular-nums text-foreground", accent && "text-gold")}
+      >
         {value}
       </strong>
       <span className="uppercase tracking-[0.1em]">{label}</span>
