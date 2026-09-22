@@ -1,330 +1,362 @@
-# EloShape — Documentación técnica y de producto
+# EloShape — Documentación definitiva
 
-> Plataforma competitiva de League of Legends para jugadores amateur / elo bajo.
-> Idea de marca: **“No necesitás ser Challenger para competir.”**
+Última revisión: **22/09/2026** · rama de referencia: **staging**.
 
-Última actualización: 10/09/2026
+Esta es la entrada principal a la documentación del producto y del código. La documentación detallada está separada por dominio para que sea mantenible y no quede un único archivo gigante desactualizado.
+
+## 1. Qué es EloShape
+
+EloShape es una plataforma competitiva amateur de League of Legends orientada inicialmente a LAS. Los jugadores crean perfiles, vinculan su Riot ID, forman equipos 5v5, compiten en torneos y Semi-Splits, reportan resultados y acumulan puntos EloShape.
+
+Principios del sistema:
+
+1. El rango de Solo Queue de Riot determina **elegibilidad/división**, no puntos EloShape.
+2. Los puntos EloShape provienen de competencia oficial de EloShape.
+3. Los scrims son práctica y tienen impacto competitivo oficial igual a cero.
+4. El backend valida cupos, roster, elegibilidad, resultados, scoring y permisos.
+5. Los registros competitivos relevantes tienen trazabilidad/auditoría.
+6. `staging` es el entorno de desarrollo/QA; `main` representa producción.
+
+## 2. Documentos fuente de verdad
+
+| Documento | Qué contiene |
+| --- | --- |
+| [README de documentación](./README.md) | Índice y reglas de mantenimiento |
+| [ARCHITECTURE.md](./ARCHITECTURE.md) | Arquitectura completa, flujo browser/server/DB y rutas |
+| [DATABASE.md](./DATABASE.md) | 28 tablas, ERD, enums, triggers, RLS y RPC |
+| [COMPETITION_ENGINE.md](./COMPETITION_ENGINE.md) | Torneos, bracket, scoring, qualifiers y Semi-Splits |
+| [TEAMS_AND_SCRIMS.md](./TEAMS_AND_SCRIMS.md) | Equipos, roles, invitaciones y scrims |
+| [OPERATIONS.md](./OPERATIONS.md) | Manual operativo de staff |
+| [DEVELOPMENT.md](./DEVELOPMENT.md) | Desarrollo, migraciones, testing y CI |
+| [CODE_MAP.md](./CODE_MAP.md) | Dónde vive cada parte del código |
+| [KNOWN_ISSUES.md](./KNOWN_ISSUES.md) | Fixtures demo, dependencias externas y pendientes |
+| [ENVIRONMENTS.md](./ENVIRONMENTS.md) | Staging/production |
+| [TOURNAMENT_ZERO_RUNBOOK.md](./TOURNAMENT_ZERO_RUNBOOK.md) | Ensayo de torneo real |
+| [RIOT-PRODUCTION-APPLICATION.md](./RIOT-PRODUCTION-APPLICATION.md) | Integración Riot / Production API |
+| [AUTH_EMAIL_SETUP.md](./AUTH_EMAIL_SETUP.md) | Correo/Auth |
+| [VIDEO_LAUNCH_PLAN.md](./VIDEO_LAUNCH_PLAN.md) | Lanzamiento/video |
+
+## 3. Arquitectura resumida
+
+```mermaid
+flowchart LR
+  B[Browser React] --> R[TanStack Router]
+  R --> Q[TanStack Query]
+  Q --> F[createServerFn]
+  F --> PUB[Public Supabase client]
+  F --> AUTH[Authenticated Supabase client]
+  PUB --> DB[(Supabase Postgres)]
+  AUTH --> DB
+  DB --> RPC[RPC public/private]
+  F --> RIOT[Riot integration]
+  GHA[GitHub Actions] --> QA[App + DB tests]
+  V[Vercel] --> APP[EloShape]
+```
+
+El browser no recibe credenciales privilegiadas. Las acciones autenticadas reconstruyen un cliente Supabase con el access token validado y Postgres/RLS sigue siendo el límite real de autorización.
+
+## 4. Stack
+
+- React 19
+- TanStack Start
+- TanStack Router
+- TanStack Query
+- TypeScript
+- Vite 8
+- Tailwind CSS 4
+- Radix/shadcn
+- Supabase Auth/Postgres/Edge Functions
+- Vercel
+- GitHub Actions
+- Bun
+
+## 5. Modelo competitivo
+
+### Divisiones
+
+El modelo soporta Iron, Bronze, Silver y Gold, con mapeo de tiers de Riot a divisiones.
+
+### Puntos actuales
+
+Los valores viven en `point_rules` y son configurables:
+
+| Evento | Puntos |
+| --- | ---: |
+| Participación | 5 |
+| Victoria de serie/match | 10 |
+| Cuartos | 15 |
+| Semifinal | 25 |
+| Runner-up | 40 |
+| Campeón | 70 |
+
+Ejemplo de campeón de un torneo de 16 equipos sin bye: participación 5 + cuatro victorias 40 + campeón 70 = **115 puntos**.
+
+### Bye
+
+Avanza al equipo, pero no cuenta como victoria para scoring.
+
+### Walkover
+
+Avanza al equipo **y sí cuenta como victoria competitiva**.
+
+## 6. Flujo de torneo
+
+```mermaid
+flowchart LR
+  A[Registration] --> B[Check-in]
+  B --> C[Lock entries]
+  C --> D[Immutable roster snapshot]
+  D --> E[Generate bracket]
+  E --> F[Play/report results]
+  F --> G[Confirm/dispute]
+  G --> H[Finalize]
+  H --> I[Points + placement]
+  I --> J[Qualifier slots if applicable]
+```
+
+El roster que compite queda congelado al lock. Cambiar el Team HQ después no cambia retroactivamente el roster del torneo.
+
+## 7. Brackets
+
+La topología se guarda en `matches` usando:
+
+- `round_index`
+- `bracket_slot`
+- `entry_a_id`
+- `entry_b_id`
+- `winner_entry_id`
+
+El ganador de `(round, slot)` avanza a:
+
+```text
+next_round = round + 1
+next_slot  = floor(slot / 2)
+```
+
+La UI `BracketView.tsx` usa geometría fija para que Round of 16, Quarterfinals, Semifinals y Final mantengan alineación. La altura de la card y el pitch vertical no deben divergir.
+
+## 8. Qualifiers y Semi-Splits
+
+Un Semi-Split agrupa qualifiers y playoffs.
+
+Flujo típico:
+
+```text
+4 Open Qualifiers
+      ↓
+qualifier-only standings
+      ↓
+16 qualified teams
+      ↓
+playoff seeding
+      ↓
+Round of 16
+      ↓
+Quarterfinals
+      ↓
+Semifinals
+      ↓
+Grand Final
+```
+
+Si un equipo ya clasificado vuelve a terminar en zona clasificatoria, el cupo pasa al siguiente equipo elegible.
+
+### Prioridad para no clasificados
+
+Un qualifier puede configurar `qualified_teams_registration_opens_at`. Hasta ese momento, un equipo ya clasificado no puede ocupar un cupo que podría usar un equipo todavía no clasificado.
+
+### Standings repetidos en staging
+
+Los qualifiers públicos no comparten accidentalmente una consulta: `loadTournamentDetail` filtra tanto `tournament_entries` como `matches` por el `tournament.id` puntual.
+
+Los qualifiers demo de staging reutilizan varios rosters y fueron cargados con resultados determinísticos. Por eso algunos Final Standings se ven iguales o muy parecidos. Es un comportamiento del fixture demo, no de la consulta de producción.
+
+## 9. Teams
+
+El Team HQ permite:
+
+- crear equipo;
+- invitar por handle;
+- titular/suplente;
+- asignar Top/Jungle/Mid/ADC/Support;
+- remover miembros;
+- transferir capitán;
+- editar identidad;
+- archivar de forma segura.
+
+El directorio `/teams` muestra únicamente performance oficial. Toda la team card es navegable al perfil público.
+
+## 10. Scrims
+
+Scrim Finder vive en `/teams`.
+
+```mermaid
+flowchart LR
+  A[Captain posts time] --> B[Open scrim]
+  B --> C[Another captain challenges]
+  C --> D{Host}
+  D -->|Accept| E[Matched]
+  D -->|Decline| B
+  E --> F[Practice]
+  F --> G[Save result]
+  G --> H[Completed practice history]
+```
+
+Un scrim no puede modificar:
+
+- ranking points;
+- team ranking points;
+- qualification slots;
+- Semi-Split seed;
+- official matches;
+- tournament placement.
+
+Esto está cubierto por test SQL.
+
+## 11. Result reporting
+
+Los participantes/capitanes usan un sistema de claim:
+
+1. un participante reporta score;
+2. el rival confirma o disputa;
+3. confirmación aplica el resultado;
+4. disputa pasa a staff;
+5. staff resuelve o descarta con nota.
+
+Existe además una corrección segura de resultados ya completados. Se bloquea si la competencia downstream ya empezó y corregir alteraría una ronda posterior.
+
+## 12. Seguridad
+
+Principios:
+
+- RLS activo;
+- roles separados en `user_roles`;
+- Riot PUUID no público;
+- escrituras competitivas críticas por RPC;
+- SECURITY DEFINER con search path endurecido;
+- PUBLIC execute revocado donde corresponde;
+- staff authority validada server-side y DB-side;
+- snapshots competitivos inmutables;
+- audit log para operaciones de staff.
+
+Nunca solucionar un error de permisos agregando una policy de escritura amplia desde el browser.
+
+## 13. Riot
+
+Integración actual:
+
+- Account-v1 para Riot ID → PUUID;
+- League-v4 para Solo Queue;
+- Summoner-v4 para account level;
+- sync server-side;
+- key fuera del bundle;
+- tratamiento de 404, 429 y errores upstream.
+
+El lookup de Riot ID demuestra que la cuenta existe y obtiene sus datos; no demuestra propiedad. La verificación real de ownership depende de Riot Sign On cuando esté autorizado.
+
+## 14. Base de datos
+
+El schema público tiene 28 tablas. El catálogo y ERD exacto están en [DATABASE.md](./DATABASE.md).
+
+Grupos principales:
+
+- identidad: profiles, riot_accounts, user_roles;
+- geografía/división: regions, divisions;
+- teams: teams, team_members, team_invites;
+- torneos: tournaments, tournament_entries, tournament_roster_members, matches, match_players;
+- resultados: match_result_claims;
+- splits: competitive_splits, split_qualifications;
+- puntos: point_rules, ranking_points, team_ranking_points;
+- práctica: scrim_posts, scrim_challenges;
+- trust/ops: eligibility_reviews, reports, support_requests, legal_acceptances, competition_audit_log.
+
+## 15. Testing
+
+GitHub Actions corre:
+
+### Aplicación
+
+- install
+- ESLint
+- build
+- route-tree consistency
+- TypeScript
+- Vitest
+
+### Base
+
+- security boundaries
+- competition engine
+- 16-team Semi-Split stress
+- scrim + qualifier priority
+
+Las pruebas SQL complejas generan fixtures dentro de una transacción y hacen rollback.
+
+## 16. Entornos
+
+### staging
+
+Lugar para:
+- features;
+- diseño;
+- migraciones;
+- pruebas;
+- fixtures;
+- QA.
+
+### main / production
+
+No se modifica desde trabajo de staging hasta una promoción explícita. La web pública permanece en maintenance durante los prerrequisitos de lanzamiento.
+
+## 17. Regla para cambios futuros
+
+Para cualquier feature:
+
+1. definir quién puede leer/escribir;
+2. definir invariantes de DB;
+3. migración/RPC si hace falta;
+4. server function;
+5. query/mutation;
+6. UI;
+7. tests;
+8. docs;
+9. CI;
+10. Vercel preview;
+11. promoción explícita.
+
+## 18. Estado actual importante
+
+Implementado:
+
+- auth;
+- profiles;
+- Riot lookup/sync;
+- eligibility review;
+- Team HQ;
+- recruiting/roles;
+- safe team archival;
+- tournament registration/check-in;
+- roster snapshot;
+- bracket generation;
+- result confirmation/disputes;
+- walkovers;
+- safe corrections;
+- point ledger;
+- Semi-Split qualifiers/pass-down/playoffs;
+- qualifier priority;
+- Scrim Finder;
+- support/privacy/account deletion flow;
+- admin control center;
+- CI completo.
+
+Dependencias de lanzamiento:
+
+- Riot Production API persistente;
+- Riot Sign On si/ cuando Riot otorgue acceso;
+- configuración operativa final de producción;
+- torneo cero/beta cerrada;
+- protección de contraseñas filtradas según configuración de Supabase.
 
 ---
 
-## 1. Resumen del producto
-
-EloShape organiza torneos por división (Iron, Bronze, Silver, Gold) y otorga
-**puntos EloShape** únicamente por resultados de torneos propios. Los jugadores
-suben en rankings por ciudad, provincia, país y región (LAS como región inicial).
-
-Reglas competitivas del modelo:
-
-1. El **rank de Solo Queue de Riot** define únicamente **para qué división es
-   elegible** el jugador. No genera puntos.
-2. Los **puntos EloShape** vienen solo de rendimiento en torneos EloShape.
-   No existe un MMR/ELO alternativo calculado desde partidas normales de Riot.
-3. Existen vistas de ranking **mensual** y **de temporada**, con filtros
-   geográficos.
-4. La **elegibilidad anti-smurf** se modela con estados manuales:
-   `eligible`, `pending_review`, `rejected`, `suspended`.
-
-### Sistema de puntos (configurable en `point_rules`)
-
-| Regla               | Puntos |
-| ------------------- | ------ |
-| Participación       | +5     |
-| Victoria de partida | +10    |
-| Cuartos de final    | +15    |
-| Semifinal           | +25    |
-| Subcampeón          | +40    |
-| Campeón             | +70    |
-
-Cambiar valores = editar filas de `point_rules`; no hay números hardcodeados en la UI.
-
----
-
-## 2. Stack técnico
-
-- **Framework**: TanStack Start v1 (React 19, SSR) con Vite 8.
-- **Routing**: TanStack Router, file-based en `src/routes/`.
-- **Datos cliente**: TanStack Query (`src/lib/queries.ts`).
-- **Estilos**: Tailwind CSS v4 vía `src/styles.css` (tokens semánticos OKLCH).
-- **UI**: shadcn/ui + componentes propios en `src/components/eloshape/`.
-- **Backend**: Supabase (Postgres + Auth + RLS + Edge Functions).
-- **Lógica servidor**: `createServerFn` de `@tanstack/react-start`.
-
-### Convención de archivos servidor/cliente
-
-| Patrón           | Rol                                                                     |
-| ---------------- | ----------------------------------------------------------------------- |
-| `*.functions.ts` | Wrappers RPC delgados (`createServerFn`), importables desde componentes |
-| `*.server.ts`    | Lógica privilegiada, solo servidor, nunca importada desde el cliente    |
-| `queries.ts`     | `queryOptions` de TanStack Query para lecturas públicas                 |
-
----
-
-## 3. Diseño / sistema visual
-
-Definido en `src/styles.css` con tokens semánticos (nunca colores hardcodeados
-en componentes):
-
-- Fondos: casi negro / carbón.
-- Metálico gris-plata para bordes y superficies.
-- Acentos: naranja `#E07A2A` y dorado `#FFC140`.
-- Texto primario blanco, secundario gris atenuado.
-- Tipografía sans geométrica moderna estilo Inter.
-- Utilidades propias: `bg-hero`, `bg-tech-grid`, `eyebrow`.
-
-Referencia estética: FACEIT / Toornament. Sin mascotas gamer ni neón excesivo;
-tarjetas limpias, buena jerarquía y densidad de datos competitiva.
-
-Logo: `src/components/brand/EloShapeLogo.tsx` — emblema SVG geométrico
-verticalmente simétrico (plata a la izquierda, naranja/dorado a la derecha).
-
----
-
-## 4. Modelo de datos
-
-Migraciones en `supabase/migrations/`. Tablas del esquema `public`:
-
-| Tabla                                    | Propósito                                                                                                                                                                                                                       |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `regions`                                | Jerarquía Región → País → Provincia → Ciudad (LAS, Argentina, Santa Fe, Rosario…)                                                                                                                                               |
-| `divisions`                              | Iron / Bronze / Silver / Gold (código, nombre, acento visual)                                                                                                                                                                   |
-| `seasons`                                | Temporadas competitivas                                                                                                                                                                                                         |
-| `point_rules`                            | Configuración de puntos por evento                                                                                                                                                                                              |
-| `profiles`                               | Perfil del jugador: handle, display name, avatar, bio, puntos temporada/mes, W/L, torneos jugados, movimiento de ranking, riot_id / riot_tier / riot_rank, elegibilidad, completitud, geografía (city/province/country/region)  |
-| `user_roles`                             | Roles separados del perfil: `admin`, `moderator`, `player`                                                                                                                                                                      |
-| `riot_accounts`                          | Cuenta Riot vinculada: game name, tag line, PUUID (privado), tier/rank, wins/losses, verificación, último sync                                                                                                                  |
-| `teams` / `team_members`                 | Equipos y roster con roles (capitán, titular, suplente)                                                                                                                                                                         |
-| `tournaments`                            | Torneos: slug, nombre, división, región, modo, estado, fechas, cupos, `checkin_required`, `required_roster_size`, `min_account_level`, `required_platform`, hitos (`entries_locked_at`, `bracket_generated_at`, `finalized_at`) |
-| `tournament_entries`                     | Inscripciones: estado (registrado / check-in / descalificado), seed, placement, `roster_locked_at`, puntos otorgados                                                                                                            |
-| `tournament_roster_members`              | **Snapshot inmutable** del roster al cerrar inscripciones (jugador, rol, Riot ID, tier, nivel de cuenta)                                                                                                                        |
-| `matches` / `match_players`              | Bracket con coordenadas base cero `(round_index, bracket_slot)`, byes, resultados y estadísticas por jugador                                                                                                                    |
-| `competitive_splits`                     | Semi-Splits: ventana, estado, `playoff_size`, `qualification_slots_per_qualifier`                                                                                                                                               |
-| `split_qualifications`                   | Clasificados por qualifier: posición, seed de playoffs, reemplazos                                                                                                                                                              |
-| `ranking_points` / `team_ranking_points` | Ledger inmutable de puntos (jugador / equipo) con regla, torneo y `event_key` idempotente                                                                                                                                       |
-| `competition_audit_log`                  | Auditoría de toda operación de staff (locks, brackets, resultados, cierres)                                                                                                                                                     |
-| `achievements`                           | Logros del jugador                                                                                                                                                                                                              |
-| `reports`                                | Reportes de usuarios                                                                                                                                                                                                            |
-| `eligibility_reviews`                    | Revisión manual anti-smurf con estados y notas del staff                                                                                                                                                                        |
-
-Datos demo sembrados: 24 jugadores (Argentina, Uruguay, Chile), 4 equipos,
-6 torneos en distintos estados, historial completo del “Rosario Silver
-Invitational”, ledger de puntos, logros y cola de moderación activa.
-
-### Integridad competitiva (endurecimiento)
-
-1. **El check-in define quién juega**: `lock_tournament_entries` solo procesa
-   entries `checked_in` (o `registered` si `checkin_required = false`); el resto
-   queda fuera del bracket y del scoring.
-2. **Elegibilidad de roster completo**: cada jugador activo debe tener perfil,
-   cuenta Riot vinculada y verificada, nivel ≥ `min_account_level` (30 por
-   defecto), plataforma correcta, división compatible y no estar suspendido.
-   Los rechazos se devuelven con motivos legibles.
-3. **Snapshot inmutable**: al bloquear inscripciones se congela el roster en
-   `tournament_roster_members` (triggers impiden UPDATE/DELETE). Scoring y
-   elegibilidad posteriores **nunca** leen `team_members`.
-4. **Playoffs atómicos**: `private.generate_split_playoffs` crea torneo,
-   entries, snapshots y bracket en una sola transacción, exige el campo
-   configurado (`playoff_size`, normalmente 16) y requiere motivo registrado
-   para sembrar un campo corto. Es idempotente (`already_generated`).
-5. **Concurrencia**: `pg_advisory_xact_lock` protege la asignación de cupos y la
-   generación de playoffs; los cupos se cuentan **por qualifier**, así que
-   re-ejecutar el cierre nunca reparte slots extra.
-6. **Resultados de un solo disparo**: `report_match_result` bloquea la fila y
-   rechaza un segundo reporte (`match_not_reportable`); el ganador avanza a
-   `(round_index + 1, floor(bracket_slot / 2))`.
-7. **Cierre idempotente**: `finalize_tournament` devuelve `already_finalized` y
-   no duplica ledger (claves `event_key`).
-
-### Tests de integración
-
-`supabase/tests/competition_engine.test.sql` corre el ciclo completo
-(inscripción → check-in → bracket → resultados → cierre → clasificación →
-playoffs) verificando gating de check-in, inmutabilidad del snapshot,
-concurrencia de resultados, byes, idempotencia y exactitud de puntos
-(campeón 95, subcampeón 45). Todo se limpia al final; se ejecuta con permisos
-de servicio contra la base del proyecto.
-
----
-
-## 5. Modelo de seguridad
-
-### Principios
-
-- **Todas** las tablas públicas tienen RLS habilitado + `GRANT` explícito.
-- Lecturas públicas (`anon`): torneos, rankings, perfiles, equipos, divisiones,
-  regiones, matches, logros.
-- Lecturas restringidas a staff: `reports`, `eligibility_reviews`, `user_roles`.
-- `riot_accounts`: cada usuario ve **solo su fila** y **nunca el PUUID**.
-
-### Roles
-
-Los roles viven en `user_roles`, **jamás** en `profiles` (evita escalada de
-privilegios). Las verificaciones usan helpers `security definer` en un esquema
-**`private`** no expuesto por la API:
-
-- `private.has_role(role)`
-- `private.is_staff()`
-
-Ambos resuelven siempre contra `auth.uid()`; no aceptan un user id del cliente.
-
-### Escrituras
-
-Un jugador autenticado solo puede actualizar por RLS: `handle`,
-`display_name`, `avatar_url`, `bio`. Campos competitivos —puntos, W/L,
-división, elegibilidad, `riot_*`, `profile_completion`— **no son editables
-desde el cliente** y se escriben solo desde funciones de servidor con rol
-privilegiado.
-
-Igual criterio para `tournament_entries`, `matches`, `match_players` y
-`ranking_points`: escritura exclusiva vía funciones de servidor validadas.
-
-### Provisión automática de perfil
-
-Un trigger sobre `auth.users` (`private.handle_new_auth_user`) crea el perfil y
-el rol `player` al registrarse. `ensureProfile()` en
-`src/lib/profile.server.ts` es idempotente y actúa como red de seguridad, así
-que ningún usuario puede quedar sin perfil.
-
-> Nota sobre el escáner: la ausencia de políticas INSERT/DELETE en `profiles` y
-> de políticas de escritura en `riot_accounts` es **intencional** (fail-closed).
-> Esos caminos existen solo del lado servidor.
-
----
-
-## 6. Integración con Riot
-
-Archivos: `src/lib/riot.server.ts` (cliente HTTP) y
-`src/lib/riot-account.server.ts` (lógica de vinculación).
-
-- La clave se lee **solo en servidor**, dentro del handler:
-  `process.env["RIOT_API_KEY"]`. **Nunca** se hardcodea ni se expone al cliente.
-- APIs usadas: **Account-v1** (resolver Riot ID → PUUID), **League-v4**
-  (entradas de liga / tier de Solo Queue) y **Summoner-v4**
-  (`/lol/summoner/v4/summoners/by-puuid/{encryptedPUUID}`) para sincronizar
-  `summonerLevel`. El nivel se guarda en `riot_accounts.account_level` y se usa
-  en las validaciones server-side de elegibilidad (mínimo 30 por defecto).
-- Manejo de errores: 404 (Riot ID inexistente), 429 (rate limit), 5xx
-  (indisponible), con mensajes seguros para el usuario.
-- **Modo mock determinístico** cuando no hay clave configurada, para desarrollo.
-- Reglas de vinculación: PUUID único por plataforma, cooldown de **10 minutos**
-  entre refrescos, mapeo automático de tier → división elegible y sincronización
-  del nivel de cuenta Riot junto con cada conexión/refresco.
-- El PUUID nunca sale en payloads hacia el cliente (dashboard ni consola staff).
-
-Funciones expuestas (`src/lib/riot.functions.ts`): `getRiotStatus`,
-`getMyRiotAccount`, `connectRiotAccount`, `refreshRiotAccount`.
-
-EloShape no está endorsado por Riot Games; el aviso está en `/terms` y `/privacy`.
-
----
-
-## 7. Rutas de la aplicación
-
-### Públicas
-
-| Ruta                 | Contenido                                                                                             |
-| -------------------- | ----------------------------------------------------------------------------------------------------- |
-| `/`                  | Hero, tagline, CTA “Compete Now”, próximo torneo, preview de leaderboard, divisiones, cómo funciona   |
-| `/tournaments`       | Listado con filtros de división / región / estado / modo, cupos y estado de inscripción               |
-| `/tournaments/$slug` | Overview, reglas, participantes, bracket, calendario de matches, resultados, CTA de registro/check-in |
-| `/rankings`          | Leaderboard con filtros mes/temporada, división y geografía (ciudad/provincia/país)                   |
-| `/players/$handle`   | Riot ID, rank actual, puntos, rankings geográficos, stats, historial, logros, ledger                  |
-| `/teams`             | Directorio de equipos                                                                                 |
-| `/teams/$slug`       | Roster, división, ranking regional, W/L, historial, campeonatos                                       |
-| `/divisions`         | Explicación de divisiones y elegibilidad                                                              |
-| `/rules`             | Reglamento competitivo y sistema de puntos                                                            |
-| `/auth`              | Registro / inicio de sesión                                                                           |
-| `/privacy`, `/terms` | Legales + aviso de no endorsement de Riot                                                             |
-
-### Autenticadas (`src/routes/_authenticated/`)
-
-| Ruta         | Contenido                                                                                                                                 |
-| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `/dashboard` | Checklist de onboarding, tarjeta de cuenta Riot, ajustes de perfil y ubicación, torneos inscriptos, próximos matches, puntos y movimiento |
-| `/admin`     | Consola de staff: torneos, usuarios, reportes y cola de revisión de elegibilidad con acciones manuales                                    |
-
-El gate `_authenticated/route.tsx` redirige a `/auth` antes de que corran los
-loaders, por lo que ninguna función protegida se ejecuta sin sesión.
-
----
-
-## 8. Componentes reutilizables
-
-`src/components/eloshape/`: `DivisionBadge`, `StatusBadge`, `StatTile`,
-`SectionHeader`, `TournamentCard`, `PlayerRow` (con flechas de movimiento),
-`TeamCard`, `EmptyState`, `OnboardingChecklist`, `RiotAccountCard`,
-`ProfileSettingsCard`, `TournamentRegisterButton`.
-
-`src/components/layout/`: `SiteHeader` (nav + drawer mobile + estado de sesión),
-`SiteFooter`, `PageShell` / `PageHeading`.
-
-`src/lib/format.ts`: helpers de fechas, puntos, winrate y etiquetas de rank.
-
----
-
-## 9. Flujos clave
-
-### Registro de jugador
-
-1. Sign up en `/auth` → trigger crea perfil + rol `player`.
-2. `/dashboard` muestra checklist: handle, ubicación, cuenta Riot, rank
-   detectado, elegibilidad.
-3. Al vincular Riot, se detecta tier → se asigna división elegible.
-4. Elegibilidad arranca en `pending_review`; el staff confirma en `/admin`.
-
-### Inscripción a torneo
-
-1. `TournamentRegisterButton` llama a `registerForTournament`.
-2. `src/lib/tournament-entry.server.ts` valida en servidor: elegibilidad,
-   división correcta, geografía, cupo y estado del torneo.
-3. Check-in es una segunda función con su propia ventana de validación.
-
-### Otorgamiento de puntos
-
-Solo desde servidor: se inserta en `ranking_points` con `rule_code` de
-`point_rules` y referencia al torneo; los agregados del perfil se recalculan.
-
----
-
-## 10. Estado real y pendientes
-
-Ya están implementados y probados en staging:
-
-- creación y gestión de equipos, invitaciones y archivo seguro;
-- inscripción y check-in de equipos con roster de cinco jugadores;
-- snapshot inmutable del roster, generación automática de bracket y avance del ganador;
-- confirmación de resultados, disputas y resolución auditada por staff;
-- cierre idempotente, ledger de puntos y clasificación a Semi-Splits;
-- prueba integral de cuatro qualifiers de 16 equipos y playoffs de 16 equipos;
-- soporte, solicitud de eliminación de cuenta y correo transaccional de EloShape.
-
-Pendientes antes de una apertura pública:
-
-- aprobación de la Production API de Riot y reemplazo de la clave temporal;
-- Riot Sign On cuando Riot habilite RSO; el lookup actual no verifica propiedad;
-- ensayo operativo del torneo cero y beta cerrada por invitación;
-- validación del flujo de walkover/no-show durante el torneo cero;
-- monitoreo de producción y política definitiva para menores de edad.
-
-El video de presentación es una mejora de lanzamiento opcional y permanece oculto
-hasta configurar `VITE_INTRO_VIDEO_URL`.
-
----
-
-## 11. Próximos pasos recomendados
-
-1. Ejecutar el checklist de `docs/TOURNAMENT_ZERO_RUNBOOK.md` con cuatro equipos.
-2. Validar la resolución formal de walkover/no-show con el equipo de operación.
-3. Completar una beta cerrada, registrar incidentes y repetir el ensayo.
-4. Activar monitoreo y alertas antes de quitar el modo mantenimiento de producción.
-5. Implementar RSO únicamente después de la autorización de Riot.
-
----
-
-## 12. Operación
-
-- Secretos: se administran en Supabase Edge Function Secrets
-  (`RIOT_API_KEY`). Nunca en el repo ni en variables `VITE_*`.
-- Variables `VITE_*` son públicas por definición: solo URL y clave publicable.
-- Migraciones: siempre `CREATE TABLE` → `GRANT` → `ENABLE RLS` → `CREATE POLICY`.
-- Endpoints externos (webhooks/cron) van bajo `src/routes/api/public/*` con
-  verificación de firma en el handler.
+Cuando exista una diferencia entre este archivo y un documento de dominio, el documento de dominio más específico debe considerarse la fuente técnica más detallada.
