@@ -32,6 +32,8 @@ Principios del sistema:
 | [OPERATIONS.md](./OPERATIONS.md) | Manual operativo de staff |
 | [DEVELOPMENT.md](./DEVELOPMENT.md) | Desarrollo, migraciones, testing y CI |
 | [CODE_MAP.md](./CODE_MAP.md) | Dónde vive cada parte del código |
+| [FLOW_REFERENCE.md](./FLOW_REFERENCE.md) | Flujo completo pantalla → server function → RPC → tablas → tests |
+| [BRACKETS_AND_QUALIFIERS.md](./BRACKETS_AND_QUALIFIERS.md) | Geometría del bracket, prevención de overlaps y semántica de qualifiers/pass-down |
 | [KNOWN_ISSUES.md](./KNOWN_ISSUES.md) | Fixtures demo, dependencias externas y pendientes |
 | [ENVIRONMENTS.md](./ENVIRONMENTS.md) | Staging/production |
 | [TOURNAMENT_ZERO_RUNBOOK.md](./TOURNAMENT_ZERO_RUNBOOK.md) | Ensayo de torneo real |
