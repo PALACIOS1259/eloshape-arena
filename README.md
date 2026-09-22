@@ -69,6 +69,9 @@ Documentation:
 - [`docs/DATABASE.md`](docs/DATABASE.md)
 - [`docs/COMPETITION_ENGINE.md`](docs/COMPETITION_ENGINE.md)
 - [`docs/TEAMS_AND_SCRIMS.md`](docs/TEAMS_AND_SCRIMS.md)
+- [`docs/SCHEMA_REFERENCE.md`](docs/SCHEMA_REFERENCE.md) — field-level database reference
+- [`docs/RPC_REFERENCE.md`](docs/RPC_REFERENCE.md) — database/RPC function catalog
+- [`docs/FILE_INVENTORY.md`](docs/FILE_INVENTORY.md) — every source file and purpose
 
 Operational references:
 
