@@ -8,7 +8,7 @@ The staging Rosario Gold demo qualifiers contain deterministic fixture results a
 
 Tournament detail itself correctly filters entries and matches by each tournament's own ID.
 
-Do not change competition rules to cosmetically randomize demo data. If more realistic demo presentation is desired, replace the fixture dataset with a purpose-built varied dataset and keep ledger/qualification consistency.
+Do not change competition rules to cosmetically randomize demo data. The tournament detail UI now separates final standings from the actual qualification outcome and labels pass-down/already-qualified cases. If more realistic demo presentation is desired later, replace the fixture dataset with a purpose-built varied dataset and keep ledger/qualification consistency.
 
 ## Riot Production API
 
