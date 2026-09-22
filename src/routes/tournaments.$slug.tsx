@@ -98,6 +98,34 @@ function TournamentDetailPage() {
   const podium = entries
     .filter((entry) => entry.placement && entry.placement <= 3)
     .sort((a, b) => (a.placement ?? 99) - (b.placement ?? 99));
+  const qualifierIndexByTournament = new Map(
+    data.splitQualifiers.flatMap((qualifier) =>
+      qualifier.qualifier_index == null ? [] : [[qualifier.id, qualifier.qualifier_index] as const],
+    ),
+  );
+  const qualifiedFromThisEvent = data.splitQualifications
+    .filter(
+      (qualification) =>
+        qualification.status === "qualified" &&
+        qualification.qualified_from_tournament_id === tournament.id,
+    )
+    .sort((a, b) => a.qualification_position - b.qualification_position);
+  const isQualifier = tournament.split_phase === "qualifier" && tournament.qualifier_index != null;
+
+  const qualificationLabel = (teamId: string | null | undefined) => {
+    if (!teamId || !isQualifier) return null;
+    const qualification = data.splitQualifications.find(
+      (row) => row.team_id === teamId && row.status === "qualified",
+    );
+    if (!qualification?.qualified_from_tournament_id) return null;
+    if (qualification.qualified_from_tournament_id === tournament.id) return "Qualified here";
+
+    const sourceIndex = qualifierIndexByTournament.get(qualification.qualified_from_tournament_id);
+    if (sourceIndex != null && sourceIndex < (tournament.qualifier_index ?? 0)) {
+      return `Already qualified · Q${sourceIndex}`;
+    }
+    return null;
+  };
 
   return (
     <div>
@@ -400,9 +428,9 @@ function TournamentDetailPage() {
                 </p>
                 {isDemoFixture && tournament.status === "completed" ? (
                   <p className="mt-2 max-w-2xl text-xs leading-relaxed text-muted-foreground">
-                    Staging demo data can reuse rosters and deterministic outcomes across
-                    qualifiers. These standings belong to this tournament only; production
-                    qualifiers use their own registrations and match results.
+                    This staging fixture intentionally reuses some rosters and deterministic match
+                    outcomes. Final standings show who finished where; the qualification outcome
+                    below shows which teams actually claimed new Semi-Split slots after pass-down.
                   </p>
                 ) : null}
               </div>
@@ -410,6 +438,59 @@ function TournamentDetailPage() {
                 {tournament.mode === "team" ? "Team field" : "Solo field"}
               </Badge>
             </div>
+
+            {isQualifier && tournament.status === "completed" && qualifiedFromThisEvent.length ? (
+              <section className="mt-5 overflow-hidden rounded-2xl border border-primary/20 bg-primary/[0.035] shadow-card">
+                <div className="flex flex-wrap items-start justify-between gap-3 border-b border-primary/15 px-4 py-4 sm:px-5">
+                  <div>
+                    <p className="eyebrow">Qualification outcome</p>
+                    <h3 className="mt-1 text-lg font-black text-foreground">
+                      New playoff spots earned from this qualifier
+                    </h3>
+                    <p className="mt-1 max-w-3xl text-xs leading-relaxed text-muted-foreground">
+                      Final standings and qualification are different concepts. If a high finisher
+                      was already qualified from an earlier event, its slot passes down to the next
+                      eligible team.
+                    </p>
+                  </div>
+                  <Badge variant="outline">{qualifiedFromThisEvent.length} new qualifiers</Badge>
+                </div>
+                <div className="grid gap-px bg-border/60 sm:grid-cols-2 xl:grid-cols-4">
+                  {qualifiedFromThisEvent.map((qualification) => {
+                    const entry = entries.find(
+                      (candidate) => candidate.team?.id === qualification.team_id,
+                    );
+                    const name = entry?.team?.name ?? "Qualified team";
+                    const passDown =
+                      entry?.placement != null &&
+                      entry.placement > qualifiedFromThisEvent.length;
+                    return (
+                      <div
+                        key={qualification.team_id}
+                        className="bg-background/55 px-4 py-4 sm:px-5"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[10px] font-black uppercase tracking-[0.14em] text-primary">
+                            Slot #{qualification.qualification_position}
+                          </span>
+                          {passDown ? (
+                            <Badge variant="secondary" className="text-[9px]">
+                              Pass-down
+                            </Badge>
+                          ) : null}
+                        </div>
+                        <p className="mt-2 truncate text-sm font-black text-foreground">{name}</p>
+                        <p className="mt-1 text-[11px] text-muted-foreground">
+                          {entry?.placement
+                            ? `Finished ${placementLabel(entry.placement)} in this event`
+                            : "Qualified from this event"}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            ) : null}
 
             {podium.length ? (
               <div className="mt-5 grid gap-3 md:grid-cols-3">
@@ -473,8 +554,13 @@ function TournamentDetailPage() {
                               {name}
                             </span>
                           )}
-                          <span className="mt-1 block text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
-                            {entry.status.replaceAll("_", " ")}
+                          <span className="mt-1 flex flex-wrap items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+                            <span>{entry.status.replaceAll("_", " ")}</span>
+                            {qualificationLabel(entry.team?.id) ? (
+                              <span className="rounded-full border border-primary/20 bg-primary/8 px-1.5 py-0.5 text-[9px] tracking-[0.08em] text-primary">
+                                {qualificationLabel(entry.team?.id)}
+                              </span>
+                            ) : null}
                           </span>
                         </span>
                       </span>
