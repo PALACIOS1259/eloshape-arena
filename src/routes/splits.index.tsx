@@ -112,8 +112,8 @@ function SplitsPage() {
                 Semi-Splits
               </h1>
               <p className="mt-4 max-w-3xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-                Four qualifiers award four unique playoff places each. Qualifier points seed the
-                16 qualified teams into one single-elimination bracket, from Round of 16 to Grand
+                Four qualifiers award four unique playoff places each. Qualifier points seed the 16
+                qualified teams into one single-elimination bracket, from Round of 16 to Grand
                 Final.
               </p>
             </div>
