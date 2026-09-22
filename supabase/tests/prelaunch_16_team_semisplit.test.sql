@@ -35,7 +35,11 @@ declare
   v_playoff uuid;
   v_match record;
   v_champion_entry uuid;
+  v_champion_team uuid;
   v_champion_points integer;
+  v_seed_points integer;
+  v_qualifier_points integer;
+  v_total_split_points integer;
   q integer;
   i integer;
   j integer;
@@ -279,6 +283,35 @@ begin
   where id = v_champion_entry;
   if v_champion_points <> 115 then
     raise exception 'QA16 playoff champion points %, expected 115', v_champion_points;
+  end if;
+
+  select team_id into v_champion_team
+  from public.tournament_entries
+  where id = v_champion_entry;
+
+  select points into v_seed_points
+  from public.split_standings(v_split)
+  where team_id = v_champion_team;
+
+  select coalesce(sum(trp.points), 0)::int into v_qualifier_points
+  from public.team_ranking_points trp
+  join public.tournaments t on t.id = trp.tournament_id
+  where trp.split_id = v_split
+    and trp.team_id = v_champion_team
+    and t.split_phase = 'qualifier';
+
+  select coalesce(sum(points), 0)::int into v_total_split_points
+  from public.team_ranking_points
+  where split_id = v_split
+    and team_id = v_champion_team;
+
+  if v_seed_points <> v_qualifier_points then
+    raise exception 'QA16 seeding table changed after playoffs: standings %, qualifier ledger %',
+      v_seed_points, v_qualifier_points;
+  end if;
+  if v_total_split_points <= v_seed_points then
+    raise exception 'QA16 expected playoff awards outside seeding table: total %, seeding %',
+      v_total_split_points, v_seed_points;
   end if;
 
   insert into qa16_summary values (
