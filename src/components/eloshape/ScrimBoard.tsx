@@ -289,8 +289,7 @@ function IncomingChallenges({
 }) {
   const respond = useServerFn(respondScrimChallenge);
   const mutation = useMutation({
-    mutationFn: (input: { challengeId: string; accept: boolean }) =>
-      respond({ data: input }),
+    mutationFn: (input: { challengeId: string; accept: boolean }) => respond({ data: input }),
     onSuccess: (result) => {
       if (!result.ok) {
         toast.error(result.error);
@@ -305,9 +304,7 @@ function IncomingChallenges({
     <section className="overflow-hidden rounded-2xl border border-gold/25 bg-gold/[0.035] shadow-card">
       <div className="border-b border-gold/15 px-5 py-4">
         <p className="eyebrow text-gold">Incoming challenges</p>
-        <h3 className="mt-1 text-lg font-black text-foreground">
-          Teams want your practice slot
-        </h3>
+        <h3 className="mt-1 text-lg font-black text-foreground">Teams want your practice slot</h3>
       </div>
       <div className="divide-y divide-border/70">
         {challenges.map((challenge) => (
@@ -330,9 +327,7 @@ function IncomingChallenges({
             <div className="flex gap-2">
               <Button
                 size="sm"
-                onClick={() =>
-                  mutation.mutate({ challengeId: challenge.id, accept: true })
-                }
+                onClick={() => mutation.mutate({ challengeId: challenge.id, accept: true })}
                 disabled={mutation.isPending}
               >
                 <Check className="size-4" /> Accept
@@ -340,9 +335,7 @@ function IncomingChallenges({
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() =>
-                  mutation.mutate({ challengeId: challenge.id, accept: false })
-                }
+                onClick={() => mutation.mutate({ challengeId: challenge.id, accept: false })}
                 disabled={mutation.isPending}
               >
                 <X className="size-4" /> Decline
@@ -568,6 +561,14 @@ function TeamSide({
   winner: boolean;
   right?: boolean;
 }) {
+  const meta = [
+    "[" + team.tag + "]",
+    team.division?.name ?? null,
+    winner ? "Winner" : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   return (
     <div className={cn("flex items-center gap-3", right && "sm:flex-row-reverse sm:text-right")}>
       <span
@@ -590,11 +591,7 @@ function TeamSide({
         >
           {team.name}
         </Link>
-        <p className="mt-1 text-xs text-muted-foreground">
-          [{team.tag}]
-          {team.division?.name ? " · " + team.division.name : ""}
-          {winner ? " · Winner" : ""}
-        </p>
+        <p className="mt-1 text-xs text-muted-foreground">{meta}</p>
       </div>
     </div>
   );
