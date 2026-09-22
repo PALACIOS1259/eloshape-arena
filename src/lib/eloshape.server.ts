@@ -23,7 +23,7 @@ const PLAYER_CARD_SELECT = `
 const TOURNAMENT_CARD_SELECT = `
   id, slug, name, subtitle, status, mode, format, prize, starts_at,
   registration_closes_at, participants_count, max_participants, banner_url,
-  split_id, split_phase, qualifier_index, qualified_teams_registration_opens_at,
+  split_id, split_phase, qualifier_index,
   division:divisions!tournaments_division_id_fkey(${DIVISION_SELECT}),
   region:regions!tournaments_region_id_fkey(${REGION_SELECT})
 `;
