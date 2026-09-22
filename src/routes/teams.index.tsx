@@ -4,6 +4,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { BarChart3, Search, SlidersHorizontal, Swords, Trophy, Users } from "lucide-react";
 
 import { EmptyState } from "@/components/eloshape/EmptyState";
+import { ScrimBoard } from "@/components/eloshape/ScrimBoard";
 import { TeamCard } from "@/components/eloshape/TeamCard";
 import { PageContainer, PageHeading } from "@/components/layout/PageShell";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,7 @@ function TeamsPage() {
   const [search, setSearch] = useState("");
   const [division, setDivision] = useState("all");
   const [sort, setSort] = useState<SortMode>("points");
+  const [view, setView] = useState<"directory" | "scrims">("directory");
 
   const divisions = useMemo(
     () =>
@@ -95,8 +97,8 @@ function TeamsPage() {
     <div>
       <PageHeading
         eyebrow="EloShape 5v5"
-        title="Team circuit"
-        description="Discover active rosters, compare competitive performance and follow the teams climbing through EloShape."
+        title="Teams & practice"
+        description="Discover active rosters, compare official performance and find practice matches without affecting the competitive circuit."
         aside={
           <div className="flex flex-wrap gap-2">
             <Button asChild variant="outline">
@@ -110,7 +112,38 @@ function TeamsPage() {
       />
 
       <PageContainer className="py-8 sm:py-10">
-        {teams.length ? (
+        <div className="mb-6 grid gap-2 rounded-2xl border border-border bg-surface-gradient p-2 shadow-card sm:grid-cols-2">
+          <Button
+            type="button"
+            variant={view === "directory" ? "default" : "ghost"}
+            className="h-auto justify-start rounded-xl px-4 py-3 text-left"
+            onClick={() => setView("directory")}
+          >
+            <span>
+              <span className="block font-black">Team directory</span>
+              <span className="mt-0.5 block text-[11px] font-medium opacity-70">
+                Official records, points and rosters
+              </span>
+            </span>
+          </Button>
+          <Button
+            type="button"
+            variant={view === "scrims" ? "default" : "ghost"}
+            className="h-auto justify-start rounded-xl px-4 py-3 text-left"
+            onClick={() => setView("scrims")}
+          >
+            <span>
+              <span className="block font-black">Scrim finder</span>
+              <span className="mt-0.5 block text-[11px] font-medium opacity-70">
+                Practice matches · no circuit points
+              </span>
+            </span>
+          </Button>
+        </div>
+
+        {view === "scrims" ? (
+          <ScrimBoard />
+        ) : teams.length ? (
           <>
             <section className="relative overflow-hidden rounded-2xl border border-border bg-surface-gradient p-5 shadow-card sm:p-6">
               <div className="absolute right-0 top-0 size-64 translate-x-20 -translate-y-24 rounded-full bg-primary/10 blur-3xl" />
