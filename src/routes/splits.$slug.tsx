@@ -132,8 +132,7 @@ function SplitPage() {
                 </span>
                 <span className="inline-flex items-center gap-2">
                   <Swords className="size-4" />
-                  4 qualifiers → 16 qualified → one{" "}
-                  {split.playoff_size}-team playoff bracket
+                  4 qualifiers → 16 qualified → one{" "}{split.playoff_size}-team playoff bracket
                 </span>
               </p>
             </div>
