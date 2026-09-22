@@ -23,7 +23,9 @@ Principios del sistema:
 | --- | --- |
 | [README de documentación](./README.md) | Índice y reglas de mantenimiento |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | Arquitectura completa, flujo browser/server/DB y rutas |
-| [DATABASE.md](./DATABASE.md) | 28 tablas, ERD, enums, triggers, RLS y RPC |
+| [DATABASE.md](./DATABASE.md) | Modelo de datos, ERD, seguridad e invariantes |
+| [SCHEMA_REFERENCE.md](./SCHEMA_REFERENCE.md) | Referencia campo por campo de las 28 tablas, constraints, índices, policies y triggers |
+| [RPC_REFERENCE.md](./RPC_REFERENCE.md) | Catálogo completo de funciones/RPC public y private |
 | [COMPETITION_ENGINE.md](./COMPETITION_ENGINE.md) | Torneos, bracket, scoring, qualifiers y Semi-Splits |
 | [TEAMS_AND_SCRIMS.md](./TEAMS_AND_SCRIMS.md) | Equipos, roles, invitaciones y scrims |
 | [OPERATIONS.md](./OPERATIONS.md) | Manual operativo de staff |
