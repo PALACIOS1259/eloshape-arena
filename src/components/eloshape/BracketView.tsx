@@ -34,9 +34,10 @@ export type BracketMatchRow = {
 };
 
 const ROUND_WIDTH = 304;
-const ROUND_GAP = 72;
-const MATCH_HEIGHT = 118;
-const MATCH_PITCH = 142;
+const ROUND_GAP = 80;
+const MATCH_CARD_HEIGHT = 154;
+const MATCH_GAP = 28;
+const MATCH_PITCH = MATCH_CARD_HEIGHT + MATCH_GAP;
 
 function humanStatus(status: string) {
   return status.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
@@ -143,10 +144,10 @@ function MatchCard({
   return (
     <article
       className={cn(
-        "group relative overflow-hidden rounded-xl border border-border bg-surface-gradient shadow-card transition-all hover:border-primary/35 hover:shadow-lg",
+        "group relative flex h-full flex-col overflow-hidden rounded-xl border border-border bg-surface-gradient shadow-card transition-all hover:border-primary/35 hover:shadow-lg",
         isFinal && "border-gold/35 shadow-lg",
       )}
-      style={{ width: ROUND_WIDTH, minHeight: MATCH_HEIGHT }}
+      style={{ width: ROUND_WIDTH, height: MATCH_CARD_HEIGHT }}
     >
       <div
         className={cn(
@@ -163,7 +164,7 @@ function MatchCard({
         </span>
       </div>
 
-      <div className="divide-y divide-border/70">
+      <div className="min-h-0 flex-1 divide-y divide-border/70">
         <Side
           entry={match.entry_a_id ? byId.get(match.entry_a_id) : undefined}
           score={match.score_a}
@@ -219,6 +220,9 @@ export function BracketView({
       .sort((a, b) => a.bracket_slot - b.bracket_slot),
   );
   const maxMatches = Math.max(...roundMatches.map((round) => round.length), 1);
+  // A bracket slot has a fixed vertical footprint. Keeping the card height and
+  // slot pitch explicit prevents Round-of-16 cards from overlapping when labels
+  // or status metadata are present.
   const boardHeight = Math.max(360, maxMatches * MATCH_PITCH);
   const boardWidth = rounds.length * ROUND_WIDTH + Math.max(0, rounds.length - 1) * ROUND_GAP;
   const finalMatch = roundMatches.at(-1)?.[0];
@@ -362,6 +366,7 @@ export function BracketView({
                       left,
                       top,
                       width: ROUND_WIDTH,
+                      height: MATCH_CARD_HEIGHT,
                       transform: "translateY(-50%)",
                     }}
                   >
