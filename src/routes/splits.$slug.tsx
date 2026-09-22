@@ -15,15 +15,28 @@ import { canonicalMetadata } from "@/lib/site-metadata";
 import { bracketQuery, splitDetailQuery } from "@/lib/split-queries";
 import { cn } from "@/lib/utils";
 
-const STAGES = [
-  { key: "upcoming", label: "Scheduled" },
-  { key: "qualifiers", label: "Qualifiers" },
-  { key: "seeding", label: "Seeding" },
-  { key: "playoffs", label: "Playoffs" },
-  { key: "semifinals", label: "Semifinals" },
-  { key: "final", label: "Grand Final" },
-  { key: "completed", label: "Champion" },
+const DISPLAY_STAGES = [
+  { label: "Scheduled" },
+  { label: "4 Qualifiers" },
+  { label: "Qualified + Seeding" },
+  { label: "16-Team Playoff" },
+  { label: "Champion" },
 ] as const;
+
+function displayStageIndex(status: string) {
+  if (status === "upcoming") return 0;
+  if (status === "qualifiers") return 1;
+  if (status === "seeding") return 2;
+  if (["playoffs", "semifinals", "final"].includes(status)) return 3;
+  if (status === "completed") return 4;
+  return 0;
+}
+
+function displayStageLabel(status: string) {
+  if (status === "semifinals") return "Playoff · Semifinals";
+  if (status === "final") return "Playoff · Grand Final";
+  return DISPLAY_STAGES[displayStageIndex(status)]?.label ?? status;
+}
 
 export const Route = createFileRoute("/splits/$slug")({
   loader: async ({ context, params }) => {
@@ -89,10 +102,7 @@ function SplitPage() {
   const qualifiedCount = qualifications.filter(
     (qualification) => qualification.status === "qualified",
   ).length;
-  const currentStageIndex = Math.max(
-    0,
-    STAGES.findIndex((stage) => stage.key === split.status),
-  );
+  const currentStageIndex = displayStageIndex(split.status);
   const podium = standings.slice(0, 3);
 
   return (
@@ -122,7 +132,7 @@ function SplitPage() {
                 </span>
                 <span className="inline-flex items-center gap-2">
                   <Swords className="size-4" />
-                  Four qualifiers → {split.playoff_size}-team playoff
+                  4 qualifiers → 16 qualified → one {split.playoff_size}-team playoff bracket
                 </span>
               </p>
             </div>
@@ -132,7 +142,7 @@ function SplitPage() {
                 Current phase
               </p>
               <p className="mt-2 text-2xl font-black text-foreground">
-                {STAGES[currentStageIndex]?.label ?? split.status}
+                {displayStageLabel(split.status)}
               </p>
               <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
                 {qualifiedCount}/{split.playoff_size} playoff places are currently locked.
@@ -161,7 +171,7 @@ function SplitPage() {
             icon={<Users className="size-4" />}
             label="Teams in split"
             value={String(standings.length)}
-            detail="With Semi-Split points"
+            detail="Qualifier seeding table"
           />
           <OverviewMetric
             icon={<CheckCircle2 className="size-4" />}
@@ -182,7 +192,7 @@ function SplitPage() {
           <SectionHeader
             eyebrow="Stage 1"
             title="Open Qualifiers"
-            description="Four entry points into the Semi-Split. Every result also contributes to the standings used for playoff seeding."
+            description="Four open events. Each qualifier awards four playoff places to the highest-finishing eligible teams that are not already qualified. If a qualified team plays again, its qualification place passes down."
           />
           {qualifiers.length ? (
             <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -227,7 +237,7 @@ function SplitPage() {
                       </div>
 
                       <div className="mt-5 flex items-center justify-between border-t border-border/70 pt-3 text-xs font-semibold text-muted-foreground">
-                        <span>Open event</span>
+                        <span>4 slots · pass-down</span>
                         <span className="inline-flex items-center gap-1 text-primary">
                           View <ChevronRight className="size-3.5" />
                         </span>
@@ -247,9 +257,9 @@ function SplitPage() {
         <section className="mt-14">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <SectionHeader
-              eyebrow="Live table"
-              title="Semi-Split standings"
-              description="Only EloShape competition points count here. Riot rank is used for eligibility, never for circuit points."
+              eyebrow="Qualifier table"
+              title="Playoff seeding standings"
+              description="Only points earned in the four qualifiers count in this table. It sets playoff seeds and replacement priority; playoff results never reshuffle these seeds."
             />
             <Badge variant="outline">{standings.length} teams</Badge>
           </div>
@@ -312,7 +322,7 @@ function SplitPage() {
                         Record
                       </th>
                       <th className="px-4 py-3 text-[10px] font-black uppercase tracking-[0.12em] text-muted-foreground">
-                        Events
+                        Qualifiers
                       </th>
                       <th className="px-4 py-3 text-[10px] font-black uppercase tracking-[0.12em] text-muted-foreground">
                         Playoff status
@@ -386,12 +396,12 @@ function SplitPage() {
 
         <section className="mt-14">
           <SectionHeader
-            eyebrow="Stage 2"
+            eyebrow="Stage 2 · 16 playoff places"
             title="Qualified field"
             description={
               seedsRevealed
-                ? "The field is locked and seeds reflect Semi-Split standings."
-                : "Qualified teams are visible now; exact playoff seeds remain hidden until reveal."
+                ? "Four unique eligible teams are taken from each qualifier. The 16-team field is now seeded by qualifier points."
+                : "Each qualifier locks four unique playoff places. Already-qualified teams can compete again, but their qualification place passes down."
             }
           />
           {qualifications.length ? (
@@ -435,12 +445,23 @@ function SplitPage() {
         <section className="mt-14">
           <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="eyebrow">Stage 3 · Championship</p>
-              <h2 className="mt-1 text-2xl font-black text-foreground">Playoff bracket</h2>
+              <p className="eyebrow">Final stage · one championship bracket</p>
+              <h2 className="mt-1 text-2xl font-black text-foreground">16-team playoff bracket</h2>
               <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-                Seeded single elimination from the opening round to the Grand Final. Walkovers count
-                as match wins; true byes advance without match-win points.
+                This is one continuous single-elimination bracket: Round of 16 → Quarterfinals →
+                Semifinals → Grand Final. Walkovers count as match wins; true byes advance without
+                match-win points.
               </p>
+              <div className="mt-4 flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground">
+                {["Round of 16", "Quarterfinals", "Semifinals", "Grand Final"].map((round, index) => (
+                  <span key={round} className="inline-flex items-center gap-2">
+                    <span className="rounded-lg border border-border bg-background/30 px-2.5 py-1.5">
+                      {round}
+                    </span>
+                    {index < 3 ? <ChevronRight className="size-3" /> : null}
+                  </span>
+                ))}
+              </div>
             </div>
             {playoffs ? (
               <Button asChild variant="outline">
@@ -468,7 +489,7 @@ function StageRail({ activeIndex }: { activeIndex: number }) {
   return (
     <section className="overflow-hidden rounded-2xl border border-border bg-surface-gradient p-4 shadow-card sm:p-5">
       <div className="flex min-w-max items-start">
-        {STAGES.map((stage, index) => {
+        {DISPLAY_STAGES.map((stage, index) => {
           const completed = index < activeIndex;
           const active = index === activeIndex;
           return (
@@ -494,7 +515,7 @@ function StageRail({ activeIndex }: { activeIndex: number }) {
                   {stage.label}
                 </p>
               </div>
-              {index < STAGES.length - 1 ? (
+              {index < DISPLAY_STAGES.length - 1 ? (
                 <div
                   className={cn(
                     "mt-4 h-px w-8 sm:w-12",
