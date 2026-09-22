@@ -79,7 +79,8 @@ function friendlyScrimError(raw: string) {
   if (code.includes("scrim_already_started")) return "That scrim has already started.";
   if (code.includes("cannot_challenge_own_scrim")) return "You cannot challenge your own team.";
   if (code.includes("scrim_challenge_not_found")) return "That challenge no longer exists.";
-  if (code.includes("scrim_challenge_not_pending")) return "That challenge has already been handled.";
+  if (code.includes("scrim_challenge_not_pending"))
+    return "That challenge has already been handled.";
   if (code.includes("scrim_completed")) return "Completed scrims cannot be cancelled.";
   if (code.includes("scrim_not_reportable")) return "This scrim is not ready for a result.";
   if (code.includes("not_scrim_participant")) return "Your team is not part of this scrim.";
@@ -183,11 +184,10 @@ export const respondScrimChallenge = createServerFn({ method: "POST" })
     try {
       return {
         ok: true as const,
-        data: await runAuth<{ status: string }>(
-          context.accessToken,
-          "respond_scrim_challenge",
-          { p_challenge: data.challengeId, p_accept: data.accept },
-        ),
+        data: await runAuth<{ status: string }>(context.accessToken, "respond_scrim_challenge", {
+          p_challenge: data.challengeId,
+          p_accept: data.accept,
+        }),
       };
     } catch (error) {
       return {
