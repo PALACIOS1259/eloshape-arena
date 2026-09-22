@@ -561,11 +561,7 @@ function TeamSide({
   winner: boolean;
   right?: boolean;
 }) {
-  const meta = [
-    "[" + team.tag + "]",
-    team.division?.name ?? null,
-    winner ? "Winner" : null,
-  ]
+  const meta = ["[" + team.tag + "]", team.division?.name ?? null, winner ? "Winner" : null]
     .filter(Boolean)
     .join(" · ");
 
