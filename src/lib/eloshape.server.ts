@@ -23,6 +23,7 @@ const PLAYER_CARD_SELECT = `
 const TOURNAMENT_CARD_SELECT = `
   id, slug, name, subtitle, status, mode, format, prize, starts_at,
   registration_closes_at, participants_count, max_participants, banner_url,
+  split_id, split_phase, qualifier_index, qualified_teams_registration_opens_at,
   division:divisions!tournaments_division_id_fkey(${DIVISION_SELECT}),
   region:regions!tournaments_region_id_fkey(${REGION_SELECT})
 `;
@@ -169,7 +170,35 @@ export async function loadTournamentDetail(slug: string) {
       .order("bracket_slot"),
   ]);
 
-  return { tournament, entries: rows(entries), matches: rows(matches) };
+  const splitQualifications = tournament.split_id
+    ? rows(
+        await db
+          .from("split_qualifications")
+          .select(
+            "team_id, qualified_from_tournament_id, qualification_position, playoff_seed, status",
+          )
+          .eq("split_id", tournament.split_id),
+      )
+    : [];
+
+  const splitQualifiers = tournament.split_id
+    ? rows(
+        await db
+          .from("tournaments")
+          .select("id, slug, name, qualifier_index")
+          .eq("split_id", tournament.split_id)
+          .eq("split_phase", "qualifier")
+          .order("qualifier_index"),
+      )
+    : [];
+
+  return {
+    tournament,
+    entries: rows(entries),
+    matches: rows(matches),
+    splitQualifications,
+    splitQualifiers,
+  };
 }
 
 export type RankingFilters = {
