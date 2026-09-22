@@ -131,8 +131,8 @@ function SplitPage() {
                   {formatDate(split.starts_at)} — {formatDate(split.ends_at)}
                 </span>
                 <span className="inline-flex items-center gap-2">
-                  <Swords className="size-4" />
-                  4 qualifiers → 16 qualified → one{" "}{split.playoff_size}-team playoff bracket
+                  <Swords className="size-4" /> 4 qualifiers → 16 qualified → one{" "}
+                  {split.playoff_size}-team playoff bracket
                 </span>
               </p>
             </div>
