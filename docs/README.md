@@ -15,6 +15,7 @@ This folder is the technical source of truth for EloShape. It describes the code
 - [OPERATIONS.md](./OPERATIONS.md) — staff/admin operational runbook.
 - [DEVELOPMENT.md](./DEVELOPMENT.md) — local development, migrations, testing and deployment.
 - [CODE_MAP.md](./CODE_MAP.md) — file-by-file map of the application.
+- [FILE_INVENTORY.md](./FILE_INVENTORY.md) — inventory and purpose of every file under `src/`.
 - [KNOWN_ISSUES.md](./KNOWN_ISSUES.md) — intentional staging fixtures, external dependencies and launch blockers.
 
 Existing focused runbooks remain authoritative for their specific subject:
