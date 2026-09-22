@@ -114,8 +114,8 @@ function TeamsPage() {
                 Teams & practice
               </h1>
               <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                Browse official rosters and performance, or jump into practice without mixing
-                scrims into the competitive circuit.
+                Browse official rosters and performance, or jump into practice without mixing scrims
+                into the competitive circuit.
               </p>
             </div>
 
