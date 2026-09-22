@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { ChevronRight, Crown, MapPin, Trophy } from "lucide-react";
 
@@ -114,7 +115,7 @@ function Stat({
 }: {
   value: string;
   label: string;
-  icon?: React.ReactNode;
+  icon?: ReactNode;
   gold?: boolean;
 }) {
   return (
