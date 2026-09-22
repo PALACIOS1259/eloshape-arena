@@ -6,7 +6,7 @@ import { Search, SlidersHorizontal } from "lucide-react";
 import { EmptyState } from "@/components/eloshape/EmptyState";
 import { ScrimBoard } from "@/components/eloshape/ScrimBoard";
 import { TeamCard } from "@/components/eloshape/TeamCard";
-import { PageContainer, PageHeading } from "@/components/layout/PageShell";
+import { PageContainer } from "@/components/layout/PageShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { teamsQuery } from "@/lib/queries";
@@ -103,39 +103,47 @@ function TeamsPage() {
 
   return (
     <div>
-      <PageHeading
-        eyebrow="EloShape 5v5"
-        title="Teams & practice"
-        description="Browse the circuit, inspect rosters and arrange practice without mixing scrims into official competition."
-        aside={
-          <div className="flex flex-wrap items-center gap-2">
-            <Button asChild variant="outline">
-              <Link to="/team/players">Find players</Link>
-            </Button>
-            <Button asChild>
-              <Link to="/team">Open Team HQ</Link>
-            </Button>
-          </div>
-        }
-      />
-
       <PageContainer className="relative py-7 sm:py-9">
         <div className="pointer-events-none absolute left-1/2 top-0 -z-10 h-80 w-[70vw] -translate-x-1/2 rounded-full bg-primary/[0.035] blur-3xl" />
 
-        <nav className="mb-6 flex flex-wrap items-center gap-2 border-b border-border/60 pb-4">
-          <ViewButton
-            active={view === "directory"}
-            title="Team directory"
-            subtitle="Official records & rosters"
-            onClick={() => setView("directory")}
-          />
-          <ViewButton
-            active={view === "scrims"}
-            title="Scrim finder"
-            subtitle="Practice · no circuit points"
-            onClick={() => setView("scrims")}
-          />
-        </nav>
+        <header className="mb-6 border-b border-border/60 pb-5">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-3xl">
+              <p className="eyebrow">EloShape 5v5</p>
+              <h1 className="mt-2 text-3xl font-black tracking-tight text-foreground sm:text-4xl">
+                Teams & practice
+              </h1>
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                Browse official rosters and performance, or jump into practice without mixing
+                scrims into the competitive circuit.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+              <Button asChild variant="outline" size="sm">
+                <Link to="/team/players">Find players</Link>
+              </Button>
+              <Button asChild size="sm">
+                <Link to="/team">Open Team HQ</Link>
+              </Button>
+            </div>
+          </div>
+
+          <nav className="mt-5 flex flex-wrap items-center gap-2">
+            <ViewButton
+              active={view === "directory"}
+              title="Team directory"
+              subtitle="Official records & rosters"
+              onClick={() => setView("directory")}
+            />
+            <ViewButton
+              active={view === "scrims"}
+              title="Scrim finder"
+              subtitle="Practice · no circuit points"
+              onClick={() => setView("scrims")}
+            />
+          </nav>
+        </header>
 
         {view === "scrims" ? (
           <ScrimBoard />
