@@ -174,7 +174,7 @@ For a qualifier, these are separate views of the same event:
 
 The public tournament detail exposes this distinction directly so repeated high finishers are not mistaken for duplicated tournament data.
 
-## 16. Semi-Split standings
+## 14. Semi-Split standings
 
 `split_standings(split_id)` is a **qualifier-only seeding table**.
 
@@ -186,7 +186,7 @@ It aggregates:
 
 Playoff results award legitimate circuit points but do not reorder the seeding table that determined the playoff field.
 
-## 14. Staging demo qualifier caveat
+## 15. Staging demo qualifier caveat
 
 The current staging demo includes completed Rosario Gold qualifiers populated with deterministic fixture outcomes. Several qualifiers reuse demo rosters and the fixture historically resolves the same high seeds through the bracket. Therefore their public final standings can look identical.
 
@@ -194,7 +194,7 @@ That is fixture data, not a cross-tournament query bug. Public tournament detail
 
 Production behavior is driven by each qualifier's actual registrations and results.
 
-## 15. Regression coverage
+## 16. Regression coverage
 
 SQL tests:
 
