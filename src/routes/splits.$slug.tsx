@@ -132,7 +132,8 @@ function SplitPage() {
                 </span>
                 <span className="inline-flex items-center gap-2">
                   <Swords className="size-4" />
-                  4 qualifiers → 16 qualified → one {split.playoff_size}-team playoff bracket
+                  4 qualifiers → 16 qualified → one{" "}
+                  {split.playoff_size}-team playoff bracket
                 </span>
               </p>
             </div>
@@ -453,14 +454,16 @@ function SplitPage() {
                 match-win points.
               </p>
               <div className="mt-4 flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground">
-                {["Round of 16", "Quarterfinals", "Semifinals", "Grand Final"].map((round, index) => (
-                  <span key={round} className="inline-flex items-center gap-2">
-                    <span className="rounded-lg border border-border bg-background/30 px-2.5 py-1.5">
-                      {round}
+                {["Round of 16", "Quarterfinals", "Semifinals", "Grand Final"].map(
+                  (round, index) => (
+                    <span key={round} className="inline-flex items-center gap-2">
+                      <span className="rounded-lg border border-border bg-background/30 px-2.5 py-1.5">
+                        {round}
+                      </span>
+                      {index < 3 ? <ChevronRight className="size-3" /> : null}
                     </span>
-                    {index < 3 ? <ChevronRight className="size-3" /> : null}
-                  </span>
-                ))}
+                  ),
+                )}
               </div>
             </div>
             {playoffs ? (
