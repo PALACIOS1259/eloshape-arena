@@ -16,6 +16,8 @@ This folder is the technical source of truth for EloShape. It describes the code
 - [DEVELOPMENT.md](./DEVELOPMENT.md) — local development, migrations, testing and deployment.
 - [CODE_MAP.md](./CODE_MAP.md) — file-by-file map of the application.
 - [FILE_INVENTORY.md](./FILE_INVENTORY.md) — inventory and purpose of every file under `src/`.
+- [FLOW_REFERENCE.md](./FLOW_REFERENCE.md) — end-to-end map from UI action to server function, RPC, tables and tests.
+- [BRACKETS_AND_QUALIFIERS.md](./BRACKETS_AND_QUALIFIERS.md) — bracket geometry, overlap prevention, qualifier pass-down and standings semantics.
 - [KNOWN_ISSUES.md](./KNOWN_ISSUES.md) — intentional staging fixtures, external dependencies and launch blockers.
 
 Existing focused runbooks remain authoritative for their specific subject:
