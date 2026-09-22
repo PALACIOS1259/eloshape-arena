@@ -1,7 +1,7 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { BarChart3, Search, SlidersHorizontal, Swords, Trophy, Users } from "lucide-react";
+import { Search, SlidersHorizontal } from "lucide-react";
 
 import { EmptyState } from "@/components/eloshape/EmptyState";
 import { ScrimBoard } from "@/components/eloshape/ScrimBoard";
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { teamsQuery } from "@/lib/queries";
 import { canonicalMetadata } from "@/lib/site-metadata";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/teams/")({
   head: () => {
@@ -37,13 +38,14 @@ export const Route = createFileRoute("/teams/")({
 });
 
 type SortMode = "points" | "record" | "titles" | "name";
+type TeamsView = "directory" | "scrims";
 
 function TeamsPage() {
   const { data: teams } = useSuspenseQuery(teamsQuery());
   const [search, setSearch] = useState("");
   const [division, setDivision] = useState("all");
   const [sort, setSort] = useState<SortMode>("points");
-  const [view, setView] = useState<"directory" | "scrims">("directory");
+  const [view, setView] = useState<TeamsView>("directory");
 
   const divisions = useMemo(
     () =>
@@ -93,14 +95,20 @@ function TeamsPage() {
   const totalGames = teams.reduce((total, team) => total + team.wins + team.losses, 0);
   const filtersActive = Boolean(search.trim()) || division !== "all" || sort !== "points";
 
+  const resetFilters = () => {
+    setSearch("");
+    setDivision("all");
+    setSort("points");
+  };
+
   return (
     <div>
       <PageHeading
         eyebrow="EloShape 5v5"
         title="Teams & practice"
-        description="Discover active rosters, compare official performance and find practice matches without affecting the competitive circuit."
+        description="Browse the circuit, inspect rosters and arrange practice without mixing scrims into official competition."
         aside={
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button asChild variant="outline">
               <Link to="/team/players">Find players</Link>
             </Button>
@@ -111,141 +119,105 @@ function TeamsPage() {
         }
       />
 
-      <PageContainer className="py-8 sm:py-10">
-        <div className="mb-6 grid gap-2 rounded-2xl border border-border bg-surface-gradient p-2 shadow-card sm:grid-cols-2">
-          <Button
-            type="button"
-            variant={view === "directory" ? "default" : "ghost"}
-            className="h-auto justify-start rounded-xl px-4 py-3 text-left"
+      <PageContainer className="relative py-7 sm:py-9">
+        <div className="pointer-events-none absolute left-1/2 top-0 -z-10 h-80 w-[70vw] -translate-x-1/2 rounded-full bg-primary/[0.035] blur-3xl" />
+
+        <nav className="mb-6 flex flex-wrap items-center gap-2 border-b border-border/60 pb-4">
+          <ViewButton
+            active={view === "directory"}
+            title="Team directory"
+            subtitle="Official records & rosters"
             onClick={() => setView("directory")}
-          >
-            <span>
-              <span className="block font-black">Team directory</span>
-              <span className="mt-0.5 block text-[11px] font-medium opacity-70">
-                Official records, points and rosters
-              </span>
-            </span>
-          </Button>
-          <Button
-            type="button"
-            variant={view === "scrims" ? "default" : "ghost"}
-            className="h-auto justify-start rounded-xl px-4 py-3 text-left"
+          />
+          <ViewButton
+            active={view === "scrims"}
+            title="Scrim finder"
+            subtitle="Practice · no circuit points"
             onClick={() => setView("scrims")}
-          >
-            <span>
-              <span className="block font-black">Scrim finder</span>
-              <span className="mt-0.5 block text-[11px] font-medium opacity-70">
-                Practice matches · no circuit points
-              </span>
-            </span>
-          </Button>
-        </div>
+          />
+        </nav>
 
         {view === "scrims" ? (
           <ScrimBoard />
         ) : teams.length ? (
           <>
-            <section className="relative overflow-hidden rounded-2xl border border-border bg-surface-gradient p-5 shadow-card sm:p-6">
-              <div className="absolute right-0 top-0 size-64 translate-x-20 -translate-y-24 rounded-full bg-primary/10 blur-3xl" />
-              <div className="relative grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-                <div>
-                  <p className="eyebrow">Competitive landscape</p>
-                  <h2 className="mt-2 max-w-2xl text-2xl font-black tracking-tight text-foreground sm:text-3xl">
-                    Every roster. One circuit.
-                  </h2>
-                  <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                    Search by team, tag or city. Filter by division and sort by the metric that
-                    matters to you.
-                  </p>
+            <section className="relative overflow-hidden rounded-2xl border border-border/80 bg-gradient-to-br from-card/95 via-card/80 to-primary/[0.035] shadow-card">
+              <div className="flex flex-col gap-4 p-4 sm:p-5">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="eyebrow">Team directory</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Search the circuit and compare official team performance.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                    <DirectoryMetric value={teams.length} label="teams" />
+                    <DirectoryMetric value={divisions.length} label="divisions" />
+                    <DirectoryMetric value={totalGames} label="games" />
+                    <DirectoryMetric value={totalTitles} label="titles" accent />
+                  </div>
                 </div>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                  <CircuitStat
-                    icon={<Users className="size-4" />}
-                    label="Teams"
-                    value={String(teams.length)}
-                  />
-                  <CircuitStat
-                    icon={<Swords className="size-4" />}
-                    label="Divisions"
-                    value={String(divisions.length)}
-                  />
-                  <CircuitStat
-                    icon={<BarChart3 className="size-4" />}
-                    label="Games"
-                    value={String(totalGames)}
-                  />
-                  <CircuitStat
-                    icon={<Trophy className="size-4" />}
-                    label="Titles"
-                    value={String(totalTitles)}
-                  />
-                </div>
-              </div>
-            </section>
 
-            <section className="mt-5 overflow-hidden rounded-2xl border border-border bg-background/25 shadow-card">
-              <div className="flex items-center gap-2 border-b border-border/70 px-4 py-3 text-xs font-semibold text-muted-foreground">
-                <SlidersHorizontal className="size-4" />
-                Explore teams
-              </div>
-              <div className="grid gap-3 p-4 lg:grid-cols-[minmax(0,1fr)_12rem_12rem_auto]">
-                <label className="relative">
-                  <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    value={search}
-                    onChange={(event) => setSearch(event.target.value)}
-                    className="pl-9"
-                    placeholder="Search team, tag or city"
-                    aria-label="Search teams"
-                  />
-                </label>
-                <select
-                  value={division}
-                  onChange={(event) => setDivision(event.target.value)}
-                  className="h-10 rounded-md border border-input bg-background px-3 text-sm"
-                  aria-label="Filter by division"
-                >
-                  <option value="all">All divisions</option>
-                  {divisions.map((name) => (
-                    <option key={name} value={name}>
-                      {name}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  value={sort}
-                  onChange={(event) => setSort(event.target.value as SortMode)}
-                  className="h-10 rounded-md border border-input bg-background px-3 text-sm"
-                  aria-label="Sort teams"
-                >
-                  <option value="points">Season points</option>
-                  <option value="record">Win rate</option>
-                  <option value="titles">Championships</option>
-                  <option value="name">Team name</option>
-                </select>
-                <Button
-                  variant="outline"
-                  disabled={!filtersActive}
-                  onClick={() => {
-                    setSearch("");
-                    setDivision("all");
-                    setSort("points");
-                  }}
-                >
-                  Reset
-                </Button>
-              </div>
-              <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/70 px-4 py-3 text-xs text-muted-foreground">
-                <span>
-                  Showing <strong className="text-foreground">{visibleTeams.length}</strong> of{" "}
-                  {teams.length} teams
-                </span>
-                <span>Team points are separate from individual player rankings.</span>
+                <div className="h-px bg-border/60" />
+
+                <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_11rem_11rem_auto]">
+                  <label className="relative">
+                    <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      value={search}
+                      onChange={(event) => setSearch(event.target.value)}
+                      className="border-border/80 bg-background/45 pl-9"
+                      placeholder="Search team, tag or city"
+                      aria-label="Search teams"
+                    />
+                  </label>
+                  <select
+                    value={division}
+                    onChange={(event) => setDivision(event.target.value)}
+                    className="h-10 rounded-md border border-border/80 bg-background/45 px-3 text-sm text-foreground"
+                    aria-label="Filter by division"
+                  >
+                    <option value="all">All divisions</option>
+                    {divisions.map((name) => (
+                      <option key={name} value={name}>
+                        {name}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={sort}
+                    onChange={(event) => setSort(event.target.value as SortMode)}
+                    className="h-10 rounded-md border border-border/80 bg-background/45 px-3 text-sm text-foreground"
+                    aria-label="Sort teams"
+                  >
+                    <option value="points">Season points</option>
+                    <option value="record">Win rate</option>
+                    <option value="titles">Championships</option>
+                    <option value="name">Team name</option>
+                  </select>
+                  <Button
+                    variant="ghost"
+                    className="gap-2 text-muted-foreground"
+                    disabled={!filtersActive}
+                    onClick={resetFilters}
+                  >
+                    <SlidersHorizontal className="size-4" />
+                    Reset
+                  </Button>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-muted-foreground">
+                  <span>
+                    <strong className="font-bold text-foreground">{visibleTeams.length}</strong> of{" "}
+                    {teams.length} teams
+                  </span>
+                  <span>Official points only · scrims never affect standings</span>
+                </div>
               </div>
             </section>
 
             {visibleTeams.length ? (
-              <section className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              <section className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {visibleTeams.map((team) => (
                   <TeamCard key={team.slug} team={team} rank={standingsRank.get(team.slug)} />
                 ))}
@@ -256,14 +228,7 @@ function TeamsPage() {
                   title="No teams match these filters"
                   description="Try another team name, city or division."
                   action={
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setSearch("");
-                        setDivision("all");
-                        setSort("points");
-                      }}
-                    >
+                    <Button variant="outline" onClick={resetFilters}>
                       Clear filters
                     </Button>
                   }
@@ -287,14 +252,58 @@ function TeamsPage() {
   );
 }
 
-function CircuitStat({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
+function ViewButton({
+  active,
+  title,
+  subtitle,
+  onClick,
+}: {
+  active: boolean;
+  title: string;
+  subtitle: string;
+  onClick: () => void;
+}) {
   return (
-    <div className="min-w-24 rounded-xl border border-border bg-background/45 p-3">
-      <div className="flex items-center gap-2 text-primary">{icon}</div>
-      <p className="mt-2 text-xl font-black tabular-nums text-foreground">{value}</p>
-      <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">
-        {label}
-      </p>
-    </div>
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "group rounded-xl border px-4 py-2.5 text-left transition-all",
+        active
+          ? "border-primary/35 bg-primary/10 shadow-sm"
+          : "border-transparent bg-transparent hover:border-border hover:bg-card/50",
+      )}
+    >
+      <span
+        className={cn(
+          "block text-sm font-black",
+          active ? "text-primary" : "text-foreground group-hover:text-primary",
+        )}
+      >
+        {title}
+      </span>
+      <span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+        {subtitle}
+      </span>
+    </button>
+  );
+}
+
+function DirectoryMetric({
+  value,
+  label,
+  accent = false,
+}: {
+  value: number;
+  label: string;
+  accent?: boolean;
+}) {
+  return (
+    <span className="inline-flex items-baseline gap-1.5">
+      <strong className={cn("text-sm font-black tabular-nums text-foreground", accent && "text-gold")}>
+        {value}
+      </strong>
+      <span className="uppercase tracking-[0.1em]">{label}</span>
+    </span>
   );
 }
