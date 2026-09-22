@@ -55,47 +55,16 @@ Last reviewed against the staging project on 2026-09-22.
 - `20260922200000_scrims_and_qualifier_priority.sql` — Scrims
 - `20260922201000_harden_scrim_rpc_privileges.sql` — Scrims
 
-## Staging-only migration records not represented as promotion migrations
+## Staging migration-history notes
 
-- `20260828130343 20260825151248_1abac606_f81c_49f6_991f_65cbfdcb9f99`
-- `20260828130344 20260825151303_29e55455_0d87_46af_bc94_5c10b72815e5`
-- `20260828130346 20260825164656_78f8ec2c_9af4_4871_8fca_a4f5ded6d2b4`
-- `20260828130348 20260826001733_f6991d6a_232b_4a8e_a3ef_c7b18033ff57`
-- `20260828130350 20260826001808_033a1515_5407_4b4a_9e4a_b73b9a72fd78`
-- `20260828130352 20260826003034_ec6939e5_7e54_4a3a_8ff3_94687a8085dd`
-- `20260828130354 20260826003052_4345a6da_01aa_4e54_b8c1_1680a772f051`
-- `20260828130355 20260826005145_03f25664_b566_4e58_b501_2da794e9be10`
-- `20260828130357 20260826005449_444eee38_8fca_45a4_ab7a_40db52e884d7`
-- `20260828130359 20260826005744_c18fc00a_3618_47ad_a034_f71f27b7107f`
-- `20260828130409 20260826005906_c4e6c9a5_3bdf_4f29_ad5e_127699bcfe15`
-- `20260828130411 20260826104500_authenticated_self_service`
-- `20260828130413 20260826144500_authenticated_tournament_self_service`
-- `20260828130415 20260826190000_new_supabase_hardening`
-- `20260828130417 20260826190500_seed_rosario_open`
-- `20260828130418 20260826223500_authenticated_staff_console`
-- `20260828130420 20260826230000_team_self_service`
-- `20260828130421 20260826232000_team_candidate_search`
-- `20260828130422 20260826233200_tournament_registration_mode_state`
-- `20260828130424 20260826234000_seed_rosario_gold_semisplit1_q1`
-- `20260828130437 20260826235000_rosario_gold_qualifiers_2_to_4`
-- `20260828130439 20260826235500_team_roster_role_and_captain_management`
-- `20260828130440 20260827101000_staff_split_operations`
-- `20260828130442 20260827141500_normalize_prelaunch_tournament_statuses`
-- `20260828130444 20260827141500_set_rosario_gold_qualifiers_to_16_teams`
-- `20260828130445 20260827142100_prelaunch_foreign_key_indexes`
-- `20260828130447 20260827143000_legal_acceptance_enforcement`
-- `20260828130449 20260827143100_match_result_confirmation_and_disputes`
-- `20260828130450 20260827143200_allow_resubmit_after_dismissed_match_claim`
-- `20260828130452 20260827153500_lock_down_staff_split_ops_rpc`
-- `20260828130453 20260827202000_prelaunch_match_claim_indexes_and_rls_perf`
-- `20260828130455 20260827211000_support_and_account_deletion_requests`
-- `20260828130456 20260827211800_support_request_profile_index`
-- `20260828130458 20260827224500_safe_team_archival`
-- `20260828130459 20260827230000_harden_archived_team_identity`
-- `20260828131355 seed_staging_qa_16_team_fixture`
-- `20260909130414 staging_connectivity_check`
+The live staging migration registry contains two environment-only records that are intentionally not production promotion migrations:
 
-The known `seed_staging_qa_16_team_fixture` record is a staging data fixture. Its purpose is QA data, not production schema behavior. It seeds synthetic QA users/teams and must not be used as an application dependency. Local/CI integration tests create transactional fixtures instead.
+- `20260828131355 seed_staging_qa_16_team_fixture` — seeds synthetic QA staff/teams for staging.
+- `20260909130414 staging_connectivity_check` — staging connectivity/diagnostic record.
+
+There is also a historical timestamp-name mismatch for the qualifier-capacity correction: the live registry records `20260827141500_set_rosario_gold_qualifiers_to_16_teams`, while the repository keeps the forward file as `20260827141501_set_rosario_gold_qualifiers_to_16_teams.sql`. The behavior is represented in source; do not create a second production correction merely to make the historical labels identical.
+
+Environment-only fixture records must not become application dependencies. Local/CI integration tests create transactional fixtures instead.
 
 ## Recent domain evolution
 
