@@ -462,8 +462,7 @@ function TournamentDetailPage() {
                     );
                     const name = entry?.team?.name ?? "Qualified team";
                     const passDown =
-                      entry?.placement != null &&
-                      entry.placement > qualifiedFromThisEvent.length;
+                      entry?.placement != null && entry.placement > qualifiedFromThisEvent.length;
                     return (
                       <div
                         key={qualification.team_id}
