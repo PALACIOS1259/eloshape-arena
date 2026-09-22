@@ -400,9 +400,9 @@ function TournamentDetailPage() {
                 </p>
                 {isDemoFixture && tournament.status === "completed" ? (
                   <p className="mt-2 max-w-2xl text-xs leading-relaxed text-muted-foreground">
-                    Staging demo data can reuse rosters and deterministic outcomes across qualifiers.
-                    These standings belong to this tournament only; production qualifiers use their
-                    own registrations and match results.
+                    Staging demo data can reuse rosters and deterministic outcomes across
+                    qualifiers. These standings belong to this tournament only; production
+                    qualifiers use their own registrations and match results.
                   </p>
                 ) : null}
               </div>
