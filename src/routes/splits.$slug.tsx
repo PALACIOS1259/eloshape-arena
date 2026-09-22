@@ -495,7 +495,7 @@ function StageRail({ activeIndex }: { activeIndex: number }) {
           const completed = index < activeIndex;
           const active = index === activeIndex;
           return (
-            <div key={stage.key} className="flex items-start">
+            <div key={stage.label} className="flex items-start">
               <div className="w-28 text-center sm:w-32">
                 <span
                   className={cn(
