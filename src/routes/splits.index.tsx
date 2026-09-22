@@ -15,23 +15,27 @@ import { splitsQuery } from "@/lib/split-queries";
 const FORMAT_STEPS = [
   {
     number: "01",
-    title: "Open Qualifiers",
-    description: "Four open events build the Semi-Split field and award circuit points.",
+    title: "4 Open Qualifiers",
+    description:
+      "Each qualifier awards four places to the highest-finishing eligible teams not already qualified. Repeat qualifiers pass their slots down.",
   },
   {
     number: "02",
-    title: "Split standings",
-    description: "Performance across qualifiers determines the playoff seeding order.",
+    title: "16 Qualified Teams",
+    description:
+      "Four unique playoff places are locked after each qualifier until the 16-team field is complete.",
   },
   {
     number: "03",
-    title: "16-team playoffs",
-    description: "The qualified field enters a single-elimination championship bracket.",
+    title: "Qualifier Seeding",
+    description:
+      "Points from qualifier events only determine seeds #1–16 and replacement priority.",
   },
   {
     number: "04",
-    title: "Grand Final",
-    description: "One team survives the bracket and closes the Semi-Split as champion.",
+    title: "One Playoff Bracket",
+    description:
+      "Round of 16 → Quarterfinals → Semifinals → Grand Final, all inside the same single-elimination bracket.",
   },
 ] as const;
 
@@ -40,9 +44,9 @@ function stageLabel(status: string) {
     upcoming: "Scheduled",
     qualifiers: "Open Qualifiers",
     seeding: "Seeding",
-    playoffs: "Playoffs",
-    semifinals: "Semifinals",
-    final: "Grand Final",
+    playoffs: "16-Team Playoff",
+    semifinals: "Playoff · Semifinals",
+    final: "Playoff · Grand Final",
     completed: "Completed",
   };
   return labels[status] ?? status.replaceAll("_", " ");
@@ -58,7 +62,7 @@ export const Route = createFileRoute("/splits/")({
         {
           name: "description",
           content:
-            "Every EloShape Semi-Split: four Open Qualifiers, a 16-team Playoff bracket, Semifinals and the Grand Final.",
+            "Every EloShape Semi-Split: four Open Qualifiers, 16 unique qualified teams, qualifier-based seeding and one 16-team playoff bracket.",
         },
         { property: "og:title", content: "EloShape Semi-Splits" },
         {
@@ -108,8 +112,8 @@ function SplitsPage() {
                 Semi-Splits
               </h1>
               <p className="mt-4 max-w-3xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-                Four qualifiers build the standings. The best teams advance into a seeded playoff
-                bracket, and one roster leaves as Semi-Split champion.
+                Four qualifiers award four unique playoff places each. Qualifier points seed the 16
+                qualified teams into one single-elimination bracket, from Round of 16 to Grand Final.
               </p>
             </div>
 
@@ -126,7 +130,7 @@ function SplitsPage() {
         <section className="overflow-hidden rounded-2xl border border-border bg-surface-gradient shadow-card">
           <div className="border-b border-border px-5 py-4 sm:px-6">
             <p className="eyebrow">How the circuit works</p>
-            <h2 className="mt-1 text-xl font-black text-foreground">One Semi-Split, four stages</h2>
+            <h2 className="mt-1 text-xl font-black text-foreground">One Semi-Split, one clear path</h2>
           </div>
           <div className="grid md:grid-cols-2 xl:grid-cols-4">
             {FORMAT_STEPS.map((step, index) => (
@@ -159,8 +163,8 @@ function SplitsPage() {
               <p className="eyebrow">Competition archive</p>
               <h2 className="mt-1 text-2xl font-black text-foreground">Semi-Split calendar</h2>
               <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-                Open a Semi-Split to follow qualifiers, live standings, qualified teams and the full
-                championship bracket.
+                Open a Semi-Split to follow all four qualifiers, the 16 locked playoff places, the
+                qualifier seeding table and the full championship bracket.
               </p>
             </div>
             <Button asChild variant="outline">
@@ -217,7 +221,7 @@ function SplitsPage() {
                     </div>
 
                     <div className="mt-5 flex items-center justify-between border-t border-border/70 pt-4 text-xs font-semibold text-muted-foreground">
-                      <span>Qualifiers · standings · bracket</span>
+                      <span>4 qualifiers · 16 qualified · one bracket</span>
                       <span className="inline-flex items-center gap-1 text-primary">
                         Open Semi-Split{" "}
                         <ChevronRight className="size-4 transition-transform group-hover:translate-x-0.5" />
