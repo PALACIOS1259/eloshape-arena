@@ -72,6 +72,8 @@ Documentation:
 - [`docs/SCHEMA_REFERENCE.md`](docs/SCHEMA_REFERENCE.md) — field-level database reference
 - [`docs/RPC_REFERENCE.md`](docs/RPC_REFERENCE.md) — database/RPC function catalog
 - [`docs/FILE_INVENTORY.md`](docs/FILE_INVENTORY.md) — every source file and purpose
+- [`docs/FLOW_REFERENCE.md`](docs/FLOW_REFERENCE.md) — end-to-end UI → server → RPC → database flow map
+- [`docs/BRACKETS_AND_QUALIFIERS.md`](docs/BRACKETS_AND_QUALIFIERS.md) — bracket geometry and qualifier/pass-down semantics
 
 Operational references:
 
