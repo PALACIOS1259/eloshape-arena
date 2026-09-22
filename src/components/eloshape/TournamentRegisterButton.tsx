@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Check, LoaderCircle, LogIn, ShieldCheck, Swords } from "lucide-react";
+import { Check, Clock3, LoaderCircle, LogIn, ShieldCheck, Swords } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -179,6 +179,29 @@ export function TournamentRegisterButton({
       >
         <Check className="size-4" />
         {isTeam ? "Team registered" : "Registered"}
+      </Button>
+    );
+  }
+
+  if (status === "registration_open" && isTeam && entry?.canRegister === false) {
+    const gate = entry.registrationGate;
+    const label =
+      gate === "priority_unqualified"
+        ? "Priority: unqualified teams"
+        : gate === "captain_required"
+          ? "Captain registration only"
+          : gate === "full"
+            ? "Tournament full"
+            : "Registration unavailable";
+
+    return (
+      <Button
+        variant="outline"
+        disabled
+        className="h-11 rounded-xl border-border bg-background/40 px-5 font-black opacity-100"
+      >
+        <Clock3 className="size-4" />
+        {label}
       </Button>
     );
   }
