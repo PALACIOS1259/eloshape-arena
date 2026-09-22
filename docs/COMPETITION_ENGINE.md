@@ -163,7 +163,18 @@ Purpose:
 
 The registration RPC returns the gate state so the UI can explain why a team cannot register yet.
 
-## 13. Semi-Split standings
+## 13. Final standings versus qualification outcome
+
+For a qualifier, these are separate views of the same event:
+
+- **Final standings** are tournament-local placement results.
+- **Qualification outcome** is the subset of teams that gained a new active `split_qualifications` slot from that qualifier.
+- A team already qualified from an earlier qualifier can still finish first later after the protected registration gate opens.
+- In that case the new qualification slot passes down to the next eligible finisher.
+
+The public tournament detail exposes this distinction directly so repeated high finishers are not mistaken for duplicated tournament data.
+
+## 16. Semi-Split standings
 
 `split_standings(split_id)` is a **qualifier-only seeding table**.
 
