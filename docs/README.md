@@ -6,7 +6,9 @@ This folder is the technical source of truth for EloShape. It describes the code
 
 - [DOCUMENTACION.md](./DOCUMENTACION.md) — Spanish master overview and product rules.
 - [ARCHITECTURE.md](./ARCHITECTURE.md) — application architecture, request paths and route map.
-- [DATABASE.md](./DATABASE.md) — database catalog, ERD, enums, RLS, triggers and RPC inventory.
+- [DATABASE.md](./DATABASE.md) — database model, ERD and security explanation.
+- [SCHEMA_REFERENCE.md](./SCHEMA_REFERENCE.md) — field-level reference for all 28 staging tables, constraints, indexes, policies and triggers.
+- [RPC_REFERENCE.md](./RPC_REFERENCE.md) — all public/private database functions, signatures, return types, security mode and purpose.
 - [COMPETITION_ENGINE.md](./COMPETITION_ENGINE.md) — tournament engine, brackets, scoring, qualifiers and Semi-Splits.
 - [TEAMS_AND_SCRIMS.md](./TEAMS_AND_SCRIMS.md) — team lifecycle, roles, invitations and scrim system.
 - [OPERATIONS.md](./OPERATIONS.md) — staff/admin operational runbook.
