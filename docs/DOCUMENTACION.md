@@ -26,6 +26,7 @@ Principios del sistema:
 | [DATABASE.md](./DATABASE.md) | Modelo de datos, ERD, seguridad e invariantes |
 | [SCHEMA_REFERENCE.md](./SCHEMA_REFERENCE.md) | Referencia campo por campo de las 28 tablas, constraints, índices, policies y triggers |
 | [RPC_REFERENCE.md](./RPC_REFERENCE.md) | Catálogo completo de funciones/RPC public y private |
+| [MIGRATIONS.md](./MIGRATIONS.md) | Historial ordenado de migraciones y diferencias exclusivas de staging |
 | [COMPETITION_ENGINE.md](./COMPETITION_ENGINE.md) | Torneos, bracket, scoring, qualifiers y Semi-Splits |
 | [TEAMS_AND_SCRIMS.md](./TEAMS_AND_SCRIMS.md) | Equipos, roles, invitaciones y scrims |
 | [OPERATIONS.md](./OPERATIONS.md) | Manual operativo de staff |
