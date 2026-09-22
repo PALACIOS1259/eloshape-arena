@@ -72,25 +72,24 @@ export function ScrimBoard() {
   };
 
   return (
-    <div className="space-y-6">
-      <section className="relative overflow-hidden rounded-2xl border border-border bg-surface-gradient p-5 shadow-card sm:p-6">
-        <div className="absolute right-0 top-0 size-64 translate-x-20 -translate-y-24 rounded-full bg-primary/10 blur-3xl" />
-        <div className="relative grid gap-6 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-end">
-          <div>
-            <div className="flex flex-wrap gap-2">
+    <div className="space-y-5">
+      <section className="relative overflow-hidden rounded-2xl border border-border/80 bg-gradient-to-br from-card/95 via-card/80 to-primary/[0.035] p-4 shadow-card sm:p-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="eyebrow">Scrim finder</p>
               <Badge variant="outline">Practice only</Badge>
               <Badge variant="secondary">No circuit points</Badge>
             </div>
-            <p className="eyebrow mt-5">Scrim finder</p>
-            <h2 className="mt-2 max-w-2xl text-3xl font-black tracking-tight text-foreground">
-              Find another roster and get games in.
+            <h2 className="mt-2 text-xl font-black tracking-tight text-foreground sm:text-2xl">
+              Find a practice match.
             </h2>
-            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-              Post availability, challenge another team and save the result as practice history.
-              Scrims never affect qualifier slots, Semi-Split seeding or EloShape rankings.
+            <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+              Post a time, challenge a roster and keep the result as practice history. Official
+              rankings, qualifier slots and Semi-Split seeding never change.
             </p>
           </div>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="flex shrink-0 flex-wrap items-center gap-x-5 gap-y-2 border-t border-border/60 pt-3 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
             <ScrimMetric label="Open" value={openCount} />
             <ScrimMetric label="Matched" value={matchedCount} />
             <ScrimMetric label="Played" value={completedCount} gold />
@@ -463,7 +462,7 @@ function ScrimCard({
         </div>
 
         {scrim.note ? (
-          <p className="mt-4 rounded-xl border border-border/70 bg-background/25 px-3 py-2.5 text-xs leading-relaxed text-muted-foreground">
+          <p className="mt-4 border-l-2 border-primary/25 pl-3 text-xs leading-relaxed text-muted-foreground">
             {scrim.note}
           </p>
         ) : null}
@@ -603,16 +602,11 @@ function ScrimMetric({
   gold?: boolean;
 }) {
   return (
-    <div
-      className={cn(
-        "min-w-20 rounded-xl border border-border bg-background/40 p-3 text-center",
-        gold && "border-gold/20 bg-gold/5",
-      )}
-    >
-      <p className={cn("text-xl font-black tabular-nums text-foreground", gold && "text-gold")}>
+    <div className="min-w-14">
+      <p className={cn("text-lg font-black tabular-nums text-foreground", gold && "text-gold")}>
         {value}
       </p>
-      <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+      <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
         {label}
       </p>
     </div>
