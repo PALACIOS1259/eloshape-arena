@@ -137,11 +137,7 @@ export function ScrimBoard() {
       )}
 
       {isCaptain && hub?.incomingChallenges.length ? (
-        <IncomingChallenges
-          challenges={hub.incomingChallenges}
-          respond={useServerFn(respondScrimChallenge)}
-          invalidate={invalidate}
-        />
+        <IncomingChallenges challenges={hub.incomingChallenges} invalidate={invalidate} />
       ) : null}
 
       <section>
@@ -286,13 +282,12 @@ function CreateScrimCard({ invalidate }: { invalidate: () => void }) {
 
 function IncomingChallenges({
   challenges,
-  respond,
   invalidate,
 }: {
   challenges: ScrimHub["incomingChallenges"];
-  respond: ReturnType<typeof useServerFn<typeof respondScrimChallenge>>;
   invalidate: () => void;
 }) {
+  const respond = useServerFn(respondScrimChallenge);
   const mutation = useMutation({
     mutationFn: (input: { challengeId: string; accept: boolean }) =>
       respond({ data: input }),
