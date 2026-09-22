@@ -112,8 +112,9 @@ function SplitsPage() {
                 Semi-Splits
               </h1>
               <p className="mt-4 max-w-3xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-                Four qualifiers award four unique playoff places each. Qualifier points seed the 16
-                qualified teams into one single-elimination bracket, from Round of 16 to Grand Final.
+                Four qualifiers award four unique playoff places each. Qualifier points seed the
+                16 qualified teams into one single-elimination bracket, from Round of 16 to Grand
+                Final.
               </p>
             </div>
 
@@ -130,7 +131,9 @@ function SplitsPage() {
         <section className="overflow-hidden rounded-2xl border border-border bg-surface-gradient shadow-card">
           <div className="border-b border-border px-5 py-4 sm:px-6">
             <p className="eyebrow">How the circuit works</p>
-            <h2 className="mt-1 text-xl font-black text-foreground">One Semi-Split, one clear path</h2>
+            <h2 className="mt-1 text-xl font-black text-foreground">
+              One Semi-Split, one clear path
+            </h2>
           </div>
           <div className="grid md:grid-cols-2 xl:grid-cols-4">
             {FORMAT_STEPS.map((step, index) => (
