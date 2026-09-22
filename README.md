@@ -16,8 +16,10 @@ Implemented flows include:
 - five-player teams, invitations, roster management and safe team archival;
 - team registration, check-in and immutable roster locking;
 - single-elimination bracket generation and winner advancement;
-- player result confirmation, disputes and staff resolution;
-- tournament finalization, configurable point awards, rankings and Semi-Split qualification;
+- player result confirmation, disputes, walkovers and safe completed-result correction;
+- tournament finalization, configurable point awards, rankings and Semi-Split qualification/pass-down;
+- qualifier registration priority for teams that are already qualified;
+- team-vs-team Scrim Finder with practice-only result history and zero ranking impact;
 - authenticated support and account-deletion requests;
 - public Terms and Privacy pages.
 
@@ -59,13 +61,21 @@ Database integration tests are in `supabase/tests/`. The full 16-team prelaunch 
 - Database changes must be committed as ordered files in `supabase/migrations/` and validated on staging before production promotion.
 - Never force-push or rewrite published history because the repository is connected to Lovable.
 
+Documentation:
+
+- [`docs/README.md`](docs/README.md) — complete documentation index
+- [`docs/DOCUMENTACION.md`](docs/DOCUMENTACION.md) — Spanish master overview
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+- [`docs/DATABASE.md`](docs/DATABASE.md)
+- [`docs/COMPETITION_ENGINE.md`](docs/COMPETITION_ENGINE.md)
+- [`docs/TEAMS_AND_SCRIMS.md`](docs/TEAMS_AND_SCRIMS.md)
+
 Operational references:
 
 - [`docs/ENVIRONMENTS.md`](docs/ENVIRONMENTS.md)
 - [`docs/TOURNAMENT_ZERO_RUNBOOK.md`](docs/TOURNAMENT_ZERO_RUNBOOK.md)
 - [`docs/RIOT-PRODUCTION-APPLICATION.md`](docs/RIOT-PRODUCTION-APPLICATION.md)
 - [`docs/AUTH_EMAIL_SETUP.md`](docs/AUTH_EMAIL_SETUP.md)
-- [`docs/DOCUMENTACION.md`](docs/DOCUMENTACION.md)
 
 ## Remaining launch work
 
