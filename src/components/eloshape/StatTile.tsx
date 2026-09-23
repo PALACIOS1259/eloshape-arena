@@ -28,9 +28,7 @@ export function StatTile({
           <p className="tabular mt-1.5 truncate text-xl font-black text-foreground">{value}</p>
         </div>
         {icon ? (
-          <span className="grid size-7 shrink-0 place-items-center text-primary">
-            {icon}
-          </span>
+          <span className="grid size-7 shrink-0 place-items-center text-primary">{icon}</span>
         ) : null}
       </div>
       {hint ? <p className="mt-1.5 text-xs text-muted-foreground">{hint}</p> : null}
