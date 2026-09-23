@@ -338,7 +338,7 @@ function TeamIdentityHero({
   assignedRoles: number;
 }) {
   return (
-    <section className="bg-surface-gradient relative overflow-hidden rounded-xl border border-border p-5 shadow-card sm:p-7">
+    <section className="relative overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-br from-card/90 to-background/55 p-5 sm:p-6">
       <div className="absolute right-0 top-0 size-48 translate-x-16 -translate-y-20 rounded-full bg-primary/10 blur-3xl" />
       <div className="relative grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
         <div className="flex min-w-0 items-start gap-4">
@@ -404,7 +404,7 @@ function TeamIdentityHero({
 
 function HeroStat({ label, value, icon }: { label: string; value: string; icon?: ReactNode }) {
   return (
-    <div className="rounded-lg border border-border/80 bg-background/30 p-3">
+    <div className="rounded-xl border border-border/70 bg-background/25 p-3">
       <p className="flex items-center gap-1.5 text-lg font-black tabular-nums text-foreground">
         {icon}
         {value}
@@ -534,8 +534,8 @@ function StartingLineup({
             <div
               key={lane.value}
               className={`min-h-40 rounded-xl border p-4 ${
-                member ? "bg-surface-gradient" : "border-dashed bg-background/20"
-              } ${duplicate ? "border-destructive/45" : "border-border"}`}
+                member ? "bg-card/35" : "border-dashed bg-background/20"
+              } ${duplicate ? "border-destructive/45" : "border-border/70"}`}
             >
               <div className="flex items-start justify-between gap-2">
                 <TeamLaneIcon role={lane.value} />
@@ -954,7 +954,7 @@ function CaptainRecruiting({ team }: { team: NonNullable<TeamHub["team"]> }) {
 
   return (
     <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,0.7fr)]">
-      <div className="bg-surface-gradient rounded-xl border border-border p-5 shadow-card sm:p-6">
+      <div className="rounded-2xl border border-border/70 bg-card/35 p-5 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="eyebrow">Recruiting</p>
