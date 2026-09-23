@@ -45,15 +45,15 @@ function RulesPage() {
       />
 
       <PageContainer className="py-7 sm:py-9">
-        <div className="overflow-hidden rounded-2xl border border-border/70 bg-card/40">
-          <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 border-b border-border/60 px-4 py-2.5">
+        <div className="overflow-hidden border-y border-border/65 bg-card/15">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 border-b border-border/55 bg-background/15 px-4 py-2.5">
             <span className="eyebrow">Rule</span>
             <span className="eyebrow text-right">Points</span>
           </div>
           {directory.pointRules.map((rule) => (
             <div
               key={rule.code}
-              className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border/60 px-4 py-3 last:border-0"
+              className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border/55 px-4 py-3.5 last:border-0"
             >
               <span className="min-w-0">
                 <span className="block truncate text-sm font-semibold text-foreground">
