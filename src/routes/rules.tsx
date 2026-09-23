@@ -44,16 +44,16 @@ function RulesPage() {
         description="Every point on an EloShape leaderboard traces back to one of these rules, applied to a real EloShape match or placement. Solo Queue performance never awards points."
       />
 
-      <PageContainer className="py-10">
-        <div className="bg-surface-gradient overflow-hidden rounded-lg border border-border">
-          <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 border-b border-border px-4 py-2.5">
+      <PageContainer className="py-7 sm:py-9">
+        <div className="overflow-hidden rounded-2xl border border-border/70 bg-card/40">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 border-b border-border/60 px-4 py-2.5">
             <span className="eyebrow">Rule</span>
             <span className="eyebrow text-right">Points</span>
           </div>
           {directory.pointRules.map((rule) => (
             <div
               key={rule.code}
-              className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border px-4 py-3 last:border-0"
+              className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border/60 px-4 py-3 last:border-0"
             >
               <span className="min-w-0">
                 <span className="block truncate text-sm font-semibold text-foreground">
@@ -68,7 +68,7 @@ function RulesPage() {
           ))}
         </div>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+        <div className="mt-8 grid gap-x-8 gap-y-6 border-t border-border/60 pt-7 sm:grid-cols-2">
           <Card
             title="Season and monthly boards"
             body={`Season totals accumulate across ${directory.activeSeason?.name ?? "the season"}. Monthly totals reset each month so new players always have something to chase.`}
@@ -93,9 +93,9 @@ function RulesPage() {
 
 function Card({ title, body }: { title: string; body: string }) {
   return (
-    <div className="bg-surface-gradient shadow-card rounded-lg border border-border p-5">
-      <p className="font-bold text-foreground">{title}</p>
-      <p className="mt-2 text-sm text-muted-foreground">{body}</p>
+    <div>
+      <p className="font-black text-foreground">{title}</p>
+      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{body}</p>
     </div>
   );
 }
