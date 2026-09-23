@@ -84,9 +84,9 @@ function PlayerPage() {
                   </div>
                   <p className="mt-1 truncate text-sm text-muted-foreground">
                     @{profile.handle}
-                    {[profile.city?.name, profile.province?.name, profile.country?.name]
-                      .filter(Boolean)
-                      .length
+                    {[profile.city?.name, profile.province?.name, profile.country?.name].filter(
+                      Boolean,
+                    ).length
                       ? ` · ${[profile.city?.name, profile.province?.name, profile.country?.name]
                           .filter(Boolean)
                           .join(", ")}`
