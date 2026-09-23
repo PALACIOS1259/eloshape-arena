@@ -278,7 +278,7 @@ function StageActions({
 }) {
   const r = ops.readiness;
   return (
-    <section className="bg-surface-gradient rounded-lg border border-border p-5">
+    <section className="rounded-2xl border border-border/70 bg-card/35 p-5">
       <p className="eyebrow">Stage controls</p>
       <div className="mt-4 flex flex-wrap gap-2">
         {ops.split.status === "qualifiers" ? (
@@ -336,7 +336,7 @@ function QualifierReadiness({ qualifiers }: { qualifiers: StaffSplitOps["qualifi
         {qualifiers.map((qualifier) => (
           <article
             key={qualifier.id}
-            className="bg-surface-gradient rounded-lg border border-border p-5"
+            className="rounded-2xl border border-border/70 bg-card/35 p-5"
           >
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -403,11 +403,11 @@ function Qualifications({
           <EmptyState title="No qualification slots awarded yet" />
         </div>
       ) : (
-        <div className="bg-surface-gradient mt-4 overflow-hidden rounded-lg border border-border">
+        <div className="mt-4 overflow-hidden rounded-2xl border border-border/70 bg-card/35">
           {ops.qualifications.map((qualification) => (
             <div
               key={qualification.id}
-              className="grid gap-3 border-b border-border p-4 last:border-0 lg:grid-cols-[3rem_minmax(0,1fr)_auto] lg:items-center"
+              className="grid gap-3 border-b border-border/60 p-4 last:border-0 lg:grid-cols-[3rem_minmax(0,1fr)_auto] lg:items-center"
             >
               <span className="tabular text-lg font-black text-muted-foreground">
                 #{qualification.qualificationPosition}
@@ -473,11 +473,11 @@ function Standings({
           <EmptyState title="No teams have competed yet" />
         </div>
       ) : (
-        <div className="bg-surface-gradient mt-4 overflow-hidden rounded-lg border border-border">
+        <div className="mt-4 overflow-hidden rounded-2xl border border-border/70 bg-card/35">
           {standings.map((team, index) => (
             <div
               key={team.team_id}
-              className="grid grid-cols-[2.5rem_minmax(0,1fr)_auto] items-center gap-3 border-b border-border px-4 py-3 last:border-0"
+              className="grid grid-cols-[2.5rem_minmax(0,1fr)_auto] items-center gap-3 border-b border-border/60 px-4 py-3 last:border-0"
             >
               <span className="tabular font-black text-muted-foreground">{index + 1}</span>
               <div className="min-w-0">
