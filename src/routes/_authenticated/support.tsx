@@ -81,7 +81,7 @@ function SupportPage() {
       />
 
       <PageContainer className="grid gap-8 py-7 sm:py-9 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <section className="rounded-2xl border border-border/70 bg-gradient-to-br from-card/85 to-background/50 p-5 sm:p-6">
+        <section className="border-y border-border/65 py-5 sm:py-6">
           <p className="eyebrow">New request</p>
           <div className="mt-5 space-y-4">
             <div className="space-y-2">
@@ -170,7 +170,7 @@ function SupportPage() {
               query.data.map((request) => (
                 <article
                   key={request.id}
-                  className="rounded-2xl border border-border/70 bg-card/35 p-5"
+                  className="border-y border-border/65 py-5"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
