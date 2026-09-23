@@ -415,22 +415,22 @@ function AdminPage() {
 
             <section id="competition" className="mt-12 scroll-mt-24">
               <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
-                  <div>
-                    <p className="eyebrow">Competition</p>
-                    <h2 className="mt-1 text-lg font-semibold text-foreground">
-                      Tournament control room
-                    </h2>
-                    <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                      Guided operations for rosters, brackets, match results, walkovers,
-                      corrections, scoring and Semi-Split progression.
-                    </p>
-                  </div>
-                  <Button asChild variant="outline">
-                    <Link to="/admin/splits">
-                      Advanced split view
-                      <ChevronRight />
-                    </Link>
-                  </Button>
+                <div>
+                  <p className="eyebrow">Competition</p>
+                  <h2 className="mt-1 text-lg font-semibold text-foreground">
+                    Tournament control room
+                  </h2>
+                  <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                    Guided operations for rosters, brackets, match results, walkovers, corrections,
+                    scoring and Semi-Split progression.
+                  </p>
+                </div>
+                <Button asChild variant="outline">
+                  <Link to="/admin/splits">
+                    Advanced split view
+                    <ChevronRight />
+                  </Link>
+                </Button>
               </div>
               <CompetitionOpsPanel />
             </section>
