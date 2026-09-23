@@ -5,7 +5,6 @@ import { ArrowLeft, CalendarDays, Crown, MapPin, ShieldCheck, Trophy, Users } fr
 import { DivisionBadge } from "@/components/eloshape/DivisionBadge";
 import { EmptyState } from "@/components/eloshape/EmptyState";
 import { PlayerAvatar } from "@/components/eloshape/PlayerRow";
-import { StatTile } from "@/components/eloshape/StatTile";
 import { StatusBadge } from "@/components/eloshape/StatusBadge";
 import { PageContainer } from "@/components/layout/PageShell";
 import { Badge } from "@/components/ui/badge";
@@ -67,16 +66,16 @@ function TeamPage() {
 
   return (
     <div>
-      <section className="bg-hero relative overflow-hidden border-b border-border">
+      <section className="relative overflow-hidden border-b border-border/70 bg-gradient-to-br from-background via-background to-primary/[0.025]">
         <div className="absolute right-0 top-0 size-72 translate-x-16 -translate-y-28 rounded-full bg-primary/10 blur-3xl" />
-        <PageContainer className="relative py-8 sm:py-12">
+        <PageContainer className="relative py-8 sm:py-10">
           <Button asChild size="sm" variant="ghost" className="mb-6 -ml-3">
             <Link to="/teams">
               <ArrowLeft className="mr-2 size-4" /> All teams
             </Link>
           </Button>
 
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="flex min-w-0 items-start gap-4 sm:gap-5">
               <span className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-2xl border border-primary/25 bg-surface-raised text-lg font-black text-steel shadow-card sm:size-20 sm:text-xl">
                 {team.logo_url ? (
@@ -90,7 +89,7 @@ function TeamPage() {
                   {team.tag ? <Badge variant="outline">[{team.tag}]</Badge> : null}
                   <DivisionBadge division={team.division} />
                 </div>
-                <h1 className="mt-3 truncate text-3xl font-black tracking-tight text-foreground sm:text-5xl">
+                <h1 className="mt-2 truncate text-3xl font-black tracking-tight text-foreground sm:text-4xl">
                   {team.name}
                 </h1>
                 <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
@@ -107,12 +106,11 @@ function TeamPage() {
               </div>
             </div>
 
-            <div className="rounded-xl border border-border bg-background/30 px-5 py-4 text-left lg:min-w-48 lg:text-right">
-              <p className="eyebrow">Season standing</p>
-              <p className="mt-1 text-3xl font-black tabular-nums text-foreground">
-                {formatPoints(team.points_season)}
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">team points</p>
+            <div className="grid grid-cols-2 gap-x-7 gap-y-4 border-t border-border/60 pt-4 sm:grid-cols-4 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
+              <TeamMetric label="Points" value={formatPoints(team.points_season)} accent />
+              <TeamMetric label="Record" value={`${team.wins}-${team.losses}`} detail={winRate(team.wins, team.losses)} />
+              <TeamMetric label="Titles" value={String(team.championships ?? 0)} />
+              <TeamMetric label="Roster" value={String(members.length)} detail={`${starters.length}/5 starters`} />
             </div>
           </div>
 
@@ -122,28 +120,10 @@ function TeamPage() {
             </p>
           ) : null}
 
-          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <StatTile label="Season points" value={formatPoints(team.points_season)} />
-            <StatTile
-              label="Match record"
-              value={`${team.wins}-${team.losses}`}
-              hint={`${winRate(team.wins, team.losses)} win rate · ${totalMatches} played`}
-            />
-            <StatTile
-              label="Championships"
-              value={team.championships ?? 0}
-              icon={<Trophy className="size-5" />}
-            />
-            <StatTile
-              label="Roster"
-              value={members.length}
-              hint={`${starters.length} starters · ${substitutes.length} substitutes`}
-            />
-          </div>
         </PageContainer>
       </section>
 
-      <PageContainer className="py-8 sm:py-10">
+      <PageContainer className="py-7 sm:py-9">
         <div className="grid gap-8 xl:grid-cols-[minmax(0,1.25fr)_minmax(22rem,0.75fr)]">
           <section className="min-w-0">
             <div className="flex flex-wrap items-end justify-between gap-3">
@@ -186,7 +166,7 @@ function TeamPage() {
                     key={entry.id}
                     to="/tournaments/$slug"
                     params={{ slug: entry.tournament?.slug ?? "" }}
-                    className="bg-surface-gradient shadow-card group block rounded-xl border border-border p-4 transition-colors hover:border-brand/50"
+                    className="group block rounded-xl border border-border/70 bg-card/35 p-4 transition-colors hover:border-primary/30"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0">
@@ -250,8 +230,8 @@ function RosterSection({
   }>;
 }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-background/20">
-      <div className="flex items-start justify-between gap-3 border-b border-border px-4 py-4 sm:px-5">
+    <div className="overflow-hidden rounded-2xl border border-border/70 bg-card/30">
+      <div className="flex items-start justify-between gap-3 border-b border-border/60 px-4 py-3.5 sm:px-5">
         <div>
           <p className="font-black text-foreground">{title}</p>
           <p className="mt-1 text-xs text-muted-foreground">{description}</p>
@@ -317,6 +297,31 @@ function RosterSection({
       ) : (
         <div className="p-6 text-sm text-muted-foreground">No players in this group.</div>
       )}
+    </div>
+  );
+}
+
+
+function TeamMetric({
+  label,
+  value,
+  detail,
+  accent = false,
+}: {
+  label: string;
+  value: string;
+  detail?: string;
+  accent?: boolean;
+}) {
+  return (
+    <div className="min-w-0">
+      <p className={accent ? "truncate text-lg font-black text-gold" : "truncate text-lg font-black text-foreground"}>
+        {value}
+      </p>
+      <p className="mt-0.5 text-[9px] font-bold uppercase tracking-[0.13em] text-muted-foreground">
+        {label}
+        {detail ? ` · ${detail}` : ""}
+      </p>
     </div>
   );
 }
