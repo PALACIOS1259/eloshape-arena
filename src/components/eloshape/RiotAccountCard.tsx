@@ -84,7 +84,7 @@ export function RiotAccountCard({
   });
 
   return (
-    <div className="bg-surface-gradient shadow-card rounded-lg border border-border p-5">
+    <div className="rounded-2xl border border-border/70 bg-card/35 p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="eyebrow">Riot account</p>
         {account ? (
@@ -95,12 +95,12 @@ export function RiotAccountCard({
       </div>
 
       {!service.configured ? (
-        <p className="mt-4 rounded-md border border-border bg-surface/60 p-4 text-sm text-muted-foreground">
+        <p className="mt-4 border-l-2 border-border pl-4 text-sm text-muted-foreground">
           Riot integration is not configured yet. Your EloShape profile and tournament history are
           unaffected.
         </p>
       ) : !service.trustedWritesConfigured ? (
-        <p className="mt-4 rounded-md border border-gold/30 bg-gold/10 p-4 text-sm text-gold">
+        <p className="mt-4 border-l-2 border-gold/35 pl-4 text-sm text-gold">
           Riot lookups are configured, but secure Riot linking is unavailable in this local
           environment because the trusted database credential is intentionally not exposed. Use the
           published EloShape app for real account linking.
@@ -170,7 +170,7 @@ export function RiotAccountCard({
           </div>
 
           {account.notice ? (
-            <p className="rounded-md border border-gold/30 bg-gold/10 p-3 text-sm text-gold">
+            <p className="border-l-2 border-gold/35 pl-4 text-sm text-gold">
               {account.notice}
             </p>
           ) : null}
@@ -242,7 +242,7 @@ export function RiotAccountCard({
 
 function Field({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border border-border bg-surface/40 p-3">
+    <div>
       <p className="eyebrow">{label}</p>
       <p className="mt-1 truncate text-sm font-semibold text-foreground">{value}</p>
     </div>
