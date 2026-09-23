@@ -83,7 +83,7 @@ export function ProfileSettingsCard({
   });
 
   return (
-    <div className="rounded-2xl border border-border/70 bg-card/35 p-5">
+    <div className="border-y border-border/65 py-5">
       <p className="eyebrow">Public profile</p>
 
       <form
