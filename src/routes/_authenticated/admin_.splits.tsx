@@ -65,7 +65,7 @@ function SplitOperationsPage() {
         }
       />
 
-      <PageContainer className="py-10">
+      <PageContainer className="py-7 sm:py-9">
         {splitsQuery.isPending ? (
           <Skeleton className="h-40 w-full" />
         ) : splitsQuery.error || !splitsQuery.data ? (
@@ -173,7 +173,7 @@ function SplitWorkspace({ splitId }: { splitId: string }) {
 
   return (
     <div className="space-y-10">
-      <section className="bg-surface-gradient rounded-lg border border-border p-6 shadow-card">
+      <section className="border-b border-border/60 pb-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <div className="flex flex-wrap items-center gap-2">
