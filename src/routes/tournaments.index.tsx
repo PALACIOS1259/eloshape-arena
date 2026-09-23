@@ -101,8 +101,8 @@ function TournamentsPage() {
       />
 
       <PageContainer className="py-7 sm:py-9">
-        <section className="sticky top-16 z-20 rounded-2xl border border-border/80 bg-background/85 shadow-card backdrop-blur-xl supports-[backdrop-filter]:bg-background/70">
-          <div className="flex flex-col gap-4 p-4 sm:p-5">
+        <section className="sticky top-16 z-20 border-y border-border/65 bg-background/90 backdrop-blur-xl supports-[backdrop-filter]:bg-background/75">
+          <div className="flex flex-col gap-4 py-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="eyebrow">Tournament finder</p>
@@ -127,9 +127,7 @@ function TournamentsPage() {
               )}
             </div>
 
-            <div className="h-px bg-border/60" />
-
-            <div className="flex gap-2 overflow-x-auto pb-1">
+            <div className="flex gap-2 overflow-x-auto border-t border-border/55 pt-4">
               {STATUSES.map((status) => (
                 <button
                   key={status}
@@ -139,7 +137,7 @@ function TournamentsPage() {
                     "shrink-0 rounded-lg border px-3 py-2 text-xs font-black transition-colors",
                     search.status === status
                       ? "border-primary/35 bg-primary/10 text-primary"
-                      : "border-border/70 bg-background/30 text-muted-foreground hover:text-foreground",
+                      : "border-transparent bg-transparent text-muted-foreground hover:border-border/60 hover:bg-card/35 hover:text-foreground",
                   )}
                 >
                   {status === "all"
@@ -149,7 +147,7 @@ function TournamentsPage() {
               ))}
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3 border-t border-border/55 pt-4 sm:grid-cols-2">
               <Filter
                 label="Division"
                 value={search.division}
@@ -197,7 +195,7 @@ function TournamentsPage() {
           </div>
 
           {tournaments.length ? (
-            <div className="mt-5 grid items-stretch gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div className="mt-5 grid items-stretch gap-5 md:grid-cols-2 xl:grid-cols-3">
               {tournaments.map((tournament) => (
                 <TournamentCard key={tournament.slug} tournament={tournament} className="h-full" />
               ))}
