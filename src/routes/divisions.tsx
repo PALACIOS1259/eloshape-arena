@@ -46,12 +46,12 @@ function DivisionsPage() {
         description="EloShape is built for amateur players, so brackets are separated by skill. Your Riot rank is verified once to place you in a division — after that, only EloShape results matter."
       />
 
-      <PageContainer className="py-10">
+      <PageContainer className="py-7 sm:py-9">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {directory.divisions.map((division) => (
             <div
               key={division.id}
-              className="bg-surface-gradient shadow-card rounded-lg border border-border p-5"
+              className="rounded-2xl border border-border/70 bg-gradient-to-br from-card/85 to-background/50 p-5 transition-colors hover:border-primary/25"
             >
               <DivisionBadge division={division} size="md" />
               <p className="mt-4 text-sm text-muted-foreground">{division.description}</p>
@@ -63,9 +63,9 @@ function DivisionsPage() {
           ))}
         </div>
 
-        <div className="bg-surface-gradient shadow-card mt-10 rounded-lg border border-border p-6">
+        <div className="mt-9 border-t border-border/60 pt-7">
           <p className="eyebrow">Anti-smurf process</p>
-          <ol className="mt-4 space-y-4 text-sm text-muted-foreground">
+          <ol className="mt-4 grid gap-4 text-sm text-muted-foreground md:grid-cols-3">
             <li className="flex gap-3">
               <ShieldCheck className="mt-0.5 size-4 shrink-0 text-brand" />
               Link your Riot account. EloShape reads only your rank for eligibility — no keys or
