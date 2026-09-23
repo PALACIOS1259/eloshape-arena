@@ -120,14 +120,14 @@ function QueueCard({
   action: ReactNode;
 }) {
   return (
-    <div className="rounded-lg border border-border bg-surface-gradient p-4 sm:p-5">
+    <div className="rounded-2xl border border-border/70 bg-gradient-to-br from-card/80 to-background/45 p-4 transition-colors hover:border-primary/25 sm:p-5">
       <div className="flex items-start justify-between gap-3">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-md border border-border bg-background/50 text-primary">
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/8 text-primary">
           {icon}
         </span>
         {count != null ? <Badge variant={count ? "default" : "outline"}>{count}</Badge> : null}
       </div>
-      <h2 className="mt-4 text-sm font-semibold text-foreground">{title}</h2>
+      <h2 className="mt-4 text-sm font-black text-foreground">{title}</h2>
       <p className="mt-1 min-h-10 text-xs leading-relaxed text-muted-foreground">{description}</p>
       <div className="mt-4">{action}</div>
     </div>
@@ -177,11 +177,11 @@ function AdminPage() {
           />
         ) : data ? (
           <>
-            <section className="rounded-xl border border-border bg-surface-gradient p-5 sm:p-6">
+            <section className="border-b border-border/60 pb-6">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <p className="eyebrow">System overview</p>
-                  <h2 className="mt-2 text-xl font-semibold text-foreground">
+                  <h2 className="mt-1 text-xl font-black text-foreground">
                     What needs your attention
                   </h2>
                   <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
@@ -194,23 +194,10 @@ function AdminPage() {
                 </Badge>
               </div>
 
-              <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                <div className="rounded-lg border border-border bg-background/35 p-4">
-                  <p className="eyebrow">Players</p>
-                  <p className="mt-2 text-2xl font-semibold text-foreground">
-                    {data.counts.players}
-                  </p>
-                </div>
-                <div className="rounded-lg border border-border bg-background/35 p-4">
-                  <p className="eyebrow">Teams</p>
-                  <p className="mt-2 text-2xl font-semibold text-foreground">{data.counts.teams}</p>
-                </div>
-                <div className="rounded-lg border border-border bg-background/35 p-4">
-                  <p className="eyebrow">Tournaments</p>
-                  <p className="mt-2 text-2xl font-semibold text-foreground">
-                    {data.counts.tournaments}
-                  </p>
-                </div>
+              <div className="mt-5 flex flex-wrap items-center gap-x-8 gap-y-3">
+                <AdminMetric label="Players" value={data.counts.players} />
+                <AdminMetric label="Teams" value={data.counts.teams} />
+                <AdminMetric label="Tournaments" value={data.counts.tournaments} />
               </div>
             </section>
 
@@ -288,7 +275,7 @@ function AdminPage() {
               <div className="flex flex-wrap items-end justify-between gap-3">
                 <div>
                   <p className="eyebrow">Eligibility</p>
-                  <h2 className="mt-1 text-lg font-semibold text-foreground">
+                  <h2 className="mt-1 text-xl font-black text-foreground">
                     Players waiting for review
                   </h2>
                   <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
@@ -301,7 +288,7 @@ function AdminPage() {
                 </Badge>
               </div>
 
-              <div className="mt-4 overflow-hidden rounded-lg border border-border bg-surface-gradient">
+              <div className="mt-4 overflow-hidden rounded-2xl border border-border/70 bg-card/35">
                 {data.reviews.length ? (
                   data.reviews.map((review) => (
                     <div
@@ -321,8 +308,8 @@ function AdminPage() {
                             submitted {formatDate(review.created_at)}
                           </p>
                           {review.reason ? (
-                            <div className="mt-3 rounded-md border border-border bg-background/30 p-3">
-                              <p className="text-xs font-medium text-foreground">Review reason</p>
+                            <div className="mt-3 border-l-2 border-primary/25 pl-3">
+                              <p className="text-xs font-bold text-foreground">Review reason</p>
                               <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                                 {review.reason}
                               </p>
@@ -344,8 +331,8 @@ function AdminPage() {
                 )}
               </div>
 
-              <details className="group mt-4 rounded-lg border border-border bg-background/20">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4">
+              <details className="group mt-4 border-t border-border/60">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-4">
                   <div className="flex items-center gap-3">
                     <Activity className="size-4 text-muted-foreground" />
                     <div>
@@ -400,7 +387,7 @@ function AdminPage() {
                   </div>
                   <Badge>{data.counts.reports}</Badge>
                 </div>
-                <div className="mt-4 overflow-hidden rounded-lg border border-border bg-surface-gradient">
+                <div className="mt-4 overflow-hidden rounded-2xl border border-border/70 bg-card/35">
                   {data.reports.map((report) => (
                     <div
                       key={report.id}
@@ -427,8 +414,7 @@ function AdminPage() {
             ) : null}
 
             <section id="competition" className="mt-12 scroll-mt-24">
-              <div className="rounded-xl border border-border bg-background/20 p-4 sm:p-6">
-                <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+              <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
                   <div>
                     <p className="eyebrow">Competition</p>
                     <h2 className="mt-1 text-lg font-semibold text-foreground">
@@ -445,16 +431,15 @@ function AdminPage() {
                       <ChevronRight />
                     </Link>
                   </Button>
-                </div>
-                <CompetitionOpsPanel />
               </div>
+              <CompetitionOpsPanel />
             </section>
 
             <section className="mt-10">
-              <details className="group rounded-lg border border-border bg-surface-gradient">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 sm:p-5">
+              <details className="group border-t border-border/60">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-4 sm:py-5">
                   <div className="flex items-center gap-3">
-                    <span className="flex size-9 items-center justify-center rounded-md border border-border bg-background/40 text-muted-foreground">
+                    <span className="flex size-8 items-center justify-center rounded-lg bg-background/40 text-muted-foreground">
                       <Activity className="size-4" />
                     </span>
                     <div>
@@ -522,6 +507,17 @@ function AdminPage() {
           </>
         ) : null}
       </PageContainer>
+    </div>
+  );
+}
+
+function AdminMetric({ label, value }: { label: string; value: number }) {
+  return (
+    <div>
+      <p className="text-xl font-black tabular-nums text-foreground">{value}</p>
+      <p className="mt-0.5 text-[9px] font-bold uppercase tracking-[0.13em] text-muted-foreground">
+        {label}
+      </p>
     </div>
   );
 }
