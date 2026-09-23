@@ -18,7 +18,7 @@ export function StatTile({
   return (
     <div
       className={cn(
-        "bg-surface-gradient shadow-card rounded-lg border border-border p-4",
+        "relative overflow-hidden rounded-xl border border-border/70 bg-gradient-to-br from-card/80 to-background/50 p-4",
         className,
       )}
     >
@@ -27,9 +27,13 @@ export function StatTile({
           <p className="eyebrow">{label}</p>
           <p className="tabular mt-2 truncate text-2xl font-black text-foreground">{value}</p>
         </div>
-        {icon ? <span className="shrink-0 text-brand">{icon}</span> : null}
+        {icon ? (
+          <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary/8 text-primary">
+            {icon}
+          </span>
+        ) : null}
       </div>
-      {hint ? <p className="mt-2 text-xs text-muted-foreground">{hint}</p> : null}
+      {hint ? <p className="mt-1.5 text-xs text-muted-foreground">{hint}</p> : null}
     </div>
   );
 }
