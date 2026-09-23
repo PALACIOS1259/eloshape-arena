@@ -264,14 +264,14 @@ function RecruitingWorkspace({
         </div>
 
         <div className="relative mt-4 grid gap-2 md:grid-cols-2">
-          <div className="flex items-start gap-2 rounded-lg border border-border/70 bg-background/20 p-3 text-xs text-muted-foreground">
+          <div className="flex items-start gap-2 rounded-xl border border-border/60 bg-background/20 p-3 text-xs text-muted-foreground">
             <ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />
             <span>
               Starter ready means eligible, Riot verified, level 30+ and compatible with the team
               division.
             </span>
           </div>
-          <div className="flex items-start gap-2 rounded-lg border border-border/70 bg-background/20 p-3 text-xs text-muted-foreground">
+          <div className="flex items-start gap-2 rounded-xl border border-border/60 bg-background/20 p-3 text-xs text-muted-foreground">
             <Users className="mt-0.5 size-4 shrink-0" />
             <span>Substitutes add depth without occupying one of the five starting slots.</span>
           </div>
@@ -368,7 +368,7 @@ function CandidateCard({
   const eligible = candidate.eligibility === "eligible";
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-surface-gradient shadow-card transition-all hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-lg">
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-card/35 transition-all hover:-translate-y-0.5 hover:border-primary/35">
       <div className="p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
