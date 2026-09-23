@@ -1,21 +1,11 @@
 import type { ReactNode } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import {
-  Activity,
-  CalendarDays,
-  FilterX,
-  Radio,
-  ShieldCheck,
-  Swords,
-  Trophy,
-  Users,
-} from "lucide-react";
+import { CalendarDays, FilterX, Radio, Users } from "lucide-react";
 
 import { EmptyState } from "@/components/eloshape/EmptyState";
 import { TournamentCard } from "@/components/eloshape/TournamentCard";
-import { PageContainer } from "@/components/layout/PageShell";
-import { Badge } from "@/components/ui/badge";
+import { PageContainer, PageHeading } from "@/components/layout/PageShell";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -97,94 +87,32 @@ function TournamentsPage() {
 
   return (
     <div>
-      <section className="bg-hero relative overflow-hidden border-b border-border">
-        <div className="absolute left-[15%] top-0 size-80 -translate-y-1/2 rounded-full bg-primary/12 blur-3xl" />
-        <div className="absolute right-[8%] top-10 size-56 rounded-full bg-gold/8 blur-3xl" />
-        <PageContainer className="relative py-10 sm:py-14">
-          <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_25rem] xl:items-end">
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="outline">EloShape circuit</Badge>
-                <Badge variant="secondary">League of Legends</Badge>
-                <Badge variant="outline">LAS</Badge>
-              </div>
-              <p className="eyebrow mt-5">Competitive events</p>
-              <h1 className="mt-2 max-w-4xl text-4xl font-black tracking-tight text-foreground sm:text-5xl">
-                Find your next tournament.
-              </h1>
-              <p className="mt-4 max-w-3xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-                Register with your division, follow live brackets and build your EloShape record
-                through official circuit events.
-              </p>
-
-              <div className="mt-6 flex flex-wrap gap-3 text-xs font-semibold text-muted-foreground">
-                <span className="inline-flex items-center gap-1.5">
-                  <ShieldCheck className="size-3.5 text-primary" />
-                  Server-validated eligibility
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <Swords className="size-3.5 text-primary" />
-                  Structured brackets
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <Trophy className="size-3.5 text-gold" />
-                  EloShape circuit points
-                </span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              <HeroMetric
-                icon={<Activity className="size-4" />}
-                label="Visible events"
-                value={String(tournaments.length)}
-              />
-              <HeroMetric
-                icon={<Radio className="size-4" />}
-                label="Live now"
-                value={String(liveCount)}
-                emphasized={liveCount > 0}
-              />
-              <HeroMetric
-                icon={<CalendarDays className="size-4" />}
-                label="Registration"
-                value={String(openCount)}
-              />
-              <HeroMetric
-                icon={<Users className="size-4" />}
-                label="5v5 events"
-                value={String(teamCount)}
-              />
-            </div>
+      <PageHeading
+        eyebrow="EloShape circuit"
+        title="Tournaments"
+        description="Find an event, enter the right division and follow every official bracket from registration through final standings."
+        aside={
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
+            <Metric icon={<Radio className="size-3.5" />} value={liveCount} label="live" accent />
+            <Metric
+              icon={<CalendarDays className="size-3.5" />}
+              value={openCount}
+              label="open"
+            />
+            <Metric icon={<Users className="size-3.5" />} value={teamCount} label="5v5" />
           </div>
-        </PageContainer>
-      </section>
+        }
+      />
 
-      <PageContainer className="py-8 sm:py-10">
-        <div className="mb-6 grid gap-3 sm:grid-cols-3">
-          <CircuitPill
-            icon={<ShieldCheck className="size-4" />}
-            title="Verified entry"
-            description="Eligibility checked server-side"
-          />
-          <CircuitPill
-            icon={<Swords className="size-4" />}
-            title="Live progression"
-            description="Bracket and results stay connected"
-          />
-          <CircuitPill
-            icon={<Trophy className="size-4" />}
-            title="Circuit impact"
-            description="Every official result builds your record"
-            gold
-          />
-        </div>
-        <section className="sticky top-16 z-20 overflow-hidden rounded-2xl border border-border/80 bg-background/85 shadow-xl shadow-background/20 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70">
-          <div className="border-b border-border px-4 py-4 sm:px-5">
+      <PageContainer className="py-7 sm:py-9">
+        <section className="sticky top-16 z-20 rounded-2xl border border-border/80 bg-background/85 shadow-card backdrop-blur-xl supports-[backdrop-filter]:bg-background/70">
+          <div className="flex flex-col gap-4 p-4 sm:p-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="eyebrow">Tournament finder</p>
-                <h2 className="mt-1 text-lg font-black text-foreground">Browse the circuit</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Filter official EloShape events by stage, division and mode.
+                </p>
               </div>
               {activeFilters ? (
                 <Button
@@ -194,15 +122,17 @@ function TournamentsPage() {
                   onClick={() => update({ status: "all", division: "all", mode: "all" })}
                 >
                   <FilterX className="size-4" />
-                  Reset {activeFilters} {activeFilters === 1 ? "filter" : "filters"}
+                  Reset
                 </Button>
               ) : (
-                <span className="text-xs text-muted-foreground">Showing the full circuit</span>
+                <span className="text-xs text-muted-foreground">
+                  {tournaments.length} visible events
+                </span>
               )}
             </div>
-          </div>
 
-          <div className="p-4 sm:p-5">
+            <div className="h-px bg-border/60" />
+
             <div className="flex gap-2 overflow-x-auto pb-1">
               {STATUSES.map((status) => (
                 <button
@@ -210,10 +140,10 @@ function TournamentsPage() {
                   type="button"
                   onClick={() => update({ status })}
                   className={cn(
-                    "shrink-0 rounded-xl border px-3.5 py-2 text-xs font-black transition-all",
+                    "shrink-0 rounded-lg border px-3 py-2 text-xs font-black transition-colors",
                     search.status === status
-                      ? "border-primary/35 bg-primary/12 text-primary shadow-sm"
-                      : "border-border bg-background/25 text-muted-foreground hover:border-primary/25 hover:text-foreground",
+                      ? "border-primary/35 bg-primary/10 text-primary"
+                      : "border-border/70 bg-background/30 text-muted-foreground hover:text-foreground",
                   )}
                 >
                   {status === "all"
@@ -223,7 +153,7 @@ function TournamentsPage() {
               ))}
             </div>
 
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2">
               <Filter
                 label="Division"
                 value={search.division}
@@ -250,11 +180,11 @@ function TournamentsPage() {
           </div>
         </section>
 
-        <section className="mt-9">
-          <div className="flex flex-wrap items-end justify-between gap-4">
+        <section className="mt-8">
+          <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="eyebrow">Tournament board</p>
-              <h2 className="mt-1 text-2xl font-black text-foreground">
+              <h2 className="mt-1 text-xl font-black text-foreground sm:text-2xl">
                 {search.status === "live"
                   ? "Live brackets"
                   : search.status === "registration_open"
@@ -263,86 +193,61 @@ function TournamentsPage() {
                       ? "Tournament archive"
                       : "Circuit events"}
               </h2>
-              <p className="mt-2 text-sm text-muted-foreground">
-                {tournaments.length} {tournaments.length === 1 ? "event" : "events"} match your
-                current filters.
-              </p>
             </div>
-            {liveCount > 0 ? (
-              <div className="inline-flex items-center gap-2 rounded-xl border border-primary/25 bg-primary/8 px-3 py-2 text-xs font-bold text-primary">
-                <span className="relative flex size-2">
-                  <span className="absolute inline-flex size-full animate-ping rounded-full bg-primary opacity-60" />
-                  <span className="relative inline-flex size-2 rounded-full bg-primary" />
-                </span>
-                {liveCount} live {liveCount === 1 ? "event" : "events"}
-              </div>
-            ) : null}
+            <p className="text-xs text-muted-foreground">
+              <strong className="font-black text-foreground">{tournaments.length}</strong>{" "}
+              {tournaments.length === 1 ? "event" : "events"}
+            </p>
           </div>
 
-          <div className="mt-5">
-            {tournaments.length ? (
-              <div className="grid items-stretch gap-5 md:grid-cols-2 xl:grid-cols-3">
-                {tournaments.map((tournament, index) => (
-                  <div
-                    key={tournament.slug}
-                    className="animate-in fade-in-0 slide-in-from-bottom-2 fill-mode-backwards"
-                    style={{
-                      animationDelay: `${Math.min(index * 55, 330)}ms`,
-                      animationDuration: "420ms",
-                    }}
+          {tournaments.length ? (
+            <div className="mt-5 grid items-stretch gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {tournaments.map((tournament) => (
+                <TournamentCard key={tournament.slug} tournament={tournament} className="h-full" />
+              ))}
+            </div>
+          ) : (
+            <div className="mt-5">
+              <EmptyState
+                title="No tournaments match these filters"
+                description="Try another division, mode or tournament state."
+                action={
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => update({ status: "all", division: "all", mode: "all" })}
                   >
-                    <TournamentCard tournament={tournament} className="h-full" />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="rounded-2xl border border-border bg-surface-gradient p-4 shadow-card sm:p-8">
-                <EmptyState
-                  title="No tournaments match these filters"
-                  description="Try another division, mode or tournament state. New events appear here as soon as they are published."
-                  action={
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => update({ status: "all", division: "all", mode: "all" })}
-                    >
-                      Clear filters
-                    </Button>
-                  }
-                />
-              </div>
-            )}
-          </div>
+                    Clear filters
+                  </Button>
+                }
+              />
+            </div>
+          )}
         </section>
       </PageContainer>
     </div>
   );
 }
 
-function HeroMetric({
+function Metric({
   icon,
-  label,
   value,
-  emphasized = false,
+  label,
+  accent = false,
 }: {
   icon: ReactNode;
+  value: number;
   label: string;
-  value: string;
-  emphasized?: boolean;
+  accent?: boolean;
 }) {
   return (
-    <div
-      className={cn(
-        "rounded-xl border border-border bg-background/35 p-4",
-        emphasized && "border-primary/30 bg-primary/8",
-      )}
-    >
-      <div className={cn("text-muted-foreground", emphasized && "text-primary")}>{icon}</div>
-      <p className="mt-3 text-2xl font-black tabular-nums text-foreground">{value}</p>
-      <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
-        {label}
-      </p>
-    </div>
+    <span className="inline-flex items-center gap-1.5">
+      <span className={accent ? "text-primary" : "text-muted-foreground"}>{icon}</span>
+      <strong className={cn("font-black tabular-nums text-foreground", accent && "text-primary")}>
+        {value}
+      </strong>
+      <span className="uppercase tracking-[0.09em]">{label}</span>
+    </span>
   );
 }
 
@@ -358,10 +263,10 @@ function Filter({
   onChange: (value: string) => void;
 }) {
   return (
-    <label className="block rounded-xl border border-border bg-background/25 p-3">
+    <label className="block">
       <span className="eyebrow">{label}</span>
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger className="mt-2 w-full border-border/80 bg-background/60">
+        <SelectTrigger className="mt-2 w-full border-border/80 bg-background/45">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -373,41 +278,5 @@ function Filter({
         </SelectContent>
       </Select>
     </label>
-  );
-}
-
-function CircuitPill({
-  icon,
-  title,
-  description,
-  gold = false,
-}: {
-  icon: ReactNode;
-  title: string;
-  description: string;
-  gold?: boolean;
-}) {
-  return (
-    <div
-      className={cn(
-        "group flex items-center gap-3 rounded-2xl border border-border/70 bg-background/30 px-4 py-3 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/25 hover:bg-background/45",
-        gold && "hover:border-gold/25",
-      )}
-    >
-      <span
-        className={cn(
-          "grid size-9 shrink-0 place-items-center rounded-xl border border-primary/20 bg-primary/8 text-primary transition-transform duration-300 group-hover:scale-105",
-          gold && "border-gold/20 bg-gold/8 text-gold",
-        )}
-      >
-        {icon}
-      </span>
-      <span className="min-w-0">
-        <span className="block text-xs font-black text-foreground">{title}</span>
-        <span className="mt-0.5 block truncate text-[11px] text-muted-foreground">
-          {description}
-        </span>
-      </span>
-    </div>
   );
 }
