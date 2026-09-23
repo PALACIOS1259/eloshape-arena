@@ -81,9 +81,22 @@ function HomePage() {
               </div>
 
               <div className="mt-9 flex flex-wrap items-center gap-x-8 gap-y-4 border-t border-border/60 pt-5">
-                <HomeMetric icon={<Users className="size-4" />} label="Players" value={formatPoints(snapshot.stats.players)} />
-                <HomeMetric icon={<Swords className="size-4" />} label="Tournaments" value={formatPoints(snapshot.stats.tournaments)} />
-                <HomeMetric icon={<Trophy className="size-4" />} label="Top score" value={formatPoints(topPoints)} gold />
+                <HomeMetric
+                  icon={<Users className="size-4" />}
+                  label="Players"
+                  value={formatPoints(snapshot.stats.players)}
+                />
+                <HomeMetric
+                  icon={<Swords className="size-4" />}
+                  label="Tournaments"
+                  value={formatPoints(snapshot.stats.tournaments)}
+                />
+                <HomeMetric
+                  icon={<Trophy className="size-4" />}
+                  label="Top score"
+                  value={formatPoints(topPoints)}
+                  gold
+                />
               </div>
             </div>
 
@@ -205,7 +218,6 @@ function HomePage() {
   );
 }
 
-
 function HomeMetric({
   icon,
   label,
@@ -221,7 +233,11 @@ function HomeMetric({
     <div className="flex items-center gap-2">
       <span className={gold ? "text-gold" : "text-primary"}>{icon}</span>
       <span>
-        <span className={gold ? "block text-lg font-black text-gold" : "block text-lg font-black text-foreground"}>
+        <span
+          className={
+            gold ? "block text-lg font-black text-gold" : "block text-lg font-black text-foreground"
+          }
+        >
           {value}
         </span>
         <span className="block text-[9px] font-bold uppercase tracking-[0.13em] text-muted-foreground">
