@@ -94,11 +94,7 @@ function TournamentsPage() {
         aside={
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
             <Metric icon={<Radio className="size-3.5" />} value={liveCount} label="live" accent />
-            <Metric
-              icon={<CalendarDays className="size-3.5" />}
-              value={openCount}
-              label="open"
-            />
+            <Metric icon={<CalendarDays className="size-3.5" />} value={openCount} label="open" />
             <Metric icon={<Users className="size-3.5" />} value={teamCount} label="5v5" />
           </div>
         }
