@@ -30,8 +30,8 @@ export function IntroVideoSection() {
   if (!introVideoUrl) return null;
 
   return (
-    <section className="border-b border-border bg-surface/30">
-      <PageContainer className="py-16">
+    <section className="border-b border-border/60 bg-card/15">
+      <PageContainer className="py-12 sm:py-14">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:items-center">
           <div>
             <p className="eyebrow">How EloShape works</p>
@@ -62,7 +62,7 @@ export function IntroVideoSection() {
             </Button>
           </div>
 
-          <div className="shadow-elevated overflow-hidden rounded-xl border border-border bg-background">
+          <div className="overflow-hidden rounded-2xl border border-border/70 bg-background/60">
             <div className="aspect-video bg-black">
               <video
                 className="h-full w-full object-contain"
