@@ -101,8 +101,8 @@ function HomePage() {
             </div>
 
             <div className="min-w-0">
-              <div className="overflow-hidden rounded-2xl border border-border/70 bg-card/45">
-                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border/60 px-4 py-3">
+              <div className="overflow-hidden border-y border-border/65 bg-card/15">
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border/55 bg-background/10 px-4 py-3">
                   <p className="eyebrow">Live season leaderboard</p>
                   <Link
                     to="/rankings"
@@ -136,11 +136,11 @@ function HomePage() {
             </Button>
           }
         />
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {directory.divisions.map((division) => (
             <div
               key={division.id}
-              className="rounded-2xl border border-border/70 bg-gradient-to-br from-card/80 to-background/45 p-5"
+              className="rounded-2xl border border-border/70 bg-gradient-to-br from-card/92 via-card/72 to-background/55 p-5 shadow-card transition-all duration-200 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg"
             >
               <DivisionBadge division={division} size="md" />
               <p className="mt-4 text-sm text-muted-foreground">{division.description}</p>
