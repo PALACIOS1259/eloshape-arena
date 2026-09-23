@@ -277,6 +277,10 @@ begin
   if (select placement from public.tournament_entries where id = v_champion) <> 1 then
     raise exception 'FAIL scoring: champion placement is not 1.';
   end if;
+  select s.wins into v_int
+  from public.split_standings(v_split) s
+  where s.team_id = (select te.team_id from public.tournament_entries te where te.id = v_champion);
+  assert v_int = 2, 'FAIL split standings: walkover win missing from W/L tiebreaker.';
   if exists (select 1 from public.tournament_entries
              where id = v_reg_entry and (points_awarded <> 0 or placement is not null)) then
     raise exception 'FAIL scoring: a non checked-in entry was scored.';
