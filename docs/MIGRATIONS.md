@@ -1,6 +1,6 @@
 # EloShape migration history
 
-Last reviewed against the staging project on 2026-09-22.
+Last reviewed against staging and production registries on 2026-09-23.
 
 ## Rules
 
@@ -9,7 +9,7 @@ Last reviewed against the staging project on 2026-09-22.
 3. Migrations that only seed QA/demo data must never become an accidental production dependency.
 4. SQL integration tests must be able to build a fresh local database from the repository migrations without relying on staging fixture rows.
 
-## Repository migrations (43)
+## Repository migrations (44)
 
 - `20260825151248_1abac606-f81c-49f6-991f-65cbfdcb9f99.sql` — Foundation / generated schema
 - `20260825151303_29e55455-0d87-46af-bc94-5c10b72815e5.sql` — Foundation / generated schema
@@ -54,6 +54,7 @@ Last reviewed against the staging project on 2026-09-22.
 - `20260922193000_qualifier_only_split_standings.sql` — Competition
 - `20260922200000_scrims_and_qualifier_priority.sql` — Scrims
 - `20260922201000_harden_scrim_rpc_privileges.sql` — Scrims
+- `20260923195500_count_walkovers_in_split_standings.sql` — Competition
 
 ## Staging migration-history notes
 
@@ -61,6 +62,8 @@ The live staging migration registry contains two environment-only records that a
 
 - `20260828131355 seed_staging_qa_16_team_fixture` — seeds synthetic QA staff/teams for staging.
 - `20260909130414 staging_connectivity_check` — staging connectivity/diagnostic record.
+
+The production registry currently ends at `harden_archived_team_identity` (2026-08-28). Before promotion, apply the nine migrations from `20260910120000_audited_match_walkovers.sql` through `20260923195500_count_walkovers_in_split_standings.sql` in repository order. Check actual registry names and schema before applying each migration; historical production records use different timestamps than repository filenames. Never reapply baseline seed files or the staging-only records.
 
 There is also a historical timestamp-name mismatch for the qualifier-capacity correction: the live registry records `20260827141500_set_rosario_gold_qualifiers_to_16_teams`, while the repository keeps the forward file as `20260827141501_set_rosario_gold_qualifiers_to_16_teams.sql`. The behavior is represented in source; do not create a second production correction merely to make the historical labels identical.
 
