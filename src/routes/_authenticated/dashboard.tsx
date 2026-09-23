@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
+import { ChevronRight } from "lucide-react";
 
 import { DivisionBadge } from "@/components/eloshape/DivisionBadge";
 import { EmptyState } from "@/components/eloshape/EmptyState";
 import { OnboardingChecklist } from "@/components/eloshape/OnboardingChecklist";
 import { ProfileSettingsCard } from "@/components/eloshape/ProfileSettingsCard";
 import { RiotAccountCard } from "@/components/eloshape/RiotAccountCard";
-import { StatTile } from "@/components/eloshape/StatTile";
 import { StatusBadge } from "@/components/eloshape/StatusBadge";
 import { PageContainer, PageHeading } from "@/components/layout/PageShell";
 import { Badge } from "@/components/ui/badge";
@@ -79,73 +79,89 @@ function DashboardPage() {
       <PageHeading
         eyebrow="Player area"
         title={profile.display_name}
-        description="Your division, points and tournament activity on the circuit."
+        description="Your competition status, Riot eligibility, team readiness and official EloShape history."
         aside={
-          <Button variant="outline" onClick={signOut}>
+          <Button variant="outline" size="sm" onClick={signOut}>
             Sign out
           </Button>
         }
       />
 
-      <PageContainer className="py-10">
-        <div className="flex flex-wrap items-center gap-3">
-          <DivisionBadge division={profile.division} size="md" />
-          <Badge variant="outline" className="text-muted-foreground">
-            {ELIGIBILITY_LABEL[profile.eligibility] ?? profile.eligibility}
-          </Badge>
-          <span className="text-sm text-muted-foreground">
-            Riot (eligibility only): {riotRankLabel(profile.riot_tier, profile.riot_rank)}
-          </span>
-        </div>
+      <PageContainer className="py-7 sm:py-9">
+        <section className="flex flex-col gap-5 border-b border-border/60 pb-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-wrap items-center gap-3">
+            <DivisionBadge division={profile.division} size="md" />
+            <Badge variant="outline" className="text-muted-foreground">
+              {ELIGIBILITY_LABEL[profile.eligibility] ?? profile.eligibility}
+            </Badge>
+            <span className="text-xs text-muted-foreground">
+              Riot eligibility · {riotRankLabel(profile.riot_tier, profile.riot_rank)}
+            </span>
+          </div>
 
-        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <StatTile label="Season points" value={formatPoints(profile.points_season)} />
-          <StatTile label="Month points" value={formatPoints(profile.points_month)} />
-          <StatTile
-            label="EloShape record"
-            value={`${profile.wins}-${profile.losses}`}
-            hint={`${winRate(profile.wins, profile.losses)} win rate`}
-          />
-          <StatTile label="Profile completion" value={`${profile.profile_completion}%`} />
-        </div>
+          <div className="grid grid-cols-2 gap-x-7 gap-y-4 sm:grid-cols-4">
+            <Metric label="Season" value={formatPoints(profile.points_season)} accent />
+            <Metric label="Month" value={formatPoints(profile.points_month)} />
+            <Metric
+              label="Record"
+              value={`${profile.wins}-${profile.losses}`}
+              detail={winRate(profile.wins, profile.losses)}
+            />
+            <Metric label="Profile" value={`${profile.profile_completion}%`} />
+          </div>
+        </section>
 
-        <div className="mt-10 grid gap-6 lg:grid-cols-[1fr_1.4fr]">
+        <section className="mt-7 grid gap-5 lg:grid-cols-[0.9fr_1.35fr]">
           <OnboardingChecklist steps={onboarding} />
-          <div className="space-y-6">
+          <div className="space-y-5">
             <RiotAccountCard account={riot} service={riotService} />
             <ProfileSettingsCard profile={profile} />
           </div>
-        </div>
+        </section>
 
-        <div className="mt-10 grid gap-8 lg:grid-cols-2">
+        <section className="mt-9 grid gap-8 lg:grid-cols-2">
           <div className="min-w-0">
-            <p className="eyebrow">Your entries</p>
-            <div className="mt-3 space-y-3">
-              {data.entries.length ? (
-                data.entries.map((entry) => (
+            <div className="flex items-end justify-between gap-3">
+              <div>
+                <p className="eyebrow">Competition</p>
+                <h2 className="mt-1 text-xl font-black text-foreground">Your entries</h2>
+              </div>
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/tournaments">Browse events</Link>
+              </Button>
+            </div>
+
+            {data.entries.length ? (
+              <div className="mt-3 overflow-hidden rounded-2xl border border-border/70 bg-card/35">
+                {data.entries.map((entry) => (
                   <Link
                     key={entry.id}
                     to="/tournaments/$slug"
                     params={{ slug: entry.tournament?.slug ?? "" }}
-                    className="bg-surface-gradient shadow-card grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-border p-4 hover:border-brand/50"
+                    className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 border-b border-border/60 px-4 py-4 transition-colors last:border-0 hover:bg-primary/[0.035]"
                   >
                     <span className="min-w-0">
-                      <span className="block truncate text-sm font-semibold text-foreground">
+                      <span className="block truncate text-sm font-bold text-foreground transition-colors group-hover:text-primary">
                         {entry.tournament?.name}
                       </span>
                       <span className="mt-1 block text-xs text-muted-foreground">
                         {formatDate(entry.tournament?.starts_at)} · {entry.status}
                       </span>
                     </span>
-                    <span className="shrink-0 text-right">
-                      {entry.tournament ? <StatusBadge status={entry.tournament.status} /> : null}
-                      <span className="tabular mt-1 block text-xs text-gold">
-                        {placementLabel(entry.placement)} · +{formatPoints(entry.points_awarded)}
+                    <span className="flex items-center gap-3 text-right">
+                      <span>
+                        {entry.tournament ? <StatusBadge status={entry.tournament.status} /> : null}
+                        <span className="tabular mt-1 block text-[11px] text-gold">
+                          {placementLabel(entry.placement)} · +{formatPoints(entry.points_awarded)}
+                        </span>
                       </span>
+                      <ChevronRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
                     </span>
                   </Link>
-                ))
-              ) : (
+                ))}
+              </div>
+            ) : (
+              <div className="mt-3">
                 <EmptyState
                   title="No entries yet"
                   description="Register for an open bracket to start earning points."
@@ -155,39 +171,67 @@ function DashboardPage() {
                     </Button>
                   }
                 />
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           <div className="min-w-0">
-            <p className="eyebrow">Recent points</p>
-            <div className="bg-surface-gradient mt-3 overflow-hidden rounded-lg border border-border">
-              {data.ledger.length ? (
-                data.ledger.map((row) => (
+            <p className="eyebrow">Scoring</p>
+            <h2 className="mt-1 text-xl font-black text-foreground">Recent points</h2>
+
+            {data.ledger.length ? (
+              <div className="mt-3 divide-y divide-border/60 rounded-2xl border border-border/70 bg-card/35">
+                {data.ledger.map((row) => (
                   <div
                     key={row.id}
-                    className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border px-4 py-3 last:border-0"
+                    className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3.5"
                   >
                     <span className="min-w-0">
                       <span className="block truncate text-sm font-semibold text-foreground">
                         {row.tournament?.name ?? row.note ?? row.rule_code}
                       </span>
-                      <span className="eyebrow mt-1 block">{formatDate(row.awarded_at)}</span>
+                      <span className="mt-1 block text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">
+                        {formatDate(row.awarded_at)}
+                      </span>
                     </span>
                     <span className="tabular shrink-0 text-sm font-black text-gold">
                       +{formatPoints(row.points)}
                     </span>
                   </div>
-                ))
-              ) : (
-                <div className="p-6">
-                  <EmptyState title="No points yet" />
-                </div>
-              )}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="mt-3">
+                <EmptyState title="No points yet" />
+              </div>
+            )}
           </div>
-        </div>
+        </section>
       </PageContainer>
+    </div>
+  );
+}
+
+function Metric({
+  label,
+  value,
+  detail,
+  accent = false,
+}: {
+  label: string;
+  value: string;
+  detail?: string;
+  accent?: boolean;
+}) {
+  return (
+    <div className="min-w-0">
+      <p className={`truncate text-lg font-black ${accent ? "text-gold" : "text-foreground"}`}>
+        {value}
+      </p>
+      <p className="mt-0.5 text-[9px] font-bold uppercase tracking-[0.13em] text-muted-foreground">
+        {label}
+        {detail ? ` · ${detail}` : ""}
+      </p>
     </div>
   );
 }
