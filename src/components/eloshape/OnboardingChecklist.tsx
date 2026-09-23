@@ -9,7 +9,7 @@ export function OnboardingChecklist({ steps }: { steps: OnboardingStep[] }) {
   const completion = steps.length ? Math.round((completedSteps / steps.length) * 100) : 0;
 
   return (
-    <div className="rounded-2xl border border-border/70 bg-card/35 p-5">
+    <div className="border-y border-border/65 py-5">
       <div className="flex items-baseline justify-between gap-3">
         <p className="eyebrow">Onboarding</p>
         <span className="tabular text-sm font-black text-gold">{completion}%</span>
