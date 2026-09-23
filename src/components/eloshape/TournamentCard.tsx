@@ -50,11 +50,11 @@ export function TournamentCard({
       to="/tournaments/$slug"
       params={{ slug: tournament.slug }}
       className={cn(
-        "group relative flex min-h-[22rem] flex-col overflow-hidden rounded-2xl border border-border/75 bg-gradient-to-br from-card/95 via-card/80 to-background/70 shadow-card transition-all duration-200 hover:-translate-y-1 hover:border-primary/35 hover:shadow-xl",
+        "group relative flex min-h-[21rem] flex-col overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-br from-card/92 via-card/72 to-background/55 shadow-card transition-all duration-200 hover:-translate-y-1 hover:border-primary/35 hover:shadow-xl",
         className,
       )}
     >
-      <div className="relative h-32 overflow-hidden">
+      <div className="relative h-28 overflow-hidden">
         {tournament.banner_url ? (
           <img
             src={tournament.banner_url}
@@ -72,8 +72,8 @@ export function TournamentCard({
           </div>
           <span
             className={cn(
-              "grid size-8 place-items-center rounded-lg border border-white/10 bg-background/60 text-muted-foreground backdrop-blur",
-              isLive && "border-primary/25 bg-primary/10 text-primary",
+              "grid size-8 place-items-center text-muted-foreground",
+              isLive && "text-primary",
             )}
           >
             {isLive ? <Radio className="size-4" /> : <Swords className="size-4" />}
@@ -92,7 +92,7 @@ export function TournamentCard({
           {tournament.subtitle ?? "Competitive EloShape event for the LAS circuit."}
         </p>
 
-        <div className="mt-5 grid grid-cols-2 gap-x-5 gap-y-3 text-xs">
+        <div className="mt-5 grid grid-cols-2 gap-x-5 gap-y-3 border-t border-border/55 pt-4 text-xs">
           <Fact
             icon={<CalendarDays className="size-3.5" />}
             label={formatDateTime(tournament.starts_at)}
