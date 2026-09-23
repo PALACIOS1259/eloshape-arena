@@ -107,22 +107,22 @@ function SplitPage() {
 
   return (
     <div>
-      <section className="bg-hero relative overflow-hidden border-b border-border">
+      <section className="relative overflow-hidden border-b border-border/70 bg-gradient-to-br from-background via-background to-primary/[0.025]">
         <div className="absolute right-0 top-0 size-[30rem] translate-x-1/3 -translate-y-1/2 rounded-full bg-primary/10 blur-3xl" />
-        <PageContainer className="relative py-9 sm:py-12">
+        <PageContainer className="relative py-8 sm:py-10">
           <Button asChild size="sm" variant="ghost" className="mb-6 -ml-3">
             <Link to="/splits">← All Semi-Splits</Link>
           </Button>
 
-          <div className="grid gap-7 xl:grid-cols-[minmax(0,1fr)_22rem] xl:items-end">
+          <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <StatusBadge status={split.status} />
                 {split.division ? <Badge variant="outline">{split.division.name}</Badge> : null}
                 {split.region ? <Badge variant="outline">{split.region.name}</Badge> : null}
               </div>
-              <p className="eyebrow mt-5">{split.season?.name ?? "EloShape season"}</p>
-              <h1 className="mt-2 max-w-4xl text-4xl font-black tracking-tight text-foreground sm:text-5xl">
+              <p className="eyebrow mt-4">{split.season?.name ?? "EloShape season"}</p>
+              <h1 className="mt-2 max-w-4xl text-3xl font-black tracking-tight text-foreground sm:text-4xl">
                 {split.name}
               </h1>
               <p className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
@@ -137,18 +137,18 @@ function SplitPage() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-primary/20 bg-primary/6 p-5 shadow-card">
+            <div className="w-full border-t border-border/60 pt-4 xl:w-[22rem] xl:border-l xl:border-t-0 xl:pl-6 xl:pt-0">
               <p className="text-[10px] font-black uppercase tracking-[0.14em] text-primary">
                 Current phase
               </p>
-              <p className="mt-2 text-2xl font-black text-foreground">
+              <p className="mt-1.5 text-xl font-black text-foreground">
                 {displayStageLabel(split.status)}
               </p>
               <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
                 {qualifiedCount}/{split.playoff_size} playoff places are currently locked.
               </p>
               {split.dispute_deadline_at ? (
-                <p className="mt-4 border-t border-primary/15 pt-3 text-xs text-muted-foreground">
+                <p className="mt-3 text-xs text-muted-foreground">
                   Disputes close {formatDateTime(split.dispute_deadline_at)}
                 </p>
               ) : null}
@@ -160,7 +160,7 @@ function SplitPage() {
       <PageContainer className="py-8 sm:py-10">
         <StageRail activeIndex={currentStageIndex} />
 
-        <section className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <section className="mt-6 grid grid-cols-2 gap-x-6 gap-y-5 border-b border-border/60 pb-6 xl:grid-cols-4">
           <OverviewMetric
             icon={<Swords className="size-4" />}
             label="Qualifiers"
@@ -207,15 +207,15 @@ function SplitPage() {
                     key={tournament.id}
                     to="/tournaments/$slug"
                     params={{ slug: tournament.slug }}
-                    className="group overflow-hidden rounded-2xl border border-border bg-surface-gradient shadow-card transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
+                    className="group relative overflow-hidden rounded-2xl border border-border/75 bg-gradient-to-br from-card/90 to-background/55 p-4 transition-all hover:-translate-y-1 hover:border-primary/35 hover:shadow-xl"
                   >
-                    <div className="flex items-center justify-between border-b border-border/70 bg-background/25 px-4 py-3">
+                    <div className="flex items-center justify-between">
                       <span className="text-[10px] font-black uppercase tracking-[0.14em] text-primary">
                         Qualifier {tournament.qualifier_index}
                       </span>
                       <StatusBadge status={tournament.status} />
                     </div>
-                    <div className="p-4">
+                    <div className="mt-3">
                       <h3 className="line-clamp-2 min-h-10 text-sm font-black text-foreground transition-colors group-hover:text-primary">
                         {tournament.name}
                       </h3>
@@ -236,7 +236,7 @@ function SplitPage() {
                         />
                       </div>
 
-                      <div className="mt-5 flex items-center justify-between border-t border-border/70 pt-3 text-xs font-semibold text-muted-foreground">
+                      <div className="mt-5 flex items-center justify-between border-t border-border/60 pt-3 text-xs font-semibold text-muted-foreground">
                         <span>4 slots · pass-down</span>
                         <span className="inline-flex items-center gap-1 text-primary">
                           View <ChevronRight className="size-3.5" />
@@ -409,10 +409,10 @@ function SplitPage() {
               {qualifications.map((row) => (
                 <article
                   key={row.id}
-                  className="rounded-2xl border border-border bg-surface-gradient p-4 shadow-card"
+                  className="rounded-xl border border-border/70 bg-card/35 p-4"
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <span className="grid size-10 place-items-center rounded-xl border border-primary/20 bg-primary/8 text-sm font-black tabular-nums text-primary">
+                    <span className="text-sm font-black tabular-nums text-primary">
                       {row.playoff_seed ? `#${row.playoff_seed}` : row.qualification_position}
                     </span>
                     <Badge variant={row.status === "qualified" ? "default" : "outline"}>
@@ -489,7 +489,7 @@ function SplitPage() {
 
 function StageRail({ activeIndex }: { activeIndex: number }) {
   return (
-    <section className="overflow-hidden rounded-2xl border border-border bg-surface-gradient p-4 shadow-card sm:p-5">
+    <section className="overflow-x-auto border-b border-border/60 pb-4">
       <div className="flex min-w-max items-start">
         {DISPLAY_STAGES.map((stage, index) => {
           const completed = index < activeIndex;
@@ -547,16 +547,16 @@ function OverviewMetric({
   gold?: boolean;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-surface-gradient p-4 shadow-card">
+    <div className="min-w-0">
       <div
         className={cn(
-          "grid size-9 place-items-center rounded-lg border border-primary/20 bg-primary/8 text-primary",
+          "grid size-8 place-items-center rounded-lg bg-primary/8 text-primary",
           gold && "border-gold/25 bg-gold/8 text-gold",
         )}
       >
         {icon}
       </div>
-      <p className="mt-4 text-2xl font-black tabular-nums text-foreground">{value}</p>
+      <p className="mt-2 text-xl font-black tabular-nums text-foreground">{value}</p>
       <p className="mt-1 text-xs font-black text-foreground">{label}</p>
       <p className="mt-1 text-[11px] text-muted-foreground">{detail}</p>
     </div>
