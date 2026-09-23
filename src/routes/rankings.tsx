@@ -179,7 +179,9 @@ function RankingsPage() {
         <section className="mt-6">
           <div className="mb-3 flex items-end justify-between gap-3">
             <div>
-              <p className="eyebrow">{search.period === "month" ? "Monthly table" : "Season table"}</p>
+              <p className="eyebrow">
+                {search.period === "month" ? "Monthly table" : "Season table"}
+              </p>
               <h2 className="mt-1 text-xl font-black text-foreground sm:text-2xl">Leaderboard</h2>
             </div>
             <p className="text-xs text-muted-foreground">{players.length} players</p>
