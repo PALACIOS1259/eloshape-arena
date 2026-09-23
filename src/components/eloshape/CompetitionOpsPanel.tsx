@@ -152,7 +152,7 @@ function MatchReporter({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-border bg-background/40 p-4">
+      <div className="border-b border-border/70/60 pb-4">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div>
             <p className="text-sm font-semibold text-foreground">Record match result</p>
@@ -164,7 +164,7 @@ function MatchReporter({
         </div>
 
         <div className="grid gap-2">
-          <label className="grid grid-cols-[minmax(0,1fr)_4.5rem] items-center gap-3 rounded-md border border-border bg-card/60 px-3 py-2">
+          <label className="grid grid-cols-[minmax(0,1fr)_4.5rem] items-center gap-3 rounded-md border border-border/70 bg-card/60 px-3 py-2">
             <span className="min-w-0 truncate text-sm font-medium text-foreground">
               {entryA.label}
             </span>
@@ -177,7 +177,7 @@ function MatchReporter({
               onChange={(event) => setScoreA(event.target.value)}
             />
           </label>
-          <label className="grid grid-cols-[minmax(0,1fr)_4.5rem] items-center gap-3 rounded-md border border-border bg-card/60 px-3 py-2">
+          <label className="grid grid-cols-[minmax(0,1fr)_4.5rem] items-center gap-3 rounded-md border border-border/70 bg-card/60 px-3 py-2">
             <span className="min-w-0 truncate text-sm font-medium text-foreground">
               {entryB.label}
             </span>
@@ -207,7 +207,7 @@ function MatchReporter({
         </div>
       </div>
 
-      <details className="group rounded-lg border border-border bg-background/20">
+      <details className="group border-t border-border/70/60">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground">
           <span className="flex items-center gap-2">
             <Gavel className="size-4" />
@@ -215,7 +215,7 @@ function MatchReporter({
           </span>
           <ChevronRight className="size-4 transition-transform group-open:rotate-90" />
         </summary>
-        <div className="border-t border-border p-4">
+        <div className="border-t border-border/70 p-4">
           <p className="text-sm font-semibold text-foreground">Declare walkover</p>
           <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
             Use only for a documented no-show or administrative ruling. A walkover advances the
@@ -323,7 +323,7 @@ function CompletedMatchCorrection({
   };
 
   return (
-    <details className="group rounded-lg border border-border bg-background/20">
+    <details className="group border-t border-border/70/60">
       <summary className="grid cursor-pointer list-none gap-2 px-4 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold text-foreground">
@@ -338,7 +338,7 @@ function CompletedMatchCorrection({
           <ChevronRight className="size-4 transition-transform group-open:rotate-90" />
         </span>
       </summary>
-      <div className="border-t border-border p-4">
+      <div className="border-t border-border/70 p-4">
         <div className="mb-3 rounded-md border border-amber-500/20 bg-amber-500/5 p-3 text-xs leading-relaxed text-muted-foreground">
           Corrections are audited. If changing the winner would conflict with activity in the next
           round, EloShape blocks the change automatically.
@@ -397,7 +397,7 @@ function WorkflowStep({ label, state }: { label: string; state: "done" | "curren
         "flex min-w-0 items-center gap-2 rounded-md border px-3 py-2 text-xs font-medium",
         state === "done" && "border-emerald-500/25 bg-emerald-500/5 text-emerald-300",
         state === "current" && "border-primary/35 bg-primary/10 text-foreground",
-        state === "pending" && "border-border bg-background/30 text-muted-foreground",
+        state === "pending" && "border-border/70 bg-background/30 text-muted-foreground",
       )}
     >
       {state === "done" ? (
@@ -405,7 +405,7 @@ function WorkflowStep({ label, state }: { label: string; state: "done" | "curren
       ) : state === "current" ? (
         <CircleDot className="size-4 shrink-0" />
       ) : (
-        <span className="size-4 shrink-0 rounded-full border border-border" />
+        <span className="size-4 shrink-0 rounded-full border border-border/70" />
       )}
       <span className="truncate">{label}</span>
     </div>
@@ -515,7 +515,7 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
   };
 
   return (
-    <div className="space-y-6 border-t border-border bg-background/15 p-4 sm:p-6">
+    <div className="space-y-6 border-t border-border/70 bg-background/15 p-4 sm:p-6">
       <section>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
@@ -638,7 +638,7 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
 
       {data.matches.length ? (
         <>
-          <details className="group rounded-lg border border-border bg-surface-gradient" open>
+          <details className="group rounded-lg border border-border/70 bg-card/35" open>
             <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4">
               <div>
                 <p className="text-sm font-semibold text-foreground">Bracket overview</p>
@@ -648,7 +648,7 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
               </div>
               <ChevronRight className="size-4 text-muted-foreground transition-transform group-open:rotate-90" />
             </summary>
-            <div className="border-t border-border p-3 sm:p-4">
+            <div className="border-t border-border/70 p-3 sm:p-4">
               <BracketView matches={data.matches} entries={labels} />
             </div>
           </details>
@@ -681,7 +681,7 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
                   return (
                     <div
                       key={match.id}
-                      className="rounded-lg border border-border bg-surface-gradient p-4 sm:p-5"
+                      className="rounded-lg border border-border/70 bg-card/35 p-4 sm:p-5"
                     >
                       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
                         <div>
@@ -707,22 +707,22 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
                 })}
               </div>
             ) : t.bracket_generated_at && !t.finalized_at ? (
-              <div className="rounded-lg border border-dashed border-border p-5 text-sm text-muted-foreground">
+              <div className="rounded-lg border border-dashed border-border/70 p-5 text-sm text-muted-foreground">
                 No match needs a result right now.
               </div>
             ) : null}
 
             {waitingMatches.length ? (
-              <details className="group mt-3 rounded-lg border border-border bg-background/20">
+              <details className="group mt-3 rounded-lg border border-border/70 bg-background/20">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm text-muted-foreground">
                   <span>{waitingMatches.length} waiting on earlier rounds</span>
                   <ChevronRight className="size-4 transition-transform group-open:rotate-90" />
                 </summary>
-                <div className="border-t border-border">
+                <div className="border-t border-border/70">
                   {waitingMatches.map((match) => (
                     <div
                       key={match.id}
-                      className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 last:border-0"
+                      className="flex items-center justify-between gap-3 border-b border-border/70 px-4 py-3 last:border-0"
                     >
                       <div>
                         <p className="text-sm font-medium text-foreground">
@@ -750,7 +750,7 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
                 </p>
               </div>
               {t.finalized_at ? (
-                <div className="rounded-lg border border-border p-4 text-sm text-muted-foreground">
+                <div className="rounded-lg border border-border/70 p-4 text-sm text-muted-foreground">
                   This tournament is finalized. Results are read-only.
                 </div>
               ) : (
@@ -787,7 +787,7 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
       )}
 
       {data.auditLog.length ? (
-        <details className="group rounded-lg border border-border bg-background/20">
+        <details className="group border-t border-border/70/60">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3">
             <span className="flex items-center gap-2 text-sm font-medium text-foreground">
               <ShieldCheck className="size-4" />
@@ -795,11 +795,11 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
             </span>
             <ChevronRight className="size-4 text-muted-foreground transition-transform group-open:rotate-90" />
           </summary>
-          <div className="border-t border-border">
+          <div className="border-t border-border/70">
             {data.auditLog.map((entry) => (
               <div
                 key={entry.id}
-                className="grid gap-1 border-b border-border px-4 py-3 last:border-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+                className="grid gap-1 border-b border-border/70 px-4 py-3 last:border-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
               >
                 <span className="text-sm font-medium text-foreground">
                   {humanize(entry.action)}
@@ -849,7 +849,7 @@ function SplitStageRail({ current }: { current: string }) {
                 "rounded-full border px-2.5 py-1 text-[11px] font-medium",
                 active && "border-primary/40 bg-primary/10 text-foreground",
                 complete && "border-emerald-500/20 bg-emerald-500/5 text-emerald-300",
-                !active && !complete && "border-border text-muted-foreground",
+                !active && !complete && "border-border/70 text-muted-foreground",
               )}
             >
               {humanize(stage)}
@@ -903,24 +903,24 @@ export function CompetitionOpsPanel() {
   return (
     <div className="space-y-5">
       <div className="grid gap-3 sm:grid-cols-3">
-        <div className="rounded-lg border border-border bg-surface-gradient p-4">
+        <div className="rounded-lg border border-border/70 bg-card/35 p-4">
           <p className="eyebrow">Active tournaments</p>
           <p className="mt-2 text-2xl font-semibold text-foreground">{activeTournaments}</p>
           <p className="mt-1 text-xs text-muted-foreground">Need monitoring or progression</p>
         </div>
-        <div className="rounded-lg border border-border bg-surface-gradient p-4">
+        <div className="rounded-lg border border-border/70 bg-card/35 p-4">
           <p className="eyebrow">Completed</p>
           <p className="mt-2 text-2xl font-semibold text-foreground">{completedTournaments}</p>
           <p className="mt-1 text-xs text-muted-foreground">Finalized tournaments in this list</p>
         </div>
-        <div className="rounded-lg border border-border bg-surface-gradient p-4">
+        <div className="rounded-lg border border-border/70 bg-card/35 p-4">
           <p className="eyebrow">Active Semi-Splits</p>
           <p className="mt-2 text-2xl font-semibold text-foreground">{activeSplits}</p>
           <p className="mt-1 text-xs text-muted-foreground">Circuit stages still in progress</p>
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2 border-b border-border pb-3">
+      <div className="flex flex-wrap gap-2 border-b border-border/70 pb-3">
         <Button
           size="sm"
           variant={view === "tournaments" ? "default" : "ghost"}
@@ -950,11 +950,11 @@ export function CompetitionOpsPanel() {
           </div>
 
           {data.tournaments.length ? (
-            <div className="overflow-hidden rounded-lg border border-border bg-surface-gradient">
+            <div className="overflow-hidden rounded-lg border border-border/70 bg-card/35">
               {data.tournaments.map((tournament) => {
                 const isSelected = selected === tournament.id;
                 return (
-                  <div key={tournament.id} className="border-b border-border last:border-0">
+                  <div key={tournament.id} className="border-b border-border/70 last:border-0">
                     <div className="grid gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
@@ -1010,7 +1010,7 @@ export function CompetitionOpsPanel() {
                 return (
                   <div
                     key={split.id}
-                    className="rounded-lg border border-border bg-surface-gradient p-4 sm:p-5"
+                    className="rounded-lg border border-border/70 bg-card/35 p-4 sm:p-5"
                   >
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="min-w-0">
@@ -1027,7 +1027,7 @@ export function CompetitionOpsPanel() {
 
                     <SplitStageRail current={split.status} />
 
-                    <div className="mt-4 rounded-lg border border-border bg-background/30 p-4">
+                    <div className="mt-4 rounded-lg border border-border/70 bg-background/30 p-4">
                       {isSeeding ? (
                         <div className="space-y-3">
                           <div>
