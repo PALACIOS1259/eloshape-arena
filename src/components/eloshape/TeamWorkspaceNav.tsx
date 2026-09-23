@@ -39,10 +39,7 @@ export function TeamWorkspaceNav({
   isCaptain?: boolean;
 }) {
   return (
-    <nav
-      aria-label="Team workspace"
-      className="border-b border-border/60 pb-3"
-    >
+    <nav aria-label="Team workspace" className="border-b border-border/60 pb-3">
       <div className="flex flex-col gap-2 lg:flex-row lg:items-stretch">
         <div className="grid flex-1 gap-2 sm:grid-cols-3">
           {tabs.map((tab) => {
