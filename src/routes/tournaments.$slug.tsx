@@ -350,7 +350,7 @@ function TournamentDetailPage() {
               </div>
 
               <div className="space-y-5">
-                <section className="rounded-2xl border border-border/70 bg-card/40 p-5">
+                <section className="border-y border-border/65 py-5">
                   <p className="eyebrow">Tournament access</p>
                   <h2 className="mt-1 text-lg font-black text-foreground">Ready to compete?</h2>
                   <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
@@ -508,7 +508,7 @@ function TournamentDetailPage() {
             ) : null}
 
             {entries.length ? (
-              <div className="mt-5 overflow-hidden rounded-2xl border border-border/70 bg-card/35">
+              <div className="mt-5 overflow-hidden border-y border-border/65 bg-card/15">
                 <div className="hidden grid-cols-[4rem_minmax(0,1fr)_8rem_8rem] gap-3 border-b border-border bg-background/25 px-5 py-3 text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground sm:grid">
                   <span>Seed</span>
                   <span>Competitor</span>
@@ -531,7 +531,7 @@ function TournamentDetailPage() {
                   return (
                     <div
                       key={entry.id}
-                      className="group grid grid-cols-[2.5rem_minmax(0,1fr)_auto] items-center gap-3 border-b border-border/70 px-4 py-4 transition-colors last:border-0 hover:bg-primary/[0.035] sm:grid-cols-[4rem_minmax(0,1fr)_8rem_8rem] sm:px-5"
+                      className="group grid grid-cols-[2.5rem_minmax(0,1fr)_auto] items-center gap-3 border-b border-border/55 px-4 py-4 transition-colors last:border-0 hover:bg-primary/[0.03] sm:grid-cols-[4rem_minmax(0,1fr)_8rem_8rem] sm:px-5"
                     >
                       <span className="grid size-8 place-items-center rounded-lg border border-border/70 bg-background/30 text-xs font-black tabular-nums text-muted-foreground">
                         {entry.seed ?? index + 1}
@@ -581,7 +581,7 @@ function TournamentDetailPage() {
                 })}
               </div>
             ) : (
-              <div className="mt-5 rounded-2xl border border-border/70 bg-card/25 p-5">
+              <div className="mt-5 border-y border-border/65 py-5">
                 <EmptyState
                   title="No participants yet"
                   description="Entries appear here as players or teams register and check in."
@@ -612,7 +612,7 @@ function TournamentDetailPage() {
             {matches.length ? (
               <BracketView matches={matches} entries={entryLabels(entries)} linkMatches />
             ) : (
-              <div className="rounded-2xl border border-border/70 bg-card/25 p-5">
+              <div className="border-y border-border/65 py-5">
                 <EmptyState
                   title="Bracket not generated yet"
                   description="The bracket is seeded once registration closes and check-in completes."
