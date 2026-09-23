@@ -120,7 +120,7 @@ function QueueCard({
   action: ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-border/70 bg-gradient-to-br from-card/80 to-background/45 p-4 transition-colors hover:border-primary/25 sm:p-5">
+    <div className="border-l border-border/60 pl-4 py-2 transition-colors hover:border-primary/40 sm:pl-5">
       <div className="flex items-start justify-between gap-3">
         <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/8 text-primary">
           {icon}
@@ -288,7 +288,7 @@ function AdminPage() {
                 </Badge>
               </div>
 
-              <div className="mt-4 overflow-hidden rounded-2xl border border-border/70 bg-card/35">
+              <div className="mt-4 overflow-hidden border-y border-border/65 bg-card/15">
                 {data.reviews.length ? (
                   data.reviews.map((review) => (
                     <div
@@ -387,7 +387,7 @@ function AdminPage() {
                   </div>
                   <Badge>{data.counts.reports}</Badge>
                 </div>
-                <div className="mt-4 overflow-hidden rounded-2xl border border-border/70 bg-card/35">
+                <div className="mt-4 overflow-hidden border-y border-border/65 bg-card/15">
                   {data.reports.map((report) => (
                     <div
                       key={report.id}
