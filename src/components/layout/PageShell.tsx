@@ -35,17 +35,17 @@ export function PageHeading({
   aside?: ReactNode;
 }) {
   return (
-    <div className="relative overflow-hidden border-b border-border/70 bg-gradient-to-br from-background via-background to-primary/[0.025]">
-      <div className="pointer-events-none absolute left-1/2 top-0 h-48 w-[70vw] -translate-x-1/2 rounded-full bg-primary/[0.04] blur-3xl" />
-      <PageContainer className="relative py-8 sm:py-10">
+    <div className="relative border-b border-border/60 bg-background">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/35 to-transparent" />
+      <PageContainer className="relative py-7 sm:py-9">
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <div className="min-w-0">
             {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
-            <h1 className="mt-2 text-3xl font-black tracking-tight text-foreground sm:text-4xl">
+            <h1 className="mt-1.5 text-3xl font-black tracking-[-0.025em] text-foreground sm:text-4xl">
               {title}
             </h1>
             {description ? (
-              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-[15px]">
                 {description}
               </p>
             ) : null}
