@@ -108,9 +108,17 @@ function TeamPage() {
 
             <div className="grid grid-cols-2 gap-x-7 gap-y-4 border-t border-border/60 pt-4 sm:grid-cols-4 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
               <TeamMetric label="Points" value={formatPoints(team.points_season)} accent />
-              <TeamMetric label="Record" value={`${team.wins}-${team.losses}`} detail={winRate(team.wins, team.losses)} />
+              <TeamMetric
+                label="Record"
+                value={`${team.wins}-${team.losses}`}
+                detail={winRate(team.wins, team.losses)}
+              />
               <TeamMetric label="Titles" value={String(team.championships ?? 0)} />
-              <TeamMetric label="Roster" value={String(members.length)} detail={`${starters.length}/5 starters`} />
+              <TeamMetric
+                label="Roster"
+                value={String(members.length)}
+                detail={`${starters.length}/5 starters`}
+              />
             </div>
           </div>
 
@@ -119,7 +127,6 @@ function TeamPage() {
               {team.bio}
             </p>
           ) : null}
-
         </PageContainer>
       </section>
 
@@ -301,7 +308,6 @@ function RosterSection({
   );
 }
 
-
 function TeamMetric({
   label,
   value,
@@ -315,7 +321,13 @@ function TeamMetric({
 }) {
   return (
     <div className="min-w-0">
-      <p className={accent ? "truncate text-lg font-black text-gold" : "truncate text-lg font-black text-foreground"}>
+      <p
+        className={
+          accent
+            ? "truncate text-lg font-black text-gold"
+            : "truncate text-lg font-black text-foreground"
+        }
+      >
         {value}
       </p>
       <p className="mt-0.5 text-[9px] font-bold uppercase tracking-[0.13em] text-muted-foreground">
