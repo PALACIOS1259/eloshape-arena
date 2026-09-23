@@ -334,10 +334,7 @@ function QualifierReadiness({ qualifiers }: { qualifiers: StaffSplitOps["qualifi
       </div>
       <div className="mt-4 grid gap-3 lg:grid-cols-2">
         {qualifiers.map((qualifier) => (
-          <article
-            key={qualifier.id}
-            className="border-y border-border/65 py-5"
-          >
+          <article key={qualifier.id} className="border-y border-border/65 py-5">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="eyebrow">Qualifier #{qualifier.qualifierIndex}</p>
