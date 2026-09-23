@@ -80,8 +80,8 @@ function SupportPage() {
         description="Ask for help, report a bug, send a privacy request or request deletion of your EloShape account. Requests are tied to your signed-in account so Staff can follow up safely."
       />
 
-      <PageContainer className="grid gap-8 py-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <section className="bg-surface-gradient rounded-lg border border-border p-6 shadow-card">
+      <PageContainer className="grid gap-8 py-7 sm:py-9 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+        <section className="rounded-2xl border border-border/70 bg-gradient-to-br from-card/85 to-background/50 p-5 sm:p-6">
           <p className="eyebrow">New request</p>
           <div className="mt-5 space-y-4">
             <div className="space-y-2">
@@ -133,7 +133,7 @@ function SupportPage() {
             </div>
 
             {category === "account_deletion" ? (
-              <div className="rounded-md border border-destructive/30 bg-destructive/10 p-4 text-sm text-muted-foreground">
+              <div className="border-l-2 border-destructive/35 pl-4 text-sm text-muted-foreground">
                 Submitting this request does not instantly erase tournament history. Staff will
                 review the request and remove or anonymize personal data while preserving records
                 that are necessary for competitive integrity or legal obligations.
@@ -170,7 +170,7 @@ function SupportPage() {
               query.data.map((request) => (
                 <article
                   key={request.id}
-                  className="bg-surface-gradient rounded-lg border border-border p-5 shadow-card"
+                  className="rounded-2xl border border-border/70 bg-card/35 p-5"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
@@ -183,7 +183,7 @@ function SupportPage() {
                     {request.message}
                   </p>
                   {request.staffResponse ? (
-                    <div className="mt-4 rounded-md border border-border bg-background/60 p-4">
+                    <div className="mt-4 border-l-2 border-primary/25 pl-4">
                       <p className="eyebrow">Staff response</p>
                       <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">
                         {request.staffResponse}
