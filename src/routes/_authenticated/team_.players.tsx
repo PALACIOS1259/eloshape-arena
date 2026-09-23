@@ -80,7 +80,7 @@ function TeamPlayerFinderPage() {
         }
       />
 
-      <PageContainer className="py-8 sm:py-10">
+      <PageContainer className="py-7 sm:py-9">
         {hub.isPending ? (
           <div className="space-y-4">
             <Skeleton className="h-20 w-full" />
@@ -177,7 +177,7 @@ function RecruitingWorkspace({
 
   return (
     <>
-      <section className="relative overflow-hidden rounded-2xl border border-border bg-surface-gradient p-5 shadow-card sm:p-6">
+      <section className="relative overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-br from-card/90 to-background/55 p-5 sm:p-6">
         <div className="absolute right-0 top-0 size-64 translate-x-20 -translate-y-28 rounded-full bg-primary/10 blur-3xl" />
         <div className="relative grid gap-6 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start">
           <div>
@@ -209,7 +209,7 @@ function RecruitingWorkspace({
           </div>
         </div>
 
-        <div className="relative mt-6 rounded-xl border border-border bg-background/35 p-3 sm:p-4">
+        <div className="relative mt-6 border-t border-border/60 pt-5">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-sm font-black text-foreground">Who are you recruiting?</p>
