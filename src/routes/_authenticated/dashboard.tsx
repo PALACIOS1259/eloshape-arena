@@ -132,7 +132,7 @@ function DashboardPage() {
             </div>
 
             {data.entries.length ? (
-              <div className="mt-3 overflow-hidden rounded-2xl border border-border/70 bg-card/35">
+              <div className="mt-3 overflow-hidden border-y border-border/65 bg-card/15">
                 {data.entries.map((entry) => (
                   <Link
                     key={entry.id}
@@ -180,7 +180,7 @@ function DashboardPage() {
             <h2 className="mt-1 text-xl font-black text-foreground">Recent points</h2>
 
             {data.ledger.length ? (
-              <div className="mt-3 divide-y divide-border/60 rounded-2xl border border-border/70 bg-card/35">
+              <div className="mt-3 divide-y divide-border/55 border-y border-border/65 bg-card/15">
                 {data.ledger.map((row) => (
                   <div
                     key={row.id}
