@@ -352,7 +352,7 @@ function MatchResultPage() {
         ) : null}
 
         {state.isStaff && !state.myEntryId && !official ? (
-          <section className="rounded-lg border border-border p-4 text-sm text-muted-foreground">
+          <section className="border-l-2 border-border pl-4 text-sm text-muted-foreground">
             Staff can inspect this match here. Use the{" "}
             <Link to="/admin/disputes" className="font-semibold text-foreground hover:text-brand">
               Match disputes queue
