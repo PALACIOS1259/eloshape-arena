@@ -260,7 +260,12 @@ function SplitMetric({
 }) {
   return (
     <div className="px-3 first:pl-0 last:pr-0">
-      <p className={cn("flex items-center gap-1.5 text-base font-black text-foreground", gold && "text-gold")}>
+      <p
+        className={cn(
+          "flex items-center gap-1.5 text-base font-black text-foreground",
+          gold && "text-gold",
+        )}
+      >
         {icon}
         <span className="truncate">{value}</span>
       </p>
