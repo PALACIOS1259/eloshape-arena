@@ -109,7 +109,7 @@ function SplitsPage() {
       />
 
       <PageContainer className="py-7 sm:py-9">
-        <section className="rounded-2xl border border-border/75 bg-gradient-to-br from-card/85 to-background/55 px-4 py-5 shadow-card sm:px-5">
+        <section className="border-y border-border/65 py-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="eyebrow">How the circuit works</p>
@@ -122,7 +122,7 @@ function SplitsPage() {
             </Button>
           </div>
 
-          <div className="mt-5 grid gap-5 border-t border-border/60 pt-5 md:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-5 grid gap-5 border-t border-border/55 pt-5 md:grid-cols-2 xl:grid-cols-4">
             {FORMAT_STEPS.map((step, index) => (
               <div key={step.number} className="relative pr-2">
                 <div className="flex items-center gap-2">
@@ -164,7 +164,7 @@ function SplitsPage() {
                   key={split.id}
                   to="/splits/$slug"
                   params={{ slug: split.slug }}
-                  className="group relative overflow-hidden rounded-2xl border border-border/75 bg-gradient-to-br from-card/95 via-card/80 to-background/70 p-5 shadow-card transition-all duration-200 hover:-translate-y-1 hover:border-primary/35 hover:shadow-xl"
+                  className="group relative overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-br from-card/92 via-card/72 to-background/55 p-5 shadow-card transition-all duration-200 hover:-translate-y-1 hover:border-primary/35 hover:shadow-xl"
                 >
                   <div className="pointer-events-none absolute -right-14 -top-20 size-44 rounded-full bg-primary/[0.05] blur-3xl" />
 
@@ -183,7 +183,7 @@ function SplitsPage() {
                       </p>
                     </div>
 
-                    <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/8 text-primary">
+                    <span className="grid size-9 shrink-0 place-items-center text-primary">
                       <Swords className="size-4" />
                     </span>
                   </div>
