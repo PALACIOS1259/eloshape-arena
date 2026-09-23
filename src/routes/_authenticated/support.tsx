@@ -168,10 +168,7 @@ function SupportPage() {
               />
             ) : (
               query.data.map((request) => (
-                <article
-                  key={request.id}
-                  className="border-y border-border/65 py-5"
-                >
+                <article key={request.id} className="border-y border-border/65 py-5">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <p className="eyebrow">{categoryLabel(request.category)}</p>
