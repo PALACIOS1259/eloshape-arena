@@ -170,9 +170,7 @@ export function RiotAccountCard({
           </div>
 
           {account.notice ? (
-            <p className="border-l-2 border-gold/35 pl-4 text-sm text-gold">
-              {account.notice}
-            </p>
+            <p className="border-l-2 border-gold/35 pl-4 text-sm text-gold">{account.notice}</p>
           ) : null}
 
           <p className="text-xs text-muted-foreground">{HELPER_TEXT}</p>
