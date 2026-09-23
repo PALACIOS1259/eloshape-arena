@@ -278,7 +278,7 @@ function StageActions({
 }) {
   const r = ops.readiness;
   return (
-    <section className="rounded-2xl border border-border/70 bg-card/35 p-5">
+    <section className="border-y border-border/65 py-5">
       <p className="eyebrow">Stage controls</p>
       <div className="mt-4 flex flex-wrap gap-2">
         {ops.split.status === "qualifiers" ? (
@@ -336,7 +336,7 @@ function QualifierReadiness({ qualifiers }: { qualifiers: StaffSplitOps["qualifi
         {qualifiers.map((qualifier) => (
           <article
             key={qualifier.id}
-            className="rounded-2xl border border-border/70 bg-card/35 p-5"
+            className="border-y border-border/65 py-5"
           >
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -403,7 +403,7 @@ function Qualifications({
           <EmptyState title="No qualification slots awarded yet" />
         </div>
       ) : (
-        <div className="mt-4 overflow-hidden rounded-2xl border border-border/70 bg-card/35">
+        <div className="mt-4 overflow-hidden border-y border-border/65 bg-card/15">
           {ops.qualifications.map((qualification) => (
             <div
               key={qualification.id}
@@ -473,7 +473,7 @@ function Standings({
           <EmptyState title="No teams have competed yet" />
         </div>
       ) : (
-        <div className="mt-4 overflow-hidden rounded-2xl border border-border/70 bg-card/35">
+        <div className="mt-4 overflow-hidden border-y border-border/65 bg-card/15">
           {standings.map((team, index) => (
             <div
               key={team.team_id}
