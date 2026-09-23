@@ -134,7 +134,7 @@ function DisputeCard({ claim }: { claim: StaffMatchDispute }) {
   const pending = resolveMutation.isPending || dismissMutation.isPending;
 
   return (
-    <article className="rounded-2xl border border-border/70 bg-card/35 p-5 sm:p-6">
+    <article className="border-y border-border/65 py-5 sm:py-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
