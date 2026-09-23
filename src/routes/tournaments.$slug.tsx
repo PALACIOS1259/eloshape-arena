@@ -663,10 +663,7 @@ function EventProgress({
           return (
             <div
               key={stage.key}
-              className={cn(
-                "relative px-1 py-2 transition-colors",
-                active && "text-primary",
-              )}
+              className={cn("relative px-1 py-2 transition-colors", active && "text-primary")}
             >
               <div className="flex items-center gap-3">
                 <span
