@@ -272,14 +272,14 @@ function SplitPage() {
                   to="/teams/$slug"
                   params={{ slug: row.team_slug }}
                   className={cn(
-                    "group rounded-2xl border border-border bg-surface-gradient p-4 shadow-card transition-colors hover:border-primary/40",
+                    "group rounded-2xl border border-border/70 bg-card/35 p-4 transition-colors hover:border-primary/40",
                     index === 0 && "border-gold/30 bg-gold/5",
                   )}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <span
                       className={cn(
-                        "grid size-9 place-items-center rounded-lg border border-border bg-background/35 text-sm font-black tabular-nums text-muted-foreground",
+                        "grid size-9 place-items-center rounded-lg bg-background/35 text-sm font-black tabular-nums text-muted-foreground",
                         index === 0 && "border-gold/30 bg-gold/10 text-gold",
                       )}
                     >
@@ -303,7 +303,7 @@ function SplitPage() {
             </div>
           ) : null}
 
-          <div className="mt-4 overflow-hidden rounded-2xl border border-border bg-surface-gradient shadow-card">
+          <div className="mt-4 overflow-hidden rounded-2xl border border-border/70 bg-card/35">
             {standings.length ? (
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[720px] text-sm">
@@ -453,9 +453,7 @@ function SplitPage() {
                 {["Round of 16", "Quarterfinals", "Semifinals", "Grand Final"].map(
                   (round, index) => (
                     <span key={round} className="inline-flex items-center gap-2">
-                      <span className="rounded-lg border border-border bg-background/30 px-2.5 py-1.5">
-                        {round}
-                      </span>
+                      <span>{round}</span>
                       {index < 3 ? <ChevronRight className="size-3" /> : null}
                     </span>
                   ),
