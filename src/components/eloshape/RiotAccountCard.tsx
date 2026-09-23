@@ -84,7 +84,7 @@ export function RiotAccountCard({
   });
 
   return (
-    <div className="rounded-2xl border border-border/70 bg-card/35 p-5">
+    <div className="border-y border-border/65 py-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="eyebrow">Riot account</p>
         {account ? (
@@ -221,7 +221,7 @@ export function RiotAccountCard({
             </div>
             <div>
               <Label>Server</Label>
-              <p className="mt-2 flex h-10 items-center rounded-md border border-border px-3 text-sm text-muted-foreground">
+              <p className="mt-2 flex h-10 items-center border-b border-border px-1 text-sm text-muted-foreground">
                 LAS / LA2
               </p>
             </div>
