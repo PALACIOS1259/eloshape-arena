@@ -83,7 +83,7 @@ function TeamHubPage() {
         }
       />
 
-      <PageContainer className="py-8 sm:py-10">
+      <PageContainer className="py-7 sm:py-9">
         {isPending ? (
           <div className="space-y-4">
             <Skeleton className="h-12 w-full" />
@@ -134,7 +134,7 @@ function IncomingInvites({ invites }: { invites: TeamHub["incomingInvites"] }) {
   });
 
   return (
-    <section className="overflow-hidden rounded-xl border border-primary/30 bg-primary/5">
+    <section className="overflow-hidden rounded-2xl border border-primary/25 bg-primary/[0.035]">
       <div className="flex items-center gap-3 border-b border-primary/20 px-4 py-3 sm:px-5">
         <span className="grid size-9 place-items-center rounded-lg bg-primary/10 text-primary">
           <UserPlus className="size-4" />
@@ -213,7 +213,7 @@ function CreateTeamExperience() {
 
   return (
     <div className="grid gap-5 lg:grid-cols-[1.1fr_minmax(0,0.9fr)]">
-      <section className="bg-surface-gradient overflow-hidden rounded-xl border border-border p-5 shadow-card sm:p-7">
+      <section className="rounded-2xl border border-border/70 bg-gradient-to-br from-card/90 to-background/55 p-5 sm:p-6">
         <p className="eyebrow">Create your roster</p>
         <h2 className="mt-2 max-w-xl text-2xl font-black tracking-tight text-foreground sm:text-3xl">
           Build the team you want to compete with.
@@ -256,7 +256,7 @@ function CreateTeamExperience() {
       </section>
 
       <aside className="space-y-4">
-        <div className="rounded-xl border border-border bg-background/30 p-5">
+        <div className="border-t border-border/60 pt-5 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
           <p className="eyebrow">Identity preview</p>
           <div className="mt-4 flex items-center gap-4">
             <span className="grid size-16 shrink-0 place-items-center rounded-2xl border border-primary/25 bg-primary/10 text-lg font-black text-primary">
