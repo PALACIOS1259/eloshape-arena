@@ -116,7 +116,7 @@ function PlayerPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-x-7 gap-y-4 border-t border-border/60 pt-5 sm:grid-cols-5 lg:border-l lg:border-t-0 lg:pl-7 lg:pt-0">
+            <div className="grid grid-cols-2 gap-x-7 gap-y-4 border-t border-border/55 pt-5 sm:grid-cols-5 lg:border-l lg:border-t-0 lg:pl-7 lg:pt-0">
               <Metric
                 label="Season"
                 value={formatPoints(profile.points_season)}
@@ -151,13 +151,13 @@ function PlayerPage() {
             </div>
 
             {entries.length ? (
-              <div className="mt-3 overflow-hidden rounded-2xl border border-border/70 bg-card/45">
+              <div className="mt-3 overflow-hidden border-y border-border/65 bg-card/15">
                 {entries.map((entry) => (
                   <Link
                     key={entry.id}
                     to="/tournaments/$slug"
                     params={{ slug: entry.tournament?.slug ?? "" }}
-                    className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 border-b border-border/60 px-4 py-4 transition-colors last:border-0 hover:bg-primary/[0.035]"
+                    className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 border-b border-border/55 px-4 py-4 transition-colors last:border-0 hover:bg-primary/[0.03]"
                   >
                     <span className="min-w-0">
                       <span className="block truncate text-sm font-bold text-foreground transition-colors group-hover:text-primary">
@@ -198,7 +198,7 @@ function PlayerPage() {
             </div>
 
             {ledger.length ? (
-              <div className="mt-3 divide-y divide-border/60 rounded-2xl border border-border/70 bg-card/35">
+              <div className="mt-3 divide-y divide-border/60 border-y border-border/65 bg-card/15">
                 {ledger.map((row) => (
                   <div
                     key={row.id}
@@ -241,7 +241,7 @@ function PlayerPage() {
             </div>
 
             {achievements.length ? (
-              <div className="mt-3 divide-y divide-border/60 rounded-2xl border border-border/70 bg-card/35">
+              <div className="mt-3 divide-y divide-border/60 border-y border-border/65 bg-card/15">
                 {achievements.map((achievement) => (
                   <div key={achievement.id} className="flex gap-3 px-4 py-3.5">
                     <Award className="mt-0.5 size-4 shrink-0 text-gold" />
@@ -268,14 +268,14 @@ function PlayerPage() {
             <h2 className="mt-1 text-xl font-black text-foreground">Teams</h2>
 
             {teams.length ? (
-              <div className="mt-3 divide-y divide-border/60 rounded-2xl border border-border/70 bg-card/35">
+              <div className="mt-3 divide-y divide-border/60 border-y border-border/65 bg-card/15">
                 {teams.map((membership) =>
                   membership.team ? (
                     <Link
                       key={membership.team.id}
                       to="/teams/$slug"
                       params={{ slug: membership.team.slug }}
-                      className="group flex items-center justify-between gap-3 px-4 py-3.5 hover:bg-primary/[0.035]"
+                      className="group flex items-center justify-between gap-3 px-4 py-3.5 transition-colors hover:bg-primary/[0.03]"
                     >
                       <span className="min-w-0">
                         <span className="block truncate text-sm font-bold text-foreground transition-colors group-hover:text-primary">
