@@ -237,7 +237,7 @@ function RosterSection({
   }>;
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-border/70 bg-card/30">
+    <div className="overflow-hidden border-y border-border/65 bg-card/15">
       <div className="flex items-start justify-between gap-3 border-b border-border/60 px-4 py-3.5 sm:px-5">
         <div>
           <p className="font-black text-foreground">{title}</p>
