@@ -93,7 +93,10 @@ export function TournamentCard({
         </p>
 
         <div className="mt-5 grid grid-cols-2 gap-x-5 gap-y-3 text-xs">
-          <Fact icon={<CalendarDays className="size-3.5" />} label={formatDateTime(tournament.starts_at)} />
+          <Fact
+            icon={<CalendarDays className="size-3.5" />}
+            label={formatDateTime(tournament.starts_at)}
+          />
           <Fact icon={<MapPin className="size-3.5" />} label={tournament.region?.name ?? "LAS"} />
           <Fact icon={<Swords className="size-3.5" />} label={tournament.format ?? "TBD"} />
           <Fact
@@ -117,7 +120,10 @@ export function TournamentCard({
                 <span className="tabular-nums">{pct}%</span>
               </div>
               <div className="mt-2 h-1 overflow-hidden rounded-full bg-muted/70">
-                <div className="bg-brand-gradient h-full rounded-full" style={{ width: `${pct}%` }} />
+                <div
+                  className="bg-brand-gradient h-full rounded-full"
+                  style={{ width: `${pct}%` }}
+                />
               </div>
             </div>
           ) : null}
