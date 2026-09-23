@@ -153,7 +153,7 @@ function TournamentDetailPage() {
             Tournament circuit
           </Link>
 
-          <div className="mt-6 grid gap-8 xl:grid-cols-[minmax(0,1fr)_22rem] xl:items-end">
+          <div className="mt-5 flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <StatusBadge status={tournament.status} />
@@ -165,7 +165,7 @@ function TournamentDetailPage() {
                 {isDemoFixture ? <Badge variant="outline">Staging demo fixture</Badge> : null}
               </div>
 
-              <h1 className="mt-5 max-w-4xl text-4xl font-black tracking-tight text-foreground sm:text-5xl">
+              <h1 className="mt-4 max-w-4xl text-3xl font-black tracking-tight text-foreground sm:text-4xl">
                 {tournament.name}
               </h1>
               <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground sm:text-base">
@@ -195,31 +195,31 @@ function TournamentDetailPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-border/80 bg-background/70 p-5 shadow-2xl shadow-background/30 backdrop-blur-xl transition-transform duration-300 hover:-translate-y-0.5">
+            <div className="w-full border-t border-border/60 pt-4 xl:w-[22rem] xl:border-l xl:border-t-0 xl:pl-6 xl:pt-0">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="eyebrow">Tournament field</p>
-                  <p className="mt-1 text-2xl font-black tabular-nums text-foreground">
+                  <p className="mt-1 text-xl font-black tabular-nums text-foreground">
                     {capacity ? `${filled}/${capacity}` : filled}
                   </p>
                 </div>
                 <span
                   className={cn(
-                    "grid size-11 place-items-center rounded-xl border border-border bg-background/50 text-muted-foreground",
+                    "grid size-9 place-items-center rounded-lg bg-primary/8 text-muted-foreground",
                     tournament.status === "live" && "border-primary/30 bg-primary/10 text-primary",
                   )}
                 >
                   {tournament.status === "live" ? (
-                    <Radio className="size-5" />
+                    <Radio className="size-4" />
                   ) : (
-                    <Users className="size-5" />
+                    <Users className="size-4" />
                   )}
                 </span>
               </div>
 
               {capacity ? (
                 <>
-                  <div className="mt-4 h-2 overflow-hidden rounded-full bg-muted">
+                  <div className="mt-3 h-1 overflow-hidden rounded-full bg-muted/70">
                     <div
                       className="bg-brand-gradient h-full rounded-full transition-[width] duration-500"
                       style={{ width: `${pct}%` }}
@@ -233,7 +233,7 @@ function TournamentDetailPage() {
               ) : null}
 
               {tournament.registration_closes_at ? (
-                <p className="mt-4 flex items-start gap-2 rounded-xl border border-border/80 bg-background/35 px-3 py-2.5 text-xs text-muted-foreground">
+                <p className="mt-3 flex items-start gap-2 text-xs text-muted-foreground">
                   <Clock3 className="mt-0.5 size-3.5 shrink-0 text-primary" />
                   <span>
                     Registration closes{" "}
@@ -260,23 +260,23 @@ function TournamentDetailPage() {
         <EventProgress status={tournament.status} currentStageIndex={currentStageIndex} />
 
         <Tabs defaultValue="overview" className="mt-7">
-          <div className="sticky top-16 z-30 -mx-2 rounded-2xl bg-background/70 p-2 backdrop-blur-xl supports-[backdrop-filter]:bg-background/55">
-            <TabsList className="grid h-auto w-full grid-cols-3 rounded-2xl border border-border/80 bg-surface-gradient p-1.5 shadow-xl sm:w-fit sm:min-w-[34rem]">
+          <div className="sticky top-16 z-30 -mx-2 bg-background/75 p-2 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+            <TabsList className="grid h-auto w-full grid-cols-3 rounded-xl border border-border/70 bg-card/65 p-1 sm:w-fit sm:min-w-[34rem]">
               <TabsTrigger
                 value="overview"
-                className="rounded-xl px-4 py-2.5 text-xs font-black data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                className="rounded-lg px-4 py-2 text-xs font-black data-[state=active]:bg-primary/12 data-[state=active]:text-primary"
               >
                 Overview
               </TabsTrigger>
               <TabsTrigger
                 value="participants"
-                className="rounded-xl px-4 py-2.5 text-xs font-black data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                className="rounded-lg px-4 py-2 text-xs font-black data-[state=active]:bg-primary/12 data-[state=active]:text-primary"
               >
                 Participants · {entries.length}
               </TabsTrigger>
               <TabsTrigger
                 value="bracket"
-                className="rounded-xl px-4 py-2.5 text-xs font-black data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                className="rounded-lg px-4 py-2 text-xs font-black data-[state=active]:bg-primary/12 data-[state=active]:text-primary"
               >
                 Bracket · {matches.length}
               </TabsTrigger>
@@ -289,14 +289,14 @@ function TournamentDetailPage() {
           >
             <div className="grid gap-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(18rem,0.75fr)]">
               <div className="space-y-5">
-                <section className="overflow-hidden rounded-2xl border border-border/80 bg-surface-gradient shadow-card transition-shadow duration-300 hover:shadow-xl">
-                  <div className="border-b border-border px-5 py-4 sm:px-6">
+                <section className="border-b border-border/60 pb-6">
+                  <div>
                     <p className="eyebrow">Event brief</p>
                     <h2 className="mt-1 text-xl font-black text-foreground">
                       Everything you need before game one
                     </h2>
                   </div>
-                  <div className="p-5 sm:p-6">
+                  <div className="mt-4">
                     <p className="whitespace-pre-line text-sm leading-7 text-muted-foreground">
                       {tournament.description ??
                         "Tournament details will be published before check-in opens. Your division, geography and entry requirements are validated by EloShape when you register."}
@@ -316,7 +316,7 @@ function TournamentDetailPage() {
                   </div>
                 </section>
 
-                <section className="rounded-2xl border border-border/80 bg-surface-gradient p-5 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl sm:p-6">
+                <section>
                   <div className="flex flex-wrap items-end justify-between gap-3">
                     <div>
                       <p className="eyebrow">Match day flow</p>
@@ -329,7 +329,7 @@ function TournamentDetailPage() {
                     </span>
                   </div>
 
-                  <div className="mt-5 grid gap-3 md:grid-cols-3">
+                  <div className="mt-5 grid gap-5 md:grid-cols-3">
                     <FlowStep
                       number="01"
                       title="Register"
@@ -350,7 +350,7 @@ function TournamentDetailPage() {
               </div>
 
               <div className="space-y-5">
-                <section className="rounded-2xl border border-border/80 bg-surface-gradient p-5 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl">
+                <section className="rounded-2xl border border-border/70 bg-card/40 p-5">
                   <p className="eyebrow">Tournament access</p>
                   <h2 className="mt-1 text-lg font-black text-foreground">Ready to compete?</h2>
                   <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
@@ -383,9 +383,9 @@ function TournamentDetailPage() {
                   </div>
                 </section>
 
-                <section className="rounded-2xl border border-border bg-background/25 p-4">
-                  <p className="eyebrow px-1">Event information</p>
-                  <div className="mt-3 grid grid-cols-2 gap-2">
+                <section>
+                  <p className="eyebrow">Event information</p>
+                  <div className="mt-3 grid grid-cols-2 gap-x-5 gap-y-4">
                     <InfoTile
                       icon={<CalendarDays className="size-4" />}
                       label="Start"
@@ -636,8 +636,8 @@ function EventProgress({
   const completed = status === "completed";
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-border bg-surface-gradient shadow-card">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3 sm:px-5">
+    <section className="border-b border-border/60 pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="eyebrow">Event progress</p>
           <p className="mt-1 text-sm font-black text-foreground">
@@ -655,7 +655,7 @@ function EventProgress({
         ) : null}
       </div>
 
-      <div className="grid sm:grid-cols-4">
+      <div className="mt-4 grid gap-3 sm:grid-cols-4">
         {EVENT_STAGES.map((stage, index) => {
           const active = stage.key === status;
           const passed = completed || (currentStageIndex >= 0 && index < currentStageIndex);
@@ -664,8 +664,8 @@ function EventProgress({
             <div
               key={stage.key}
               className={cn(
-                "relative border-b border-border p-4 transition-colors duration-300 last:border-b-0 sm:border-b-0 sm:border-r sm:last:border-r-0",
-                active && "bg-primary/[0.055]",
+                "relative px-1 py-2 transition-colors",
+                active && "text-primary",
               )}
             >
               <div className="flex items-center gap-3">
@@ -708,11 +708,11 @@ function FlowStep({
   description: string;
 }) {
   return (
-    <div className="group rounded-xl border border-border/80 bg-background/25 p-4 transition-all duration-300 hover:-translate-y-1 hover:border-primary/20 hover:bg-background/40">
+    <div className="group">
       <span className="text-2xl font-black tabular-nums text-primary/40 transition-colors duration-300 group-hover:text-primary/70">
         {number}
       </span>
-      <h3 className="mt-4 text-sm font-black text-foreground">{title}</h3>
+      <h3 className="mt-2 text-sm font-black text-foreground">{title}</h3>
       <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{description}</p>
     </div>
   );
@@ -720,7 +720,7 @@ function FlowStep({
 
 function AccessCheck({ label }: { label: string }) {
   return (
-    <p className="flex items-center gap-2.5 rounded-xl border border-border/80 bg-background/30 px-3 py-2.5 text-xs font-semibold text-muted-foreground">
+    <p className="flex items-center gap-2.5 text-xs font-semibold text-muted-foreground">
       <CheckCircle2 className="size-3.5 shrink-0 text-primary" />
       {label}
     </p>
@@ -729,9 +729,9 @@ function AccessCheck({ label }: { label: string }) {
 
 function InfoTile({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
-    <div className="min-w-0 rounded-xl border border-border bg-surface-gradient p-3.5">
+    <div className="min-w-0">
       <span className="text-primary">{icon}</span>
-      <p className="mt-3 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+      <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
         {label}
       </p>
       <p className="mt-1 truncate text-xs font-black text-foreground">{value}</p>
