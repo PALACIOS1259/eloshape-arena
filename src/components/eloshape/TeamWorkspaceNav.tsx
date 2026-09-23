@@ -41,9 +41,9 @@ export function TeamWorkspaceNav({
   return (
     <nav
       aria-label="Team workspace"
-      className="overflow-hidden rounded-2xl border border-border bg-surface-gradient shadow-card"
+      className="border-b border-border/60 pb-3"
     >
-      <div className="flex flex-col gap-2 p-2 lg:flex-row lg:items-stretch">
+      <div className="flex flex-col gap-2 lg:flex-row lg:items-stretch">
         <div className="grid flex-1 gap-2 sm:grid-cols-3">
           {tabs.map((tab) => {
             const disabled = !hasTeam && tab.key !== "overview";
@@ -58,7 +58,7 @@ export function TeamWorkspaceNav({
                     "grid size-9 shrink-0 place-items-center rounded-xl border",
                     active === tab.key && !unavailable
                       ? "border-primary/30 bg-primary/15 text-primary"
-                      : "border-border bg-background/45 text-muted-foreground",
+                      : "border-border/70 bg-background/30 text-muted-foreground",
                   )}
                 >
                   <Icon className="size-4" />
@@ -95,8 +95,8 @@ export function TeamWorkspaceNav({
                 className={cn(
                   "flex items-center gap-3 rounded-xl border px-3 py-2.5 transition-all",
                   active === tab.key
-                    ? "border-primary/25 bg-primary/10 text-foreground shadow-sm"
-                    : "border-transparent text-muted-foreground hover:border-border hover:bg-background/45 hover:text-foreground",
+                    ? "border-primary/25 bg-primary/10 text-foreground"
+                    : "border-transparent text-muted-foreground hover:border-border/70 hover:bg-background/30 hover:text-foreground",
                 )}
               >
                 {content}
@@ -109,7 +109,7 @@ export function TeamWorkspaceNav({
 
         <Link
           to="/teams"
-          className="flex shrink-0 items-center gap-3 rounded-xl border border-transparent px-3 py-2.5 text-muted-foreground transition-all hover:border-border hover:bg-background/45 hover:text-foreground lg:min-w-44"
+          className="flex shrink-0 items-center gap-3 rounded-xl border border-transparent px-3 py-2.5 text-muted-foreground transition-all hover:border-border/70 hover:bg-background/30 hover:text-foreground lg:min-w-44"
         >
           <span className="grid size-9 place-items-center rounded-xl border border-border bg-background/45">
             <Compass className="size-4" />
@@ -122,7 +122,7 @@ export function TeamWorkspaceNav({
           </span>
         </Link>
       </div>
-      <div className="flex items-center gap-2 border-t border-border/70 bg-background/25 px-4 py-2 text-[11px] font-medium text-muted-foreground">
+      <div className="mt-2 flex items-center gap-2 px-1 text-[11px] font-medium text-muted-foreground">
         <Users className="size-3.5" />
         {hasTeam
           ? isCaptain
