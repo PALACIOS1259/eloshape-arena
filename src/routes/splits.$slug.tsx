@@ -207,7 +207,7 @@ function SplitPage() {
                     key={tournament.id}
                     to="/tournaments/$slug"
                     params={{ slug: tournament.slug }}
-                    className="group relative overflow-hidden rounded-2xl border border-border/75 bg-gradient-to-br from-card/90 to-background/55 p-4 transition-all hover:-translate-y-1 hover:border-primary/35 hover:shadow-xl"
+                    className="group relative overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-br from-card/92 via-card/72 to-background/55 p-4 shadow-card transition-all duration-200 hover:-translate-y-1 hover:border-primary/35 hover:shadow-xl"
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-black uppercase tracking-[0.14em] text-primary">
@@ -303,7 +303,7 @@ function SplitPage() {
             </div>
           ) : null}
 
-          <div className="mt-4 overflow-hidden rounded-2xl border border-border/70 bg-card/35">
+          <div className="mt-4 overflow-hidden border-y border-border/65 bg-card/15">
             {standings.length ? (
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[720px] text-sm">
@@ -407,7 +407,7 @@ function SplitPage() {
           {qualifications.length ? (
             <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               {qualifications.map((row) => (
-                <article key={row.id} className="rounded-xl border border-border/70 bg-card/35 p-4">
+                <article key={row.id} className="border-l border-border/60 pl-4">
                   <div className="flex items-start justify-between gap-3">
                     <span className="text-sm font-black tabular-nums text-primary">
                       {row.playoff_seed ? `#${row.playoff_seed}` : row.qualification_position}
@@ -545,7 +545,7 @@ function OverviewMetric({
     <div className="min-w-0">
       <div
         className={cn(
-          "grid size-8 place-items-center rounded-lg bg-primary/8 text-primary",
+          "grid size-8 place-items-center text-primary",
           gold && "border-gold/25 bg-gold/8 text-gold",
         )}
       >
