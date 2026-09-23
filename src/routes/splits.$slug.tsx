@@ -407,10 +407,7 @@ function SplitPage() {
           {qualifications.length ? (
             <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               {qualifications.map((row) => (
-                <article
-                  key={row.id}
-                  className="rounded-xl border border-border/70 bg-card/35 p-4"
-                >
+                <article key={row.id} className="rounded-xl border border-border/70 bg-card/35 p-4">
                   <div className="flex items-start justify-between gap-3">
                     <span className="text-sm font-black tabular-nums text-primary">
                       {row.playoff_seed ? `#${row.playoff_seed}` : row.qualification_position}
