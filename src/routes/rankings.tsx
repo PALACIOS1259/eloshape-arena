@@ -107,7 +107,7 @@ function RankingsPage() {
       />
 
       <PageContainer className="py-7 sm:py-9">
-        <section className="rounded-2xl border border-border/80 bg-gradient-to-br from-card/90 to-background/60 p-4 shadow-card sm:p-5">
+        <section className="border-y border-border/65 py-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="eyebrow">Leaderboard filters</p>
@@ -126,7 +126,7 @@ function RankingsPage() {
             </Button>
           </div>
 
-          <div className="mt-4 grid gap-3 border-t border-border/60 pt-4 sm:grid-cols-3">
+          <div className="mt-4 grid gap-3 border-t border-border/55 pt-4 sm:grid-cols-3">
             <Filter label="Period">
               <Select
                 value={search.period}
@@ -188,8 +188,8 @@ function RankingsPage() {
           </div>
 
           {players.length ? (
-            <div className="overflow-hidden rounded-2xl border border-border/75 bg-card/45">
-              <div className="hidden grid-cols-[2.5rem_minmax(0,1fr)_7rem_6rem_5rem] gap-3 border-b border-border/60 bg-background/25 px-4 py-2.5 sm:grid">
+            <div className="overflow-hidden border-y border-border/65 bg-card/20">
+              <div className="hidden grid-cols-[2.5rem_minmax(0,1fr)_7rem_6rem_5rem] gap-3 border-b border-border/55 bg-background/15 px-4 py-2.5 sm:grid">
                 <span className="eyebrow">#</span>
                 <span className="eyebrow">Player</span>
                 <span className="eyebrow">Division</span>
