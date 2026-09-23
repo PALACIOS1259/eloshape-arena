@@ -144,7 +144,7 @@ function MatchCard({
   return (
     <article
       className={cn(
-        "group relative flex h-full flex-col overflow-hidden rounded-xl border border-border bg-surface-gradient shadow-card transition-all hover:border-primary/35 hover:shadow-lg",
+        "group relative flex h-full flex-col overflow-hidden rounded-xl border border-border/70 bg-card/55 transition-all hover:border-primary/35",
         isFinal && "border-gold/35 shadow-lg",
       )}
       style={{ width: ROUND_WIDTH, height: MATCH_CARD_HEIGHT }}
@@ -234,8 +234,8 @@ export function BracketView({
   };
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-border bg-background/20 shadow-card">
-      <div className="flex flex-col gap-4 border-b border-border bg-surface-gradient px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+    <section className="overflow-hidden rounded-2xl border border-border/70 bg-background/15">
+      <div className="flex flex-col gap-4 border-b border-border/60 bg-card/30 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <span className="eyebrow">Championship tree</span>
@@ -268,7 +268,7 @@ export function BracketView({
             </div>
           </div>
         ) : (
-          <div className="inline-flex items-center gap-2 self-start rounded-lg border border-border bg-background/30 px-3 py-2 text-xs font-semibold text-muted-foreground">
+          <div className="inline-flex items-center gap-2 self-start rounded-lg border border-border/70 bg-background/25 px-3 py-2 text-xs font-semibold text-muted-foreground">
             <CircleDashed className="size-3.5" /> Championship in progress
           </div>
         )}
@@ -292,7 +292,7 @@ export function BracketView({
                 >
                   <div
                     className={cn(
-                      "flex items-center justify-between rounded-lg border border-border bg-background/30 px-3 py-2",
+                      "flex items-center justify-between rounded-lg border border-border/70 bg-background/25 px-3 py-2",
                       isFinal && "border-gold/30 bg-gold/5",
                     )}
                   >
