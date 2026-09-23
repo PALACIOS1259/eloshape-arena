@@ -1,9 +1,12 @@
+import type { ReactNode } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { SlidersHorizontal, Trophy, Users } from "lucide-react";
 
 import { EmptyState } from "@/components/eloshape/EmptyState";
 import { PlayerRow } from "@/components/eloshape/PlayerRow";
 import { PageContainer, PageHeading } from "@/components/layout/PageShell";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -80,71 +83,113 @@ function RankingsPage() {
   const update = (patch: Partial<Search>) =>
     navigate({ search: (prev) => ({ ...prev, ...patch }) });
 
+  const filtersActive =
+    search.period !== "season" || search.division !== "all" || search.region !== "all";
+
   return (
     <div>
       <PageHeading
         eyebrow={directory.activeSeason?.name ?? "Season 1"}
         title="Rankings"
-        description="Points are awarded exclusively for EloShape tournament results. Riot rank never adds points — it only decides which division you can enter."
+        description="Tournament performance builds your EloShape ranking. Riot rank only decides which division you are eligible to enter."
+        aside={
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5">
+              <Users className="size-3.5" />
+              <strong className="font-black text-foreground">{players.length}</strong> ranked
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Trophy className="size-3.5 text-gold" />
+              official points only
+            </span>
+          </div>
+        }
       />
 
-      <PageContainer className="py-10">
-        <div className="grid gap-3 sm:grid-cols-3">
-          <label className="block">
-            <span className="eyebrow">Period</span>
-            <Select
-              value={search.period}
-              onValueChange={(value) => update({ period: value as "season" | "month" })}
+      <PageContainer className="py-7 sm:py-9">
+        <section className="border-y border-border/65 py-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="eyebrow">Leaderboard filters</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Narrow the table by period, division and geography.
+              </p>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={!filtersActive}
+              onClick={() => update({ period: "season", division: "all", region: "all" })}
             >
-              <SelectTrigger className="mt-2 w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="season">Season</SelectItem>
-                <SelectItem value="month">This month</SelectItem>
-              </SelectContent>
-            </Select>
-          </label>
+              <SlidersHorizontal className="size-4" />
+              Reset
+            </Button>
+          </div>
 
-          <label className="block">
-            <span className="eyebrow">Division</span>
-            <Select value={search.division} onValueChange={(division) => update({ division })}>
-              <SelectTrigger className="mt-2 w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All divisions</SelectItem>
-                {directory.divisions.map((division) => (
-                  <SelectItem key={division.code} value={division.code}>
-                    {division.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </label>
+          <div className="mt-4 grid gap-3 border-t border-border/55 pt-4 sm:grid-cols-3">
+            <Filter label="Period">
+              <Select
+                value={search.period}
+                onValueChange={(value) => update({ period: value as "season" | "month" })}
+              >
+                <SelectTrigger className="mt-2 w-full border-border/80 bg-background/45">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="season">Season</SelectItem>
+                  <SelectItem value="month">This month</SelectItem>
+                </SelectContent>
+              </Select>
+            </Filter>
 
-          <label className="block">
-            <span className="eyebrow">Geography</span>
-            <Select value={search.region} onValueChange={(region) => update({ region })}>
-              <SelectTrigger className="mt-2 w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All of LAS</SelectItem>
-                {directory.regions.map((region) => (
-                  <SelectItem key={region.slug} value={region.slug}>
-                    {KIND_LABEL[region.kind] ?? region.kind} · {region.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </label>
-        </div>
+            <Filter label="Division">
+              <Select value={search.division} onValueChange={(division) => update({ division })}>
+                <SelectTrigger className="mt-2 w-full border-border/80 bg-background/45">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All divisions</SelectItem>
+                  {directory.divisions.map((division) => (
+                    <SelectItem key={division.code} value={division.code}>
+                      {division.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Filter>
 
-        <div className="mt-8">
+            <Filter label="Geography">
+              <Select value={search.region} onValueChange={(region) => update({ region })}>
+                <SelectTrigger className="mt-2 w-full border-border/80 bg-background/45">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All of LAS</SelectItem>
+                  {directory.regions.map((region) => (
+                    <SelectItem key={region.slug} value={region.slug}>
+                      {KIND_LABEL[region.kind] ?? region.kind} · {region.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Filter>
+          </div>
+        </section>
+
+        <section className="mt-6">
+          <div className="mb-3 flex items-end justify-between gap-3">
+            <div>
+              <p className="eyebrow">
+                {search.period === "month" ? "Monthly table" : "Season table"}
+              </p>
+              <h2 className="mt-1 text-xl font-black text-foreground sm:text-2xl">Leaderboard</h2>
+            </div>
+            <p className="text-xs text-muted-foreground">{players.length} players</p>
+          </div>
+
           {players.length ? (
-            <div className="bg-surface-gradient overflow-hidden rounded-lg border border-border">
-              <div className="hidden grid-cols-[2.5rem_minmax(0,1fr)_7rem_5rem_4rem] gap-3 border-b border-border px-3 py-2.5 sm:grid">
+            <div className="overflow-hidden border-y border-border/65 bg-card/20">
+              <div className="hidden grid-cols-[2.5rem_minmax(0,1fr)_7rem_6rem_5rem] gap-3 border-b border-border/55 bg-background/15 px-4 py-2.5 sm:grid">
                 <span className="eyebrow">#</span>
                 <span className="eyebrow">Player</span>
                 <span className="eyebrow">Division</span>
@@ -166,8 +211,17 @@ function RankingsPage() {
               description="Try a broader geography or division filter."
             />
           )}
-        </div>
+        </section>
       </PageContainer>
     </div>
+  );
+}
+
+function Filter({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <label className="block">
+      <span className="eyebrow">{label}</span>
+      {children}
+    </label>
   );
 }

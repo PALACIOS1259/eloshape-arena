@@ -47,14 +47,14 @@ export function PreLaunchPage() {
               </p>
             </div>
 
-            <aside className="shadow-elevated overflow-hidden rounded-xl border border-border bg-surface/90 backdrop-blur-sm">
-              <div className="border-b border-border px-5 py-4">
+            <aside className="overflow-hidden rounded-2xl border border-border/70 bg-card/55 backdrop-blur-sm">
+              <div className="border-b border-border/60 px-5 py-4">
                 <p className="eyebrow">Estado del lanzamiento</p>
               </div>
-              <dl className="divide-y divide-border">
+              <dl className="divide-y divide-border/60">
                 {launchMilestones.map((milestone, index) => (
                   <div key={milestone.label} className="flex items-center gap-4 px-5 py-4">
-                    <span className="tabular flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border bg-background text-[0.6875rem] font-bold text-muted-foreground">
+                    <span className="tabular flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-background/40 text-[0.6875rem] font-bold text-muted-foreground">
                       {String(index + 1).padStart(2, "0")}
                     </span>
                     <div className="min-w-0 flex-1">

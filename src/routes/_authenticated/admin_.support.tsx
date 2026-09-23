@@ -52,7 +52,7 @@ function StaffSupportPage() {
         }
       />
 
-      <PageContainer className="py-10">
+      <PageContainer className="py-7 sm:py-9">
         {query.isPending ? (
           <div className="space-y-3">
             <Skeleton className="h-28 w-full" />
@@ -65,7 +65,7 @@ function StaffSupportPage() {
           />
         ) : (
           <>
-            <div className="mb-8 flex flex-wrap gap-2">
+            <div className="mb-6 flex flex-wrap gap-2 border-b border-border/60 pb-4">
               <Badge variant="outline">{openCount} open</Badge>
               <Badge variant="outline">{reviewCount} in review</Badge>
               <Badge variant="secondary">{query.data.length} total</Badge>
@@ -111,7 +111,7 @@ function SupportCard({ request }: { request: StaffSupportRequest }) {
     : "Account without a linked public profile";
 
   return (
-    <article className="bg-surface-gradient rounded-lg border border-border p-6 shadow-card">
+    <article className="border-y border-border/65 py-5 sm:py-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">

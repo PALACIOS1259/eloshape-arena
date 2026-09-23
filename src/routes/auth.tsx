@@ -139,8 +139,8 @@ function AuthPage() {
       : "Welcome back. Your division, points and brackets are waiting.";
 
   return (
-    <PageContainer className="flex min-h-[70vh] items-center justify-center py-16">
-      <div className="bg-surface-gradient shadow-elevated w-full max-w-md rounded-xl border border-border p-8">
+    <PageContainer className="flex min-h-[72vh] items-center justify-center py-12">
+      <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-br from-card/95 via-card/80 to-primary/[0.025] p-6 shadow-card sm:p-8">
         <EloShapeMark className="h-10 w-10" />
         <h1 className="mt-5 text-2xl font-black tracking-tight text-foreground">{title}</h1>
         <p className="mt-2 text-sm text-muted-foreground">{description}</p>
@@ -215,7 +215,7 @@ function AuthPage() {
             ) : null}
 
             {isSignup ? (
-              <div className="flex items-start gap-3 rounded-md border border-border bg-background/40 p-3">
+              <div className="flex items-start gap-3 border-l-2 border-primary/25 pl-3">
                 <Checkbox
                   id="legal"
                   checked={acceptedLegal}

@@ -14,6 +14,10 @@ type EntryState = {
   status: string | null;
   checkedInAt: string | null;
   canCheckIn: boolean;
+  canRegister: boolean;
+  registrationGate: string;
+  qualifiedAlready: boolean;
+  repeatRegistrationOpensAt: string | null;
   mode: "solo" | "team";
   isCaptain: boolean;
 };

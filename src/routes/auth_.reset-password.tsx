@@ -108,8 +108,8 @@ function ResetPasswordPage() {
   };
 
   return (
-    <PageContainer className="flex min-h-[70vh] items-center justify-center py-16">
-      <div className="bg-surface-gradient shadow-elevated w-full max-w-md rounded-xl border border-border p-8">
+    <PageContainer className="flex min-h-[72vh] items-center justify-center py-12">
+      <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-br from-card/95 via-card/80 to-primary/[0.025] p-6 shadow-card sm:p-8">
         <EloShapeMark className="h-10 w-10" />
         <h1 className="mt-5 text-2xl font-black tracking-tight text-foreground">
           Choose a new password
@@ -155,7 +155,7 @@ function ResetPasswordPage() {
           </form>
         ) : (
           <div className="mt-6 space-y-4">
-            <p className="rounded-md border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+            <p className="border-l-2 border-destructive/35 pl-4 text-sm text-destructive">
               This password reset link is invalid or has expired. Request a new link to continue.
             </p>
             <Button

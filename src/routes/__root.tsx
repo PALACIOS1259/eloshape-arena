@@ -11,12 +11,13 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { absoluteSiteUrl } from "../lib/site-metadata";
+import { absoluteSiteUrl, shouldNoIndexSite, siteOrigin } from "../lib/site-metadata";
 import { PageShell } from "../components/layout/PageShell";
 import { Toaster } from "../components/ui/sonner";
 
 const socialImage = absoluteSiteUrl("/og-image.jpg") ?? "/og-image.jpg";
 const maintenanceMode = import.meta.env["VITE_MAINTENANCE_MODE"] === "true";
+const noIndexSite = shouldNoIndexSite(siteOrigin, maintenanceMode);
 const maintenanceAllowedPaths = new Set([
   "/maintenance",
   "/auth/reset-password",
@@ -102,7 +103,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           : "EloShape is a competitive League of Legends platform for amateur players: skill-based divisions, city-to-region tournaments and rankings earned only on the circuit.",
       },
       { name: "author", content: "EloShape" },
-      ...(maintenanceMode ? [{ name: "robots", content: "noindex, nofollow" }] : []),
+      ...(noIndexSite ? [{ name: "robots", content: "noindex, nofollow" }] : []),
       { property: "og:site_name", content: "EloShape" },
       {
         property: "og:title",

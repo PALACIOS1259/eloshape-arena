@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { parseSiteOrigin } from "./site-metadata";
+import { parseSiteOrigin, shouldNoIndexSite } from "./site-metadata";
 
 describe("site metadata origin parsing", () => {
   it("accepts only an http(s) origin", () => {
@@ -13,5 +13,17 @@ describe("site metadata origin parsing", () => {
     expect(parseSiteOrigin("https://user:password@example.com")).toBeUndefined();
     expect(parseSiteOrigin("javascript:alert(1)")).toBeUndefined();
     expect(parseSiteOrigin(undefined)).toBeUndefined();
+  });
+});
+
+describe("site indexing policy", () => {
+  it("allows indexing only on the public production origin outside maintenance", () => {
+    expect(shouldNoIndexSite("https://eloshape.com.ar", false)).toBe(false);
+    expect(shouldNoIndexSite("https://eloshape.com.ar", true)).toBe(true);
+    expect(shouldNoIndexSite("https://eloshape-staging.vercel.app", false)).toBe(true);
+  });
+
+  it("does not interfere with localhost when no canonical origin is configured", () => {
+    expect(shouldNoIndexSite(undefined, false)).toBe(false);
   });
 });

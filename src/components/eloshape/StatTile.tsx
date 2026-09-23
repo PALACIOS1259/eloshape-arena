@@ -18,18 +18,20 @@ export function StatTile({
   return (
     <div
       className={cn(
-        "bg-surface-gradient shadow-card rounded-lg border border-border p-4",
+        "relative min-w-0 border-l border-border/60 pl-4 first:border-l-0 first:pl-0",
         className,
       )}
     >
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <div className="min-w-0">
           <p className="eyebrow">{label}</p>
-          <p className="tabular mt-2 truncate text-2xl font-black text-foreground">{value}</p>
+          <p className="tabular mt-1.5 truncate text-xl font-black text-foreground">{value}</p>
         </div>
-        {icon ? <span className="shrink-0 text-brand">{icon}</span> : null}
+        {icon ? (
+          <span className="grid size-7 shrink-0 place-items-center text-primary">{icon}</span>
+        ) : null}
       </div>
-      {hint ? <p className="mt-2 text-xs text-muted-foreground">{hint}</p> : null}
+      {hint ? <p className="mt-1.5 text-xs text-muted-foreground">{hint}</p> : null}
     </div>
   );
 }

@@ -5,7 +5,7 @@ import { RIOT_LEGAL_NOTICE } from "@/lib/riot-legal";
 
 export function SiteFooter() {
   return (
-    <footer className="mt-20 border-t border-border bg-surface/60">
+    <footer className="mt-16 border-t border-border/70 bg-gradient-to-b from-card/20 to-background">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.4fr_repeat(3,1fr)]">
         <div className="min-w-0">
           <EloShapeLogo />
@@ -43,7 +43,7 @@ export function SiteFooter() {
         </div>
       </div>
 
-      <div className="border-t border-border px-4 py-5 text-center text-xs text-muted-foreground sm:px-6">
+      <div className="border-t border-border/60 px-4 py-5 text-center text-xs text-muted-foreground sm:px-6">
         {RIOT_LEGAL_NOTICE}
       </div>
     </footer>

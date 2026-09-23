@@ -143,8 +143,8 @@ function MatchResultPage() {
         }
       />
 
-      <PageContainer className="space-y-8 py-10">
-        <section className="bg-surface-gradient rounded-lg border border-border p-6 shadow-card">
+      <PageContainer className="space-y-7 py-7 sm:py-9">
+        <section className="rounded-2xl border border-border/70 bg-card/35 p-5 sm:p-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="eyebrow">{state.tournament.name}</p>
@@ -225,7 +225,7 @@ function MatchResultPage() {
         {claim ? <SubmittedEvidence claim={claim} /> : null}
 
         {!official && state.canRespond && claim ? (
-          <section className="bg-surface-gradient rounded-lg border border-border p-6 shadow-card">
+          <section className="rounded-2xl border border-border/70 bg-card/35 p-5 sm:p-6">
             <p className="eyebrow">Opponent submitted a result</p>
             <h2 className="mt-2 text-xl font-black text-foreground">
               Confirm {claim.scoreA}–{claim.scoreB}?
@@ -268,7 +268,7 @@ function MatchResultPage() {
         ) : null}
 
         {!official && state.canSubmit ? (
-          <section className="bg-surface-gradient rounded-lg border border-border p-6 shadow-card">
+          <section className="rounded-2xl border border-border/70 bg-card/35 p-5 sm:p-6">
             <p className="eyebrow">
               {claim?.status === "dismissed"
                 ? "Submit a new claim"
@@ -352,7 +352,7 @@ function MatchResultPage() {
         ) : null}
 
         {state.isStaff && !state.myEntryId && !official ? (
-          <section className="rounded-lg border border-border p-4 text-sm text-muted-foreground">
+          <section className="border-l-2 border-border pl-4 text-sm text-muted-foreground">
             Staff can inspect this match here. Use the{" "}
             <Link to="/admin/disputes" className="font-semibold text-foreground hover:text-brand">
               Match disputes queue
@@ -378,7 +378,7 @@ function EntryCard({
 }) {
   return (
     <div
-      className={`rounded-lg border p-4 ${mine ? "border-brand/50 bg-brand/5" : "border-border bg-background/40"}`}
+      className={`rounded-xl border p-4 ${mine ? "border-primary/35 bg-primary/[0.035]" : "border-border/70 bg-background/25"}`}
     >
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
@@ -414,7 +414,7 @@ function SubmittedEvidence({ claim }: { claim: NonNullable<MatchResultState["cla
   if (!claim.reporterNote && !claim.evidenceUrl && !claim.responderNote && !claim.resolutionNote)
     return null;
   return (
-    <section className="bg-surface-gradient rounded-lg border border-border p-5">
+    <section className="rounded-2xl border border-border/70 bg-card/35 p-5">
       <p className="eyebrow">Result record</p>
       <div className="mt-3 space-y-2 text-sm text-muted-foreground">
         {claim.reporterNote ? <p>Reporter: {claim.reporterNote}</p> : null}

@@ -38,7 +38,7 @@ function TermsPage() {
         title="Terms of Service"
         description="Competing on EloShape means agreeing to these terms."
       />
-      <PageContainer className="max-w-3xl space-y-6 py-10 text-sm text-muted-foreground">
+      <PageContainer className="max-w-3xl space-y-7 py-8 sm:py-10 text-sm leading-relaxed text-muted-foreground">
         <p className="text-xs font-semibold uppercase tracking-wide text-foreground">
           Effective August 27, 2026
         </p>
@@ -84,7 +84,7 @@ function TermsPage() {
             profile. Impersonating staff, Riot Games or other players is not permitted.
           </p>
         </section>
-        <p className="border-t border-border pt-6 text-xs">{RIOT_LEGAL_NOTICE}</p>
+        <p className="border-t border-border/60 pt-6 text-xs">{RIOT_LEGAL_NOTICE}</p>
       </PageContainer>
     </div>
   );

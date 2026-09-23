@@ -6,6 +6,8 @@ import {
 } from "@/integrations/supabase/auth-middleware";
 import type { Json } from "@/integrations/supabase/types";
 
+export type LaneRole = "top" | "jungle" | "mid" | "bot" | "support";
+
 type RpcResult<T> = { data: T | null; error: { message: string } | null };
 
 function friendly(message: string) {
@@ -13,6 +15,7 @@ function friendly(message: string) {
   if (code.includes("team_captain_required")) return "Only the team captain can do that.";
   if (code.includes("team_member_not_found")) return "That player is not on your team.";
   if (code.includes("invalid_team_role")) return "Choose Starter or Substitute.";
+  if (code.includes("invalid_lane_role")) return "Choose Top, Jungle, Mid, ADC or Support.";
   if (code.includes("starting_roster_full")) return "The starting roster already has five players.";
   if (code.includes("captain_must_be_starter")) return "The team captain must remain a starter.";
   if (code.includes("already_team_captain")) return "That player is already the team captain.";
@@ -50,6 +53,26 @@ export const updateMyTeamMemberRole = createServerFn({ method: "POST" })
       return {
         ok: false as const,
         error: error instanceof Error ? error.message : "Could not update roster role.",
+      };
+    }
+  });
+
+export const updateMyTeamMemberLaneRole = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: { handle: string; laneRole: LaneRole | null }) => input)
+  .handler(async ({ data, context }) => {
+    try {
+      return {
+        ok: true as const,
+        data: await rpc<Json>(context.accessToken, "update_my_team_member_lane_role", {
+          p_handle: data.handle,
+          p_lane_role: data.laneRole ?? "",
+        }),
+      };
+    } catch (error) {
+      return {
+        ok: false as const,
+        error: error instanceof Error ? error.message : "Could not update League role.",
       };
     }
   });
