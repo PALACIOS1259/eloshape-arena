@@ -14,8 +14,17 @@ const DEFAULT_ALLOWED_ORIGINS = [
   "https://id-preview--b25a5d43-ea7c-4091-b928-2da59c732426.lovable.app",
 ];
 
+// Bind each deployed function to its own canonical app origin.
+const PROJECT_ALLOWED_ORIGINS: Record<string, string[]> = {
+  "https://hdlktzhjsswzcbgrnhql.supabase.co": ["https://eloshape.com.ar"],
+  "https://ujlzcdmotrihwgjshdcs.supabase.co": [
+    "https://eloshape-arena-git-staging-iron-metrics.vercel.app",
+  ],
+};
+
 const ALLOWED_ORIGINS = new Set([
   ...DEFAULT_ALLOWED_ORIGINS,
+  ...(PROJECT_ALLOWED_ORIGINS[Deno.env.get("SUPABASE_URL") ?? ""] ?? []),
   ...(Deno.env.get("ELOSHAPE_ALLOWED_ORIGINS") ?? "")
     .split(",")
     .map((origin) => origin.trim())
