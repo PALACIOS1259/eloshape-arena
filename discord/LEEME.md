@@ -110,3 +110,17 @@ miembros no entren por esos accesos. El canal oficial de reglas de Comunidad sig
 vista; elimina grants antiguos que permitirían saltar la espera. No borra canales ni
 asigna testers. Revisá con una cuenta sin roles y otra con Beta tester después de aplicarlo.
 No se necesita un rol Pendiente ni Server Members Intent para esta vista.
+
+## Mensajes y reglamento del servidor
+
+Esta versión incluye 25 mensajes oficiales y el panel de tickets: bienvenida, reglas
+generales, reglamento competitivo, acceso de beta, primeros pasos, avisos, calendario,
+reclutamiento, scrims, resultados/ranking, ayuda y guías de comunidad. `!adaptar` los
+publica o actualiza con las menciones reales a canales y la URL de EloShape.
+El reglamento competitivo tiene su canal de solo lectura dentro de TORNEOS.
+
+`TEXTOS-DEL-SERVIDOR.md` reúne el texto completo para revisar o editar. Los mensajes que
+publica el bot están definidos en `estructura.cjs`; editar solo el Markdown no modifica
+lo publicado. `GUIA-DEL-TORNEO.md` contiene plantillas de anuncios y reglas particulares
+por evento. Completá formato, horarios y condiciones reales antes de abrir inscripciones.
+No se agregaron fechas, premios, costos ni sanciones competitivas automáticas.

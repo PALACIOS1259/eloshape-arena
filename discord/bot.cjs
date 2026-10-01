@@ -376,7 +376,7 @@ async function publicarTextos(guild, informe) {
       .setTitle("🎫 Abrir un ticket")
       .setDescription(
         "Tocá el botón para abrir un canal **privado** con el staff.\n" +
-          "Solo vos y la persona del staff asignada van a poder verlo.\n\n" +
+          "El staff recibe tu consulta y puede asignarla a una persona para atenderte. No publiques tus datos en los canales generales.\n\n" +
           `Para consultas generales usá <#${ids.ayuda ?? ""}>.`,
       );
     const fila = new ActionRowBuilder().addComponents(
