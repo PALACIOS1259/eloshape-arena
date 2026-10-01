@@ -9,12 +9,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import { callBetaRpc, mayEnterDuringMaintenance, type BetaAccess } from "@/lib/beta-access";
 
 type AuthMode = "signin" | "signup" | "forgot";
 type Search = { mode: AuthMode };
 type SearchInput = { mode?: unknown };
 
 const LEGAL_VERSION = "2026-08-27";
+const closedLaunch = import.meta.env["VITE_MAINTENANCE_MODE"] === "true";
 
 function strongPassword(password: string) {
   return (
@@ -60,6 +62,19 @@ function AuthPage() {
   const isSignup = mode === "signup";
   const isForgot = mode === "forgot";
 
+  const enterPlatform = async () => {
+    if (closedLaunch) {
+      const access = await callBetaRpc<BetaAccess>(supabase, "get_beta_access");
+      if (!mayEnterDuringMaintenance(access)) {
+        await supabase.auth.signOut();
+        throw new Error(
+          "La beta es por invitación. Pedile acceso al staff con el correo de tu cuenta.",
+        );
+      }
+    }
+    await navigate({ to: "/dashboard" });
+  };
+
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     setLoading(true);
@@ -103,13 +118,18 @@ function AuthPage() {
           if (error.message.toLowerCase().includes("legal_acceptance_required")) {
             throw new Error("You must accept the Terms of Service and Privacy Policy to continue.");
           }
+          if (closedLaunch) {
+            throw new Error(
+              "No pudimos crear la cuenta. Comprobá tu invitación con el staff y los datos ingresados.",
+            );
+          }
           throw error;
         }
         if (!data.session) {
           setSent(true);
           return;
         }
-        navigate({ to: "/dashboard" });
+        await enterPlatform();
         return;
       }
 
@@ -118,7 +138,7 @@ function AuthPage() {
         password,
       });
       if (error) throw error;
-      navigate({ to: "/dashboard" });
+      await enterPlatform();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Authentication failed");
     } finally {
@@ -139,11 +159,17 @@ function AuthPage() {
       : "Welcome back. Your division, points and brackets are waiting.";
 
   return (
-    <PageContainer className="flex min-h-[70vh] items-center justify-center py-16">
-      <div className="bg-surface-gradient shadow-elevated w-full max-w-md rounded-xl border border-border p-8">
+    <PageContainer className="flex min-h-[72vh] items-center justify-center py-12">
+      <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-br from-card/95 via-card/80 to-primary/[0.025] p-6 shadow-card sm:p-8">
         <EloShapeMark className="h-10 w-10" />
         <h1 className="mt-5 text-2xl font-black tracking-tight text-foreground">{title}</h1>
         <p className="mt-2 text-sm text-muted-foreground">{description}</p>
+        {closedLaunch ? (
+          <p className="mt-4 rounded-md border border-brand/30 bg-brand/10 p-3 text-sm text-foreground">
+            Beta cerrada: usá el correo aprobado por el staff. Crear una cuenta requiere invitación
+            y confirmar tu email.
+          </p>
+        ) : null}
 
         {sent ? (
           <div className="mt-6 space-y-4">
@@ -215,7 +241,7 @@ function AuthPage() {
             ) : null}
 
             {isSignup ? (
-              <div className="flex items-start gap-3 rounded-md border border-border bg-background/40 p-3">
+              <div className="flex items-start gap-3 border-l-2 border-primary/25 pl-3">
                 <Checkbox
                   id="legal"
                   checked={acceptedLegal}

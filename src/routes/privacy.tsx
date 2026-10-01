@@ -38,7 +38,7 @@ function PrivacyPage() {
         title="Privacy Policy"
         description="What EloShape stores, why it stores it, and what is never shown publicly."
       />
-      <PageContainer className="prose-invert max-w-3xl space-y-6 py-10 text-sm text-muted-foreground">
+      <PageContainer className="prose-invert max-w-3xl space-y-7 py-8 sm:py-10 text-sm leading-relaxed text-muted-foreground">
         <p className="text-xs font-semibold uppercase tracking-wide text-foreground">
           Effective August 27, 2026
         </p>
@@ -96,7 +96,7 @@ function PrivacyPage() {
             past brackets and competitive records consistent.
           </p>
         </section>
-        <p className="border-t border-border pt-6 text-xs">{RIOT_LEGAL_NOTICE}</p>
+        <p className="border-t border-border/60 pt-6 text-xs">{RIOT_LEGAL_NOTICE}</p>
       </PageContainer>
     </div>
   );

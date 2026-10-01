@@ -15,6 +15,12 @@ export function parseSiteOrigin(value: unknown): string | undefined {
 
 export const siteOrigin = parseSiteOrigin(import.meta.env["VITE_SITE_URL"]);
 
+export const productionSiteOrigin = "https://eloshape.com.ar";
+
+export function shouldNoIndexSite(origin: string | undefined, maintenanceMode: boolean) {
+  return maintenanceMode || (origin !== undefined && origin !== productionSiteOrigin);
+}
+
 export function absoluteSiteUrl(path = "/"): string | undefined {
   if (!siteOrigin) return undefined;
   return new URL(path, `${siteOrigin}/`).toString();

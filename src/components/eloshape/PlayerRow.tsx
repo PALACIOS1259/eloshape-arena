@@ -86,7 +86,7 @@ export function PlayerRow({
     <Link
       to="/players/$handle"
       params={{ handle: player.handle }}
-      className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 border-b border-border px-3 py-3 transition-colors last:border-0 hover:bg-surface-raised sm:grid-cols-[2.5rem_minmax(0,1fr)_7rem_5rem_4rem]"
+      className="group grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 border-b border-border/60 px-4 py-3.5 transition-colors last:border-0 hover:bg-primary/[0.035] sm:grid-cols-[2.5rem_minmax(0,1fr)_7rem_6rem_5rem]"
     >
       <span
         className={cn(
@@ -100,7 +100,7 @@ export function PlayerRow({
       <span className="flex min-w-0 items-center gap-3">
         <PlayerAvatar name={player.display_name} url={player.avatar_url} />
         <span className="min-w-0">
-          <span className="block truncate text-sm font-semibold text-foreground">
+          <span className="block truncate text-sm font-bold text-foreground transition-colors group-hover:text-primary">
             {player.display_name}
           </span>
           <span className="block truncate text-xs text-muted-foreground">
@@ -114,7 +114,7 @@ export function PlayerRow({
         <DivisionBadge division={player.division ?? null} />
       </span>
 
-      <span className="tabular hidden text-sm text-muted-foreground sm:block">
+      <span className="tabular hidden text-sm font-semibold text-muted-foreground sm:block">
         {player.wins}W · {player.losses}L · {winRate(player.wins, player.losses)}
       </span>
 

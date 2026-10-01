@@ -51,7 +51,7 @@ function MatchDisputesPage() {
           </Button>
         }
       />
-      <PageContainer className="py-10">
+      <PageContainer className="py-7 sm:py-9">
         {query.isPending ? (
           <div className="space-y-4">
             <Skeleton className="h-56 w-full" />
@@ -134,7 +134,7 @@ function DisputeCard({ claim }: { claim: StaffMatchDispute }) {
   const pending = resolveMutation.isPending || dismissMutation.isPending;
 
   return (
-    <article className="bg-surface-gradient rounded-lg border border-border p-6 shadow-card">
+    <article className="border-y border-border/65 py-5 sm:py-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -162,7 +162,7 @@ function DisputeCard({ claim }: { claim: StaffMatchDispute }) {
       </div>
 
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
-        <div className="rounded-md border border-border bg-background/40 p-4">
+        <div className="border-t border-border/60 pt-4">
           <p className="eyebrow">Submitted result</p>
           <p className="tabular mt-2 text-3xl font-black text-foreground">
             {claim.scoreA}–{claim.scoreB}
@@ -185,7 +185,7 @@ function DisputeCard({ claim }: { claim: StaffMatchDispute }) {
           ) : null}
         </div>
 
-        <div className="rounded-md border border-border bg-background/40 p-4">
+        <div className="border-t border-border/60 pt-4">
           <div className="flex items-center gap-2">
             <ShieldAlert className="size-4 text-brand" />
             <p className="eyebrow">Staff ruling</p>

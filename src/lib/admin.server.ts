@@ -12,6 +12,7 @@ import type { Database } from "@/integrations/supabase/types";
 type AuthenticatedSupabaseClient = SupabaseClient<Database>;
 type RpcError = { message: string };
 type RpcResult<T> = { data: T | null; error: RpcError | null };
+type JsonRecord = Record<string, unknown>;
 
 function callRpc<T>(
   supabase: AuthenticatedSupabaseClient,
@@ -25,6 +26,15 @@ function callRpc<T>(
   return rpc(fn, args);
 }
 
+function asRecords(value: unknown): JsonRecord[] {
+  return Array.isArray(value)
+    ? value.filter(
+        (item): item is JsonRecord =>
+          Boolean(item) && typeof item === "object" && !Array.isArray(item),
+      )
+    : [];
+}
+
 export async function loadStaffRoles(supabase: AuthenticatedSupabaseClient, userId: string) {
   const { data, error } = await supabase.from("user_roles").select("role").eq("user_id", userId);
   if (error) throw new Error(error.message);
@@ -33,7 +43,17 @@ export async function loadStaffRoles(supabase: AuthenticatedSupabaseClient, user
 }
 
 export async function loadAdminOverview(supabase: AuthenticatedSupabaseClient) {
-  const [players, teams, tournaments, reports, reviews, riot] = await Promise.all([
+  const [
+    players,
+    teams,
+    tournaments,
+    reports,
+    reviews,
+    reviewHistory,
+    riot,
+    disputesRpc,
+    supportRpc,
+  ] = await Promise.all([
     supabase.from("profiles").select("id", { count: "exact", head: true }),
     supabase.from("teams").select("id", { count: "exact", head: true }),
     supabase.from("tournaments").select("id", { count: "exact", head: true }),
@@ -42,7 +62,9 @@ export async function loadAdminOverview(supabase: AuthenticatedSupabaseClient) {
       .select(
         `id, status, reason, details, created_at,
          reported:profiles!reports_reported_profile_id_fkey(handle, display_name)`,
+        { count: "exact" },
       )
+      .in("status", ["open", "reviewing"])
       .order("created_at", { ascending: false })
       .limit(20),
     supabase
@@ -51,8 +73,18 @@ export async function loadAdminOverview(supabase: AuthenticatedSupabaseClient) {
         `id, status, reason, notes, created_at,
          profile:profiles!eligibility_reviews_profile_id_fkey(id, handle, display_name, riot_tier, riot_rank, eligibility)`,
       )
+      .eq("status", "pending_review")
       .order("created_at", { ascending: false })
-      .limit(20),
+      .limit(50),
+    supabase
+      .from("eligibility_reviews")
+      .select(
+        `id, status, reason, notes, created_at,
+         profile:profiles!eligibility_reviews_profile_id_fkey(id, handle, display_name, riot_tier, riot_rank, eligibility)`,
+      )
+      .neq("status", "pending_review")
+      .order("created_at", { ascending: false })
+      .limit(12),
     // Safe Riot review projection: no PUUID, no credentials.
     supabase
       .from("riot_accounts")
@@ -64,20 +96,49 @@ export async function loadAdminOverview(supabase: AuthenticatedSupabaseClient) {
       )
       .order("last_synced_at", { ascending: false, nullsFirst: false })
       .limit(25),
+    callRpc<unknown>(supabase, "staff_list_match_disputes"),
+    callRpc<unknown>(supabase, "staff_list_support_requests"),
   ]);
 
-  for (const result of [players, teams, tournaments, reports, reviews, riot]) {
+  for (const result of [players, teams, tournaments, reports, reviews, reviewHistory, riot]) {
     if (result.error) throw new Error(result.error.message);
   }
+  if (disputesRpc.error) throw new Error(disputesRpc.error.message);
+  if (supportRpc.error) throw new Error(supportRpc.error.message);
+
+  // eligibility_reviews is also an audit/history table. The admin queue should
+  // only expose the latest pending review for players whose CURRENT profile
+  // eligibility still requires a decision. Once staff approves/rejects/suspends
+  // a player, the old pending row remains in history but disappears from here.
+  const seenPendingProfiles = new Set<string>();
+  const activeReviews = (reviews.data ?? []).filter((review) => {
+    const profile = review.profile;
+    if (!profile || profile.eligibility !== "pending_review") return false;
+    if (seenPendingProfiles.has(profile.id)) return false;
+    seenPendingProfiles.add(profile.id);
+    return true;
+  });
+
+  const disputes = asRecords(disputesRpc.data);
+  const supportRequests = asRecords(supportRpc.data);
+  const activeSupportCount = supportRequests.filter((request) => {
+    const status = request["status"];
+    return status === "open" || status === "in_review";
+  }).length;
 
   return {
     counts: {
       players: players.count ?? 0,
       teams: teams.count ?? 0,
       tournaments: tournaments.count ?? 0,
+      reviews: activeReviews.length,
+      reports: reports.count ?? reports.data?.length ?? 0,
+      disputes: disputes.length,
+      support: activeSupportCount,
     },
     reports: reports.data ?? [],
-    reviews: reviews.data ?? [],
+    reviews: activeReviews,
+    reviewHistory: reviewHistory.data ?? [],
     riotAccounts: riot.data ?? [],
   };
 }

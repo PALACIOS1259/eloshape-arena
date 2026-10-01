@@ -1,6 +1,6 @@
 # EloShape — Riot Production API application
 
-Updated: 2026-09-09
+Updated: 2026-09-10
 
 This file is the source of truth for the Riot Developer Portal submission. Review every field before sending it and keep the registered product metadata updated when the product changes.
 
@@ -13,7 +13,7 @@ This file is the source of truth for the Riot Developer Portal submission. Revie
 - **Initial platform:** LAS (`LA2`)
 - **Regional routing:** `AMERICAS`
 - **Current language:** English
-- **Product stage:** working closed-beta prototype
+- **Product stage:** working closed-beta prototype; Production application 879481 pending review
 - **Monetization:** none at present; no entry fees, paid features, betting or gambling
 
 Production intentionally shows a maintenance page while the closed beta remains private. Riot reviewers should use the reviewer URL, where the complete account, team, tournament, bracket, standings and administration flows are testable.
@@ -91,12 +91,14 @@ Policy references:
 
 Do not store a reviewer password in this repository. Supply credentials only through Riot's private application message.
 
-## Submission checklist
+## Application status
 
-- [ ] Confirm the staging `riot-sync` function has a currently valid development key for Riot's review window.
-- [ ] Confirm the reviewer can create an account, or provide a dedicated reviewer account privately.
-- [ ] Capture current screenshots of home, Riot ID connection, qualifier bracket, Semi-Split standings and playoff bracket.
-- [ ] Verify the reviewer URL and all legal URLs immediately before submission.
-- [ ] Register EloShape as a Production application from Emiliano's own Riot Developer account.
-- [ ] Request only the three Standard API families listed above.
-- [ ] Keep production registration closed until Riot grants a Production API key.
+- [x] Registered from Emiliano's Riot Developer account.
+- [x] Product URL ownership verified through the public `riot.txt` challenge.
+- [x] Production application submitted as App ID **879481**.
+- [x] Requested only ACCOUNT-V1, LEAGUE-V4 and SUMMONER-V4.
+- [x] Production registration remains closed while the application is pending review.
+- [ ] Keep the staging `riot-sync` development key valid during Riot's review window.
+- [ ] Keep reviewer account instructions current in the private application message.
+- [ ] Reply promptly to questions in the Developer Portal Messages tab.
+- [ ] Replace the development key with the approved Production key before launch.
