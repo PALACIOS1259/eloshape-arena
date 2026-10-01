@@ -76,6 +76,14 @@ const ESTRUCTURA = [
     key: "info",
     categoria: "📢 INFO",
     canales: [
+      {
+        key: "accesoBeta",
+        name: "acceso-beta",
+        type: TEXTO,
+        acceso: "lectura",
+        mensaje: "accesoBeta",
+        topic: "Información de acceso y espera de aprobación para la beta",
+      },
       { key: "bienvenida", name: "bienvenida", type: TEXTO, acceso: "lectura" },
       { key: "reglas", name: "reglas", type: TEXTO, acceso: "lectura" },
       { key: "anuncios", name: "anuncios", type: TEXTO, acceso: "lectura" },
@@ -271,6 +279,16 @@ const ESTRUCTURA = [
 // ----- Textos oficiales -----
 // Cada función recibe `url(ruta)` y devuelve { titulo, texto }.
 const MENSAJES = {
+  accesoBeta: () => ({
+    titulo: "🧪 Acceso a la beta de EloShape",
+    texto: [
+      "Estás en el espacio de bienvenida. Hasta recibir el rol **Beta tester**, solo vas a ver los canales de información, acceso y soporte.",
+      "La selección de testers todavía no está abierta. Entrar al servidor no registra una solicitud ni aprueba automáticamente tu cuenta.",
+      "Cuando haya invitaciones, el staff va a explicar el proceso en <#anuncios>. La aprobación habilita los canales generales de comunidad, torneos y voz.",
+      "Los espacios privados de equipos, partidas y staff mantienen sus permisos propios. Ser tester no te habilita automáticamente para competir.",
+      "Si necesitás ayuda con tu acceso, usá <#abrirTicket>. No publiques contraseñas ni tokens.",
+    ].join("\n\n"),
+  }),
   primerosPasos: (url) => ({
     titulo: "🚀 Primeros pasos en EloShape",
     texto: [

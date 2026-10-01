@@ -6,7 +6,7 @@ crean el espacio de beta sin dar el rol a ningún jugador.
 ## Instalar sobre tu bot actual
 
 1. Detené el bot con Ctrl+C y guardá una copia de tu carpeta.
-2. Copiá `bot.js`, `estructura.cjs`, `competicion.cjs` y `beta-sync.cjs` en esa carpeta.
+2. Copiá `bot.js`, `estructura.cjs`, `competicion.cjs`, `beta-sync.cjs` y `espera.cjs` en esa carpeta.
    Conservá tu `ids.json` y tu configuración de `DISCORD_TOKEN`. El bot nuevo lee esos IDs.
    `estructura.js` anterior deja de usarse: la configuración nueva se llama `estructura.cjs`.
 3. Arrancá con `node bot.js` usando Node 22 o posterior y tu instalación de discord.js v14.
@@ -86,3 +86,27 @@ whitelist una vez. Con sincronización habilitada, también consulta al iniciar 
 Un fallo de red, credenciales o formato aborta la consulta sin convertirla en una lista vacía.
 Con beta desactivada en la web, la sincronización pausa y conserva los roles.
 No actives `BETA_SYNC_ENABLED` hasta configurar y probar el endpoint.
+
+## Vista de espera en Discord
+
+Después de ejecutar `!adaptar`, quien no tenga **Beta tester** solo verá:
+
+- Bienvenida, reglas, anuncios y primeros pasos.
+- Vincular cuenta, estado del servicio y el nuevo `#acceso-beta`.
+- Ayuda y el panel para abrir un ticket privado.
+
+Al asignar **Beta tester**, se habilitan los canales generales de comunidad, torneos
+y voz. Staff/Admin y Árbitro conservan acceso para operar. Durante esta etapa, el staff
+puede asignar el rol manualmente al aprobar a alguien; la sincronización automática sigue
+requiriendo configurar el endpoint y activar la beta en la web. Asignar el rol en Discord
+no agrega por sí solo el correo a la whitelist de la web.
+
+Los espacios privados de equipos, partidas, tickets y staff conservan sus permisos propios:
+ser tester no abre automáticamente las voces de otro equipo. Los canales públicos antiguos
+(Partida 1–8, General, Sala de Voz y similares) también se restringen para que los nuevos
+miembros no entren por esos accesos. El canal oficial de reglas de Comunidad sigue público.
+
+`!adaptar` reemplaza los permisos específicos de los canales generales que controla esta
+vista; elimina grants antiguos que permitirían saltar la espera. No borra canales ni
+asigna testers. Revisá con una cuenta sin roles y otra con Beta tester después de aplicarlo.
+No se necesita un rol Pendiente ni Server Members Intent para esta vista.

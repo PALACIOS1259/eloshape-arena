@@ -48,6 +48,7 @@ const {
   syncBetaMembers,
 } = require("./competicion.cjs");
 const { fetchBetaSnapshot } = require("./beta-sync.cjs");
+const { applyWaitingRoom } = require("./espera.cjs");
 
 const TOKEN = process.env.DISCORD_TOKEN || "PEGA_AQUI_TU_TOKEN";
 const WEB_URL = (process.env.ELOSHAPE_URL || "https://eloshape.com.ar").replace(/\/+$/, "");
@@ -554,6 +555,16 @@ async function adaptarServidor(message) {
   await publicarTextos(guild, informe);
   await ensureBetaSpace(contextoCompeticion(guild));
   informe.push("🧪 Espacio de beta preparado; no se agregan testers con !adaptar.");
+  // Guardar el mapa antes de aplicar el acceso, también en la primera instalación.
+  exportarIds(guild);
+  const espera = await applyWaitingRoom({
+    ...contextoCompeticion(guild),
+    structure: ESTRUCTURA,
+    channelForDefinition: (grupo, def) => canalEstructura(guild, grupo, def),
+  });
+  informe.push(
+    `🔐 Acceso pendiente aplicado: ${espera.updated} canales/categorías. Solo Beta tester y staff ven comunidad, torneos y voz.`,
+  );
   verificarPermisos(guild, informe);
   const datos = exportarIds(guild);
 

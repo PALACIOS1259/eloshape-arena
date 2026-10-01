@@ -118,3 +118,19 @@ Los tests de transporte y autenticación verifican errores de red, snapshots mal
 credenciales inválidas, ausencia de secreto y ausencia de correos en las respuestas.
 Los tests del bot verifican separación de voces, acceso del staff, prohibición a jugadores
 no autorizados, preservación de IDs/equipos y nombres dinámicos sin duplicados.
+
+## Espera de whitelist en Discord
+
+`discord/espera.cjs` aplica una vista para miembros sin el rol Beta tester. Solo permite
+onboarding, reglas, anuncios, acceso-beta, estado, ayuda y apertura de tickets. Los
+canales generales restantes y las salas públicas antiguas requieren Beta tester o staff.
+Las categorías de partidas, equipos, beta, staff y tickets mantienen sus permisos privados
+y no se habilitan a todos los testers. Los canales generales controlados reemplazan sus
+overwrite grants anteriores para evitar accesos residuales; sus IDs se guardan en
+ids.espera.channelIds para repetir la configuración. El canal de reglas de Comunidad
+permanece visible. No se creó una cola de solicitudes ni se dieron aprobaciones.
+
+La vista funciona con @everyone y Beta tester sin asignar un rol adicional al ingresar,
+y no requiere Members Intent. La asignación automática sigue pendiente de configurar
+el secreto del endpoint y el bot; el staff puede asignar el rol manualmente. La aprobación
+de la web y el rol Discord son estados distintos hasta conectar la reconciliación.

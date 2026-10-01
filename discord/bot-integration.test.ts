@@ -153,6 +153,7 @@ function setup() {
           "discord.js": { ...discord, Client },
           "./estructura.cjs": structure,
           "./competicion.cjs": competition,
+          "./espera.cjs": load("espera.cjs"),
           "./beta-sync.cjs": {
             fetchBetaSnapshot: async () => {
               throw new Error("not configured");
