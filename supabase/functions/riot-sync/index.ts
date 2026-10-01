@@ -357,6 +357,14 @@ Deno.serve(async (req: Request) => {
       throw new PublicError("unauthorized", "Sign in to continue.", 401);
     }
 
+    const { data: beta, error: betaError } = await userClient.rpc("get_beta_access");
+    if (betaError || !beta) {
+      throw new PublicError("beta_check_unavailable", "Could not verify beta access.", 503);
+    }
+    if (beta.enabled && !beta.allowed) {
+      throw new PublicError("beta_access_required", "Beta invitation required.", 403);
+    }
+
     if (req.method === "GET") return json(req, { service: status });
     if (req.method !== "POST") return json(req, { error: "Method not allowed" }, 405);
 

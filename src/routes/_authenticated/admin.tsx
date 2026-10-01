@@ -15,6 +15,7 @@ import type { ReactNode } from "react";
 import { toast } from "sonner";
 
 import { CompetitionOpsPanel } from "@/components/eloshape/CompetitionOpsPanel";
+import { BetaAccessPanel } from "@/components/eloshape/BetaAccessPanel";
 import { DivisionBadge } from "@/components/eloshape/DivisionBadge";
 import { EmptyState } from "@/components/eloshape/EmptyState";
 import { PageContainer, PageHeading } from "@/components/layout/PageShell";
@@ -160,6 +161,7 @@ function AdminPage() {
       />
 
       <PageContainer className="py-8 sm:py-10">
+        {data?.isAdmin ? <BetaAccessPanel /> : null}
         {isPending ? (
           <div className="space-y-4">
             <Skeleton className="h-28 w-full" />

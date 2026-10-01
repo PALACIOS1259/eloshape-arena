@@ -45,6 +45,13 @@ export function PreLaunchPage() {
                 Estamos terminando la infraestructura para nuestra primera beta cerrada. El registro
                 público todavía no está habilitado.
               </p>
+              <Link
+                to="/auth"
+                search={{ mode: "signin" }}
+                className="mt-7 inline-flex rounded-md border border-brand/40 px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-brand/10"
+              >
+                Acceso para invitados de la beta
+              </Link>
             </div>
 
             <aside className="overflow-hidden rounded-2xl border border-border/70 bg-card/55 backdrop-blur-sm">
