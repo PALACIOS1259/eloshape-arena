@@ -21,7 +21,10 @@ async function serialized(guild, callback) {
 }
 
 function stateFor(ids) {
-  ids.competicion ||= { torneos: {}, partidas: {}, beta: {} };
+  ids.competicion ||= {};
+  ids.competicion.torneos ||= {};
+  ids.competicion.partidas ||= {};
+  ids.competicion.beta ||= {};
   return ids.competicion;
 }
 
@@ -33,7 +36,18 @@ async function basePermissions(guild, staffRoleIds) {
     if (!roles.has(id)) throw new Error(`No existe el rol de staff ${id}`);
   }
   return [
-    { id: guild.id, type: OverwriteType.Role, deny: [P.ViewChannel, P.Connect] },
+    {
+      id: guild.id,
+      type: OverwriteType.Role,
+      deny: [
+        P.ViewChannel,
+        P.Connect,
+        P.SendMessages,
+        P.SendMessagesInThreads,
+        P.CreatePublicThreads,
+        P.CreatePrivateThreads,
+      ],
+    },
     {
       id: me.id,
       type: OverwriteType.Member,
@@ -135,9 +149,18 @@ async function ensureTournamentSpace({
   staffRoleIds,
   persistIds,
 }) {
-  if (!tournamentId || !name) throw new Error("Falta identificador o nombre del torneo");
+  if (
+    !/^[a-zA-Z0-9_-]{1,100}$/.test(tournamentId || "") ||
+    ["__proto__", "constructor", "prototype"].includes(tournamentId) ||
+    !cleanName(name || "")
+  )
+    throw new Error("Falta identificador o nombre del torneo");
   if (!Array.isArray(participantIds) || participantIds.some((id) => !snowflake.test(id))) {
     throw new Error("Los participantes deben ser IDs de Discord verificados");
+  }
+  // Discord admite hasta 100 overwrites por canal: everyone + bot + staff + jugadores.
+  if (new Set(participantIds).size + new Set(staffRoleIds).size + 2 > 100) {
+    throw new Error("El torneo supera 100 permisos por canal; requiere un rol de participantes");
   }
   return serialized(guild, async () => {
     const state = stateFor(ids).torneos;
@@ -147,7 +170,6 @@ async function ensureTournamentSpace({
       id,
       type: OverwriteType.Member,
       allow: [P.ViewChannel, P.ReadMessageHistory],
-      deny: [P.SendMessages],
     }));
     const permissions = [...staff, ...participants];
     const category = await ensureChannel(
@@ -197,7 +219,16 @@ async function ensureMatchSpace({
   staffRoleIds,
   persistIds,
 }) {
-  if (!matchId || !Number.isInteger(number) || number < 1) throw new Error("Partida inválida");
+  if (
+    !/^[a-zA-Z0-9_-]{1,100}$/.test(matchId || "") ||
+    ["__proto__", "constructor", "prototype"].includes(matchId) ||
+    !Number.isSafeInteger(number) ||
+    number < 1 ||
+    !cleanName(tournamentName || "") ||
+    !teamA?.name ||
+    !teamB?.name
+  )
+    throw new Error("Partida inválida");
   const a = [...new Set(teamA.memberIds || [])];
   const b = [...new Set(teamB.memberIds || [])];
   if (

@@ -5,7 +5,12 @@
 La migración de whitelist está aplicada y probada en Supabase staging
 (`ujlzcdmotrihwgjshdcs`). Está desactivada y no tiene invitaciones reales.
 Producción todavía requiere promover las migraciones y el código; mantiene el pre-lanzamiento.
-El bot de Discord externo no está modificado: falta su `bot.js` para conectar el módulo.
+El `bot.js` recibido está integrado en `discord/bot.cjs`, junto con su estructura y
+comandos de competición. Instalación externa: `discord/LEEME.md`. No se ha ejecutado en
+el servidor Discord real. La sincronización de whitelist requiere configurar el secreto
+del endpoint `discord-beta-snapshot` y el entorno del bot antes de activarla.
+La función está desplegada en staging con el secreto pendiente: falla cerrada (503),
+sin publicar la lista.
 
 ## Acceso de beta
 
@@ -32,12 +37,12 @@ signup, RLS, autorización administrativa y snapshot exclusivo de backend.
 Discord usa categorías de un solo nivel. El nombre identifica el torneo y la partida.
 Crear espacios únicamente para torneos activos y partidas próximas/en juego.
 
-| Categoría              | Canales                                           |
-| ---------------------- | ------------------------------------------------- |
-| 🏆 Split Chirola       | #anuncios, #reglas, #bracket, #resultados         |
-| 🎮 Chirola · Partida 1 | Voz del equipo A, voz del equipo B, #coordinacion |
-| 🎮 Chirola · Partida 2 | Voz del equipo C, voz del equipo D, #coordinacion |
-| 🧪 BETA                | #anuncios-beta, #feedback-beta, #errores-beta     |
+| Categoría                | Canales                                           |
+| ------------------------ | ------------------------------------------------- |
+| 🏆 Split Rosario 2       | #anuncios, #reglas, #bracket, #resultados         |
+| 🎮 Rosario 2 · Partida 1 | Voz del equipo A, voz del equipo B, #coordinacion |
+| 🎮 Rosario 2 · Partida 2 | Voz del equipo C, voz del equipo D, #coordinacion |
+| 🧪 BETA                  | #anuncios-beta, #feedback-beta, #errores-beta     |
 
 Las voces tienen `userLimit: 0` y permisos para los cinco integrantes del roster de cada
 lado, el staff, árbitros y bot. El rival no tiene acceso a la sala contraria.
@@ -45,7 +50,7 @@ La categoría de la partida está oculta por defecto; cada canal permite solo su
 Los canales de beta permiten el rol **Beta tester** y staff; nadie más.
 Los jugadores no reciben permisos de administración. No modificar ni borrar canales ajenos.
 
-## Módulo para la IA que desarrolla el bot
+## Integración del bot
 
 Copiar `discord/competicion.cjs` al directorio del bot e importarlo desde `bot.js`:
 
@@ -92,3 +97,24 @@ el bot requiere **Server Members Intent** y un rol superior a **Beta tester**.
 El módulo conserva los antiguos canales Partida 1–8. Tras conectar el nuevo flujo, el staff
 puede retirarlos cuando estén vacíos. El archivado/eliminación de torneos no se implementa
 sin una política acordada, para conservar resultados e historial.
+
+## Endpoint de sincronización
+
+`supabase/functions/discord-beta-snapshot` acepta GET autenticado con
+`Authorization: Bearer DISCORD_BETA_SYNC_TOKEN`. La credencial, de al menos 32 caracteres,
+es propia de este endpoint y se configura como secreto en Supabase y en el proceso del bot.
+No usar el token de Discord ni una clave pública de Supabase para esta función.
+`verify_jwt=false` es intencional: el handler implementa autenticación antes de consultar
+la RPC privilegiada. Si falta el secreto responde 503 y no lee la base.
+El endpoint devuelve exclusivamente `{ enabled, member_ids }`, sin correos y con no-store.
+
+El bot llama al endpoint con timeout y sin seguir redirecciones. Rechaza snapshots inválidos
+o errores antes de asignar/quitar roles. Si enabled=false, pausa la reconciliación.
+No configura ni activa la beta desde Discord. Los cambios de la lista siguen siendo exclusivos
+del administrador de la web. No se cargaron invitados, ni se habilitó sincronización en
+producción. Los comandos manuales de torneo y partida no consultan rosters de Supabase.
+
+Los tests de transporte y autenticación verifican errores de red, snapshots malformados,
+credenciales inválidas, ausencia de secreto y ausencia de correos en las respuestas.
+Los tests del bot verifican separación de voces, acceso del staff, prohibición a jugadores
+no autorizados, preservación de IDs/equipos y nombres dinámicos sin duplicados.

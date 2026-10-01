@@ -1,5 +1,9 @@
 project_id = "eloshape-arena"
 
+[functions.discord-beta-snapshot]
+# Autenticación propia en handler.ts; no acepta tokens de jugadores ni claves públicas.
+verify_jwt = false
+
 [auth.email.template.confirmation]
 subject = "Confirmá tu cuenta de EloShape"
 content_path = "./supabase/templates/confirmation.html"
