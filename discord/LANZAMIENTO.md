@@ -9,13 +9,17 @@ todavía asignación ni retirada automáticas para jugadores.
 Las 12 migraciones de producto están aplicadas en producción, sin copiar datos de
 staging. Las funciones discord-linked-snapshot y discord-beta-snapshot están
 desplegadas. Riot sincroniza bajo el mismo control de acceso a beta. Producción
-conserva 3 perfiles, 1 equipo, 5 torneos y 0 partidos. Beta desactivada, cero invitados.
+conserva 3 perfiles, 1 equipo, 5 torneos y 0 partidos. La restricción de whitelist
+está activa con cero invitados: solo el staff confirmado accede a la plataforma.
+El público continúa en mantenimiento. HTTP comprobado: estado de acceso devuelve
+allowed=false; la Data API deniega lecturas públicas con 403. El staff conserva acceso.
 
 ## Instalar y publicar la invitación
 
 1. Parar el bot, guardar una copia de su carpeta y copiar los archivos de esta entrega.
 2. Conservar ids.json y .env: la entrega no incluye tokens ni reemplaza esos archivos.
-3. Iniciar con `node --env-file=.env bot.js` o abrir iniciar-bot.cmd.
+3. Abrir iniciar-bot.cmd; lee .env y descarta valores viejos heredados de CMD.
+   Alternativa: abrir una ventana nueva y usar `node --env-file=.env bot.js`.
 4. Ejecutar !adaptar desde una cuenta administradora para actualizar reglas,
    bienvenida y permisos de espera. No asigna testers ni borra canales antiguos.
 5. Ejecutar !invitacion: crea o reutiliza una invitación permanente a bienvenida.
@@ -53,9 +57,10 @@ combina invitación activa/no vencida, correo confirmado y Discord OAuth verific
 Los IDs escritos a mano y user_metadata no autorizan roles. Las tablas de whitelist
 y los snapshots no son públicos.
 
-Mantener mantenimiento habilitado. Cuando haya testers reales y los controles estén
-verificados, activar beta cerrada en /admin, establecer BETA_SYNC_ENABLED=true y
-reiniciar. !beta sincronizar permite comprobar una reconciliación. Una revocación,
+Mantener mantenimiento y la restricción por invitación habilitados. Cuando haya
+testers reales y los controles estén verificados, aprobar sus correos en /admin,
+establecer BETA_SYNC_ENABLED=true y reiniciar. No hace falta desactivar la restricción
+para invitar jugadores. !beta sincronizar permite comprobar una reconciliación. Una revocación,
 vencimiento o desvinculación excluye al jugador del próximo snapshot y retira Beta tester.
 Apagar beta pausa la sincronización y conserva los roles; no equivale a revocarlos.
 

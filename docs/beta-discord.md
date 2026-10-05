@@ -3,7 +3,8 @@
 ## Estado
 
 Actualización 2026-10-05: las migraciones de producto y las funciones Discord están
-aplicadas en producción; beta desactivada, cero invitados. El snapshot de testers
+aplicadas en producción; whitelist activa, cero invitados y acceso exclusivo del staff
+confirmado. Mantenimiento conserva la página pública de pre-lanzamiento. El snapshot de testers
 ahora obtiene los IDs desde OAuth verificado, cruzados con correos aprobados y
 confirmados. Los IDs escritos a mano no autorizan el rol. Ver discord/LANZAMIENTO.md.
 La vista de espera se aplicó según el informe de !adaptar del propietario; falta
