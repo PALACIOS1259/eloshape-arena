@@ -1,8 +1,9 @@
 import { Link } from "@tanstack/react-router";
-import { Instagram } from "lucide-react";
+import { Instagram, MessageCircle } from "lucide-react";
 
 import { EloShapeLogo } from "@/components/brand/EloShapeLogo";
 import { RIOT_LEGAL_NOTICE } from "@/lib/riot-legal";
+import { DISCORD_INVITE_URL, INSTAGRAM_URL } from "@/lib/social-links";
 
 export function SiteFooter() {
   return (
@@ -14,16 +15,28 @@ export function SiteFooter() {
             The competitive circuit for amateur League of Legends players. Skill-based divisions,
             city-to-region brackets, and a ranking that only counts EloShape results.
           </p>
-          <a
-            href="https://www.instagram.com/eloshape.circuito.lol/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-5 inline-flex max-w-full items-center gap-2 rounded-sm text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
-            aria-label="Instagram: @eloshape.circuito.lol (opens in a new tab)"
-          >
-            <Instagram className="size-4 shrink-0" aria-hidden="true" />
-            <span className="break-all">@eloshape.circuito.lol</span>
-          </a>
+          <div className="mt-5 flex flex-col items-start gap-3">
+            <a
+              href={DISCORD_INVITE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-sm text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+              aria-label="Join the EloShape Discord (opens in a new tab)"
+            >
+              <MessageCircle className="size-4 shrink-0" aria-hidden="true" />
+              <span>Discord de EloShape</span>
+            </a>
+            <a
+              href={INSTAGRAM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex max-w-full items-center gap-2 rounded-sm text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+              aria-label="Instagram: @eloshape.circuito.lol (opens in a new tab)"
+            >
+              <Instagram className="size-4 shrink-0" aria-hidden="true" />
+              <span className="break-all">@eloshape.circuito.lol</span>
+            </a>
+          </div>
         </div>
 
         <FooterColumn

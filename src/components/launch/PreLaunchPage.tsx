@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
+import { MessageCircle } from "lucide-react";
 
 import { EloShapeLogo } from "@/components/brand/EloShapeLogo";
+import { DISCORD_INVITE_URL, INSTAGRAM_URL } from "@/lib/social-links";
 
 const launchMilestones = [
   { label: "Circuito competitivo", status: "Listo" },
@@ -45,13 +47,29 @@ export function PreLaunchPage() {
                 Estamos terminando la infraestructura para nuestra primera beta cerrada. El registro
                 público todavía no está habilitado.
               </p>
-              <Link
-                to="/auth"
-                search={{ mode: "signin" }}
-                className="mt-7 inline-flex rounded-md border border-brand/40 px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-brand/10"
-              >
-                Acceso para invitados de la beta
-              </Link>
+              <div className="mt-7 flex flex-wrap gap-3">
+                <a
+                  href={DISCORD_INVITE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Sumate al Discord de EloShape (abre en una pestaña nueva)"
+                  className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+                >
+                  <MessageCircle className="size-4" aria-hidden="true" />
+                  Sumate al Discord
+                </a>
+                <Link
+                  to="/auth"
+                  search={{ mode: "signin" }}
+                  className="inline-flex rounded-md border border-brand/40 px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-brand/10"
+                >
+                  Acceso para invitados de la beta
+                </Link>
+              </div>
+              <p className="mt-3 text-xs leading-5 text-muted-foreground">
+                Entrar al Discord no habilita el acceso a la beta. Las invitaciones se anunciarán en
+                el servidor.
+              </p>
             </div>
 
             <aside className="overflow-hidden rounded-2xl border border-border/70 bg-card/55 backdrop-blur-sm">
@@ -83,7 +101,16 @@ export function PreLaunchPage() {
 
         <footer className="flex flex-col gap-4 border-t border-border/70 pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <p>© 2026 EloShape. Competitive circuit.</p>
-          <nav aria-label="Información legal" className="flex items-center gap-5">
+          <nav aria-label="Redes e información legal" className="flex flex-wrap items-center gap-5">
+            <a
+              href={INSTAGRAM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram de EloShape (abre en una pestaña nueva)"
+              className="transition-colors hover:text-foreground"
+            >
+              Instagram
+            </a>
             <Link to="/privacy" className="transition-colors hover:text-foreground">
               Privacidad
             </Link>
