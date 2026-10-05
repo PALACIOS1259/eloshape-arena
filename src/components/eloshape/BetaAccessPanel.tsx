@@ -14,7 +14,6 @@ export function BetaAccessPanel() {
   const save = useServerFn(saveBetaInvitation);
   const toggle = useServerFn(setClosedBetaEnabled);
   const [email, setEmail] = useState("");
-  const [discordId, setDiscordId] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
   const { data, isPending, error } = useQuery({
     queryKey: ["beta-invitations"],
@@ -50,9 +49,9 @@ export function BetaAccessPanel() {
     <section lang="es" className="mb-8 rounded-xl border border-border bg-card p-5">
       <h2 className="text-lg font-bold">Lista de acceso a la beta</h2>
       <p className="mt-2 text-sm text-muted-foreground">
-        Aprobá un correo antes de que cree su cuenta. El ID de Discord es opcional y debe
-        verificarlo el staff. El rol de tester no otorga permisos de administración ni elegibilidad
-        competitiva.
+        Aprobá un correo antes de que cree su cuenta. Cuando confirme su correo y vincule Discord,
+        el bot podrá asignarle Beta tester. No hace falta copiar su ID. Este acceso no otorga
+        permisos de administración ni elegibilidad competitiva.
       </p>
       {isPending ? (
         <p className="mt-4 text-sm">Cargando invitaciones…</p>
@@ -79,20 +78,19 @@ export function BetaAccessPanel() {
             Desactivar esta restricción devuelve las API a sus permisos normales.
           </p>
           <form
-            className="mt-5 grid gap-3 sm:grid-cols-3"
+            className="mt-5 grid gap-3 sm:grid-cols-2"
             onSubmit={(event) => {
               event.preventDefault();
               invitation.mutate(
                 {
                   email,
-                  discord_id: discordId || null,
+                  discord_id: null,
                   active: true,
                   expires_at: expiresAt ? new Date(expiresAt).toISOString() : null,
                 },
                 {
                   onSuccess: () => {
                     setEmail("");
-                    setDiscordId("");
                     setExpiresAt("");
                   },
                 },
@@ -108,17 +106,6 @@ export function BetaAccessPanel() {
                 maxLength={254}
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-                className="mt-2"
-              />
-            </div>
-            <div>
-              <Label htmlFor="beta-discord">ID de Discord (opcional)</Label>
-              <Input
-                id="beta-discord"
-                inputMode="numeric"
-                pattern="[0-9]{17,20}"
-                value={discordId}
-                onChange={(event) => setDiscordId(event.target.value)}
                 className="mt-2"
               />
             </div>

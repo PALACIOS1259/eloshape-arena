@@ -1,5 +1,10 @@
 # Actualización del bot de EloShape
 
+Para el lanzamiento del Discord público, seguí **LANZAMIENTO.md**.
+`!invitacion` genera el enlace permanente a bienvenida; no concede acceso a beta.
+`iniciar-bot.cmd` inicia el bot leyendo tu .env.
+
+
 Todavía no hay testers: no cargues correos ni actives la beta. `!adaptar` y `!beta preparar`
 crean el espacio de beta sin dar el rol a ningún jugador.
 

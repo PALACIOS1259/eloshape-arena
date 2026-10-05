@@ -934,6 +934,7 @@ client.on("messageCreate", async (message) => {
       "partida",
       "beta",
       "vinculadas",
+      "invitacion",
       "ayuda",
     ].includes(nombre)
   )
@@ -949,6 +950,25 @@ client.on("messageCreate", async (message) => {
       }
 
       switch (nombre) {
+        case "invitacion": {
+          if (!message.member.permissions.has(PermissionFlagsBits.Administrator))
+            return message.reply("❌ Solo un administrador puede crear la invitación pública.");
+          const channel = message.guild.channels.cache.get(IDS.canales?.bienvenida?.id);
+          if (!channel || channel.type !== TEXTO)
+            throw new Error("Falta #bienvenida en ids.json; ejecutá !adaptar");
+          const invite = await channel.createInvite({
+            maxAge: 0,
+            maxUses: 0,
+            temporary: false,
+            unique: false,
+            reason: "EloShape: invitación pública a la zona de bienvenida",
+          });
+          IDS.invitacion = { code: invite.code, url: invite.url, channelId: channel.id };
+          guardarIds();
+          return message.reply(
+            `✅ Invitación permanente: ${invite.url}\nEntrar no concede Beta tester ni Cuenta vinculada.`,
+          );
+        }
         case "adaptar":
         case "crearserver": {
           if (!message.member.permissions.has(PermissionFlagsBits.Administrator)) {
@@ -1019,7 +1039,7 @@ client.on("messageCreate", async (message) => {
         }
         case "ayuda":
           return message.reply(
-            "Staff: `!adaptar`, `!ids`, `!equipo`, `!torneo crear ID_WEB | Nombre | @participantes`, `!partida crear ID_PARTIDA | ID_TORNEO | N | Nombre A | @5 jugadores | Nombre B | @5 jugadores`, `!beta preparar`, `!beta sincronizar`, `!vinculadas probar`, `!vinculadas sincronizar`.",
+            "Staff: `!adaptar`, `!ids`, `!invitacion`, `!equipo`, `!torneo crear ID_WEB | Nombre | @participantes`, `!partida crear ID_PARTIDA | ID_TORNEO | N | Nombre A | @5 jugadores | Nombre B | @5 jugadores`, `!beta preparar`, `!beta sincronizar`, `!vinculadas probar`, `!vinculadas sincronizar`.",
           );
       }
     } catch (error) {

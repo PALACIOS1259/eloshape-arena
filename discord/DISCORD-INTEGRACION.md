@@ -7,6 +7,13 @@ en Git ni en `ids.json`. La clave pública de General Information no es el Clien
 
 ## Estado de esta entrega
 
+Actualización: migraciones y funciones promovidas a producción. La prueba individual
+del propietario en el servidor real confirmó su identidad y un rol existente.
+Los pasos de activación productiva están en LANZAMIENTO.md. La sincronización global
+sigue desactivada hasta configurar y comprobar OAuth/secretos productivos.
+
+### Historial de validación
+
 Código de vinculación/desvinculación en `/dashboard`, callback `/auth/discord`, endpoint
 limitado y sincronización del rol preparados en staging. No se abre la beta ni se
 promueve automáticamente a main. No hay una prueba OAuth real hasta configurar el

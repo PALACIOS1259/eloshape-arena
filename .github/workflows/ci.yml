@@ -92,6 +92,14 @@ jobs:
           -v ON_ERROR_STOP=1
           -f supabase/tests/discord_link.test.sql
 
+      - name: Run verified beta Discord role tests
+        env:
+          PGPASSWORD: postgres
+        run: >-
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres
+          -v ON_ERROR_STOP=1
+          -f supabase/tests/beta_discord.test.sql
+
       - name: Run 16-team Semi-Split stress test
         env:
           PGPASSWORD: postgres

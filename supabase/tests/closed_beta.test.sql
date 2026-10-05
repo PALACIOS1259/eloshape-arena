@@ -17,6 +17,9 @@ begin
     (outsider, 'outsider-' || suffix || '@example.invalid', now(), metadata),
     (unconfirmed, 'unconfirmed-' || suffix || '@example.invalid', null, metadata),
     (admin_user, 'admin-' || suffix || '@example.invalid', now(), metadata);
+  insert into auth.identities(provider_id, user_id, identity_data, provider)
+  values ('100000000000000001', invited, '{"sub":"100000000000000001"}', 'discord'),
+    ('100000000000000002', unconfirmed, '{"sub":"100000000000000002"}', 'discord');
   insert into public.user_roles(user_id, role) values (admin_user,'admin') on conflict do nothing;
   insert into private.beta_allowlist(email, discord_id) values
     (invited_email, '100000000000000001'),
