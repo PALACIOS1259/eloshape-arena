@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { Instagram } from "lucide-react";
 
 import { EloShapeLogo } from "@/components/brand/EloShapeLogo";
 import { RIOT_LEGAL_NOTICE } from "@/lib/riot-legal";
@@ -13,6 +14,16 @@ export function SiteFooter() {
             The competitive circuit for amateur League of Legends players. Skill-based divisions,
             city-to-region brackets, and a ranking that only counts EloShape results.
           </p>
+          <a
+            href="https://www.instagram.com/eloshape.circuito.lol/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-5 inline-flex max-w-full items-center gap-2 rounded-sm text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+            aria-label="Instagram: @eloshape.circuito.lol (opens in a new tab)"
+          >
+            <Instagram className="size-4 shrink-0" aria-hidden="true" />
+            <span className="break-all">@eloshape.circuito.lol</span>
+          </a>
         </div>
 
         <FooterColumn
