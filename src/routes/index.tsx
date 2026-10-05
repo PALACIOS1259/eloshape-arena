@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ArrowRight, ShieldCheck, Swords, Target, Trophy, Users } from "lucide-react";
@@ -5,9 +6,9 @@ import { ArrowRight, ShieldCheck, Swords, Target, Trophy, Users } from "lucide-r
 import { DivisionBadge } from "@/components/eloshape/DivisionBadge";
 import { PlayerRow } from "@/components/eloshape/PlayerRow";
 import { SectionHeader } from "@/components/eloshape/SectionHeader";
-import { StatTile } from "@/components/eloshape/StatTile";
 import { TeamCard } from "@/components/eloshape/TeamCard";
 import { TournamentCard } from "@/components/eloshape/TournamentCard";
+import { IntroVideoSection } from "@/components/launch/IntroVideoSection";
 import { PageContainer } from "@/components/layout/PageShell";
 import { Button } from "@/components/ui/button";
 import { directoryQuery, homeSnapshotQuery } from "@/lib/queries";
@@ -55,11 +56,11 @@ function HomePage() {
       {/* Hero */}
       <section className="bg-hero relative overflow-hidden border-b border-border">
         <div className="bg-tech-grid absolute inset-0 opacity-60" aria-hidden />
-        <PageContainer className="relative py-16 sm:py-24">
-          <div className="grid gap-12 lg:grid-cols-[1.1fr_minmax(0,0.9fr)] lg:items-center">
+        <PageContainer className="relative py-12 sm:py-16">
+          <div className="grid gap-9 lg:grid-cols-[1.05fr_minmax(0,0.95fr)] lg:items-center">
             <div className="min-w-0">
               <p className="eyebrow">{directory.activeSeason?.name ?? "Season 1"} · LAS circuit</p>
-              <h1 className="mt-4 text-4xl font-black leading-[1.05] tracking-tight text-foreground sm:text-6xl">
+              <h1 className="mt-3 text-4xl font-black leading-[1.03] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
                 Competitive League for the <span className="text-brand-gradient">other 90%</span>
               </h1>
               <p className="mt-5 max-w-xl text-base text-muted-foreground sm:text-lg">
@@ -79,28 +80,29 @@ function HomePage() {
                 </Button>
               </div>
 
-              <div className="mt-10 grid gap-3 sm:grid-cols-3">
-                <StatTile
-                  label="Registered players"
+              <div className="mt-9 flex flex-wrap items-center gap-x-8 gap-y-4 border-t border-border/60 pt-5">
+                <HomeMetric
+                  icon={<Users className="size-4" />}
+                  label="Players"
                   value={formatPoints(snapshot.stats.players)}
-                  icon={<Users className="size-5" />}
                 />
-                <StatTile
+                <HomeMetric
+                  icon={<Swords className="size-4" />}
                   label="Tournaments"
                   value={formatPoints(snapshot.stats.tournaments)}
-                  icon={<Swords className="size-5" />}
                 />
-                <StatTile
-                  label="Top season score"
+                <HomeMetric
+                  icon={<Trophy className="size-4" />}
+                  label="Top score"
                   value={formatPoints(topPoints)}
-                  icon={<Trophy className="size-5" />}
+                  gold
                 />
               </div>
             </div>
 
             <div className="min-w-0">
-              <div className="bg-surface-gradient shadow-elevated rounded-xl border border-border p-5">
-                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+              <div className="overflow-hidden border-y border-border/65 bg-card/15">
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border/55 bg-background/10 px-4 py-3">
                   <p className="eyebrow">Live season leaderboard</p>
                   <Link
                     to="/rankings"
@@ -109,7 +111,7 @@ function HomePage() {
                     Full ranking
                   </Link>
                 </div>
-                <div className="mt-3">
+                <div>
                   {snapshot.topPlayers.map((player, index) => (
                     <PlayerRow key={player.id} player={player} rank={index + 1} />
                   ))}
@@ -119,6 +121,8 @@ function HomePage() {
           </div>
         </PageContainer>
       </section>
+
+      <IntroVideoSection />
 
       {/* Divisions */}
       <PageContainer className="py-16">
@@ -132,11 +136,11 @@ function HomePage() {
             </Button>
           }
         />
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {directory.divisions.map((division) => (
             <div
               key={division.id}
-              className="bg-surface-gradient shadow-card rounded-lg border border-border p-5"
+              className="rounded-2xl border border-border/70 bg-gradient-to-br from-card/92 via-card/72 to-background/55 p-5 shadow-card transition-all duration-200 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg"
             >
               <DivisionBadge division={division} size="md" />
               <p className="mt-4 text-sm text-muted-foreground">{division.description}</p>
@@ -187,7 +191,7 @@ function HomePage() {
             </div>
           </div>
 
-          <div className="bg-surface-gradient shadow-card min-w-0 rounded-lg border border-border p-6">
+          <div className="min-w-0 border-l border-border/60 pl-0 lg:pl-8">
             <p className="eyebrow">Integrity</p>
             <h3 className="mt-3 text-xl font-black text-foreground">Built against smurfing</h3>
             <ul className="mt-5 space-y-4 text-sm text-muted-foreground">
@@ -204,12 +208,42 @@ function HomePage() {
                 Points come from configurable tournament rules — never from Solo Queue.
               </li>
             </ul>
-            <Button asChild className="mt-6 w-full">
+            <Button asChild className="mt-6">
               <Link to="/rules">Read the point rules</Link>
             </Button>
           </div>
         </div>
       </PageContainer>
+    </div>
+  );
+}
+
+function HomeMetric({
+  icon,
+  label,
+  value,
+  gold = false,
+}: {
+  icon: ReactNode;
+  label: string;
+  value: string;
+  gold?: boolean;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className={gold ? "text-gold" : "text-primary"}>{icon}</span>
+      <span>
+        <span
+          className={
+            gold ? "block text-lg font-black text-gold" : "block text-lg font-black text-foreground"
+          }
+        >
+          {value}
+        </span>
+        <span className="block text-[9px] font-bold uppercase tracking-[0.13em] text-muted-foreground">
+          {label}
+        </span>
+      </span>
     </div>
   );
 }

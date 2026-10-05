@@ -38,7 +38,7 @@ function TermsPage() {
         title="Terms of Service"
         description="Competing on EloShape means agreeing to these terms."
       />
-      <PageContainer className="max-w-3xl space-y-6 py-10 text-sm text-muted-foreground">
+      <PageContainer className="max-w-3xl space-y-7 py-8 sm:py-10 text-sm leading-relaxed text-muted-foreground">
         <p className="text-xs font-semibold uppercase tracking-wide text-foreground">
           Effective August 27, 2026
         </p>
@@ -84,7 +84,25 @@ function TermsPage() {
             profile. Impersonating staff, Riot Games or other players is not permitted.
           </p>
         </section>
-        <p className="border-t border-border pt-6 text-xs">{RIOT_LEGAL_NOTICE}</p>
+        <section>
+          <h2 className="text-base font-black text-foreground">
+            Discord community and account linking
+          </h2>
+          <p className="mt-1 text-xs">Discord integration notice added October 5, 2026.</p>
+          <p className="mt-2">
+            Discord linking is optional and must be authorized by the owner of that Discord account.
+            Do not link someone else&apos;s identity or share account credentials. The Cuenta
+            vinculada role identifies a verified connection; it does not approve beta access,
+            competitive eligibility, tournament registration or a staff position.
+          </p>
+          <p className="mt-2">
+            Role updates depend on the bot being online and correctly configured. EloShape staff may
+            moderate server participation under the published server and tournament rules. Unlinking
+            your account removes the linked-account role when the bot next synchronizes; other
+            approvals and moderation decisions are managed separately.
+          </p>
+        </section>
+        <p className="border-t border-border/60 pt-6 text-xs">{RIOT_LEGAL_NOTICE}</p>
       </PageContainer>
     </div>
   );

@@ -83,7 +83,7 @@ export function ProfileSettingsCard({
   });
 
   return (
-    <div className="bg-surface-gradient shadow-card rounded-lg border border-border p-5">
+    <div className="border-y border-border/65 py-5">
       <p className="eyebrow">Public profile</p>
 
       <form
@@ -134,7 +134,7 @@ export function ProfileSettingsCard({
         </Button>
       </form>
 
-      <div className="mt-6 border-t border-border pt-5">
+      <div className="mt-6 border-t border-border/60 pt-5">
         <Label htmlFor="city">Location</Label>
         <p className="mt-1 text-xs text-muted-foreground">
           Pick your city — EloShape resolves province, country and region for you.

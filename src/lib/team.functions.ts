@@ -8,11 +8,14 @@ import type { Json } from "@/integrations/supabase/types";
 
 type RpcResult<T> = { data: T | null; error: { message: string } | null };
 
+export type LaneRole = "top" | "jungle" | "mid" | "bot" | "support";
+
 type TeamMember = {
   profileId: string;
   handle: string;
   displayName: string;
   role: "player" | "substitute";
+  laneRole: LaneRole | null;
   isCaptain: boolean;
   eligibility: string;
   riotTier: string | null;
@@ -107,6 +110,8 @@ function friendlyTeamError(message: string) {
   if (code.includes("region_mismatch")) return "This team is based outside the tournament region.";
   if (code.includes("registration_not_open") || code.includes("registration_closed"))
     return "Team registration is not open.";
+  if (code.includes("qualified_priority_window"))
+    return "Unqualified teams have priority for this qualifier right now. Your team can enter later if spots remain.";
   if (code.includes("tournament_full")) return "This tournament is full.";
   if (code.includes("already_registered")) return "Your team is already registered.";
   if (code.includes("solo_registration_required")) return "This is not a team-mode tournament.";

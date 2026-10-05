@@ -1,23 +1,26 @@
+import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { ExternalLink, Eye, Save, ShieldAlert, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 import { EmptyState } from "@/components/eloshape/EmptyState";
+import { TeamWorkspaceNav } from "@/components/eloshape/TeamWorkspaceNav";
 import { PageContainer, PageHeading } from "@/components/layout/PageShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
 import { archiveMyTeam } from "@/lib/team-management.functions";
-import { getMyTeamHub, type TeamHub } from "@/lib/team.functions";
+import { getMyTeamHub, updateMyTeam, type TeamHub } from "@/lib/team.functions";
 
 export const Route = createFileRoute("/_authenticated/team_/settings")({
   head: () => ({
     meta: [
       { title: "Team settings — EloShape" },
-      { name: "description", content: "Manage irreversible EloShape team settings." },
+      { name: "description", content: "Manage your EloShape team identity and settings." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -35,57 +38,231 @@ function TeamSettingsPage() {
   return (
     <div>
       <PageHeading
-        eyebrow="5v5 · Settings"
+        eyebrow="Team workspace"
         title="Team settings"
-        description="Manage high-impact team actions without deleting historical tournament records."
+        description="Manage the identity players see across rankings, brackets and your public team profile."
         aside={
           <Button asChild variant="outline">
-            <Link to="/team">Back to My team</Link>
+            <Link to="/team">Back to Team HQ</Link>
           </Button>
         }
       />
-      <PageContainer className="py-10">
+      <PageContainer className="py-7 sm:py-9">
         {query.isPending ? (
-          <div className="space-y-3">
-            <Skeleton className="h-28 w-full" />
+          <div className="space-y-4">
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-80 w-full" />
             <Skeleton className="h-64 w-full" />
           </div>
         ) : query.error || !query.data ? (
           <EmptyState title="Could not load team settings" />
-        ) : !query.data.team ? (
-          <EmptyState
-            title="No active team"
-            description="Create or join a team before opening team settings."
-            action={
-              <Button asChild>
-                <Link to="/team">Open My team</Link>
-              </Button>
-            }
-          />
         ) : (
-          <Settings team={query.data.team} />
+          <div className="space-y-6">
+            <TeamWorkspaceNav
+              active="settings"
+              hasTeam={Boolean(query.data.team)}
+              isCaptain={Boolean(query.data.team?.isCaptain)}
+            />
+
+            {!query.data.team ? (
+              <EmptyState
+                title="No active team"
+                description="Create or join a team before opening team settings."
+                action={
+                  <Button asChild>
+                    <Link to="/team">Open Team HQ</Link>
+                  </Button>
+                }
+              />
+            ) : !query.data.team.isCaptain ? (
+              <EmptyState
+                title="Captain access required"
+                description="Only the current team captain can edit team identity or disband the roster."
+                action={
+                  <Button asChild variant="outline">
+                    <Link to="/team">Back to Team HQ</Link>
+                  </Button>
+                }
+              />
+            ) : (
+              <CaptainSettings team={query.data.team} />
+            )}
+          </div>
         )}
       </PageContainer>
     </div>
   );
 }
 
-function Settings({ team }: { team: NonNullable<TeamHub["team"]> }) {
-  if (!team.isCaptain) {
-    return (
-      <EmptyState
-        title="Captain access required"
-        description="Only the current team captain can disband the team."
-        action={
-          <Button asChild variant="outline">
-            <Link to="/team">Back to roster</Link>
-          </Button>
-        }
-      />
-    );
-  }
+function CaptainSettings({ team }: { team: NonNullable<TeamHub["team"]> }) {
+  return (
+    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_24rem]">
+      <div className="space-y-6">
+        <IdentitySettings team={team} />
+        <DangerZone team={team} />
+      </div>
 
-  return <DangerZone team={team} />;
+      <aside className="space-y-4 xl:sticky xl:top-24 xl:self-start">
+        <section className="relative overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-br from-card/85 to-background/50 p-5">
+          <div className="absolute right-0 top-0 size-40 translate-x-12 -translate-y-16 rounded-full bg-primary/10 blur-3xl" />
+          <div className="relative">
+            <div className="flex items-center justify-between gap-3">
+              <p className="eyebrow">Public identity</p>
+              <Eye className="size-4 text-muted-foreground" />
+            </div>
+            <div className="mt-5 flex items-center gap-4">
+              <span className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-2xl border border-primary/25 bg-primary/10 font-black text-primary shadow-sm">
+                {team.logoUrl ? (
+                  <img src={team.logoUrl} alt={team.name} className="size-full object-cover" />
+                ) : (
+                  team.tag
+                )}
+              </span>
+              <div className="min-w-0">
+                <p className="truncate text-lg font-black text-foreground">{team.name}</p>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  <Badge variant="outline">[{team.tag}]</Badge>
+                  {team.division ? <Badge>{team.division.name}</Badge> : null}
+                </div>
+              </div>
+            </div>
+            <p className="mt-4 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
+              {team.bio || "No public bio yet. Add one so players know what your team represents."}
+            </p>
+            <Button asChild className="mt-5 w-full" variant="outline">
+              <Link to="/teams/$slug" params={{ slug: team.slug }}>
+                <ExternalLink className="mr-2 size-4" /> View public profile
+              </Link>
+            </Button>
+          </div>
+        </section>
+
+        <section className="border-t border-border/60 pt-5">
+          <div className="flex items-center gap-2">
+            <Sparkles className="size-4 text-primary" />
+            <p className="font-black text-foreground">Where this identity appears</p>
+          </div>
+          <div className="mt-4 space-y-3 text-xs leading-relaxed text-muted-foreground">
+            <p>
+              <strong className="text-foreground">Name & tag</strong> appear in rankings, matchups,
+              tournament brackets and team cards.
+            </p>
+            <p>
+              <strong className="text-foreground">Bio</strong> gives visitors context on your public
+              team page.
+            </p>
+            <p>
+              <strong className="text-foreground">Roster and roles</strong> stay in Team HQ so
+              identity changes never get mixed with lineup operations.
+            </p>
+          </div>
+        </section>
+      </aside>
+    </div>
+  );
+}
+
+function IdentitySettings({ team }: { team: NonNullable<TeamHub["team"]> }) {
+  const queryClient = useQueryClient();
+  const update = useServerFn(updateMyTeam);
+  const [name, setName] = useState(team.name);
+  const [tag, setTag] = useState(team.tag);
+  const [bio, setBio] = useState(team.bio ?? "");
+  const dirty = name !== team.name || tag !== team.tag || bio !== (team.bio ?? "");
+
+  const mutation = useMutation({
+    mutationFn: () => update({ data: { name, tag, bio } }),
+    onSuccess: (result) => {
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success("Team profile saved.");
+      void queryClient.invalidateQueries({ queryKey: ["my-team-hub"] });
+      void queryClient.invalidateQueries({ queryKey: ["teams"] });
+      void queryClient.invalidateQueries({ queryKey: ["team", team.slug] });
+    },
+    onError: () => toast.error("Could not save team settings."),
+  });
+
+  return (
+    <section className="overflow-hidden rounded-2xl border border-border/70 bg-card/35">
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border/70 px-5 py-5 sm:px-6">
+        <div>
+          <p className="eyebrow">Team profile</p>
+          <h2 className="mt-1 text-xl font-black text-foreground">Identity & bio</h2>
+          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+            Keep your team recognizable everywhere it appears on the EloShape circuit.
+          </p>
+        </div>
+        <Badge variant={dirty ? "default" : "outline"}>
+          {dirty ? "Unsaved changes" : "Up to date"}
+        </Badge>
+      </div>
+
+      <div className="p-5 sm:p-6">
+        <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_9rem]">
+          <label className="space-y-2 text-sm">
+            <span className="font-semibold text-foreground">Team name</span>
+            <Input value={name} onChange={(event) => setName(event.target.value)} maxLength={40} />
+            <span className="block text-xs text-muted-foreground">3–40 characters</span>
+          </label>
+          <label className="space-y-2 text-sm">
+            <span className="font-semibold text-foreground">Team tag</span>
+            <Input
+              value={tag}
+              onChange={(event) => setTag(event.target.value.toUpperCase())}
+              maxLength={6}
+            />
+            <span className="block text-xs text-muted-foreground">2–6 characters</span>
+          </label>
+        </div>
+
+        <label className="mt-5 block space-y-2 text-sm">
+          <span className="font-semibold text-foreground">Public bio</span>
+          <Textarea
+            value={bio}
+            onChange={(event) => setBio(event.target.value)}
+            placeholder="Tell players where you compete, what you are building and what defines the roster."
+            maxLength={500}
+            rows={6}
+          />
+          <span className="flex justify-between text-xs text-muted-foreground">
+            <span>Visible on the public team profile.</span>
+            <span>{bio.length}/500</span>
+          </span>
+        </label>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border/60 px-5 py-4 sm:px-6">
+        <p className="text-xs text-muted-foreground">
+          Changes propagate to the team directory and public profile after saving.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {dirty ? (
+            <Button
+              variant="outline"
+              onClick={() => {
+                setName(team.name);
+                setTag(team.tag);
+                setBio(team.bio ?? "");
+              }}
+              disabled={mutation.isPending}
+            >
+              Reset
+            </Button>
+          ) : null}
+          <Button
+            onClick={() => mutation.mutate()}
+            disabled={mutation.isPending || !dirty || !name.trim() || !tag.trim()}
+          >
+            <Save className="mr-2 size-4" />
+            {mutation.isPending ? "Saving…" : "Save profile"}
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
 }
 
 function DangerZone({ team }: { team: { name: string; tag: string; slug: string } }) {
@@ -114,42 +291,47 @@ function DangerZone({ team }: { team: { name: string; tag: string; slug: string 
   });
 
   return (
-    <div className="max-w-3xl space-y-8">
-      <section className="bg-surface-gradient rounded-lg border border-border p-6 shadow-card">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="outline">{team.tag}</Badge>
-          <span className="font-black text-foreground">{team.name}</span>
+    <section className="overflow-hidden rounded-2xl border border-destructive/35 bg-destructive/5">
+      <div className="flex items-start gap-3 border-b border-destructive/20 p-5 sm:p-6">
+        <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-destructive/25 bg-destructive/10 text-destructive">
+          <ShieldAlert className="size-5" />
+        </span>
+        <div>
+          <p className="eyebrow text-destructive">Danger zone</p>
+          <h2 className="mt-1 text-xl font-black text-foreground">Disband team</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+            Current members are released and pending invitations are cancelled. Historical
+            tournament entries, locked rosters, results and ranking records remain preserved.
+          </p>
         </div>
-        <p className="mt-3 text-sm text-muted-foreground">
-          Disbanding releases every current member and cancels pending invitations. Registrations
-          that have not gone live are withdrawn automatically. Historical tournament entries, locked
-          rosters, results and ranking records remain intact.
-        </p>
-      </section>
+      </div>
 
-      <section className="rounded-lg border border-destructive/40 bg-destructive/5 p-6">
-        <p className="eyebrow text-destructive">Danger zone</p>
-        <h2 className="mt-2 text-xl font-black text-foreground">Disband team</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          This action cannot be undone. It is blocked while the team is checked in to or competing
-          in an active tournament. To confirm, type the exact team name below.
-        </p>
-        <Input
-          className="mt-5 max-w-md"
-          value={confirmation}
-          onChange={(event) => setConfirmation(event.target.value)}
-          placeholder={team.name}
-          autoComplete="off"
-        />
-        <Button
-          className="mt-3"
-          variant="destructive"
-          disabled={!canArchive || mutation.isPending}
-          onClick={() => mutation.mutate()}
-        >
-          {mutation.isPending ? "Disbanding…" : "Permanently disband team"}
-        </Button>
-      </section>
-    </div>
+      <div className="p-5 sm:p-6">
+        <div className="border-l-2 border-destructive/30 pl-4">
+          <p className="text-sm font-semibold text-foreground">
+            Type <span className="font-black">{team.name}</span> to confirm.
+          </p>
+          <Input
+            className="mt-3 max-w-md"
+            value={confirmation}
+            onChange={(event) => setConfirmation(event.target.value)}
+            placeholder={team.name}
+            autoComplete="off"
+          />
+          <p className="mt-2 text-xs text-muted-foreground">
+            This action is blocked while the team is checked in to or competing in an active
+            tournament.
+          </p>
+          <Button
+            className="mt-4"
+            variant="destructive"
+            disabled={!canArchive || mutation.isPending}
+            onClick={() => mutation.mutate()}
+          >
+            {mutation.isPending ? "Disbanding…" : "Permanently disband team"}
+          </Button>
+        </div>
+      </div>
+    </section>
   );
 }

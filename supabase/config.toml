@@ -1,1 +1,21 @@
-project_id = "hdlktzhjsswzcbgrnhql"
+project_id = "eloshape-arena"
+
+[functions.discord-linked-snapshot]
+# handler.ts validates a private bot credential before accessing privileged data.
+verify_jwt = false
+
+[functions.discord-beta-snapshot]
+# Autenticación propia en handler.ts; no acepta tokens de jugadores ni claves públicas.
+verify_jwt = false
+
+[auth.email.template.confirmation]
+subject = "Confirmá tu cuenta de EloShape"
+content_path = "./supabase/templates/confirmation.html"
+
+[auth.email.template.recovery]
+subject = "Restablecé tu contraseña de EloShape"
+content_path = "./supabase/templates/recovery.html"
+
+[auth.email.template.email_change]
+subject = "Confirmá tu nuevo correo de EloShape"
+content_path = "./supabase/templates/email-change.html"

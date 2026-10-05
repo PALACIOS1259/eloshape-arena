@@ -111,6 +111,12 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
       throw new Error("Unauthorized: No user ID found in token");
     }
 
+    const beta = await supabase.rpc("get_beta_access" as never);
+    const access = beta.data as { enabled: boolean; allowed: boolean } | null;
+    if (beta.error || !access || (access.enabled && !access.allowed)) {
+      throw new Error("Forbidden: Beta invitation required");
+    }
+
     // Keep middleware context plain/serializable. Handlers rebuild their own
     // authenticated Supabase client from this already-validated token.
     return next({

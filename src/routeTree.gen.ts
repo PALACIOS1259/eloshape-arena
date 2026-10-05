@@ -22,6 +22,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticated/support'
 import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/team'
+import { Route as AuthDiscordRouteImport } from './routes/auth_.discord'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth_.reset-password'
 import { Route as PlayersHandleRouteImport } from './routes/players.$handle'
 import { Route as SplitsIndexRouteImport } from './routes/splits.index'
@@ -100,6 +101,11 @@ const AuthenticatedTeamRoute = AuthenticatedTeamRouteImport.update({
   id: '/team',
   path: '/team',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthDiscordRoute = AuthDiscordRouteImport.update({
+  id: '/auth_/discord',
+  path: '/auth/discord',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
   id: '/auth_/reset-password',
@@ -191,6 +197,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/support': typeof AuthenticatedSupportRoute
   '/team': typeof AuthenticatedTeamRoute
+  '/auth/discord': typeof AuthDiscordRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/players/$handle': typeof PlayersHandleRoute
   '/splits/$slug': typeof SplitsSlugRoute
@@ -219,6 +226,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/support': typeof AuthenticatedSupportRoute
   '/team': typeof AuthenticatedTeamRoute
+  '/auth/discord': typeof AuthDiscordRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/players/$handle': typeof PlayersHandleRoute
   '/splits/$slug': typeof SplitsSlugRoute
@@ -249,6 +257,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/support': typeof AuthenticatedSupportRoute
   '/_authenticated/team': typeof AuthenticatedTeamRoute
+  '/auth_/discord': typeof AuthDiscordRoute
   '/auth_/reset-password': typeof AuthResetPasswordRoute
   '/players/$handle': typeof PlayersHandleRoute
   '/splits/$slug': typeof SplitsSlugRoute
@@ -279,6 +288,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/support'
     | '/team'
+    | '/auth/discord'
     | '/auth/reset-password'
     | '/players/$handle'
     | '/splits/$slug'
@@ -307,6 +317,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/support'
     | '/team'
+    | '/auth/discord'
     | '/auth/reset-password'
     | '/players/$handle'
     | '/splits/$slug'
@@ -336,6 +347,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/support'
     | '/_authenticated/team'
+    | '/auth_/discord'
     | '/auth_/reset-password'
     | '/players/$handle'
     | '/splits/$slug'
@@ -362,6 +374,7 @@ export interface RootRouteChildren {
   RankingsRoute: typeof RankingsRoute
   RulesRoute: typeof RulesRoute
   TermsRoute: typeof TermsRoute
+  AuthDiscordRoute: typeof AuthDiscordRoute
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute
   PlayersHandleRoute: typeof PlayersHandleRoute
   SplitsSlugRoute: typeof SplitsSlugRoute
@@ -464,6 +477,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/team'
       preLoaderRoute: typeof AuthenticatedTeamRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/auth_/discord': {
+      id: '/auth_/discord'
+      path: '/auth/discord'
+      fullPath: '/auth/discord'
+      preLoaderRoute: typeof AuthDiscordRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/auth_/reset-password': {
       id: '/auth_/reset-password'
@@ -605,6 +625,7 @@ const rootRouteChildren: RootRouteChildren = {
   RankingsRoute: RankingsRoute,
   RulesRoute: RulesRoute,
   TermsRoute: TermsRoute,
+  AuthDiscordRoute: AuthDiscordRoute,
   AuthResetPasswordRoute: AuthResetPasswordRoute,
   PlayersHandleRoute: PlayersHandleRoute,
   SplitsSlugRoute: SplitsSlugRoute,

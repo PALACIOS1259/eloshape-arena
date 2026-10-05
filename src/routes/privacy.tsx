@@ -38,7 +38,7 @@ function PrivacyPage() {
         title="Privacy Policy"
         description="What EloShape stores, why it stores it, and what is never shown publicly."
       />
-      <PageContainer className="prose-invert max-w-3xl space-y-6 py-10 text-sm text-muted-foreground">
+      <PageContainer className="prose-invert max-w-3xl space-y-7 py-8 sm:py-10 text-sm leading-relaxed text-muted-foreground">
         <p className="text-xs font-semibold uppercase tracking-wide text-foreground">
           Effective August 27, 2026
         </p>
@@ -52,6 +52,41 @@ function PrivacyPage() {
           <p className="mt-2">
             When you create an account, EloShape records the version and time of your acceptance of
             the Terms of Service and Privacy Policy.
+          </p>
+        </section>
+        <section>
+          <h2 className="text-base font-black text-foreground">Optional Discord linking and bot</h2>
+          <p className="mt-1 text-xs">Discord integration notice added October 5, 2026.</p>
+          <p className="mt-2">
+            If you choose to connect Discord from your EloShape profile, Discord asks you to
+            authorize the connection. Supabase Auth processes the OAuth authorization and stores the
+            Discord identity associated with your EloShape account, including your Discord user ID
+            and identity information such as your account name and email. EloShape uses that
+            verified identity to identify your account in its Discord server.
+          </p>
+          <p className="mt-2">
+            The EloShape bot receives only the Discord IDs it needs to synchronize the Cuenta
+            vinculada role and, through a separate approval process, the Beta tester role. Those
+            private endpoints do not send the bot your email, password or OAuth tokens. The bot also
+            keeps server, role, channel and message IDs needed to operate its official messages,
+            private team spaces and support tickets. Connecting Discord does not make your Discord
+            identity public on EloShape player profiles.
+          </p>
+          <p className="mt-2">
+            You can unlink Discord from your profile. The bot removes Cuenta vinculada on its next
+            successful synchronization while it is online. Unlinking does not delete messages or
+            tickets already posted in Discord, nor does it delete your EloShape account. For
+            deletion requests, contact EloShape support or staff through a private Discord ticket.
+            Discord messages and account data are also subject to{" "}
+            <a
+              href="https://discord.com/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-foreground underline underline-offset-4"
+            >
+              Discord&apos;s privacy policy
+            </a>
+            .
           </p>
         </section>
         <section>
@@ -96,7 +131,7 @@ function PrivacyPage() {
             past brackets and competitive records consistent.
           </p>
         </section>
-        <p className="border-t border-border pt-6 text-xs">{RIOT_LEGAL_NOTICE}</p>
+        <p className="border-t border-border/60 pt-6 text-xs">{RIOT_LEGAL_NOTICE}</p>
       </PageContainer>
     </div>
   );

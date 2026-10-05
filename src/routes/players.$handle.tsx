@@ -1,16 +1,17 @@
+import type { ReactNode } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute, notFound } from "@tanstack/react-router";
-import { Award, ShieldCheck, ShieldAlert } from "lucide-react";
+import { Award, ChevronRight, ShieldAlert, ShieldCheck, Swords, Trophy } from "lucide-react";
 
 import { DivisionBadge } from "@/components/eloshape/DivisionBadge";
 import { EmptyState } from "@/components/eloshape/EmptyState";
 import { MovementIndicator, PlayerAvatar } from "@/components/eloshape/PlayerRow";
-import { StatTile } from "@/components/eloshape/StatTile";
 import { PageContainer } from "@/components/layout/PageShell";
 import { Button } from "@/components/ui/button";
 import { formatDate, formatPoints, placementLabel, riotRankLabel, winRate } from "@/lib/format";
 import { playerQuery } from "@/lib/queries";
 import { canonicalMetadata } from "@/lib/site-metadata";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/players/$handle")({
   loader: async ({ context, params }) => {
@@ -57,36 +58,54 @@ function PlayerPage() {
   const { handle } = Route.useParams();
   const { data } = useSuspenseQuery(playerQuery(handle));
   if (!data) return null;
+
   const { profile, ledger, achievements, teams, entries } = data;
   const eligible = profile.eligibility === "eligible";
 
   return (
     <div>
-      <section className="bg-hero border-b border-border">
-        <PageContainer className="py-12">
-          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 sm:flex sm:flex-wrap sm:justify-between">
-            <div className="flex min-w-0 items-center gap-4">
-              <PlayerAvatar
-                name={profile.display_name}
-                url={profile.avatar_url}
-                className="size-14 rounded-xl text-base"
-              />
-              <div className="min-w-0">
-                <h1 className="truncate text-2xl font-black tracking-tight text-foreground sm:text-3xl">
-                  {profile.display_name}
-                </h1>
-                <p className="mt-1 truncate text-sm text-muted-foreground">
-                  @{profile.handle} ·{" "}
-                  {[profile.city?.name, profile.province?.name, profile.country?.name]
-                    .filter(Boolean)
-                    .join(", ")}
-                </p>
+      <section className="relative overflow-hidden border-b border-border/70 bg-gradient-to-br from-background via-background to-primary/[0.025]">
+        <div className="pointer-events-none absolute left-1/2 top-0 h-56 w-[70vw] -translate-x-1/2 rounded-full bg-primary/[0.04] blur-3xl" />
+        <PageContainer className="relative py-8 sm:py-10">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div className="min-w-0">
+              <div className="flex min-w-0 items-center gap-4">
+                <PlayerAvatar
+                  name={profile.display_name}
+                  url={profile.avatar_url}
+                  className="size-14 rounded-2xl text-base"
+                />
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h1 className="truncate text-2xl font-black tracking-tight text-foreground sm:text-3xl">
+                      {profile.display_name}
+                    </h1>
+                    <DivisionBadge division={profile.division} size="md" />
+                  </div>
+                  <p className="mt-1 truncate text-sm text-muted-foreground">
+                    @{profile.handle}
+                    {[profile.city?.name, profile.province?.name, profile.country?.name].filter(
+                      Boolean,
+                    ).length
+                      ? ` · ${[profile.city?.name, profile.province?.name, profile.country?.name]
+                          .filter(Boolean)
+                          .join(", ")}`
+                      : ""}
+                  </p>
+                </div>
               </div>
-            </div>
-            <div className="flex shrink-0 flex-col items-end gap-2">
-              <DivisionBadge division={profile.division} size="md" />
-              <span
-                className={`inline-flex items-center gap-1.5 text-xs ${eligible ? "text-success" : "text-warning"}`}
+
+              {profile.bio ? (
+                <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                  {profile.bio}
+                </p>
+              ) : null}
+
+              <p
+                className={cn(
+                  "mt-4 inline-flex items-center gap-1.5 text-xs font-semibold",
+                  eligible ? "text-success" : "text-warning",
+                )}
               >
                 {eligible ? (
                   <ShieldCheck className="size-3.5" />
@@ -94,45 +113,96 @@ function PlayerPage() {
                   <ShieldAlert className="size-3.5" />
                 )}
                 {eligible ? "Eligibility verified" : `Eligibility: ${profile.eligibility}`}
-              </span>
+              </p>
             </div>
-          </div>
 
-          {profile.bio ? (
-            <p className="mt-6 max-w-2xl text-sm text-muted-foreground">{profile.bio}</p>
-          ) : null}
-
-          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-            <StatTile
-              label="Season points"
-              value={formatPoints(profile.points_season)}
-              hint={<MovementIndicator value={profile.rank_movement} />}
-            />
-            <StatTile label="Month points" value={formatPoints(profile.points_month)} />
-            <StatTile
-              label="Record"
-              value={`${profile.wins}-${profile.losses}`}
-              hint={`${winRate(profile.wins, profile.losses)} win rate`}
-            />
-            <StatTile label="Tournaments" value={profile.tournaments_played ?? 0} />
-            <StatTile
-              label="Riot rank (eligibility only)"
-              value={riotRankLabel(profile.riot_tier ?? null, profile.riot_rank ?? null)}
-            />
+            <div className="grid grid-cols-2 gap-x-7 gap-y-4 border-t border-border/55 pt-5 sm:grid-cols-5 lg:border-l lg:border-t-0 lg:pl-7 lg:pt-0">
+              <Metric
+                label="Season"
+                value={formatPoints(profile.points_season)}
+                extra={<MovementIndicator value={profile.rank_movement} />}
+                accent
+              />
+              <Metric label="Month" value={formatPoints(profile.points_month)} />
+              <Metric
+                label="Record"
+                value={`${profile.wins}-${profile.losses}`}
+                extra={winRate(profile.wins, profile.losses)}
+              />
+              <Metric label="Events" value={String(profile.tournaments_played ?? 0)} />
+              <Metric
+                label="Riot rank"
+                value={riotRankLabel(profile.riot_tier ?? null, profile.riot_rank ?? null)}
+              />
+            </div>
           </div>
         </PageContainer>
       </section>
 
-      <PageContainer className="grid gap-8 py-10 lg:grid-cols-[1.4fr_minmax(0,1fr)]">
+      <PageContainer className="grid gap-8 py-8 lg:grid-cols-[1.35fr_minmax(0,0.9fr)]">
         <div className="min-w-0 space-y-8">
-          <div>
-            <p className="eyebrow">EloShape points ledger</p>
-            <div className="bg-surface-gradient mt-3 overflow-hidden rounded-lg border border-border">
-              {ledger.length ? (
-                ledger.map((row) => (
+          <section>
+            <div className="flex items-end justify-between gap-3">
+              <div>
+                <p className="eyebrow">Official history</p>
+                <h2 className="mt-1 text-xl font-black text-foreground">Tournament results</h2>
+              </div>
+              <Swords className="size-4 text-muted-foreground" />
+            </div>
+
+            {entries.length ? (
+              <div className="mt-3 overflow-hidden border-y border-border/65 bg-card/15">
+                {entries.map((entry) => (
+                  <Link
+                    key={entry.id}
+                    to="/tournaments/$slug"
+                    params={{ slug: entry.tournament?.slug ?? "" }}
+                    className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 border-b border-border/55 px-4 py-4 transition-colors last:border-0 hover:bg-primary/[0.03]"
+                  >
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-bold text-foreground transition-colors group-hover:text-primary">
+                        {entry.tournament?.name}
+                      </span>
+                      <span className="mt-1 block text-xs text-muted-foreground">
+                        {formatDate(entry.tournament?.starts_at)} · {entry.status}
+                      </span>
+                    </span>
+                    <span className="flex items-center gap-4 text-right">
+                      <span>
+                        <span className="tabular block text-sm font-black text-foreground">
+                          {placementLabel(entry.placement)}
+                        </span>
+                        <span className="tabular block text-xs text-gold">
+                          +{formatPoints(entry.points_awarded)}
+                        </span>
+                      </span>
+                      <ChevronRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="mt-3">
+                <EmptyState title="No tournaments played yet" />
+              </div>
+            )}
+          </section>
+
+          <section>
+            <div className="flex items-end justify-between gap-3">
+              <div>
+                <p className="eyebrow">Scoring history</p>
+                <h2 className="mt-1 text-xl font-black text-foreground">Points ledger</h2>
+              </div>
+              <Trophy className="size-4 text-gold" />
+            </div>
+
+            {ledger.length ? (
+              <div className="mt-3 divide-y divide-border/60 border-y border-border/65 bg-card/15">
+                {ledger.map((row) => (
                   <div
                     key={row.id}
-                    className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border px-4 py-3 last:border-0"
+                    className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3.5"
                   >
                     <span className="min-w-0">
                       <span className="block truncate text-sm font-semibold text-foreground">
@@ -147,110 +217,114 @@ function PlayerPage() {
                       +{formatPoints(row.points)}
                     </span>
                   </div>
-                ))
-              ) : (
-                <div className="p-6">
-                  <EmptyState
-                    title="No points yet"
-                    description="Points appear here after placing in an EloShape tournament."
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div>
-            <p className="eyebrow">Tournament history</p>
-            <div className="mt-3 space-y-3">
-              {entries.length ? (
-                entries.map((entry) => (
-                  <Link
-                    key={entry.id}
-                    to="/tournaments/$slug"
-                    params={{ slug: entry.tournament?.slug ?? "" }}
-                    className="bg-surface-gradient shadow-card grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-border p-4 hover:border-brand/50"
-                  >
-                    <span className="min-w-0">
-                      <span className="block truncate text-sm font-semibold text-foreground">
-                        {entry.tournament?.name}
-                      </span>
-                      <span className="mt-1 block text-xs text-muted-foreground">
-                        {formatDate(entry.tournament?.starts_at)} · {entry.status}
-                      </span>
-                    </span>
-                    <span className="shrink-0 text-right">
-                      <span className="tabular block text-sm font-black text-foreground">
-                        {placementLabel(entry.placement)}
-                      </span>
-                      <span className="tabular block text-xs text-gold">
-                        +{formatPoints(entry.points_awarded)}
-                      </span>
-                    </span>
-                  </Link>
-                ))
-              ) : (
-                <EmptyState title="No tournaments played yet" />
-              )}
-            </div>
-          </div>
+                ))}
+              </div>
+            ) : (
+              <div className="mt-3">
+                <EmptyState
+                  title="No points yet"
+                  description="Points appear here after competing in EloShape tournaments."
+                />
+              </div>
+            )}
+          </section>
         </div>
 
-        <div className="min-w-0 space-y-8">
-          <div>
-            <p className="eyebrow">Achievements</p>
-            <div className="mt-3 space-y-3">
-              {achievements.length ? (
-                achievements.map((achievement) => (
-                  <div
-                    key={achievement.id}
-                    className="bg-surface-gradient shadow-card flex gap-3 rounded-lg border border-border p-4"
-                  >
+        <aside className="min-w-0 space-y-8">
+          <section>
+            <div className="flex items-end justify-between gap-3">
+              <div>
+                <p className="eyebrow">Recognition</p>
+                <h2 className="mt-1 text-xl font-black text-foreground">Achievements</h2>
+              </div>
+              <Award className="size-4 text-gold" />
+            </div>
+
+            {achievements.length ? (
+              <div className="mt-3 divide-y divide-border/60 border-y border-border/65 bg-card/15">
+                {achievements.map((achievement) => (
+                  <div key={achievement.id} className="flex gap-3 px-4 py-3.5">
                     <Award className="mt-0.5 size-4 shrink-0 text-gold" />
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-foreground">
+                      <p className="truncate text-sm font-bold text-foreground">
                         {achievement.title}
                       </p>
-                      <p className="mt-1 text-xs text-muted-foreground">
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                         {achievement.description ?? formatDate(achievement.earned_at)}
                       </p>
                     </div>
                   </div>
-                ))
-              ) : (
+                ))}
+              </div>
+            ) : (
+              <div className="mt-3">
                 <EmptyState title="No achievements yet" />
-              )}
-            </div>
-          </div>
+              </div>
+            )}
+          </section>
 
-          <div>
-            <p className="eyebrow">Teams</p>
-            <div className="mt-3 space-y-3">
-              {teams.length ? (
-                teams.map((membership) =>
+          <section>
+            <p className="eyebrow">Team history</p>
+            <h2 className="mt-1 text-xl font-black text-foreground">Teams</h2>
+
+            {teams.length ? (
+              <div className="mt-3 divide-y divide-border/60 border-y border-border/65 bg-card/15">
+                {teams.map((membership) =>
                   membership.team ? (
                     <Link
                       key={membership.team.id}
                       to="/teams/$slug"
                       params={{ slug: membership.team.slug }}
-                      className="bg-surface-gradient shadow-card block rounded-lg border border-border p-4 hover:border-brand/50"
+                      className="group flex items-center justify-between gap-3 px-4 py-3.5 transition-colors hover:bg-primary/[0.03]"
                     >
-                      <p className="truncate text-sm font-semibold text-foreground">
-                        {membership.team.name}
-                      </p>
-                      <p className="eyebrow mt-1">
-                        {membership.role}
-                        {membership.is_captain ? " · Captain" : ""}
-                      </p>
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm font-bold text-foreground transition-colors group-hover:text-primary">
+                          {membership.team.name}
+                        </span>
+                        <span className="mt-1 block text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">
+                          {membership.role}
+                          {membership.is_captain ? " · Captain" : ""}
+                        </span>
+                      </span>
+                      <ChevronRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
                     </Link>
                   ) : null,
-                )
-              ) : (
+                )}
+              </div>
+            ) : (
+              <div className="mt-3">
                 <EmptyState title="Not on a team" />
-              )}
-            </div>
-          </div>
-        </div>
+              </div>
+            )}
+          </section>
+        </aside>
       </PageContainer>
+    </div>
+  );
+}
+
+function Metric({
+  label,
+  value,
+  extra,
+  accent = false,
+}: {
+  label: string;
+  value: string;
+  extra?: ReactNode;
+  accent?: boolean;
+}) {
+  return (
+    <div className="min-w-0">
+      <p className={cn("truncate text-lg font-black text-foreground", accent && "text-gold")}>
+        {value}
+      </p>
+      <div className="mt-0.5 flex items-center gap-2">
+        <span className="text-[9px] font-bold uppercase tracking-[0.13em] text-muted-foreground">
+          {label}
+        </span>
+        {extra ? <span className="text-[10px] text-muted-foreground">{extra}</span> : null}
+      </div>
     </div>
   );
 }

@@ -6,20 +6,26 @@ import {
   HeadContent,
   redirect,
   Scripts,
+  useRouterState,
+  type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { absoluteSiteUrl } from "../lib/site-metadata";
+import { absoluteSiteUrl, shouldNoIndexSite, siteOrigin } from "../lib/site-metadata";
 import { PageShell } from "../components/layout/PageShell";
 import { Toaster } from "../components/ui/sonner";
+import { callBetaRpc, mayEnterDuringMaintenance, type BetaAccess } from "../lib/beta-access";
 
 const socialImage = absoluteSiteUrl("/og-image.jpg") ?? "/og-image.jpg";
 const maintenanceMode = import.meta.env["VITE_MAINTENANCE_MODE"] === "true";
+const noIndexSite = shouldNoIndexSite(siteOrigin, maintenanceMode);
 const maintenanceAllowedPaths = new Set([
   "/maintenance",
+  "/auth",
   "/auth/reset-password",
+  "/auth/discord",
   "/privacy",
   "/terms",
 ]);
@@ -46,7 +52,7 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error }: ErrorComponentProps) {
   console.error(error);
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
@@ -81,10 +87,26 @@ function ErrorComponent({ error }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  beforeLoad: ({ location }) => {
+  // Browser sessions live in local storage. Defer protected beta pages until
+  // the browser can check access; server functions and the Data API still gate requests.
+  ssr: ({ location }) => !maintenanceMode || maintenanceAllowedPaths.has(location.pathname),
+  beforeLoad: async ({ location }) => {
     if (maintenanceMode && !maintenanceAllowedPaths.has(location.pathname)) {
-      throw redirect({ to: "/maintenance", replace: true });
+      const { supabase } = await import("../integrations/supabase/client");
+      const { data } = await supabase.auth.getSession();
+      let access: BetaAccess | null = null;
+      if (data.session) {
+        try {
+          access = await callBetaRpc<BetaAccess>(supabase, "get_beta_access");
+        } catch {
+          // Missing configuration or backend errors must never open the beta.
+        }
+      }
+      if (!mayEnterDuringMaintenance(access)) {
+        throw redirect({ to: "/maintenance", replace: true });
+      }
     }
+    return undefined;
   },
   head: () => ({
     meta: [
@@ -102,7 +124,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           : "EloShape is a competitive League of Legends platform for amateur players: skill-based divisions, city-to-region tournaments and rankings earned only on the circuit.",
       },
       { name: "author", content: "EloShape" },
-      ...(maintenanceMode ? [{ name: "robots", content: "noindex, nofollow" }] : []),
+      ...(noIndexSite ? [{ name: "robots", content: "noindex, nofollow" }] : []),
       { property: "og:site_name", content: "EloShape" },
       {
         property: "og:title",
@@ -171,13 +193,15 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
 
-  if (maintenanceMode) {
+  if (maintenanceMode && maintenanceAllowedPaths.has(pathname)) {
     return (
       <QueryClientProvider client={queryClient}>
         <div className="min-h-screen bg-background">
           <Outlet />
         </div>
+        <Toaster />
       </QueryClientProvider>
     );
   }
