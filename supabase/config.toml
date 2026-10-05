@@ -1,5 +1,9 @@
 project_id = "eloshape-arena"
 
+[functions.discord-linked-snapshot]
+# handler.ts validates a private bot credential before accessing privileged data.
+verify_jwt = false
+
 [functions.discord-beta-snapshot]
 # Autenticación propia en handler.ts; no acepta tokens de jugadores ni claves públicas.
 verify_jwt = false

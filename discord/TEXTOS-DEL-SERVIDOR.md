@@ -95,13 +95,13 @@ Cualquier reprogramación se comunica en #anuncios y en los canales del torneo. 
 
 ## #vincular-cuenta
 
-### 🔗 Vincular Discord con EloShape — próximamente
+### 🔗 Vincular Discord con EloShape
 
 Durante esta etapa, coordiná la verificación de tu cuenta con el staff por #abrir-ticket. No alcanza con entrar al servidor para vincular tu identidad con EloShape.
 
-Las instrucciones para conectar Discord directamente desde la web se publicarán acá cuando esa opción esté disponible. Seguí ese proceso antes de reclamar el rol **Cuenta vinculada**.
+Cuando esté habilitado en producción, entrá a tu perfil en https://eloshape.com.ar/dashboard, elegí **Vincular Discord** y autorizá tu cuenta en Discord. Si el botón todavía no aparece, la integración está en preparación.
 
-Mientras tanto, pertenecer al servidor no verifica ni vincula tu cuenta de EloShape.
+El bot asigna **Cuenta vinculada** al sincronizar con la web y lo retira al desvincular. Conectar Discord no aprueba la whitelist ni concede **Beta tester** o elegibilidad competitiva.
 
 No compartas contraseñas ni tokens. Si necesitás ayuda, usá #abrir-ticket.
 

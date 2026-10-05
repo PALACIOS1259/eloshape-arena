@@ -25,6 +25,7 @@ const maintenanceAllowedPaths = new Set([
   "/maintenance",
   "/auth",
   "/auth/reset-password",
+  "/auth/discord",
   "/privacy",
   "/terms",
 ]);

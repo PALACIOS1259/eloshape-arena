@@ -159,6 +159,7 @@ function setup() {
               throw new Error("not configured");
             },
           },
+          "./linked-sync.cjs": load("linked-sync.cjs"),
         })[name],
     },
   );

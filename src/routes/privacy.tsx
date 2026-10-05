@@ -55,6 +55,41 @@ function PrivacyPage() {
           </p>
         </section>
         <section>
+          <h2 className="text-base font-black text-foreground">Optional Discord linking and bot</h2>
+          <p className="mt-1 text-xs">Discord integration notice added October 5, 2026.</p>
+          <p className="mt-2">
+            If you choose to connect Discord from your EloShape profile, Discord asks you to
+            authorize the connection. Supabase Auth processes the OAuth authorization and stores the
+            Discord identity associated with your EloShape account, including your Discord user ID
+            and identity information such as your account name and email. EloShape uses that
+            verified identity to identify your account in its Discord server.
+          </p>
+          <p className="mt-2">
+            The EloShape bot receives only the Discord IDs it needs to synchronize the Cuenta
+            vinculada role and, through a separate approval process, the Beta tester role. Those
+            private endpoints do not send the bot your email, password or OAuth tokens. The bot also
+            keeps server, role, channel and message IDs needed to operate its official messages,
+            private team spaces and support tickets. Connecting Discord does not make your Discord
+            identity public on EloShape player profiles.
+          </p>
+          <p className="mt-2">
+            You can unlink Discord from your profile. The bot removes Cuenta vinculada on its next
+            successful synchronization while it is online. Unlinking does not delete messages or
+            tickets already posted in Discord, nor does it delete your EloShape account. For
+            deletion requests, contact EloShape support or staff through a private Discord ticket.
+            Discord messages and account data are also subject to{" "}
+            <a
+              href="https://discord.com/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-foreground underline underline-offset-4"
+            >
+              Discord&apos;s privacy policy
+            </a>
+            .
+          </p>
+        </section>
+        <section>
           <h2 className="text-base font-black text-foreground">Riot account linking</h2>
           <p className="mt-2">
             When you connect a Riot ID, EloShape asks the Riot Games API for your account identifier

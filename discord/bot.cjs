@@ -48,6 +48,7 @@ const {
   syncBetaMembers,
 } = require("./competicion.cjs");
 const { fetchBetaSnapshot } = require("./beta-sync.cjs");
+const { fetchLinkedSnapshot, syncLinkedMembers } = require("./linked-sync.cjs");
 const { applyWaitingRoom } = require("./espera.cjs");
 
 const TOKEN = process.env.DISCORD_TOKEN || "PEGA_AQUI_TU_TOKEN";
@@ -76,7 +77,10 @@ const client = new Client({
 
 client.once("ready", () => {
   console.log(`✅ Bot conectado como ${client.user.tag}`);
-  if (process.env.BETA_SYNC_ENABLED === "true") {
+  if (
+    process.env.BETA_SYNC_ENABLED === "true" ||
+    process.env.DISCORD_LINK_SYNC_ENABLED === "true"
+  ) {
     let pendiente = false;
     const tick = () => {
       if (pendiente) return;
@@ -85,10 +89,22 @@ client.once("ready", () => {
         const guildId = IDS.servidor?.id;
         if (!guildId) throw new Error("Falta servidor.id en ids.json");
         const guild = await client.guilds.fetch(guildId);
-        await sincronizarBeta(guild);
+        // Cada rol se sincroniza de forma independiente: un fallo de OAuth no
+        // debe impedir la actualización de la whitelist, ni al revés.
+        if (process.env.DISCORD_LINK_SYNC_ENABLED === "true") {
+          await sincronizarVinculadas(guild).catch(() =>
+            console.error("No se pudieron sincronizar las cuentas vinculadas; se reintentará."),
+          );
+        }
+        if (process.env.BETA_SYNC_ENABLED === "true")
+          await sincronizarBeta(guild).catch(() =>
+            console.error("No se pudo sincronizar la whitelist; se reintentará."),
+          );
       })
         .catch(() =>
-          console.error("No se pudo sincronizar la beta; se reintentará en el próximo ciclo."),
+          console.error(
+            "No se pudo completar la sincronización; se reintentará en el próximo ciclo.",
+          ),
         )
         .finally(() => {
           pendiente = false;
@@ -245,6 +261,13 @@ async function sincronizarBeta(guild) {
     ...contextoCompeticion(guild),
     approvedDiscordIds: snapshot.member_ids,
   });
+}
+
+async function sincronizarVinculadas(guild) {
+  if (process.env.DISCORD_MEMBERS_INTENT !== "true")
+    throw new Error("Habilitá Server Members Intent y DISCORD_MEMBERS_INTENT=true");
+  const linkedDiscordIds = await fetchLinkedSnapshot();
+  return syncLinkedMembers({ guild, ids: IDS, linkedDiscordIds });
 }
 
 // ---------------------------------------------------------------------------
@@ -902,9 +925,17 @@ client.on("messageCreate", async (message) => {
   const [comando, ...args] = message.content.slice(PREFIJO.length).trim().split(/\s+/);
   const nombre = comando.toLowerCase();
   if (
-    !["adaptar", "crearserver", "ids", "equipo", "torneo", "partida", "beta", "ayuda"].includes(
-      nombre,
-    )
+    ![
+      "adaptar",
+      "crearserver",
+      "ids",
+      "equipo",
+      "torneo",
+      "partida",
+      "beta",
+      "vinculadas",
+      "ayuda",
+    ].includes(nombre)
   )
     return;
   if (IDS.servidor?.id && message.guild.id !== IDS.servidor.id) return;
@@ -960,9 +991,18 @@ client.on("messageCreate", async (message) => {
           return message.reply(
             "Usá `!beta preparar` o `!beta sincronizar`. Los invitados se administran en la web.",
           );
+        case "vinculadas": {
+          if (!message.member.permissions.has(PermissionFlagsBits.Administrator))
+            return message.reply("❌ Solo un administrador puede sincronizar cuentas.");
+          if (args[0] !== "sincronizar") return message.reply("Usá `!vinculadas sincronizar`.");
+          const result = await sincronizarVinculadas(message.guild);
+          return message.reply(
+            `✅ Cuentas vinculadas: ${result.added} roles asignados, ${result.removed} retirados.`,
+          );
+        }
         case "ayuda":
           return message.reply(
-            "Staff: `!adaptar`, `!ids`, `!equipo`, `!torneo crear ID_WEB | Nombre | @participantes`, `!partida crear ID_PARTIDA | ID_TORNEO | N | Nombre A | @5 jugadores | Nombre B | @5 jugadores`, `!beta preparar`, `!beta sincronizar`.",
+            "Staff: `!adaptar`, `!ids`, `!equipo`, `!torneo crear ID_WEB | Nombre | @participantes`, `!partida crear ID_PARTIDA | ID_TORNEO | N | Nombre A | @5 jugadores | Nombre B | @5 jugadores`, `!beta preparar`, `!beta sincronizar`, `!vinculadas sincronizar`.",
           );
       }
     } catch (error) {

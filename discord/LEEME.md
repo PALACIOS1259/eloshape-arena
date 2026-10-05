@@ -6,7 +6,7 @@ crean el espacio de beta sin dar el rol a ningún jugador.
 ## Instalar sobre tu bot actual
 
 1. Detené el bot con Ctrl+C y guardá una copia de tu carpeta.
-2. Copiá `bot.js`, `estructura.cjs`, `competicion.cjs`, `beta-sync.cjs` y `espera.cjs` en esa carpeta.
+2. Copiá `bot.js`, `estructura.cjs`, `competicion.cjs`, `beta-sync.cjs`, `linked-sync.cjs` y `espera.cjs` en esa carpeta.
    Conservá tu `ids.json` y tu configuración de `DISCORD_TOKEN`. El bot nuevo lee esos IDs.
    `estructura.js` anterior deja de usarse: la configuración nueva se llama `estructura.cjs`.
 3. Arrancá con `node bot.js` usando Node 22 o posterior y tu instalación de discord.js v14.
@@ -16,6 +16,19 @@ La URL predeterminada es https://eloshape.com.ar. Si necesitás otra, definí `E
 No se incluye ningún token en estos archivos. El bot conserva equipos, tickets, IDs y canales
 anteriores; no borra las voces Partida 1–8. Las nuevas partidas usan voces separadas.
 Los comandos nuevos funcionan únicamente en el servidor que figura en `ids.json`.
+
+## Vincular Discord desde la web
+
+La web tiene un botón en `/dashboard` para vincular y desvincular Discord usando OAuth.
+El bot consulta IDs verificados en `discord-linked-snapshot` y administra únicamente
+**Cuenta vinculada**. La whitelist y los otros roles conservan sus procesos separados.
+Leé `DISCORD-INTEGRACION.md` antes de activar la sincronización: requiere configurar
+OAuth, el endpoint y su secreto en el mismo entorno. Primero se prueba en staging;
+el código de producción todavía debe promoverse.
+
+Con el endpoint configurado, `!vinculadas sincronizar` actualiza ese rol una vez.
+Con `DISCORD_LINK_SYNC_ENABLED=true`, también se actualiza al iniciar y cada minuto.
+El bot debe estar encendido, tener Server Members Intent y poder gestionar ese rol.
 
 ## Split o torneo con nombre variable
 

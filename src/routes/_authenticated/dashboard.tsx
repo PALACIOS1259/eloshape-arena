@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { ChevronRight } from "lucide-react";
 
 import { DivisionBadge } from "@/components/eloshape/DivisionBadge";
+import { DiscordAccountCard } from "@/components/eloshape/DiscordAccountCard";
 import { EmptyState } from "@/components/eloshape/EmptyState";
 import { OnboardingChecklist } from "@/components/eloshape/OnboardingChecklist";
 import { ProfileSettingsCard } from "@/components/eloshape/ProfileSettingsCard";
@@ -36,6 +37,7 @@ const ELIGIBILITY_LABEL: Record<string, string> = {
 };
 
 function DashboardPage() {
+  const { user } = Route.useRouteContext();
   const fetchDashboard = useServerFn(getMyDashboard);
   const navigate = useNavigate();
   const { data, isPending, error } = useQuery({
@@ -115,6 +117,7 @@ function DashboardPage() {
           <OnboardingChecklist steps={onboarding} />
           <div className="space-y-5">
             <RiotAccountCard account={riot} service={riotService} />
+            <DiscordAccountCard userId={user.id} />
             <ProfileSettingsCard profile={profile} />
           </div>
         </section>

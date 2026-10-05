@@ -17,7 +17,7 @@ const RUTAS = {
   privacidad: "/privacy",
   registro: "/auth?mode=signup",
   perfil: "/dashboard",
-  // Destino temporal válido. La vinculación de Discord todavía no está implementada.
+  // El botón de vinculación está en el perfil cuando OAuth está habilitado en la web.
   vincularDiscord: "/dashboard",
   equipos: "/teams",
   gestionarEquipo: "/team",
@@ -426,11 +426,11 @@ const MENSAJES = {
     ].join("\n\n"),
   }),
   vincularCuenta: (url) => ({
-    titulo: "🔗 Vincular Discord con EloShape — próximamente",
+    titulo: "🔗 Vincular Discord con EloShape",
     texto: [
       "Durante esta etapa, coordiná la verificación de tu cuenta con el staff por <#abrirTicket>. No alcanza con entrar al servidor para vincular tu identidad con EloShape.",
-      "Las instrucciones para conectar Discord directamente desde la web se publicarán acá cuando esa opción esté disponible. Seguí ese proceso antes de reclamar el rol **Cuenta vinculada**.",
-      "Mientras tanto, pertenecer al servidor no verifica ni vincula tu cuenta de EloShape.",
+      `Cuando esté habilitado en producción, entrá a tu perfil en ${url("vincularDiscord")}, elegí **Vincular Discord** y autorizá tu cuenta en Discord. Si el botón todavía no aparece, la integración está en preparación.`,
+      "El bot asigna **Cuenta vinculada** al sincronizar con la web y lo retira al desvincular. Conectar Discord no aprueba la whitelist ni concede **Beta tester** o elegibilidad competitiva.",
       "No compartas contraseñas ni tokens. Si necesitás ayuda, usá <#abrirTicket>.",
     ].join("\n\n"),
   }),
@@ -500,7 +500,7 @@ const MENSAJES = {
 // ----- Automatizaciones pendientes -----
 // Se listan en ids.json y en la respuesta de !adaptar.
 const PENDIENTES = [
-  'Implementar la vinculación de Discord en la web y asignar "Cuenta vinculada" tras verificarla; retirarlo al desvincular. Hoy la vinculación no existe.',
+  'Activar en producción OAuth de Discord y discord-linked-snapshot; configurar DISCORD_LINK_SYNC_ENABLED para asignar y retirar "Cuenta vinculada". El código debe verificarse en staging antes.',
   'Asignar "Competidor habilitado" según profiles.eligibility=eligible; retirarlo al perder la elegibilidad. La inscripción a un torneo es un estado distinto (hoy: a mano).',
   'Asignar y retirar "Capitán" según el equipo y la división (Hierro/Bronce/Plata/Oro) según el perfil de la web (hoy: a mano).',
   "Crear y actualizar los espacios privados de equipo según los rosters de la web (hoy: !equipo crear/agregar/quitar).",
