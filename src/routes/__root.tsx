@@ -7,6 +7,7 @@ import {
   redirect,
   Scripts,
   useRouterState,
+  type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
@@ -50,7 +51,7 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error }: ErrorComponentProps) {
   console.error(error);
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
@@ -104,6 +105,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         throw redirect({ to: "/maintenance", replace: true });
       }
     }
+    return undefined;
   },
   head: () => ({
     meta: [
