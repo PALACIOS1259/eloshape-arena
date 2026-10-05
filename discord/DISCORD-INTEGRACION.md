@@ -17,6 +17,10 @@ Al verificar el 5 de octubre, Discord estaba deshabilitado en Auth y el endpoint
 respondía `503 sync_not_configured` por falta de su secreto. Ambos se configuran
 directamente en Supabase; no se incluyen credenciales en esta entrega.
 
+Después de configurar manual linking, el propietario autorizó una cuenta Discord:
+la web muestra la conexión y el backend de staging reconoce una identidad verificada.
+Todavía falta probar asignación/retirada de roles con el bot y la promoción productiva.
+
 ## 1. Discord Developer Portal → OAuth2
 
 En la aplicación indicada, agregá los callbacks de Supabase a Redirects:
@@ -85,6 +89,19 @@ También podés usar Node 22 con `node --env-file=.env bot.js`; `set` dura solo 
 No actives `BETA_SYNC_ENABLED` para probar Cuenta vinculada. Son sincronizaciones independientes.
 
 ## 5. Verificación real
+
+### Prueba individual en el servidor real
+
+Después de instalar esta versión y configurar el secreto del endpoint staging,
+dejá `DISCORD_LINK_SYNC_ENABLED=false` y `BETA_SYNC_ENABLED=false`. Desde tu cuenta
+administradora de Discord, ejecutá `!vinculadas probar`, sin menciones ni IDs.
+Este comando toma tu ID del autor del mensaje y confirma que está en el snapshot
+OAuth antes de agregar Cuenta vinculada. No necesita buscar todos los miembros
+ni habilitar Server Members Intent para esta prueba individual. No retira roles ni
+concede beta, elegibilidad, división o permisos de staff. La sincronización global
+del servidor real sigue reservada al endpoint productivo, después de promoverlo.
+
+### Prueba de sincronización completa en un servidor de prueba
 
 1. Ingresá con una cuenta EloShape de prueba autorizada para staging.
 2. En el perfil elegí Vincular Discord y autorizá en Discord. Verificá que volvés a la

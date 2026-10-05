@@ -29,18 +29,45 @@ async function fetchLinkedSnapshot({ env = process.env, fetchImpl = fetch } = {}
   return [...new Set(snapshot.linked_member_ids)];
 }
 
-async function syncLinkedMembers({ guild, ids, linkedDiscordIds }) {
+function validateLinkedIds(linkedDiscordIds) {
   if (
     !Array.isArray(linkedDiscordIds) ||
     linkedDiscordIds.some((id) => typeof id !== "string" || !/^\d{17,20}$/.test(id))
   )
     throw new Error("IDs de vinculación inválidos");
+}
+
+async function linkedRole(guild, ids) {
   // IDs exportados por !adaptar/!ids, sin copiar roles a mano ni resolver por nombres.
   const roleId = ids.roles?.cuentaVinculada?.id;
   if (!roleId) throw new Error("Falta Cuenta vinculada en ids.json; ejecutá !ids");
   const role = await guild.roles.fetch(roleId);
   if (!role || role.managed || !role.editable)
     throw new Error("El bot debe poder gestionar Cuenta vinculada y estar por encima de ese rol");
+  return role;
+}
+
+// Prueba limitada al autor del comando: agrega su rol únicamente si el backend
+// confirma su identidad. Nunca retira roles ni recorre otros miembros.
+async function testLinkedMember({ guild, ids, linkedDiscordIds, memberId }) {
+  validateLinkedIds(linkedDiscordIds);
+  if (
+    typeof memberId !== "string" ||
+    !/^\d{17,20}$/.test(memberId) ||
+    !linkedDiscordIds.includes(memberId)
+  )
+    throw new Error("Tu cuenta de Discord no aparece vinculada en este entorno de la web");
+  const role = await linkedRole(guild, ids);
+  const member = await guild.members.fetch(memberId);
+  if (member.user.bot) throw new Error("Esta prueba requiere una cuenta de usuario");
+  if (member.roles.cache.has(role.id)) return { added: false };
+  await member.roles.add(role);
+  return { added: true };
+}
+
+async function syncLinkedMembers({ guild, ids, linkedDiscordIds }) {
+  validateLinkedIds(linkedDiscordIds);
+  const role = await linkedRole(guild, ids);
   const members = await guild.members.fetch();
   const linked = new Set(linkedDiscordIds);
   let added = 0,
@@ -60,4 +87,4 @@ async function syncLinkedMembers({ guild, ids, linkedDiscordIds }) {
   return { linked: linked.size, added, removed };
 }
 
-module.exports = { fetchLinkedSnapshot, syncLinkedMembers };
+module.exports = { fetchLinkedSnapshot, syncLinkedMembers, testLinkedMember };

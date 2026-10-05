@@ -48,7 +48,7 @@ const {
   syncBetaMembers,
 } = require("./competicion.cjs");
 const { fetchBetaSnapshot } = require("./beta-sync.cjs");
-const { fetchLinkedSnapshot, syncLinkedMembers } = require("./linked-sync.cjs");
+const { fetchLinkedSnapshot, syncLinkedMembers, testLinkedMember } = require("./linked-sync.cjs");
 const { applyWaitingRoom } = require("./espera.cjs");
 
 const TOKEN = process.env.DISCORD_TOKEN || "PEGA_AQUI_TU_TOKEN";
@@ -994,7 +994,24 @@ client.on("messageCreate", async (message) => {
         case "vinculadas": {
           if (!message.member.permissions.has(PermissionFlagsBits.Administrator))
             return message.reply("❌ Solo un administrador puede sincronizar cuentas.");
-          if (args[0] !== "sincronizar") return message.reply("Usá `!vinculadas sincronizar`.");
+          if (args[0] === "probar") {
+            if (args.length !== 1)
+              return message.reply("Usá `!vinculadas probar` sin mencionar otros usuarios.");
+            const linkedDiscordIds = await fetchLinkedSnapshot();
+            const result = await testLinkedMember({
+              guild: message.guild,
+              ids: IDS,
+              linkedDiscordIds,
+              memberId: message.author.id,
+            });
+            return message.reply(
+              result.added
+                ? "✅ Identidad verificada: Cuenta vinculada asignado a tu usuario."
+                : "✅ Identidad verificada: tu usuario ya tiene Cuenta vinculada.",
+            );
+          }
+          if (args[0] !== "sincronizar")
+            return message.reply("Usá `!vinculadas probar` o `!vinculadas sincronizar`.");
           const result = await sincronizarVinculadas(message.guild);
           return message.reply(
             `✅ Cuentas vinculadas: ${result.added} roles asignados, ${result.removed} retirados.`,
@@ -1002,7 +1019,7 @@ client.on("messageCreate", async (message) => {
         }
         case "ayuda":
           return message.reply(
-            "Staff: `!adaptar`, `!ids`, `!equipo`, `!torneo crear ID_WEB | Nombre | @participantes`, `!partida crear ID_PARTIDA | ID_TORNEO | N | Nombre A | @5 jugadores | Nombre B | @5 jugadores`, `!beta preparar`, `!beta sincronizar`, `!vinculadas sincronizar`.",
+            "Staff: `!adaptar`, `!ids`, `!equipo`, `!torneo crear ID_WEB | Nombre | @participantes`, `!partida crear ID_PARTIDA | ID_TORNEO | N | Nombre A | @5 jugadores | Nombre B | @5 jugadores`, `!beta preparar`, `!beta sincronizar`, `!vinculadas probar`, `!vinculadas sincronizar`.",
           );
       }
     } catch (error) {

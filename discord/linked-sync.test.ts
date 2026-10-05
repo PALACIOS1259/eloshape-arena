@@ -1,7 +1,7 @@
 import { createRequire } from "node:module";
 import { describe, expect, it, vi } from "vitest";
 const require = createRequire(import.meta.url);
-const { fetchLinkedSnapshot, syncLinkedMembers } = require("./linked-sync.cjs");
+const { fetchLinkedSnapshot, syncLinkedMembers, testLinkedMember } = require("./linked-sync.cjs");
 const env = {
   DISCORD_LINKED_SNAPSHOT_URL: "https://example.invalid/snapshot",
   DISCORD_BETA_SYNC_TOKEN: "a".repeat(64),
@@ -10,6 +10,39 @@ const a = "1999999999999999999",
   b = "1999999999999999998";
 
 describe("verified Discord role synchronization", () => {
+  it("limits a self-test to one verified member without bulk fetching or revocations", async () => {
+    const role = { id: "linked-role", editable: true, managed: false };
+    const member = {
+      user: { bot: false },
+      roles: { cache: new Set(), add: vi.fn(), remove: vi.fn() },
+    };
+    const guild = {
+      roles: { fetch: vi.fn(async () => role) },
+      members: { fetch: vi.fn(async () => member) },
+    };
+    const ids = { roles: { cuentaVinculada: { id: role.id } } };
+    expect(await testLinkedMember({ guild, ids, linkedDiscordIds: [a], memberId: a })).toEqual({
+      added: true,
+    });
+    expect(guild.members.fetch).toHaveBeenCalledWith(a);
+    expect(guild.members.fetch).toHaveBeenCalledTimes(1);
+    expect(member.roles.add).toHaveBeenCalledWith(role);
+    expect(member.roles.remove).not.toHaveBeenCalled();
+    member.roles.cache.add(role.id);
+    member.roles.add.mockClear();
+    expect(await testLinkedMember({ guild, ids, linkedDiscordIds: [a], memberId: a })).toEqual({
+      added: false,
+    });
+    expect(member.roles.add).not.toHaveBeenCalled();
+  });
+  it("rejects a self-test for an unlinked identity before accessing Discord", async () => {
+    const guild = { roles: { fetch: vi.fn() }, members: { fetch: vi.fn() } };
+    await expect(
+      testLinkedMember({ guild, ids: {}, linkedDiscordIds: [a], memberId: b }),
+    ).rejects.toThrow("no aparece vinculada");
+    expect(guild.roles.fetch).not.toHaveBeenCalled();
+    expect(guild.members.fetch).not.toHaveBeenCalled();
+  });
   it("refuses insecure, failed or malformed snapshots before changing roles", async () => {
     const fetchImpl = vi.fn();
     await expect(

@@ -27,6 +27,10 @@ OAuth, el endpoint y su secreto en el mismo entorno. Primero se prueba en stagin
 el código de producción todavía debe promoverse.
 
 Con el endpoint configurado, `!vinculadas sincronizar` actualiza ese rol una vez.
+`!vinculadas probar` verifica únicamente tu propia identidad y agrega Cuenta vinculada
+a tu usuario si está confirmado en la web. No recorre otros miembros ni retira roles.
+Es un comando exclusivo de administradores y permite probar con staging sin activar
+la sincronización global del servidor real.
 Con `DISCORD_LINK_SYNC_ENABLED=true`, también se actualiza al iniciar y cada minuto.
 El bot debe estar encendido, tener Server Members Intent y poder gestionar ese rol.
 
