@@ -1,0 +1,21 @@
+name: Estado de producción
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/30 * * * *"
+permissions:
+  contents: read
+concurrency:
+  group: production-health
+  cancel-in-progress: false
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Comprobar web y acceso a la base
+        run: node ops/check-production.mjs

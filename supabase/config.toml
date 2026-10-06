@@ -1,5 +1,9 @@
 project_id = "eloshape-arena"
 
+[functions.beta-email-admin]
+# Validates the user token with Auth and requires a current database admin role.
+verify_jwt = false
+
 [functions.discord-linked-snapshot]
 # handler.ts validates a private bot credential before accessing privileged data.
 verify_jwt = false

@@ -59,6 +59,9 @@ function AuthPage() {
   const [acceptedLegal, setAcceptedLegal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [needsConfirmation, setNeedsConfirmation] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resendAfter, setResendAfter] = useState(0);
 
   const isSignup = mode === "signup";
   const isForgot = mode === "forgot";
@@ -74,6 +77,36 @@ function AuthPage() {
       }
     }
     await navigate({ to: "/dashboard" });
+  };
+
+  const resendConfirmation = async () => {
+    if (!email.trim()) return;
+    if (Date.now() < resendAfter) {
+      toast.info("Esperá un minuto antes de pedir otro correo.");
+      return;
+    }
+    setResending(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: email.trim(),
+        options: { emailRedirectTo: `${window.location.origin}/auth` },
+      });
+      if (error) throw error;
+      setResendAfter(Date.now() + 60_000);
+      toast.success(
+        "Si la cuenta espera confirmación, recibirás un nuevo correo. Revisá también Spam.",
+      );
+    } catch (error) {
+      toast.error(
+        authErrorMessage(
+          error,
+          "No se pudo reenviar el correo. Esperá unos minutos e intentá de nuevo.",
+        ),
+      );
+    } finally {
+      setResending(false);
+    }
   };
 
   const submit = async (event: React.FormEvent) => {
@@ -110,7 +143,7 @@ function AuthPage() {
           email: email.trim(),
           password,
           options: {
-            emailRedirectTo: window.location.origin,
+            emailRedirectTo: `${window.location.origin}/auth`,
             data: {
               display_name: displayName.trim(),
               legal_acceptance: true,
@@ -144,7 +177,10 @@ function AuthPage() {
         email: email.trim(),
         password,
       });
-      if (error) throw error;
+      if (error) {
+        if (error.code === "email_not_confirmed") setNeedsConfirmation(true);
+        throw error;
+      }
       await enterPlatform();
     } catch (error) {
       toast.error(authErrorMessage(error));
@@ -185,6 +221,23 @@ function AuthPage() {
                 ? "Si existe una cuenta de EloShape con ese correo, se envió un enlace para restablecer la contraseña."
                 : "Revisá tu correo para confirmar la cuenta y después iniciá sesión."}
             </p>
+            {!isForgot ? (
+              <>
+                <p className="text-sm text-muted-foreground">
+                  Buscá el mensaje de EloShape en Recibidos o Spam. Si no llega, podés pedir otro
+                  enlace.
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  disabled={resending}
+                  onClick={() => void resendConfirmation()}
+                >
+                  {resending ? "Reenviando…" : "Reenviar confirmación"}
+                </Button>
+              </>
+            ) : null}
             <Button
               type="button"
               variant="outline"
@@ -245,6 +298,17 @@ function AuthPage() {
                   </p>
                 ) : null}
               </div>
+            ) : null}
+            {!isSignup && !isForgot && needsConfirmation ? (
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                disabled={resending || !email.trim()}
+                onClick={() => void resendConfirmation()}
+              >
+                {resending ? "Reenviando…" : "Reenviar correo de confirmación"}
+              </Button>
             ) : null}
 
             {isSignup ? (

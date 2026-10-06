@@ -1,0 +1,16 @@
+{
+  "name": "eloshape-discord-bot",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node bot.cjs",
+    "diagnostico": "node diagnostico.cjs"
+  },
+  "dependencies": {
+    "discord.js": "14.27.0"
+  }
+}

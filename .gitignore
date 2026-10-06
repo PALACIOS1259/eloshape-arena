@@ -31,3 +31,6 @@ dist-ssr
 *.sln
 *.sw?
 .env
+discord/state/
+discord/ids.json
+discord/bot-health.json

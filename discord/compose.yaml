@@ -1,0 +1,18 @@
+services:
+  bot:
+    build:
+      context: ..
+      dockerfile: discord/Dockerfile
+    restart: unless-stopped
+    init: true
+    env_file: .env
+    volumes:
+      - ./state:/app/state
+    read_only: true
+    tmpfs:
+      - /tmp
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

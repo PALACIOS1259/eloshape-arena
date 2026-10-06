@@ -19,6 +19,13 @@
 
 const fs = require("fs");
 const path = require("path");
+// Node 22+ reads .env even when the operator runs node bot.js directly.
+const envFile = path.join(__dirname, ".env");
+if (typeof process.loadEnvFile === "function" && fs.existsSync(envFile))
+  process.loadEnvFile(envFile);
+const { configurationIssues } = require("./config.cjs");
+const issues = configurationIssues(process.env);
+if (issues.length) throw new Error(issues.join("\n"));
 const {
   Client,
   GatewayIntentBits,
@@ -55,7 +62,7 @@ const TOKEN = process.env.DISCORD_TOKEN || "PEGA_AQUI_TU_TOKEN";
 const WEB_URL = (process.env.ELOSHAPE_URL || "https://eloshape.com.ar").replace(/\/+$/, "");
 if (new URL(WEB_URL).protocol !== "https:") throw new Error("ELOSHAPE_URL debe usar HTTPS");
 const PREFIJO = "!";
-const ARCHIVO_IDS = path.join(__dirname, "ids.json");
+const ARCHIVO_IDS = path.join(process.env.BOT_DATA_DIR || __dirname, "ids.json");
 const PIE_OFICIAL = "EloShape · ";
 
 // Permisos de escritura que se quitan en canales de solo lectura
@@ -75,8 +82,20 @@ const client = new Client({
   ],
 });
 
-client.once("ready", () => {
+client.once("clientReady", () => {
   console.log(`✅ Bot conectado como ${client.user.tag}`);
+  const heartbeat = () => {
+    try {
+      fs.writeFileSync(
+        process.env.BOT_HEALTH_FILE || path.join(__dirname, "bot-health.json"),
+        JSON.stringify({ updatedAt: Date.now(), ready: client.isReady() }),
+      );
+    } catch {
+      console.error("No se pudo actualizar el estado local del bot.");
+    }
+  };
+  heartbeat();
+  setInterval(heartbeat, 25_000).unref();
   if (
     process.env.BETA_SYNC_ENABLED === "true" ||
     process.env.DISCORD_LINK_SYNC_ENABLED === "true"
@@ -1082,10 +1101,22 @@ client.on("interactionCreate", async (interaction) => {
 
 if (!TOKEN || TOKEN === "PEGA_AQUI_TU_TOKEN")
   throw new Error("Definí DISCORD_TOKEN en el entorno del bot");
-client
-  .login(TOKEN)
-  .catch(() =>
-    console.error(
-      "No se pudo conectar a Discord. Revisá el token y los intents en Developer Portal.",
-    ),
+client.login(TOKEN).catch(() => {
+  console.error(
+    "No se pudo conectar a Discord. Revisá el token y los intents en Developer Portal.",
   );
+  process.exit(1);
+});
+
+// Docker/systemd can restart on a real crash; never print exception objects
+// from Discord or HTTP libraries because they can contain private headers.
+process.on?.("unhandledRejection", () => {
+  console.error("Error inesperado del bot. Se cerrará para reiniciarlo.");
+  client.destroy();
+  process.exit(1);
+});
+for (const signal of ["SIGTERM", "SIGINT"])
+  process.on?.(signal, () => {
+    client.destroy();
+    process.exit(0);
+  });

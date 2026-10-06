@@ -181,6 +181,7 @@ function setup() {
           path: { join },
           "discord.js": { ...discord, Client },
           "./estructura.cjs": structure,
+          "./config.cjs": load("config.cjs"),
           "./competicion.cjs": competition,
           "./espera.cjs": load("espera.cjs"),
           "./beta-sync.cjs": {

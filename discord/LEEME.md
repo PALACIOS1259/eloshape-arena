@@ -5,16 +5,19 @@ Para el lanzamiento del Discord público, seguí **LANZAMIENTO.md**.
 `iniciar-bot.cmd` inicia el bot leyendo tu .env.
 
 
-Todavía no hay testers: no cargues correos ni actives la beta. `!adaptar` y `!beta preparar`
-crean el espacio de beta sin dar el rol a ningún jugador.
+`!adaptar` y `!beta preparar` crean el espacio de beta sin dar el rol a ningún jugador.
+El staff aprueba los correos desde la web antes del registro.
 
 ## Instalar sobre tu bot actual
 
 1. Detené el bot con Ctrl+C y guardá una copia de tu carpeta.
-2. Copiá `bot.js`, `estructura.cjs`, `competicion.cjs`, `beta-sync.cjs`, `linked-sync.cjs` y `espera.cjs` en esa carpeta.
+2. Copiá `bot.cjs` como `bot.js` y los demás archivos `.cjs` de `discord` en esa carpeta.
    Conservá tu `ids.json` y tu configuración de `DISCORD_TOKEN`. El bot nuevo lee esos IDs.
    `estructura.js` anterior deja de usarse: la configuración nueva se llama `estructura.cjs`.
-3. Arrancá con `node bot.js` usando Node 22 o posterior y tu instalación de discord.js v14.
+3. Arrancá con `node bot.js` usando Node 22 o posterior. El bot lee `.env` automáticamente.
+   Para comprobar la configuración sin modificar roles: `node diagnostico.cjs`.
+   En una copia del repositorio, instalá dependencias con `npm ci` en `discord`
+   e iniciá con `npm start`; ahí el archivo conserva el nombre `bot.cjs`.
 4. En Discord, ejecutá `!adaptar` con tu cuenta administradora. Después, `!ayuda`.
 
 La URL predeterminada es https://eloshape.com.ar. Si necesitás otra, definí `ELOSHAPE_URL`.
@@ -29,7 +32,7 @@ El bot consulta IDs verificados en `discord-linked-snapshot` y administra única
 **Cuenta vinculada**. La whitelist y los otros roles conservan sus procesos separados.
 Leé `DISCORD-INTEGRACION.md` antes de activar la sincronización: requiere configurar
 OAuth, el endpoint y su secreto en el mismo entorno. Primero se prueba en staging;
-el código de producción todavía debe promoverse.
+el código ya está en producción; la configuración OAuth y las pruebas deben completarse.
 
 Con el endpoint configurado, `!vinculadas sincronizar` actualiza ese rol una vez.
 `!vinculadas probar` verifica únicamente tu propia identidad y agrega Cuenta vinculada
@@ -38,6 +41,7 @@ Es un comando exclusivo de administradores y permite probar con staging sin acti
 la sincronización global del servidor real.
 Con `DISCORD_LINK_SYNC_ENABLED=true`, también se actualiza al iniciar y cada minuto.
 El bot debe estar encendido, tener Server Members Intent y poder gestionar ese rol.
+Para alojarlo permanentemente con reinicio automático, leé `ALOJAMIENTO.md`.
 
 ## Split o torneo con nombre variable
 

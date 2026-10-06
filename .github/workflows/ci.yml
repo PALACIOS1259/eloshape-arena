@@ -10,6 +10,19 @@ permissions:
   contents: read
 
 jobs:
+  discord-container:
+    name: Discord bot container
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build permanent bot image without credentials
+        run: docker build -f discord/Dockerfile -t eloshape-discord:ci .
+      - name: Check Discord runtime
+        run: >-
+          docker run --rm --entrypoint node eloshape-discord:ci
+          -e "const d=require('discord.js'); if(d.Events.ClientReady !== 'clientReady') process.exit(1); console.log(d.version)"
+
   verify:
     runs-on: ubuntu-latest
     steps:
@@ -99,6 +112,14 @@ jobs:
           psql -h 127.0.0.1 -p 54322 -U postgres -d postgres
           -v ON_ERROR_STOP=1
           -f supabase/tests/beta_discord.test.sql
+
+      - name: Run beta email admin authorization tests
+        env:
+          PGPASSWORD: postgres
+        run: >-
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres
+          -v ON_ERROR_STOP=1
+          -f supabase/tests/beta_email_admin.test.sql
 
       - name: Run 16-team Semi-Split stress test
         env:

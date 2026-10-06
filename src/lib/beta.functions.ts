@@ -5,6 +5,17 @@ import {
   requireSupabaseAuth,
 } from "@/integrations/supabase/auth-middleware";
 import { callBetaRpc, type BetaAdminState } from "./beta-access";
+import { readInfrastructureState } from "./infrastructure.server";
+
+export const getBetaInfrastructure = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await callBetaRpc<BetaAdminState>(
+      createAuthenticatedSupabaseClient(context.accessToken),
+      "beta_admin_list",
+    );
+    return readInfrastructureState();
+  });
 
 export const getBetaInvitations = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -46,3 +57,17 @@ export const setClosedBetaEnabled = createServerFn({ method: "POST" })
       { p_enabled: data.enabled },
     ),
   );
+
+export const confirmBetaEmail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) =>
+    z.object({ email: z.string().trim().email().max(254) }).parse(input),
+  )
+  .handler(async ({ context, data }) => {
+    const client = createAuthenticatedSupabaseClient(context.accessToken);
+    const { data: result, error } = await client.functions.invoke("beta-email-admin", {
+      body: { action: "confirm", email: data.email },
+    });
+    if (error || result?.ok !== true) throw new Error("No se pudo confirmar la cuenta invitada.");
+    return { ok: true as const, auditPending: result.auditPending === true };
+  });

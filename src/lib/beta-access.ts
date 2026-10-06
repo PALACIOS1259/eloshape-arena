@@ -7,6 +7,8 @@ export type BetaInvitation = {
   discord_id: string | null;
   active: boolean;
   expires_at: string | null;
+  user_id?: string | null;
+  email_confirmed_at?: string | null;
 };
 export type BetaAdminState = { enabled: boolean; invitations: BetaInvitation[] };
 

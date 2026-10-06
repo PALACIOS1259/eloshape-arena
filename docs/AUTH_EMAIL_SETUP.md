@@ -1,5 +1,18 @@
 # EloShape authentication email setup
 
+## Gestionar la beta desde EloShape
+
+En el panel de administración, **Lista de acceso a la beta** muestra si la persona
+todavía no se registró, espera confirmación o ya confirmó su correo.
+**Confirmar correo** permite a un administrador confirmar una cuenta existente
+con invitación activa después de verificar su identidad por otro medio. Requiere
+confirmación explícita en pantalla y se registra en el historial de auditoría.
+No otorga roles de Discord ni permite confirmar correos fuera de la whitelist.
+
+Los jugadores pueden reenviar su confirmación desde el registro o cuando el inicio
+de sesión informa que falta confirmar el correo. No se desactiva la confirmación
+global. Guardar una invitación no envía un mail: compartí el enlace de registro.
+
 ## Sender
 
 - Name: `EloShape`
