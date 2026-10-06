@@ -30,4 +30,13 @@
 
 ## Website integration
 
+The prelaunch page now displays the supplied 53-second, 1920 × 1080 presentation
+beside the introduction, above the launch status. `IntroVideoPlayer` uses
+`public/video/eloshape-presentacion.mp4` and its extracted poster image. Playback
+uses native controls, stays inline on mobile, and starts only on request; the
+file is optimized for progressive playback without changing its duration.
+No external media storage URL is currently configured, so this presentation is
+served as a static deployment asset. It does not use the storyboard's draft
+caption file, whose timing differs from the supplied video.
+
 The homepage video section remains hidden until `VITE_INTRO_VIDEO_URL` contains a direct HTTPS MP4 URL. The final video must not be committed to Git when a CDN or object-storage URL is available. Captions live at `public/video/eloshape-intro-es.vtt`.

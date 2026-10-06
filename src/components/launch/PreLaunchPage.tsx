@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { MessageCircle } from "lucide-react";
 
 import { EloShapeLogo } from "@/components/brand/EloShapeLogo";
+import { IntroVideoPlayer } from "@/components/launch/IntroVideoPlayer";
 import { DISCORD_INVITE_URL, INSTAGRAM_URL } from "@/lib/social-links";
 
 const launchMilestones = [
@@ -32,7 +33,7 @@ export function PreLaunchPage() {
         </header>
 
         <section className="flex flex-1 items-center py-14 sm:py-20">
-          <div className="grid w-full gap-12 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-end lg:gap-20">
+          <div className="grid w-full gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)] lg:items-center">
             <div className="max-w-3xl">
               <p className="eyebrow text-gold">Argentina · Beta cerrada</p>
               <h1 className="mt-5 text-5xl font-black leading-[0.95] tracking-[-0.045em] sm:text-6xl lg:text-7xl">
@@ -72,30 +73,33 @@ export function PreLaunchPage() {
               </p>
             </div>
 
-            <aside className="overflow-hidden rounded-2xl border border-border/70 bg-card/55 backdrop-blur-sm">
-              <div className="border-b border-border/60 px-5 py-4">
-                <p className="eyebrow">Estado del lanzamiento</p>
-              </div>
-              <dl className="divide-y divide-border/60">
-                {launchMilestones.map((milestone, index) => (
-                  <div key={milestone.label} className="flex items-center gap-4 px-5 py-4">
-                    <span className="tabular flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-background/40 text-[0.6875rem] font-bold text-muted-foreground">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <dt className="text-sm font-semibold text-foreground">{milestone.label}</dt>
-                      <dd className="mt-1 text-xs text-muted-foreground">{milestone.status}</dd>
+            <div className="min-w-0 space-y-6">
+              <IntroVideoPlayer />
+              <aside className="overflow-hidden rounded-2xl border border-border/70 bg-card/55 backdrop-blur-sm">
+                <div className="border-b border-border/60 px-5 py-4">
+                  <p className="eyebrow">Estado del lanzamiento</p>
+                </div>
+                <dl className="divide-y divide-border/60">
+                  {launchMilestones.map((milestone, index) => (
+                    <div key={milestone.label} className="flex items-center gap-4 px-5 py-4">
+                      <span className="tabular flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-background/40 text-[0.6875rem] font-bold text-muted-foreground">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <dt className="text-sm font-semibold text-foreground">{milestone.label}</dt>
+                        <dd className="mt-1 text-xs text-muted-foreground">{milestone.status}</dd>
+                      </div>
+                      <span
+                        aria-hidden="true"
+                        className={`h-2 w-2 shrink-0 rounded-full ${
+                          index === 0 ? "bg-success" : index === 1 ? "bg-gold" : "bg-steel/50"
+                        }`}
+                      />
                     </div>
-                    <span
-                      aria-hidden="true"
-                      className={`h-2 w-2 shrink-0 rounded-full ${
-                        index === 0 ? "bg-success" : index === 1 ? "bg-gold" : "bg-steel/50"
-                      }`}
-                    />
-                  </div>
-                ))}
-              </dl>
-            </aside>
+                  ))}
+                </dl>
+              </aside>
+            </div>
           </div>
         </section>
 
