@@ -77,7 +77,12 @@ describe("verified Discord role synchronization", () => {
     const members = [member(a, false), member(b, true), member("bot", true, true)];
     const guild = {
       roles: { fetch: vi.fn(async () => role) },
-      members: { fetch: vi.fn(async () => new Map(members.map((m) => [m.id, m]))) },
+      members: {
+        list: vi.fn(async () => new Map(members.map((m) => [m.id, m]))),
+        fetch: vi.fn(() => {
+          throw new Error("opcode 8 was rate limited");
+        }),
+      },
     };
     expect(
       await syncLinkedMembers({
@@ -87,12 +92,13 @@ describe("verified Discord role synchronization", () => {
       }),
     ).toEqual({ linked: 1, added: 1, removed: 1 });
     expect(guild.roles.fetch).toHaveBeenCalledWith(role.id);
+    expect(guild.members.fetch).not.toHaveBeenCalled();
     expect(members[0]!.roles.add).toHaveBeenCalledWith(role);
     expect(members[1]!.roles.remove).toHaveBeenCalledWith(role);
     expect(members[2]!.roles.remove).not.toHaveBeenCalled();
     expect(members.every((m) => m.roles.cache.has("beta-role"))).toBe(true);
     guild.roles.fetch.mockResolvedValue({ ...role, editable: false });
-    guild.members.fetch.mockClear();
+    guild.members.list.mockClear();
     await expect(
       syncLinkedMembers({
         guild,
@@ -100,7 +106,7 @@ describe("verified Discord role synchronization", () => {
         linkedDiscordIds: [],
       }),
     ).rejects.toThrow("gestionar");
-    expect(guild.members.fetch).not.toHaveBeenCalled();
+    expect(guild.members.list).not.toHaveBeenCalled();
   });
   it("accepts an explicit empty snapshot for deliberate unlinking", async () => {
     expect(

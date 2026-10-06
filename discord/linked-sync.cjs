@@ -1,4 +1,5 @@
 // Solo identidades OAuth verificadas por el backend; nunca nombres ni IDs escritos por jugadores.
+const { listGuildMembers } = require("./member-list.cjs");
 async function fetchLinkedSnapshot({ env = process.env, fetchImpl = fetch } = {}) {
   const endpoint = env.DISCORD_LINKED_SNAPSHOT_URL;
   const token = env.DISCORD_BETA_SYNC_TOKEN;
@@ -68,7 +69,7 @@ async function testLinkedMember({ guild, ids, linkedDiscordIds, memberId }) {
 async function syncLinkedMembers({ guild, ids, linkedDiscordIds }) {
   validateLinkedIds(linkedDiscordIds);
   const role = await linkedRole(guild, ids);
-  const members = await guild.members.fetch();
+  const members = await listGuildMembers(guild);
   const linked = new Set(linkedDiscordIds);
   let added = 0,
     removed = 0;

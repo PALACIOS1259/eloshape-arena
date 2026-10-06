@@ -4,7 +4,6 @@ Para el lanzamiento del Discord público, seguí **LANZAMIENTO.md**.
 `!invitacion` genera el enlace permanente a bienvenida; no concede acceso a beta.
 `iniciar-bot.cmd` inicia el bot leyendo tu .env.
 
-
 `!adaptar` y `!beta preparar` crean el espacio de beta sin dar el rol a ningún jugador.
 El staff aprueba los correos desde la web antes del registro.
 
@@ -42,6 +41,11 @@ la sincronización global del servidor real.
 Con `DISCORD_LINK_SYNC_ENABLED=true`, también se actualiza al iniciar y cada minuto.
 El bot debe estar encendido, tener Server Members Intent y poder gestionar ese rol.
 Para alojarlo permanentemente con reinicio automático, leé `ALOJAMIENTO.md`.
+
+La sincronización completa de ambos roles consulta miembros por REST paginado;
+discord.js gestiona sus esperas sin repetir consultas masivas del gateway (opcode 8).
+Si falla una página, se aborta antes de modificar roles. El bot sigue necesitando
+Server Members Intent habilitado en el Developer Portal.
 
 ## Split o torneo con nombre variable
 

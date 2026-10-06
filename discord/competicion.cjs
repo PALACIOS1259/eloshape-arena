@@ -1,5 +1,6 @@
 // Importar desde bot.js. Requiere discord.js v14 y persistencia de ids.json.
 const { ChannelType, PermissionFlagsBits: P, OverwriteType } = require("discord.js");
+const { listGuildMembers } = require("./member-list.cjs");
 
 const queues = new Map();
 const snowflake = /^[0-9]{17,20}$/;
@@ -320,7 +321,7 @@ async function syncBetaMembers({ guild, ids, approvedDiscordIds, persistIds }) {
     const role = await betaRole(guild, ids, persistIds);
     const approved = new Set(approvedDiscordIds);
     // Requiere Server Members Intent habilitado para sincronización completa.
-    const members = await guild.members.fetch();
+    const members = await listGuildMembers(guild);
     for (const member of members.values()) {
       if (member.user.bot) continue;
       const hasRole = member.roles.cache.has(role.id);

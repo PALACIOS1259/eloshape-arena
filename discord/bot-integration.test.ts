@@ -124,6 +124,7 @@ function setup() {
       me: addMember(botId, true),
       fetchMe: async () => members.get(botId),
       fetch: async (id?: string) => (id ? members.get(id) || addMember(id) : members),
+      list: async () => members,
     },
   };
   class Client {
@@ -143,6 +144,7 @@ function setup() {
       exports: module.exports,
       require: (name: string) => {
         if (name === "discord.js") return { ...discord, Client };
+        if (name === "./member-list.cjs") return load("member-list.cjs");
         if (name in custom) return custom[name];
         throw new Error(`Unexpected require ${name}`);
       },
