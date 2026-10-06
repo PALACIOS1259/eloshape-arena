@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { formatDateTime, riotRankLabel, winRate } from "@/lib/format";
+import { divisionLabel, formatDateTime, riotRankLabel, winRate } from "@/lib/format";
 import { connectRiotAccount, refreshRiotAccount } from "@/lib/riot.functions";
 
 type RiotAccount = {
@@ -38,7 +38,7 @@ type RiotAccount = {
 };
 
 const HELPER_TEXT =
-  "Your Riot rank determines which EloShape division you can enter. EloShape points come only from EloShape tournaments.";
+  "Tu rango de Riot determina en qué división de EloShape podés participar. Los puntos se obtienen únicamente en torneos de EloShape.";
 
 export function RiotAccountCard({
   account,
@@ -64,10 +64,10 @@ export function RiotAccountCard({
         toast.error(result.error);
         return;
       }
-      toast.success("Riot account linked. Rank data synced.");
+      toast.success("Cuenta de Riot vinculada. Datos de rango sincronizados.");
       invalidate();
     },
-    onError: () => toast.error("Riot data sync is temporarily unavailable."),
+    onError: () => toast.error("La sincronización de Riot no está disponible temporalmente."),
   });
 
   const refresh = useMutation({
@@ -77,33 +77,32 @@ export function RiotAccountCard({
         toast.error(result.error);
         return;
       }
-      toast.success(result.account.notice ?? "Riot data refreshed.");
+      toast.success(result.account.notice ?? "Datos de Riot actualizados.");
       invalidate();
     },
-    onError: () => toast.error("Riot data sync is temporarily unavailable."),
+    onError: () => toast.error("La sincronización de Riot no está disponible temporalmente."),
   });
 
   return (
     <div className="border-y border-border/65 py-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="eyebrow">Riot account</p>
+        <p className="eyebrow">Cuenta de Riot</p>
         {account ? (
           <Badge variant="outline" className="border-success/40 text-success">
-            Riot account linked
+            Cuenta de Riot vinculada
           </Badge>
         ) : null}
       </div>
 
       {!service.configured ? (
         <p className="mt-4 border-l-2 border-border pl-4 text-sm text-muted-foreground">
-          Riot integration is not configured yet. Your EloShape profile and tournament history are
-          unaffected.
+          La integración con Riot todavía no está configurada. Tu perfil y tu historial de torneos
+          se conservan.
         </p>
       ) : !service.trustedWritesConfigured ? (
         <p className="mt-4 border-l-2 border-gold/35 pl-4 text-sm text-gold">
-          Riot lookups are configured, but secure Riot linking is unavailable in this local
-          environment because the trusted database credential is intentionally not exposed. Use the
-          published EloShape app for real account linking.
+          La vinculación con Riot no está disponible en este entorno. Usá la web publicada de
+          EloShape para conectar tu cuenta.
         </p>
       ) : null}
 
@@ -118,40 +117,47 @@ export function RiotAccountCard({
 
           <div className="grid gap-3 sm:grid-cols-2">
             <Field
-              label="Solo Queue"
+              label="Clasificatoria Solo/Dúo"
               value={
                 account.ranked
                   ? `${riotRankLabel(account.ranked.tier, account.ranked.rank)} — ${account.ranked.leaguePoints} LP`
-                  : "Unranked"
+                  : "Sin rango"
               }
             />
             <Field
-              label="Ranked record"
+              label="Historial clasificatorio"
               value={
                 account.ranked
-                  ? `${account.ranked.wins} W / ${account.ranked.losses} L · ${winRate(account.ranked.wins, account.ranked.losses)}`
+                  ? `${account.ranked.wins} G / ${account.ranked.losses} P · ${winRate(account.ranked.wins, account.ranked.losses)}`
                   : "—"
               }
             />
-            <Field label="EloShape division" value={account.divisionName ?? "Not assigned"} />
             <Field
-              label="Riot account level"
+              label="División de EloShape"
               value={
-                account.accountLevel !== null ? `Level ${account.accountLevel}` : "Unavailable"
+                account.divisionName
+                  ? divisionLabel({ code: account.divisionCode, name: account.divisionName })
+                  : "Sin asignar"
               }
             />
-            <Field label="Last synced" value={formatDateTime(account.lastSyncedAt)} />
+            <Field
+              label="Nivel de la cuenta de Riot"
+              value={
+                account.accountLevel !== null ? `Nivel ${account.accountLevel}` : "No disponible"
+              }
+            />
+            <Field label="Última sincronización" value={formatDateTime(account.lastSyncedAt)} />
           </div>
 
           <div className="flex flex-wrap gap-2">
             <Badge variant="outline" className="gap-1.5 border-success/40 text-success">
-              <ShieldCheck className="size-3.5" aria-hidden /> Rank data synced
+              <ShieldCheck className="size-3.5" aria-hidden /> Rango sincronizado
             </Badge>
             <Badge variant="outline" className="gap-1.5 text-muted-foreground">
               <ShieldQuestion className="size-3.5" aria-hidden />
               {account.ownershipVerified
-                ? "Ownership verified via Riot"
-                : "Ownership verification unavailable"}
+                ? "Titularidad verificada por Riot"
+                : "Verificación de titularidad no disponible"}
             </Badge>
             {account.accountLevel !== null ? (
               <Badge
@@ -163,8 +169,8 @@ export function RiotAccountCard({
                 }
               >
                 {account.accountLevel >= 30
-                  ? "Level 30 requirement met"
-                  : `Level ${account.accountLevel} — level 30 required`}
+                  ? "Cumple el requisito de nivel 30"
+                  : `Nivel ${account.accountLevel} — se requiere nivel 30`}
               </Badge>
             ) : null}
           </div>
@@ -184,7 +190,7 @@ export function RiotAccountCard({
               className={refresh.isPending ? "size-4 animate-spin" : "size-4"}
               aria-hidden
             />
-            {refresh.isPending ? "Checking Riot…" : "Refresh Riot data"}
+            {refresh.isPending ? "Consultando Riot…" : "Actualizar datos de Riot"}
           </Button>
         </div>
       ) : (
@@ -198,18 +204,18 @@ export function RiotAccountCard({
           <p className="text-sm text-muted-foreground">{HELPER_TEXT}</p>
           <div className="grid gap-3 sm:grid-cols-[1fr_auto_auto]">
             <div>
-              <Label htmlFor="gameName">Game name</Label>
+              <Label htmlFor="gameName">Nombre de juego</Label>
               <Input
                 id="gameName"
                 value={gameName}
                 onChange={(event) => setGameName(event.target.value)}
-                placeholder="PlayerName"
+                placeholder="NombreDeJugador"
                 className="mt-2"
                 required
               />
             </div>
             <div>
-              <Label htmlFor="tagLine">Tag line</Label>
+              <Label htmlFor="tagLine">Etiqueta de Riot ID</Label>
               <Input
                 id="tagLine"
                 value={tagLine}
@@ -220,7 +226,7 @@ export function RiotAccountCard({
               />
             </div>
             <div>
-              <Label>Server</Label>
+              <Label>Servidor</Label>
               <p className="mt-2 flex h-10 items-center border-b border-border px-1 text-sm text-muted-foreground">
                 LAS / LA2
               </p>
@@ -230,7 +236,7 @@ export function RiotAccountCard({
             type="submit"
             disabled={connect.isPending || !service.configured || !service.trustedWritesConfigured}
           >
-            {connect.isPending ? "Checking Riot…" : "Connect Riot account"}
+            {connect.isPending ? "Consultando Riot…" : "Vincular cuenta de Riot"}
           </Button>
         </form>
       )}

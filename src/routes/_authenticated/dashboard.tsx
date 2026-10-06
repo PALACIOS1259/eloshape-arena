@@ -15,14 +15,24 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
-import { formatDate, formatPoints, placementLabel, riotRankLabel, winRate } from "@/lib/format";
+import {
+  formatDate,
+  formatPoints,
+  placementLabel,
+  riotRankLabel,
+  winRate,
+  statusLabel,
+} from "@/lib/format";
 import { getMyDashboard } from "@/lib/me.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
-      { title: "Your dashboard — EloShape" },
-      { name: "description", content: "Your EloShape division, points, entries and history." },
+      { title: "Tu panel — EloShape" },
+      {
+        name: "description",
+        content: "Tu división, puntos, inscripciones e historial de EloShape.",
+      },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -30,10 +40,10 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 });
 
 const ELIGIBILITY_LABEL: Record<string, string> = {
-  eligible: "Eligible to compete",
-  pending_review: "Eligibility pending review",
-  rejected: "Eligibility rejected",
-  suspended: "Account suspended",
+  eligible: "Habilitado para competir",
+  pending_review: "Elegibilidad pendiente de revisión",
+  rejected: "Elegibilidad rechazada",
+  suspended: "Cuenta suspendida",
 };
 
 function DashboardPage() {
@@ -63,13 +73,13 @@ function DashboardPage() {
   if (error || !data) {
     const description =
       import.meta.env.DEV && error instanceof Error && error.message
-        ? `Development error: ${error.message}`
-        : "Your EloShape profile and history are safe. Please try again in a moment.";
+        ? `Error de desarrollo: ${error.message}`
+        : "Tu perfil y tu historial de EloShape se conservan. Volvé a intentar en unos momentos.";
     if (import.meta.env.DEV && error) console.error("[EloShape dashboard]", error);
 
     return (
       <PageContainer className="py-16">
-        <EmptyState title="We couldn't load your dashboard" description={description} />
+        <EmptyState title="No pudimos cargar tu panel" description={description} />
       </PageContainer>
     );
   }
@@ -79,12 +89,12 @@ function DashboardPage() {
   return (
     <div>
       <PageHeading
-        eyebrow="Player area"
+        eyebrow="Área del jugador"
         title={profile.display_name}
-        description="Your competition status, Riot eligibility, team readiness and official EloShape history."
+        description="Tu estado competitivo, elegibilidad de Riot, preparación del equipo e historial oficial de EloShape."
         aside={
           <Button variant="outline" size="sm" onClick={signOut}>
-            Sign out
+            Cerrar sesión
           </Button>
         }
       />
@@ -97,19 +107,19 @@ function DashboardPage() {
               {ELIGIBILITY_LABEL[profile.eligibility] ?? profile.eligibility}
             </Badge>
             <span className="text-xs text-muted-foreground">
-              Riot eligibility · {riotRankLabel(profile.riot_tier, profile.riot_rank)}
+              Elegibilidad de Riot · {riotRankLabel(profile.riot_tier, profile.riot_rank)}
             </span>
           </div>
 
           <div className="grid grid-cols-2 gap-x-7 gap-y-4 sm:grid-cols-4">
-            <Metric label="Season" value={formatPoints(profile.points_season)} accent />
-            <Metric label="Month" value={formatPoints(profile.points_month)} />
+            <Metric label="Temporada" value={formatPoints(profile.points_season)} accent />
+            <Metric label="Mes" value={formatPoints(profile.points_month)} />
             <Metric
-              label="Record"
+              label="Historial"
               value={`${profile.wins}-${profile.losses}`}
               detail={winRate(profile.wins, profile.losses)}
             />
-            <Metric label="Profile" value={`${profile.profile_completion}%`} />
+            <Metric label="Perfil" value={`${profile.profile_completion}%`} />
           </div>
         </section>
 
@@ -126,11 +136,11 @@ function DashboardPage() {
           <div className="min-w-0">
             <div className="flex items-end justify-between gap-3">
               <div>
-                <p className="eyebrow">Competition</p>
-                <h2 className="mt-1 text-xl font-black text-foreground">Your entries</h2>
+                <p className="eyebrow">Competencia</p>
+                <h2 className="mt-1 text-xl font-black text-foreground">Tus inscripciones</h2>
               </div>
               <Button asChild variant="ghost" size="sm">
-                <Link to="/tournaments">Browse events</Link>
+                <Link to="/tournaments">Explorar eventos</Link>
               </Button>
             </div>
 
@@ -148,7 +158,7 @@ function DashboardPage() {
                         {entry.tournament?.name}
                       </span>
                       <span className="mt-1 block text-xs text-muted-foreground">
-                        {formatDate(entry.tournament?.starts_at)} · {entry.status}
+                        {formatDate(entry.tournament?.starts_at)} · {statusLabel(entry.status)}
                       </span>
                     </span>
                     <span className="flex items-center gap-3 text-right">
@@ -166,11 +176,11 @@ function DashboardPage() {
             ) : (
               <div className="mt-3">
                 <EmptyState
-                  title="No entries yet"
-                  description="Register for an open bracket to start earning points."
+                  title="Todavía no hay inscripciones"
+                  description="Inscribite en un torneo abierto para empezar a sumar puntos."
                   action={
                     <Button asChild>
-                      <Link to="/tournaments">Browse tournaments</Link>
+                      <Link to="/tournaments">Explorar torneos</Link>
                     </Button>
                   }
                 />
@@ -179,8 +189,8 @@ function DashboardPage() {
           </div>
 
           <div className="min-w-0">
-            <p className="eyebrow">Scoring</p>
-            <h2 className="mt-1 text-xl font-black text-foreground">Recent points</h2>
+            <p className="eyebrow">Puntuación</p>
+            <h2 className="mt-1 text-xl font-black text-foreground">Puntos recientes</h2>
 
             {data.ledger.length ? (
               <div className="mt-3 divide-y divide-border/55 border-y border-border/65 bg-card/15">
@@ -205,7 +215,7 @@ function DashboardPage() {
               </div>
             ) : (
               <div className="mt-3">
-                <EmptyState title="No points yet" />
+                <EmptyState title="Todavía no hay puntos" />
               </div>
             )}
           </div>

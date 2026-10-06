@@ -1,3 +1,4 @@
+import { statusLabel } from "@/lib/format";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -23,8 +24,8 @@ import {
 export const Route = createFileRoute("/_authenticated/admin_/disputes")({
   head: () => ({
     meta: [
-      { title: "Match disputes — EloShape Staff" },
-      { name: "description", content: "Review contested EloShape tournament results." },
+      { title: "Disputas de partidas — Organización de EloShape" },
+      { name: "description", content: "Revisión de resultados de torneos de EloShape en disputa." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -42,12 +43,12 @@ function MatchDisputesPage() {
   return (
     <div>
       <PageHeading
-        eyebrow="Staff · Competition integrity"
-        title="Match disputes"
-        description="Review submitted scores, evidence and disagreements before an official result advances the bracket."
+        eyebrow="Organización · Integridad competitiva"
+        title="Disputas de partidas"
+        description="Revisá los marcadores, las evidencias y los desacuerdos antes de que un resultado oficial haga avanzar el cuadro."
         aside={
           <Button asChild variant="outline">
-            <Link to="/admin">Back to moderation console</Link>
+            <Link to="/admin">Volver al panel de moderación</Link>
           </Button>
         }
       />
@@ -59,13 +60,13 @@ function MatchDisputesPage() {
           </div>
         ) : query.error ? (
           <EmptyState
-            title="Staff access required"
-            description="This queue is limited to admin and moderator accounts."
+            title="Se requiere acceso de organización"
+            description="Esta lista está limitada a cuentas de administración y moderación."
           />
         ) : !query.data?.length ? (
           <EmptyState
-            title="Dispute queue clear"
-            description="Pending confirmations and contested match results will appear here."
+            title="No hay disputas pendientes"
+            description="Las confirmaciones pendientes y los resultados en disputa aparecerán acá."
           />
         ) : (
           <div className="space-y-5">
@@ -108,11 +109,11 @@ function DisputeCard({ claim }: { claim: StaffMatchDispute }) {
         toast.error(result.error);
         return;
       }
-      toast.success("Official result applied and bracket updated.");
+      toast.success("Resultado oficial aplicado y cuadro actualizado.");
       refresh();
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : "Could not resolve dispute.");
+      toast.error(error instanceof Error ? error.message : "No se pudo resolver la disputa.");
     },
   });
 
@@ -123,11 +124,11 @@ function DisputeCard({ claim }: { claim: StaffMatchDispute }) {
         toast.error(result.error);
         return;
       }
-      toast.success("Result claim dismissed. Participants may submit a new result.");
+      toast.success("Informe descartado. Los participantes pueden enviar un resultado nuevo.");
       refresh();
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : "Could not dismiss claim.");
+      toast.error(error instanceof Error ? error.message : "No se pudo descartar el informe.");
     },
   });
 
@@ -139,7 +140,7 @@ function DisputeCard({ claim }: { claim: StaffMatchDispute }) {
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant={claim.status === "disputed" ? "destructive" : "outline"}>
-              {claim.status.replaceAll("_", " ")}
+              {statusLabel(claim.status)}
             </Badge>
             <span className="eyebrow">{claim.roundLabel}</span>
           </div>
@@ -156,22 +157,22 @@ function DisputeCard({ claim }: { claim: StaffMatchDispute }) {
         </div>
         <Button asChild size="sm" variant="outline">
           <Link to="/matches/$matchId" params={{ matchId: claim.matchId }}>
-            Inspect match
+            Revisar partida
           </Link>
         </Button>
       </div>
 
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
         <div className="border-t border-border/60 pt-4">
-          <p className="eyebrow">Submitted result</p>
+          <p className="eyebrow">Resultado enviado</p>
           <p className="tabular mt-2 text-3xl font-black text-foreground">
             {claim.scoreA}–{claim.scoreB}
           </p>
           {claim.reporterNote ? (
-            <p className="mt-3 text-sm text-muted-foreground">Reporter: {claim.reporterNote}</p>
+            <p className="mt-3 text-sm text-muted-foreground">Informante: {claim.reporterNote}</p>
           ) : null}
           {claim.responderNote ? (
-            <p className="mt-2 text-sm text-muted-foreground">Opponent: {claim.responderNote}</p>
+            <p className="mt-2 text-sm text-muted-foreground">Rival: {claim.responderNote}</p>
           ) : null}
           {claim.evidenceUrl ? (
             <a
@@ -180,7 +181,7 @@ function DisputeCard({ claim }: { claim: StaffMatchDispute }) {
               rel="noreferrer"
               className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-foreground hover:text-brand"
             >
-              Open evidence <ExternalLink className="size-3.5" />
+              Abrir evidencia <ExternalLink className="size-3.5" />
             </a>
           ) : null}
         </div>
@@ -188,7 +189,7 @@ function DisputeCard({ claim }: { claim: StaffMatchDispute }) {
         <div className="border-t border-border/60 pt-4">
           <div className="flex items-center gap-2">
             <ShieldAlert className="size-4 text-brand" />
-            <p className="eyebrow">Staff ruling</p>
+            <p className="eyebrow">Resolución de la organización</p>
           </div>
           <div className="mt-4 grid grid-cols-2 gap-3">
             <div>
@@ -217,12 +218,12 @@ function DisputeCard({ claim }: { claim: StaffMatchDispute }) {
             </div>
           </div>
           <div className="mt-4">
-            <Label htmlFor={`resolution-${claim.id}`}>Resolution note</Label>
+            <Label htmlFor={`resolution-${claim.id}`}>Nota de resolución</Label>
             <Textarea
               id={`resolution-${claim.id}`}
               value={note}
               onChange={(event) => setNote(event.target.value)}
-              placeholder="What evidence or rule determined the ruling?"
+              placeholder="¿Qué evidencia o regla determinó la resolución?"
               className="mt-2 min-h-24"
               maxLength={1000}
             />
@@ -233,25 +234,24 @@ function DisputeCard({ claim }: { claim: StaffMatchDispute }) {
               onClick={() => {
                 if (
                   !window.confirm(
-                    `Apply ${scoreA}–${scoreB} as the official result? This advances the bracket.`,
+                    `¿Aplicar ${scoreA}–${scoreB} como resultado oficial? Esto hace avanzar el cuadro.`,
                   )
                 )
                   return;
                 resolveMutation.mutate();
               }}
             >
-              Apply official result
+              Aplicar resultado oficial
             </Button>
             <Button
               variant="outline"
               disabled={pending || note.trim().length < 3}
               onClick={() => {
-                if (!window.confirm("Dismiss this result claim without advancing the bracket?"))
-                  return;
+                if (!window.confirm("¿Descartar este informe sin hacer avanzar el cuadro?")) return;
                 dismissMutation.mutate();
               }}
             >
-              Dismiss claim
+              Descartar informe
             </Button>
           </div>
         </div>

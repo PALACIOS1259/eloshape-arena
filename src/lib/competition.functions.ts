@@ -21,7 +21,7 @@ async function guarded<T>(run: () => Promise<T>): Promise<Result<T>> {
   try {
     return { ok: true as const, data: await run() };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Operation failed.";
+    const message = error instanceof Error ? error.message : "No se pudo completar la operación.";
     return { ok: false as const, error: message };
   }
 }
@@ -74,9 +74,10 @@ export const submitMatchResult = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: { matchId: string; scoreA: number; scoreB: number }) => {
     if (!Number.isInteger(input.scoreA) || !Number.isInteger(input.scoreB)) {
-      throw new Error("Scores must be whole numbers.");
+      throw new Error("Los marcadores deben ser números enteros.");
     }
-    if (input.scoreA < 0 || input.scoreB < 0) throw new Error("Scores cannot be negative.");
+    if (input.scoreA < 0 || input.scoreB < 0)
+      throw new Error("Los marcadores no pueden ser negativos.");
     return input;
   })
   .handler(async ({ data, context }) =>
@@ -93,7 +94,7 @@ export const recordMatchWalkover = createServerFn({ method: "POST" })
   .validator((input: { matchId: string; winnerEntryId: string; note: string }) => {
     const note = input.note.trim();
     if (note.length < 3 || note.length > 1000) {
-      throw new Error("A walkover reason between 3 and 1000 characters is required.");
+      throw new Error("Ingresá un motivo de victoria administrativa de entre 3 y 1000 caracteres.");
     }
     return { ...input, note };
   })
@@ -110,14 +111,14 @@ export const correctCompletedMatchResult = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: { matchId: string; scoreA: number; scoreB: number; note: string }) => {
     if (!Number.isInteger(input.scoreA) || !Number.isInteger(input.scoreB)) {
-      throw new Error("Scores must be whole numbers.");
+      throw new Error("Los marcadores deben ser números enteros.");
     }
     if (input.scoreA < 0 || input.scoreB < 0) {
-      throw new Error("Scores cannot be negative.");
+      throw new Error("Los marcadores no pueden ser negativos.");
     }
     const note = input.note.trim();
     if (note.length < 3 || note.length > 1000) {
-      throw new Error("A correction reason between 3 and 1000 characters is required.");
+      throw new Error("Ingresá un motivo de corrección de entre 3 y 1000 caracteres.");
     }
     return { ...input, note };
   })
@@ -171,7 +172,7 @@ export const buildSplitPlayoffs = createServerFn({ method: "POST" })
   .validator(
     (input: { splitId: string; bestOf?: number; allowShortField?: boolean; reason?: string }) => {
       if (input.allowShortField && !input.reason?.trim()) {
-        throw new Error("An override reason is required for a short playoff field.");
+        throw new Error("Ingresá un motivo para generar eliminatorias con cupo incompleto.");
       }
       return input;
     },

@@ -1,3 +1,4 @@
+import { divisionLabel, statusLabel } from "@/lib/format";
 import { useState, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
@@ -47,10 +48,10 @@ import {
 export const Route = createFileRoute("/_authenticated/team")({
   head: () => ({
     meta: [
-      { title: "Team HQ — EloShape" },
+      { title: "Panel del equipo — EloShape" },
       {
         name: "description",
-        content: "Build, organize and prepare your EloShape 5v5 roster for competition.",
+        content: "Armá, organizá y prepará tu plantel de EloShape para competir 5 contra 5.",
       },
       { name: "robots", content: "noindex" },
     ],
@@ -69,14 +70,14 @@ function TeamHubPage() {
   return (
     <div>
       <PageHeading
-        eyebrow="EloShape 5v5"
-        title="Team HQ"
-        description="Build your starting five, assign League roles, recruit substitutes and see exactly what your roster needs before competition."
+        eyebrow="EloShape 5 contra 5"
+        title="Panel del equipo"
+        description="Armá los cinco titulares, asigná posiciones, reclutá suplentes y revisá qué necesita tu plantel antes de competir."
         aside={
           data?.team ? (
             <Button asChild variant="outline">
               <Link to="/teams/$slug" params={{ slug: data.team.slug }}>
-                <ExternalLink className="mr-2 size-4" /> Public profile
+                <ExternalLink className="mr-2 size-4" /> Perfil público
               </Link>
             </Button>
           ) : undefined
@@ -92,7 +93,7 @@ function TeamHubPage() {
           </div>
         ) : error || !data ? (
           <div className="rounded-xl border border-border p-6 text-sm text-muted-foreground">
-            Could not load your team workspace.
+            No se pudo cargar el espacio de tu equipo.
           </div>
         ) : (
           <TeamHubContent hub={data} />
@@ -127,7 +128,7 @@ function IncomingInvites({ invites }: { invites: TeamHub["incomingInvites"] }) {
         toast.error(result.error);
         return;
       }
-      toast.success("Team invitation updated.");
+      toast.success("Invitación de equipo actualizada.");
       void queryClient.invalidateQueries({ queryKey: ["my-team-hub"] });
       void queryClient.invalidateQueries({ queryKey: ["teams"] });
     },
@@ -140,9 +141,9 @@ function IncomingInvites({ invites }: { invites: TeamHub["incomingInvites"] }) {
           <UserPlus className="size-4" />
         </span>
         <div>
-          <p className="text-sm font-black text-foreground">You have a team invitation</p>
+          <p className="text-sm font-black text-foreground">Tenés una invitación de equipo</p>
           <p className="text-xs text-muted-foreground">
-            Accepting an invite adds you to that roster immediately.
+            Aceptar una invitación te agrega inmediatamente a ese plantel.
           </p>
         </div>
       </div>
@@ -157,11 +158,11 @@ function IncomingInvites({ invites }: { invites: TeamHub["incomingInvites"] }) {
                 <Badge variant="outline">{invite.teamTag}</Badge>
                 <p className="truncate font-black text-foreground">{invite.teamName}</p>
                 <Badge variant={invite.role === "player" ? "default" : "secondary"}>
-                  {invite.role === "substitute" ? "Substitute" : "Starter"}
+                  {invite.role === "substitute" ? "Suplente" : "Titular"}
                 </Badge>
               </div>
               <p className="mt-2 text-sm text-muted-foreground">
-                Invited by {invite.invitedBy ?? "the team captain"}
+                Invitado por {invite.invitedBy ?? "el capitán del equipo"}
               </p>
             </div>
             <div className="flex gap-2">
@@ -170,7 +171,7 @@ function IncomingInvites({ invites }: { invites: TeamHub["incomingInvites"] }) {
                 onClick={() => mutation.mutate({ inviteId: invite.id, accept: true })}
                 disabled={mutation.isPending}
               >
-                Accept invite
+                Aceptar invitación
               </Button>
               <Button
                 size="sm"
@@ -178,7 +179,7 @@ function IncomingInvites({ invites }: { invites: TeamHub["incomingInvites"] }) {
                 onClick={() => mutation.mutate({ inviteId: invite.id, accept: false })}
                 disabled={mutation.isPending}
               >
-                Decline
+                Rechazar
               </Button>
             </div>
           </div>
@@ -200,7 +201,7 @@ function CreateTeamExperience() {
         toast.error(result.error);
         return;
       }
-      toast.success("Team created. You are the captain.");
+      toast.success("Equipo creado. Sos el capitán.");
       setName("");
       setTag("");
       void queryClient.invalidateQueries({ queryKey: ["my-team-hub"] });
@@ -208,41 +209,41 @@ function CreateTeamExperience() {
     },
   });
 
-  const previewName = name.trim() || "Your team";
+  const previewName = name.trim() || "Tu equipo";
   const previewTag = tag.trim().toUpperCase() || "TAG";
 
   return (
     <div className="grid gap-5 lg:grid-cols-[1.1fr_minmax(0,0.9fr)]">
       <section className="rounded-2xl border border-border/70 bg-gradient-to-br from-card/90 to-background/55 p-5 sm:p-6">
-        <p className="eyebrow">Create your roster</p>
+        <p className="eyebrow">Creá tu plantel</p>
         <h2 className="mt-2 max-w-xl text-2xl font-black tracking-tight text-foreground sm:text-3xl">
-          Build the team you want to compete with.
+          Armá el equipo con el que querés competir.
         </h2>
         <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
-          Pick the identity now. After creation you can recruit players, assign Top, Jungle, Mid,
-          ADC and Support, then prepare the roster for EloShape tournaments.
+          Elegí su identidad. Después podrás reclutar jugadores, asignar superior, jungla, central,
+          tirador y soporte, y preparar el plantel para los torneos de EloShape.
         </p>
 
         <div className="mt-7 grid gap-4 sm:grid-cols-[minmax(0,1fr)_9rem]">
           <label className="space-y-2 text-sm">
-            <span className="font-semibold text-foreground">Team name</span>
+            <span className="font-semibold text-foreground">Nombre del equipo</span>
             <Input
               value={name}
               onChange={(event) => setName(event.target.value)}
               placeholder="Golden Nest eSports"
               maxLength={40}
             />
-            <span className="block text-xs text-muted-foreground">3–40 characters</span>
+            <span className="block text-xs text-muted-foreground">De 3 a 40 caracteres</span>
           </label>
           <label className="space-y-2 text-sm">
-            <span className="font-semibold text-foreground">Team tag</span>
+            <span className="font-semibold text-foreground">Sigla del equipo</span>
             <Input
               value={tag}
               onChange={(event) => setTag(event.target.value.toUpperCase())}
               placeholder="NGE"
               maxLength={6}
             />
-            <span className="block text-xs text-muted-foreground">2–6 characters</span>
+            <span className="block text-xs text-muted-foreground">De 2 a 6 caracteres</span>
           </label>
         </div>
 
@@ -251,34 +252,40 @@ function CreateTeamExperience() {
           onClick={() => mutation.mutate()}
           disabled={mutation.isPending || !name.trim() || !tag.trim()}
         >
-          {mutation.isPending ? "Creating team…" : "Create team"}
+          {mutation.isPending ? "Creando equipo…" : "Crear equipo"}
         </Button>
       </section>
 
       <aside className="space-y-4">
         <div className="border-t border-border/60 pt-5 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
-          <p className="eyebrow">Identity preview</p>
+          <p className="eyebrow">Vista previa de la identidad</p>
           <div className="mt-4 flex items-center gap-4">
             <span className="grid size-16 shrink-0 place-items-center rounded-2xl border border-primary/25 bg-primary/10 text-lg font-black text-primary">
               {previewTag.slice(0, 6)}
             </span>
             <div className="min-w-0">
               <p className="truncate text-xl font-black text-foreground">{previewName}</p>
-              <p className="mt-1 text-sm text-muted-foreground">[{previewTag}] · EloShape 5v5</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                [{previewTag}] · EloShape 5 contra 5
+              </p>
             </div>
           </div>
         </div>
 
         <div className="rounded-xl border border-border bg-background/30 p-5">
-          <p className="eyebrow">What happens next</p>
+          <p className="eyebrow">Qué sigue</p>
           <div className="mt-4 space-y-4">
             {[
-              ["1", "Recruit your five", "Search free agents or invite friends by handle."],
-              ["2", "Set the lineup", "Assign every starter a unique League role."],
+              [
+                "1",
+                "Reclutá a tus cinco jugadores",
+                "Buscá jugadores libres o invitá amigos por su nombre de usuario.",
+              ],
+              ["2", "Definí la formación", "Asigná una posición de juego distinta a cada titular."],
               [
                 "3",
-                "Get tournament ready",
-                "Riot verification and eligibility are checked automatically.",
+                "Preparate para el torneo",
+                "Riot y la elegibilidad se verifican automáticamente.",
               ],
             ].map(([step, title, description]) => (
               <div key={step} className="flex gap-3">
@@ -352,11 +359,11 @@ function TeamIdentityHero({
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="outline">[{team.tag}]</Badge>
-              {team.division ? <Badge>{team.division.name}</Badge> : null}
+              {team.division ? <Badge>{divisionLabel(team.division)}</Badge> : null}
               {team.city ? <Badge variant="outline">{team.city.name}</Badge> : null}
               {team.isCaptain ? (
                 <Badge variant="secondary">
-                  <Crown className="mr-1 size-3" /> Captain view
+                  <Crown className="mr-1 size-3" /> Vista del capitán
                 </Badge>
               ) : null}
             </div>
@@ -365,7 +372,7 @@ function TeamIdentityHero({
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
               {team.bio ||
-                "Your competitive roster, lineup readiness and recruiting controls live here."}
+                "Tu plantel competitivo, preparación y controles de reclutamiento están acá."}
             </p>
           </div>
         </div>
@@ -374,29 +381,29 @@ function TeamIdentityHero({
           {team.isCaptain ? (
             <Button asChild>
               <Link to="/team/players">
-                <Search className="mr-2 size-4" /> Recruit players
+                <Search className="mr-2 size-4" /> Reclutar jugadores
               </Link>
             </Button>
           ) : null}
           <Button asChild variant="outline">
             <Link to="/teams/$slug" params={{ slug: team.slug }}>
-              Public profile
+              Perfil público
             </Link>
           </Button>
         </div>
       </div>
 
       <div className="relative mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <HeroStat label="Season points" value={String(team.pointsSeason)} />
-        <HeroStat label="Record" value={`${team.wins}-${team.losses}`} />
+        <HeroStat label="Puntos de temporada" value={String(team.pointsSeason)} />
+        <HeroStat label="Historial" value={`${team.wins}-${team.losses}`} />
         <HeroStat
-          label="Titles"
+          label="Títulos"
           value={String(team.championships)}
           icon={<Trophy className="size-4" />}
         />
-        <HeroStat label="Starters" value={`${starters}/5`} />
-        <HeroStat label="Roles" value={`${assignedRoles}/5`} />
-        <HeroStat label="Bench" value={String(substitutes)} />
+        <HeroStat label="Titulares" value={`${starters}/5`} />
+        <HeroStat label="Posiciones" value={`${assignedRoles}/5`} />
+        <HeroStat label="Suplentes" value={String(substitutes)} />
       </div>
     </section>
   );
@@ -426,34 +433,34 @@ function ReadinessPanel({
   const assignedRoles = starters.filter((member) => member.laneRole).length;
   const checks = [
     {
-      label: "Starting five",
+      label: "Los cinco titulares",
       done: starters.length === 5,
-      detail: `${starters.length}/5 starters selected`,
+      detail: `${starters.length}/5 titulares seleccionados`,
     },
     {
-      label: "League roles",
+      label: "Posiciones de juego",
       done: starters.length === 5 && assignedRoles === 5 && uniqueRoles === 5,
       detail:
         assignedRoles === 5 && uniqueRoles === 5
-          ? "Top, Jungle, Mid, ADC and Support covered"
-          : `${assignedRoles}/5 assigned · ${uniqueRoles}/5 unique`,
+          ? "Superior, Jungla, Central, ADC y Soporte cubiertos"
+          : `${assignedRoles}/5 asignados · ${uniqueRoles}/5 distintos`,
     },
     {
-      label: "Riot verification",
+      label: "Verificación de Riot",
       done: starters.length === 5 && starters.every((member) => member.riotVerified),
-      detail: `${starters.filter((member) => member.riotVerified).length}/${starters.length || 5} verified`,
+      detail: `${starters.filter((member) => member.riotVerified).length}/${starters.length || 5} verificados`,
     },
     {
-      label: "Competitive eligibility",
+      label: "Elegibilidad competitiva",
       done: starters.length === 5 && starters.every((member) => member.eligibility === "eligible"),
-      detail: `${starters.filter((member) => member.eligibility === "eligible").length}/${starters.length || 5} eligible`,
+      detail: `${starters.filter((member) => member.eligibility === "eligible").length}/${starters.length || 5} elegibles`,
     },
     {
-      label: "Account level",
+      label: "Nivel de cuenta",
       done:
         starters.length === 5 &&
         starters.every((member) => member.accountLevel != null && member.accountLevel >= 30),
-      detail: `${starters.filter((member) => (member.accountLevel ?? 0) >= 30).length}/${starters.length || 5} level 30+`,
+      detail: `${starters.filter((member) => (member.accountLevel ?? 0) >= 30).length}/${starters.length || 5} de nivel 30 o más`,
     },
   ];
 
@@ -461,21 +468,21 @@ function ReadinessPanel({
     <section className="rounded-xl border border-border bg-background/25 p-5 sm:p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="eyebrow">Competition readiness</p>
-          <h3 className="mt-1 text-xl font-black text-foreground">Is this roster ready?</h3>
+          <p className="eyebrow">Preparación competitiva</p>
+          <h3 className="mt-1 text-xl font-black text-foreground">¿Está listo este plantel?</h3>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-            EloShape validates the roster again when you register and check in. This view shows the
-            most important issues before you reach tournament day.
+            EloShape vuelve a validar el plantel al inscribirse y confirmar asistencia. Esta vista
+            muestra los problemas más importantes antes del día del torneo.
           </p>
         </div>
         <Badge className="w-fit" variant={team.eligibility.eligible ? "default" : "outline"}>
           {team.eligibility.eligible ? (
             <>
-              <CheckCircle2 className="mr-1 size-3.5" /> Tournament eligible
+              <CheckCircle2 className="mr-1 size-3.5" /> Habilitado para torneos
             </>
           ) : (
             <>
-              <CircleAlert className="mr-1 size-3.5" /> Needs attention
+              <CircleAlert className="mr-1 size-3.5" /> Requiere atención
             </>
           )}
         </Badge>
@@ -516,11 +523,11 @@ function StartingLineup({
     <section>
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="eyebrow">Starting five</p>
-          <h3 className="mt-1 text-xl font-black text-foreground">League lineup</h3>
+          <p className="eyebrow">Los cinco titulares</p>
+          <h3 className="mt-1 text-xl font-black text-foreground">Alineación</h3>
         </div>
         <p className="max-w-xl text-sm text-muted-foreground">
-          Every lane should have one starter. Empty or duplicated roles are easy to spot here.
+          Cada posición debe tener un titular. Acá podés detectar posiciones vacías o duplicadas.
         </p>
       </div>
 
@@ -556,19 +563,20 @@ function StartingLineup({
                   <p className="mt-1 truncate text-xs text-muted-foreground">@{member.handle}</p>
                   {member.isCaptain ? (
                     <Badge className="mt-2" variant="secondary">
-                      <Crown className="mr-1 size-3" /> Captain
+                      <Crown className="mr-1 size-3" /> Capitán
                     </Badge>
                   ) : null}
                 </div>
               ) : (
                 <div className="mt-4 rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground">
-                  No starter assigned
+                  Sin titular asignado
                 </div>
               )}
 
               {duplicate ? (
                 <p className="mt-3 flex items-center gap-1 text-xs font-semibold text-destructive">
-                  <CircleAlert className="size-3.5" /> {assigned.length} starters use this role
+                  <CircleAlert className="size-3.5" /> {assigned.length} titulares ocupan esta
+                  posición
                 </p>
               ) : null}
             </div>
@@ -580,7 +588,7 @@ function StartingLineup({
         <div className="mt-3 flex justify-end">
           <Button asChild size="sm" variant="outline">
             <a href="#roster-management">
-              Edit lineup <ChevronRight className="ml-1 size-4" />
+              Editar alineación <ChevronRight className="ml-1 size-4" />
             </a>
           </Button>
         </div>
@@ -611,7 +619,7 @@ function RosterManagement({ team }: { team: NonNullable<TeamHub["team"]> }) {
         toast.error(result.error);
         return;
       }
-      toast.success("Roster status updated.");
+      toast.success("Estado del plantel actualizado.");
       refresh();
     },
   });
@@ -624,7 +632,7 @@ function RosterManagement({ team }: { team: NonNullable<TeamHub["team"]> }) {
         toast.error(result.error);
         return;
       }
-      toast.success("League role updated.");
+      toast.success("Posición de juego actualizada.");
       refresh();
     },
   });
@@ -636,7 +644,7 @@ function RosterManagement({ team }: { team: NonNullable<TeamHub["team"]> }) {
         toast.error(result.error);
         return;
       }
-      toast.success("Captaincy transferred.");
+      toast.success("Capitanía transferida.");
       refresh();
     },
   });
@@ -648,7 +656,7 @@ function RosterManagement({ team }: { team: NonNullable<TeamHub["team"]> }) {
         toast.error(result.error);
         return;
       }
-      toast.success("Player removed from roster.");
+      toast.success("Jugador retirado del plantel.");
       refresh();
     },
   });
@@ -663,13 +671,13 @@ function RosterManagement({ team }: { team: NonNullable<TeamHub["team"]> }) {
     <section id="roster-management" className="scroll-mt-24">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="eyebrow">Roster management</p>
-          <h3 className="mt-1 text-xl font-black text-foreground">Players & bench</h3>
+          <p className="eyebrow">Gestión del plantel</p>
+          <h3 className="mt-1 text-xl font-black text-foreground">Jugadores y suplentes</h3>
         </div>
         {team.isCaptain ? (
           <Button asChild size="sm">
             <Link to="/team/players">
-              <UserPlus className="mr-2 size-4" /> Add player
+              <UserPlus className="mr-2 size-4" /> Agregar jugador
             </Link>
           </Button>
         ) : null}
@@ -677,46 +685,46 @@ function RosterManagement({ team }: { team: NonNullable<TeamHub["team"]> }) {
 
       <div className="mt-4 grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(20rem,0.65fr)]">
         <RosterGroup
-          title="Starting roster"
-          description="These five players are used for team tournament eligibility."
+          title="Plantel titular"
+          description="Estos cinco jugadores se usan para validar la elegibilidad del equipo en los torneos."
           members={starters}
-          empty="No starters yet."
+          empty="Todavía no hay titulares."
           team={team}
           busy={busy}
           onLaneRole={(handle, laneRole) => laneMutation.mutate({ handle, laneRole })}
           onRosterRole={(handle, role) => roleMutation.mutate({ handle, role })}
           onCaptain={(member) => {
-            if (window.confirm(`Transfer team captaincy to ${member.displayName}?`)) {
+            if (window.confirm(`¿Transferir la capitanía del equipo a ${member.displayName}?`)) {
               captainMutation.mutate(member.handle);
             }
           }}
           onRemove={(member) => {
-            if (window.confirm(`Remove ${member.displayName} from the team?`)) {
+            if (window.confirm(`¿Quitar a ${member.displayName} del equipo?`)) {
               removeMutation.mutate(member.handle);
             }
           }}
         />
 
         <RosterGroup
-          title="Substitutes"
-          description="Bench players stay with the team without occupying a starting slot."
+          title="Suplentes"
+          description="Los suplentes permanecen en el equipo sin ocupar un lugar de titular."
           members={substitutes}
           empty={
             team.isCaptain
-              ? "No substitutes yet. Recruit depth for tournament day."
-              : "No substitutes."
+              ? "Todavía no hay suplentes. Reclutá refuerzos para el día del torneo."
+              : "Sin suplentes."
           }
           team={team}
           busy={busy}
           onLaneRole={(handle, laneRole) => laneMutation.mutate({ handle, laneRole })}
           onRosterRole={(handle, role) => roleMutation.mutate({ handle, role })}
           onCaptain={(member) => {
-            if (window.confirm(`Transfer team captaincy to ${member.displayName}?`)) {
+            if (window.confirm(`¿Transferir la capitanía del equipo a ${member.displayName}?`)) {
               captainMutation.mutate(member.handle);
             }
           }}
           onRemove={(member) => {
-            if (window.confirm(`Remove ${member.displayName} from the team?`)) {
+            if (window.confirm(`¿Quitar a ${member.displayName} del equipo?`)) {
               removeMutation.mutate(member.handle);
             }
           }}
@@ -817,14 +825,14 @@ function RosterMemberRow({
               </Link>
               {member.isCaptain ? (
                 <Badge variant="secondary">
-                  <Crown className="mr-1 size-3" /> Captain
+                  <Crown className="mr-1 size-3" /> Capitán
                 </Badge>
               ) : null}
               <TeamLaneBadge role={member.laneRole} />
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
-              @{member.handle} · {member.riotTier ?? "Unranked"} {member.riotRank ?? ""}
-              {member.accountLevel != null ? ` · level ${member.accountLevel}` : ""}
+              @{member.handle} · {member.riotTier ?? "Sin rango"} {member.riotRank ?? ""}
+              {member.accountLevel != null ? ` · nivel ${member.accountLevel}` : ""}
             </p>
           </div>
           <span
@@ -835,8 +843,8 @@ function RosterMemberRow({
             }`}
             title={
               member.riotVerified && member.eligibility === "eligible"
-                ? "Competitive checks passed"
-                : "Competitive checks incomplete"
+                ? "Controles competitivos aprobados"
+                : "Controles competitivos incompletos"
             }
           >
             {member.riotVerified && member.eligibility === "eligible" ? (
@@ -849,20 +857,20 @@ function RosterMemberRow({
 
         <div className="flex flex-wrap gap-2 text-xs">
           <Badge variant={member.riotVerified ? "default" : "outline"}>
-            {member.riotVerified ? "Riot verified" : "Riot missing"}
+            {member.riotVerified ? "Riot verificado" : "Falta vincular Riot"}
           </Badge>
           <Badge variant={member.eligibility === "eligible" ? "default" : "outline"}>
-            {member.eligibility.replace("_", " ")}
+            {statusLabel(member.eligibility)}
           </Badge>
           <Badge variant={(member.accountLevel ?? 0) >= 30 ? "default" : "outline"}>
-            {(member.accountLevel ?? 0) >= 30 ? "Level 30+" : "Level check needed"}
+            {(member.accountLevel ?? 0) >= 30 ? "Nivel 30 o más" : "Falta verificar el nivel"}
           </Badge>
         </div>
 
         {isCaptainView ? (
           <div className="grid gap-2 sm:grid-cols-2">
             <select
-              aria-label={`League role for ${member.displayName}`}
+              aria-label={`Posición de juego de ${member.displayName}`}
               value={member.laneRole ?? ""}
               onChange={(event) => {
                 const value = event.target.value;
@@ -871,7 +879,7 @@ function RosterMemberRow({
               disabled={busy}
               className="h-9 rounded-md border border-input bg-background px-3 text-sm"
             >
-              <option value="">League role</option>
+              <option value="">Posición de juego</option>
               {TEAM_LANES.map((lane) => (
                 <option key={lane.value} value={lane.value}>
                   {lane.label}
@@ -881,7 +889,7 @@ function RosterMemberRow({
 
             {!member.isCaptain ? (
               <select
-                aria-label={`Roster status for ${member.displayName}`}
+                aria-label={`Estado en el plantel de ${member.displayName}`}
                 value={member.role}
                 onChange={(event) =>
                   onRosterRole(member.handle, event.target.value as "player" | "substitute")
@@ -889,12 +897,12 @@ function RosterMemberRow({
                 disabled={busy}
                 className="h-9 rounded-md border border-input bg-background px-3 text-sm"
               >
-                <option value="player">Starter</option>
-                <option value="substitute">Substitute</option>
+                <option value="player">Titular</option>
+                <option value="substitute">Suplente</option>
               </select>
             ) : (
               <div className="flex h-9 items-center rounded-md border border-border bg-background/30 px-3 text-sm text-muted-foreground">
-                Captain · Starter
+                Capitán · Titular
               </div>
             )}
           </div>
@@ -903,10 +911,10 @@ function RosterMemberRow({
         {isCaptainView && !member.isCaptain ? (
           <div className="flex flex-wrap gap-2 border-t border-border pt-3">
             <Button size="sm" variant="outline" onClick={() => onCaptain(member)} disabled={busy}>
-              <ShieldCheck className="mr-2 size-4" /> Make captain
+              <ShieldCheck className="mr-2 size-4" /> Nombrar capitán
             </Button>
             <Button size="sm" variant="ghost" onClick={() => onRemove(member)} disabled={busy}>
-              <X className="mr-1 size-4" /> Remove
+              <X className="mr-1 size-4" /> Quitar
             </Button>
           </div>
         ) : null}
@@ -934,7 +942,7 @@ function CaptainRecruiting({ team }: { team: NonNullable<TeamHub["team"]> }) {
         toast.error(result.error);
         return;
       }
-      toast.success("Invitation sent.");
+      toast.success("Invitación enviada.");
       setHandle("");
       refresh();
     },
@@ -947,7 +955,7 @@ function CaptainRecruiting({ team }: { team: NonNullable<TeamHub["team"]> }) {
         toast.error(result.error);
         return;
       }
-      toast.success("Invitation cancelled.");
+      toast.success("Invitación cancelada.");
       refresh();
     },
   });
@@ -957,16 +965,16 @@ function CaptainRecruiting({ team }: { team: NonNullable<TeamHub["team"]> }) {
       <div className="rounded-2xl border border-border/70 bg-card/35 p-5 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="eyebrow">Recruiting</p>
-            <h3 className="mt-1 text-xl font-black text-foreground">Bring in another player</h3>
+            <p className="eyebrow">Reclutamiento</p>
+            <h3 className="mt-1 text-xl font-black text-foreground">Sumá otro jugador</h3>
             <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-              Search the free-agent pool for verified candidates or invite a friend directly by
-              their EloShape handle.
+              Buscá candidatos verificados entre los jugadores libres o invitá a un amigo con su
+              identificador de EloShape.
             </p>
           </div>
           <Button asChild variant="outline">
             <Link to="/team/players">
-              <Search className="mr-2 size-4" /> Find players
+              <Search className="mr-2 size-4" /> Buscar jugadores
             </Link>
           </Button>
         </div>
@@ -975,9 +983,9 @@ function CaptainRecruiting({ team }: { team: NonNullable<TeamHub["team"]> }) {
           <Input
             value={handle}
             onChange={(event) => setHandle(event.target.value)}
-            placeholder="Player handle"
+            placeholder="Identificador del jugador"
             onKeyDown={(event) => {
-              if (event.key === "Enter" && handle.trim() && !inviteMutation.isPending) {
+              if (event.key === "Ingresar" && handle.trim() && !inviteMutation.isPending) {
                 inviteMutation.mutate();
               }
             }}
@@ -987,15 +995,15 @@ function CaptainRecruiting({ team }: { team: NonNullable<TeamHub["team"]> }) {
             onChange={(event) => setRole(event.target.value as "player" | "substitute")}
             className="h-10 rounded-md border border-input bg-background px-3 text-sm"
           >
-            <option value="player">Starter</option>
-            <option value="substitute">Substitute</option>
+            <option value="player">Titular</option>
+            <option value="substitute">Suplente</option>
           </select>
           <Button
             onClick={() => inviteMutation.mutate()}
             disabled={inviteMutation.isPending || !handle.trim()}
           >
             <UserPlus className="mr-2 size-4" />
-            {inviteMutation.isPending ? "Sending…" : "Invite"}
+            {inviteMutation.isPending ? "Enviando…" : "Invitar"}
           </Button>
         </div>
       </div>
@@ -1003,8 +1011,10 @@ function CaptainRecruiting({ team }: { team: NonNullable<TeamHub["team"]> }) {
       <div className="overflow-hidden rounded-xl border border-border bg-background/20">
         <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-4 sm:px-5">
           <div>
-            <p className="font-black text-foreground">Pending invites</p>
-            <p className="mt-1 text-xs text-muted-foreground">Waiting for a player response.</p>
+            <p className="font-black text-foreground">Invitaciones pendientes</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Esperando la respuesta del jugador.
+            </p>
           </div>
           <Badge variant="outline">{team.pendingInvites.length}</Badge>
         </div>
@@ -1016,7 +1026,7 @@ function CaptainRecruiting({ team }: { team: NonNullable<TeamHub["team"]> }) {
                 <div className="min-w-0">
                   <p className="truncate text-sm font-bold text-foreground">@{pending.handle}</p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {pending.role === "substitute" ? "Substitute" : "Starter"}
+                    {pending.role === "substitute" ? "Suplente" : "Titular"}
                   </p>
                 </div>
                 <Button
@@ -1025,13 +1035,13 @@ function CaptainRecruiting({ team }: { team: NonNullable<TeamHub["team"]> }) {
                   onClick={() => cancelMutation.mutate(pending.id)}
                   disabled={cancelMutation.isPending}
                 >
-                  Cancel
+                  Cancelar
                 </Button>
               </div>
             ))}
           </div>
         ) : (
-          <div className="p-5 text-sm text-muted-foreground">No outstanding invitations.</div>
+          <div className="p-5 text-sm text-muted-foreground">No hay invitaciones pendientes.</div>
         )}
       </div>
     </section>
@@ -1048,7 +1058,7 @@ function MemberTools() {
         toast.error(result.error);
         return;
       }
-      toast.success("You left the team.");
+      toast.success("Saliste del equipo.");
       void queryClient.invalidateQueries({ queryKey: ["my-team-hub"] });
       void queryClient.invalidateQueries({ queryKey: ["teams"] });
     },
@@ -1058,19 +1068,20 @@ function MemberTools() {
     <section className="rounded-xl border border-border bg-background/20 p-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="font-black text-foreground">Team membership</p>
+          <p className="font-black text-foreground">Pertenencia al equipo</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            The captain manages tournament registration, roster roles and invitations.
+            El capitán administra las inscripciones a torneos, las posiciones del plantel y las
+            invitaciones.
           </p>
         </div>
         <Button
           variant="outline"
           onClick={() => {
-            if (window.confirm("Leave this team?")) mutation.mutate();
+            if (window.confirm("¿Salir de este equipo?")) mutation.mutate();
           }}
           disabled={mutation.isPending}
         >
-          {mutation.isPending ? "Leaving…" : "Leave team"}
+          {mutation.isPending ? "Saliendo…" : "Salir del equipo"}
         </Button>
       </div>
     </section>

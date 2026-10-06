@@ -1,3 +1,4 @@
+import { authErrorMessage } from "@/lib/auth-messages";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -23,8 +24,8 @@ function strongPassword(password: string) {
 export const Route = createFileRoute("/auth_/reset-password")({
   head: () => ({
     meta: [
-      { title: "Reset password — EloShape" },
-      { name: "description", content: "Choose a new password for your EloShape account." },
+      { title: "Restablecer contraseña — EloShape" },
+      { name: "description", content: "Elegí una nueva contraseña para tu cuenta de EloShape." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -79,15 +80,15 @@ function ResetPasswordPage() {
     event.preventDefault();
 
     if (!hasSession) {
-      toast.error("This password reset link is invalid or has expired.");
+      toast.error("Este enlace de recuperación es inválido o venció.");
       return;
     }
     if (!strongPassword(password)) {
-      toast.error("Use at least 10 characters with uppercase, lowercase, a number, and a symbol.");
+      toast.error("Usá al menos 10 caracteres con mayúsculas, minúsculas, un número y un símbolo.");
       return;
     }
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match.");
+      toast.error("Las contraseñas no coinciden.");
       return;
     }
 
@@ -98,10 +99,10 @@ function ResetPasswordPage() {
 
       // Require a fresh sign-in after a recovery password change.
       await supabase.auth.signOut();
-      toast.success("Password updated. Sign in with your new password.");
+      toast.success("Contraseña actualizada. Iniciá sesión con tu nueva contraseña.");
       navigate({ to: "/auth", search: { mode: "signin" }, replace: true });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Could not update your password.");
+      toast.error(authErrorMessage(error, "No se pudo actualizar la contraseña."));
     } finally {
       setLoading(false);
     }
@@ -112,19 +113,19 @@ function ResetPasswordPage() {
       <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-br from-card/95 via-card/80 to-primary/[0.025] p-6 shadow-card sm:p-8">
         <EloShapeMark className="h-10 w-10" />
         <h1 className="mt-5 text-2xl font-black tracking-tight text-foreground">
-          Choose a new password
+          Elegí una nueva contraseña
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Your new password must be at least 10 characters and include uppercase, lowercase, a
-          number, and a symbol.
+          Tu nueva contraseña debe tener al menos 10 caracteres e incluir mayúsculas, minúsculas, un
+          número y un símbolo.
         </p>
 
         {checkingSession ? (
-          <p className="mt-6 text-sm text-muted-foreground">Validating your reset link…</p>
+          <p className="mt-6 text-sm text-muted-foreground">Validando el enlace de recuperación…</p>
         ) : hasSession ? (
           <form onSubmit={submit} className="mt-6 space-y-4">
             <div>
-              <Label htmlFor="newPassword">New password</Label>
+              <Label htmlFor="newPassword">Nueva contraseña</Label>
               <Input
                 id="newPassword"
                 type="password"
@@ -137,7 +138,7 @@ function ResetPasswordPage() {
               />
             </div>
             <div>
-              <Label htmlFor="confirmPassword">Confirm new password</Label>
+              <Label htmlFor="confirmPassword">Confirmar nueva contraseña</Label>
               <Input
                 id="confirmPassword"
                 type="password"
@@ -150,20 +151,20 @@ function ResetPasswordPage() {
               />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Updating…" : "Update password"}
+              {loading ? "Actualizando…" : "Actualizar contraseña"}
             </Button>
           </form>
         ) : (
           <div className="mt-6 space-y-4">
             <p className="border-l-2 border-destructive/35 pl-4 text-sm text-destructive">
-              This password reset link is invalid or has expired. Request a new link to continue.
+              Este enlace de recuperación es inválido o venció. Pedí uno nuevo para continuar.
             </p>
             <Button
               type="button"
               className="w-full"
               onClick={() => navigate({ to: "/auth", search: { mode: "forgot" } })}
             >
-              Request a new reset link
+              Pedir un nuevo enlace de recuperación
             </Button>
           </div>
         )}

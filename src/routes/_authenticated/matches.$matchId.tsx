@@ -1,3 +1,4 @@
+import { statusLabel } from "@/lib/format";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -24,8 +25,11 @@ import {
 export const Route = createFileRoute("/_authenticated/matches/$matchId")({
   head: () => ({
     meta: [
-      { title: "Match result — EloShape" },
-      { name: "description", content: "Submit, confirm or dispute an EloShape tournament result." },
+      { title: "Resultado de partida — EloShape" },
+      {
+        name: "description",
+        content: "Enviá, confirmá o disputá un resultado de torneo de EloShape.",
+      },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -83,10 +87,10 @@ function MatchResultPage() {
         return;
       }
       updateState(result.state);
-      toast.success("Result submitted. Waiting for opponent confirmation.");
+      toast.success("Resultado enviado. Esperando confirmación del rival.");
     },
     onError: (error) =>
-      toast.error(error instanceof Error ? error.message : "Could not submit result."),
+      toast.error(error instanceof Error ? error.message : "No se pudo enviar el resultado."),
   });
 
   const responseMutation = useMutation({
@@ -99,9 +103,14 @@ function MatchResultPage() {
         return;
       }
       updateState(result.state);
-      toast.success(variables.confirm ? "Result confirmed." : "Dispute opened for Staff review.");
+      toast.success(
+        variables.confirm
+          ? "Resultado confirmado."
+          : "Disputa abierta para revisión de la organización.",
+      );
     },
-    onError: (error) => toast.error(error instanceof Error ? error.message : "Could not respond."),
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "No se pudo responder."),
   });
 
   if (query.isPending) {
@@ -116,8 +125,8 @@ function MatchResultPage() {
     return (
       <PageContainer className="py-16">
         <EmptyState
-          title="Participant access required"
-          description="Only a participating solo player, the locked team captain, or EloShape Staff can access result controls for this match."
+          title="Se requiere acceso como participante"
+          description="Solo un jugador participante, el capitán del plantel bloqueado o la organización puede acceder a los controles de resultado de esta partida."
         />
       </PageContainer>
     );
@@ -131,13 +140,13 @@ function MatchResultPage() {
   return (
     <div>
       <PageHeading
-        eyebrow={`${state.match.roundLabel} · Best of ${state.match.bestOf}`}
-        title="Match result"
-        description={`${state.entryA?.name ?? "TBD"} vs ${state.entryB?.name ?? "TBD"}`}
+        eyebrow={`${state.match.roundLabel} · Al mejor de ${state.match.bestOf}`}
+        title="Resultado de partida"
+        description={`${state.entryA?.name ?? "A confirmar"} vs ${state.entryB?.name ?? "A confirmar"}`}
         aside={
           <Button asChild variant="outline">
             <Link to="/tournaments/$slug" params={{ slug: state.tournament.slug }}>
-              Back to tournament
+              Volver al torneo
             </Link>
           </Button>
         }
@@ -150,12 +159,12 @@ function MatchResultPage() {
               <p className="eyebrow">{state.tournament.name}</p>
               <p className="mt-1 text-sm text-muted-foreground">
                 {state.tournament.mode === "team"
-                  ? "Only the locked team captain can submit or answer a result."
-                  : "Each participating player can submit or answer the result."}
+                  ? "Solo el capitán del plantel bloqueado puede enviar o responder un resultado."
+                  : "Cada jugador participante puede enviar o responder el resultado."}
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <Badge variant="outline">{state.match.status}</Badge>
+              <Badge variant="outline">{statusLabel(state.match.status)}</Badge>
               {claim ? <ClaimBadge status={claim.status} /> : null}
             </div>
           </div>
@@ -181,14 +190,14 @@ function MatchResultPage() {
 
         {official ? (
           <section className="rounded-lg border border-success/30 bg-success/10 p-5">
-            <p className="font-black text-success">Official result confirmed</p>
+            <p className="font-black text-success">Resultado oficial confirmado</p>
             <p className="mt-2 text-sm text-muted-foreground">
-              The bracket has been updated with the official score {state.match.scoreA}–
+              El cuadro fue actualizado con el marcador oficial {state.match.scoreA}–
               {state.match.scoreB}.
             </p>
             {claim?.resolutionNote ? (
               <p className="mt-3 text-sm text-muted-foreground">
-                Staff note: {claim.resolutionNote}
+                Nota de la organización: {claim.resolutionNote}
               </p>
             ) : null}
           </section>
@@ -199,13 +208,13 @@ function MatchResultPage() {
             <div className="flex items-start gap-3">
               <ShieldAlert className="mt-0.5 size-5 shrink-0 text-destructive" />
               <div>
-                <p className="font-black text-foreground">Result disputed — bracket paused</p>
+                <p className="font-black text-foreground">Resultado en disputa — cuadro pausado</p>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  EloShape Staff must review this match before a winner advances.
+                  La organización debe revisar esta partida antes de que avance un ganador.
                 </p>
                 {claim.responderNote ? (
                   <p className="mt-3 text-sm text-muted-foreground">
-                    Dispute: {claim.responderNote}
+                    Disputa: {claim.responderNote}
                   </p>
                 ) : null}
               </div>
@@ -215,9 +224,9 @@ function MatchResultPage() {
 
         {!official && claim?.status === "pending_confirmation" && isReporter ? (
           <section className="rounded-lg border border-gold/30 bg-gold/10 p-5">
-            <p className="font-black text-foreground">Waiting for opponent confirmation</p>
+            <p className="font-black text-foreground">Esperando confirmación del rival</p>
             <p className="mt-2 text-sm text-muted-foreground">
-              You may update your submitted score while the opponent has not answered it.
+              Podés actualizar el marcador enviado mientras el rival no haya respondido.
             </p>
           </section>
         ) : null}
@@ -226,21 +235,21 @@ function MatchResultPage() {
 
         {!official && state.canRespond && claim ? (
           <section className="rounded-2xl border border-border/70 bg-card/35 p-5 sm:p-6">
-            <p className="eyebrow">Opponent submitted a result</p>
+            <p className="eyebrow">El rival envió un resultado</p>
             <h2 className="mt-2 text-xl font-black text-foreground">
-              Confirm {claim.scoreA}–{claim.scoreB}?
+              Confirmar {claim.scoreA}–{claim.scoreB}?
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Confirming immediately makes this the official result and advances the bracket. If the
-              score is wrong, explain the disagreement and open a dispute.
+              La confirmación convierte el marcador en resultado oficial y hace avanzar el cuadro.
+              Si es incorrecto, explicá el desacuerdo y abrí una disputa.
             </p>
             <div className="mt-5">
-              <Label htmlFor="disputeNote">Dispute explanation</Label>
+              <Label htmlFor="disputeNote">Explicación de la disputa</Label>
               <Textarea
                 id="disputeNote"
                 value={disputeNote}
                 onChange={(event) => setDisputeNote(event.target.value)}
-                placeholder="Only required if you dispute the submitted result."
+                placeholder="Solo es obligatoria si disputás el resultado enviado."
                 className="mt-2 min-h-24"
                 maxLength={1000}
               />
@@ -249,10 +258,10 @@ function MatchResultPage() {
               <Button
                 disabled={responseMutation.isPending}
                 onClick={() =>
-                  responseMutation.mutate({ confirm: true, note: "Confirmed by opponent" })
+                  responseMutation.mutate({ confirm: true, note: "Confirmado por el rival" })
                 }
               >
-                Confirm result
+                Confirmar resultado
               </Button>
               <Button
                 variant="destructive"
@@ -261,7 +270,7 @@ function MatchResultPage() {
                   responseMutation.mutate({ confirm: false, note: disputeNote.trim() })
                 }
               >
-                Dispute result
+                Disputar resultado
               </Button>
             </div>
           </section>
@@ -271,21 +280,23 @@ function MatchResultPage() {
           <section className="rounded-2xl border border-border/70 bg-card/35 p-5 sm:p-6">
             <p className="eyebrow">
               {claim?.status === "dismissed"
-                ? "Submit a new claim"
+                ? "Enviar un informe nuevo"
                 : isReporter
-                  ? "Update result"
-                  : "Report result"}
+                  ? "Actualizar resultado"
+                  : "Informar resultado"}
             </p>
-            <h2 className="mt-2 text-xl font-black text-foreground">Enter the series score</h2>
+            <h2 className="mt-2 text-xl font-black text-foreground">
+              Ingresá el marcador de la serie
+            </h2>
             {claim?.status === "dismissed" && claim.resolutionNote ? (
               <p className="mt-2 rounded-md border border-border p-3 text-sm text-muted-foreground">
-                Previous claim dismissed by Staff: {claim.resolutionNote}
+                Informe anterior descartado por la organización: {claim.resolutionNote}
               </p>
             ) : null}
 
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
               <div>
-                <Label htmlFor="scoreA">{state.entryA?.name ?? "Entry A"}</Label>
+                <Label htmlFor="scoreA">{state.entryA?.name ?? "Participante A"}</Label>
                 <Input
                   id="scoreA"
                   type="number"
@@ -298,7 +309,7 @@ function MatchResultPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="scoreB">{state.entryB?.name ?? "Entry B"}</Label>
+                <Label htmlFor="scoreB">{state.entryB?.name ?? "Participante B"}</Label>
                 <Input
                   id="scoreB"
                   type="number"
@@ -313,7 +324,7 @@ function MatchResultPage() {
             </div>
 
             <div className="mt-4">
-              <Label htmlFor="evidence">Evidence link (optional)</Label>
+              <Label htmlFor="evidence">Enlace de evidencia (opcional)</Label>
               <Input
                 id="evidence"
                 type="url"
@@ -326,12 +337,12 @@ function MatchResultPage() {
             </div>
 
             <div className="mt-4">
-              <Label htmlFor="reportNote">Result note (optional)</Label>
+              <Label htmlFor="reportNote">Nota del resultado (opcional)</Label>
               <Textarea
                 id="reportNote"
                 value={reportNote}
                 onChange={(event) => setReportNote(event.target.value)}
-                placeholder="Anything Staff or the opponent should know."
+                placeholder="Información que deba conocer la organización o el rival."
                 className="mt-2 min-h-24"
                 maxLength={1000}
               />
@@ -343,21 +354,21 @@ function MatchResultPage() {
               onClick={() => submitMutation.mutate()}
             >
               {submitMutation.isPending
-                ? "Submitting…"
+                ? "Enviando…"
                 : isReporter
-                  ? "Update submitted result"
-                  : "Submit result"}
+                  ? "Actualizar resultado enviado"
+                  : "Enviar resultado"}
             </Button>
           </section>
         ) : null}
 
         {state.isStaff && !state.myEntryId && !official ? (
           <section className="border-l-2 border-border pl-4 text-sm text-muted-foreground">
-            Staff can inspect this match here. Use the{" "}
+            La organización puede revisar esta partida acá. Usá la{" "}
             <Link to="/admin/disputes" className="font-semibold text-foreground hover:text-brand">
-              Match disputes queue
+              lista de disputas de partidas
             </Link>{" "}
-            to resolve contested results.
+            para resolver resultados en disputa.
           </section>
         ) : null}
       </PageContainer>
@@ -383,11 +394,11 @@ function EntryCard({
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
           <p className={`truncate font-black ${winner ? "text-brand" : "text-foreground"}`}>
-            {entry?.name ?? "TBD"}
+            {entry?.name ?? "A confirmar"}
           </p>
           <div className="mt-2 flex flex-wrap gap-2">
-            {mine ? <Badge variant="outline">Your entry</Badge> : null}
-            {winner ? <Badge>Winner</Badge> : null}
+            {mine ? <Badge variant="outline">Tu inscripción</Badge> : null}
+            {winner ? <Badge>Ganador</Badge> : null}
           </div>
         </div>
         <span className="tabular text-3xl font-black text-foreground">{score ?? "–"}</span>
@@ -407,7 +418,7 @@ function ClaimBadge({
       : status === "confirmed" || status === "resolved"
         ? "default"
         : "outline";
-  return <Badge variant={variant}>{status.replaceAll("_", " ")}</Badge>;
+  return <Badge variant={variant}>{statusLabel(status)}</Badge>;
 }
 
 function SubmittedEvidence({ claim }: { claim: NonNullable<MatchResultState["claim"]> }) {
@@ -415,10 +426,10 @@ function SubmittedEvidence({ claim }: { claim: NonNullable<MatchResultState["cla
     return null;
   return (
     <section className="rounded-2xl border border-border/70 bg-card/35 p-5">
-      <p className="eyebrow">Result record</p>
+      <p className="eyebrow">Registro del resultado</p>
       <div className="mt-3 space-y-2 text-sm text-muted-foreground">
-        {claim.reporterNote ? <p>Reporter: {claim.reporterNote}</p> : null}
-        {claim.responderNote ? <p>Opponent: {claim.responderNote}</p> : null}
+        {claim.reporterNote ? <p>Informante: {claim.reporterNote}</p> : null}
+        {claim.responderNote ? <p>Rival: {claim.responderNote}</p> : null}
         {claim.resolutionNote ? <p>Staff: {claim.resolutionNote}</p> : null}
         {claim.evidenceUrl ? (
           <a
@@ -427,7 +438,7 @@ function SubmittedEvidence({ claim }: { claim: NonNullable<MatchResultState["cla
             rel="noreferrer"
             className="inline-flex items-center gap-1 font-semibold text-foreground hover:text-brand"
           >
-            Open submitted evidence <ExternalLink className="size-3.5" />
+            Abrir evidencia enviada <ExternalLink className="size-3.5" />
           </a>
         ) : null}
       </div>

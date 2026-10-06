@@ -18,10 +18,10 @@ import { searchMyTeamCandidates, type TeamCandidate } from "@/lib/team-search.fu
 export const Route = createFileRoute("/_authenticated/team_/players")({
   head: () => ({
     meta: [
-      { title: "Recruit players — EloShape" },
+      { title: "Reclutar jugadores — EloShape" },
       {
         name: "description",
-        content: "Recruit available EloShape players for your 5v5 roster.",
+        content: "Reclutá jugadores disponibles de EloShape para tu plantel de 5 contra 5.",
       },
       { name: "robots", content: "noindex" },
     ],
@@ -58,11 +58,11 @@ function TeamPlayerFinderPage() {
         toast.error(result.error);
         return;
       }
-      toast.success("Invitation sent.");
+      toast.success("Invitación enviada.");
       void queryClient.invalidateQueries({ queryKey: ["team-candidates"] });
       void queryClient.invalidateQueries({ queryKey: ["my-team-hub"] });
     },
-    onError: () => toast.error("Could not invite that player."),
+    onError: () => toast.error("No se pudo invitar a ese jugador."),
   });
 
   const runSearch = () => setQuery(input.trim());
@@ -70,12 +70,12 @@ function TeamPlayerFinderPage() {
   return (
     <div>
       <PageHeading
-        eyebrow="Team recruiting"
-        title="Recruit players"
-        description="Search free agents, verify competitive readiness and build your roster without guessing who can actually compete."
+        eyebrow="Reclutamiento del equipo"
+        title="Reclutar jugadores"
+        description="Buscá jugadores libres, verificá su preparación competitiva y armá tu plantel con información sobre quién puede competir."
         aside={
           <Button asChild variant="outline">
-            <Link to="/team">Back to Team HQ</Link>
+            <Link to="/team">Volver al panel del equipo</Link>
           </Button>
         }
       />
@@ -88,7 +88,7 @@ function TeamPlayerFinderPage() {
             <Skeleton className="h-80 w-full" />
           </div>
         ) : hub.error || !hub.data ? (
-          <EmptyState title="Could not load your team" />
+          <EmptyState title="No se pudo cargar tu equipo" />
         ) : (
           <div className="space-y-6">
             <TeamWorkspaceNav
@@ -99,21 +99,21 @@ function TeamPlayerFinderPage() {
 
             {!hub.data.team ? (
               <EmptyState
-                title="Create a team before recruiting"
-                description="Recruiting belongs to a roster. Create your team first, then return here to build the lineup."
+                title="Creá un equipo antes de reclutar"
+                description="El reclutamiento pertenece a un plantel. Primero creá tu equipo y después volvé para armar la alineación."
                 action={
                   <Button asChild>
-                    <Link to="/team">Create a team</Link>
+                    <Link to="/team">Crear un equipo</Link>
                   </Button>
                 }
               />
             ) : !hub.data.team.isCaptain ? (
               <EmptyState
-                title="Captain access required"
-                description="Only the current captain can send invitations or fill roster slots."
+                title="Se requiere acceso de capitán"
+                description="Solo el capitán actual puede enviar invitaciones o completar el plantel."
                 action={
                   <Button asChild variant="outline">
-                    <Link to="/team">Back to Team HQ</Link>
+                    <Link to="/team">Volver al panel del equipo</Link>
                   </Button>
                 }
               />
@@ -172,8 +172,8 @@ function RecruitingWorkspace({
   const remainingStarterSlots = Math.max(0, 5 - starters.length);
   const starterComplete = remainingStarterSlots === 0;
   const rosterStatus = starterComplete
-    ? "Starting five complete"
-    : `${remainingStarterSlots} starter slot${remainingStarterSlots === 1 ? "" : "s"} open`;
+    ? "Los cinco titulares están completos"
+    : `${remainingStarterSlots} ${remainingStarterSlots === 1 ? "lugar de titular disponible" : "lugares de titular disponibles"}`;
 
   return (
     <>
@@ -186,35 +186,35 @@ function RecruitingWorkspace({
               <Badge variant={starterComplete ? "default" : "secondary"}>{rosterStatus}</Badge>
             </div>
             <h2 className="mt-3 text-2xl font-black tracking-tight text-foreground">
-              Build {team.name}
+              Armar {team.name}
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-              Starter invitations require the player to pass EloShape readiness checks. Bench
-              invitations stay available for flexible roster depth.
+              Para invitar titulares, el jugador debe aprobar los controles de EloShape. Podés
+              invitar suplentes para ampliar las opciones del plantel.
             </p>
           </div>
 
           <div className="grid grid-cols-3 gap-2 text-center">
             <RecruitingStat
-              label="Starters"
+              label="Titulares"
               value={`${starters.length}/5`}
               active={starterComplete}
             />
             <RecruitingStat
-              label="Open"
+              label="Abierto"
               value={String(remainingStarterSlots)}
               active={!starterComplete}
             />
-            <RecruitingStat label="Bench" value={String(substitutes.length)} />
+            <RecruitingStat label="Suplentes" value={String(substitutes.length)} />
           </div>
         </div>
 
         <div className="relative mt-6 border-t border-border/60 pt-5">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-black text-foreground">Who are you recruiting?</p>
+              <p className="text-sm font-black text-foreground">¿A quién querés reclutar?</p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Choose the roster status first, then search the free-agent pool.
+                Primero elegí si será titular o suplente y después buscá jugadores libres.
               </p>
             </div>
             <div className="inline-flex rounded-lg border border-border bg-background/55 p-1">
@@ -227,7 +227,7 @@ function RecruitingWorkspace({
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                Starter
+                Titular
               </button>
               <button
                 type="button"
@@ -238,7 +238,7 @@ function RecruitingWorkspace({
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                Substitute
+                Suplente
               </button>
             </div>
           </div>
@@ -250,15 +250,15 @@ function RecruitingWorkspace({
                 value={input}
                 onChange={(event) => setInput(event.target.value)}
                 onKeyDown={(event) => {
-                  if (event.key === "Enter") runSearch();
+                  if (event.key === "Ingresar") runSearch();
                 }}
                 className="pl-9"
-                placeholder="Search by handle or display name"
-                aria-label="Search free agents"
+                placeholder="Buscar por identificador o nombre público"
+                aria-label="Buscar jugadores libres"
               />
             </label>
             <Button onClick={runSearch}>
-              <Search className="mr-2 size-4" /> Search players
+              <Search className="mr-2 size-4" /> Buscar jugadores
             </Button>
           </div>
         </div>
@@ -267,13 +267,15 @@ function RecruitingWorkspace({
           <div className="flex items-start gap-2 rounded-xl border border-border/60 bg-background/20 p-3 text-xs text-muted-foreground">
             <ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />
             <span>
-              Starter ready means eligible, Riot verified, level 30+ and compatible with the team
-              division.
+              Un titular listo es elegible, tiene Riot verificado, nivel 30 o más y una división
+              compatible con el equipo.
             </span>
           </div>
           <div className="flex items-start gap-2 rounded-xl border border-border/60 bg-background/20 p-3 text-xs text-muted-foreground">
             <Users className="mt-0.5 size-4 shrink-0" />
-            <span>Substitutes add depth without occupying one of the five starting slots.</span>
+            <span>
+              Los suplentes refuerzan el plantel sin ocupar uno de los cinco lugares de titular.
+            </span>
           </div>
         </div>
       </section>
@@ -281,15 +283,15 @@ function RecruitingWorkspace({
       <section>
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="eyebrow">Free-agent pool</p>
+            <p className="eyebrow">Jugadores libres</p>
             <h2 className="mt-1 text-xl font-black text-foreground">
-              {query ? `Results for “${query}”` : "Available players"}
+              {query ? `Resultados para «${query}”` : "Jugadores disponibles"}
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Players already attached to another active team are excluded automatically.
+              Los jugadores que ya pertenecen a otro equipo activo se excluyen automáticamente.
             </p>
           </div>
-          {candidates ? <Badge variant="outline">{candidates.length} available</Badge> : null}
+          {candidates ? <Badge variant="outline">{candidates.length} disponibles</Badge> : null}
         </div>
 
         {candidatesPending ? (
@@ -300,7 +302,7 @@ function RecruitingWorkspace({
           </div>
         ) : candidatesError ? (
           <div className="mt-4 rounded-2xl border border-border p-5 text-sm text-muted-foreground">
-            Could not load the free-agent pool right now.
+            No se pudieron cargar los jugadores libres en este momento.
           </div>
         ) : candidates?.length ? (
           <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -320,8 +322,8 @@ function RecruitingWorkspace({
         ) : (
           <div className="mt-4">
             <EmptyState
-              title="No free agents found"
-              description="Try another handle or display name. Players already on a team are not available here."
+              title="No se encontraron jugadores libres"
+              description="Probá otro identificador o nombre público. Los jugadores que ya tienen equipo no están disponibles acá."
             />
           </div>
         )}
@@ -382,30 +384,30 @@ function CandidateCard({
             <p className="mt-1 truncate text-sm text-muted-foreground">@{candidate.handle}</p>
           </div>
           <Badge variant={candidate.ready ? "default" : "outline"}>
-            {candidate.ready ? "Ready" : "Needs checks"}
+            {candidate.ready ? "Listo" : "Requiere controles"}
           </Badge>
         </div>
 
         <div className="mt-4 flex flex-wrap gap-2">
-          <Badge variant="outline">{candidate.divisionName ?? "No division"}</Badge>
+          <Badge variant="outline">{candidate.divisionName ?? "Sin división"}</Badge>
           <Badge variant="outline">
-            {candidate.riotTier ?? "Unranked"} {candidate.riotRank ?? ""}
+            {candidate.riotTier ?? "Sin rango"} {candidate.riotRank ?? ""}
           </Badge>
           {candidate.cityName ? <Badge variant="outline">{candidate.cityName}</Badge> : null}
         </div>
 
         <div className="mt-5 overflow-hidden rounded-xl border border-border bg-background/30">
           <div className="border-b border-border/70 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-            Competitive checks
+            Controles competitivos
           </div>
           <div className="space-y-2.5 p-3">
-            <CandidateCheck label="Riot account verified" done={candidate.riotVerified} />
-            <CandidateCheck label="Competitive eligibility" done={eligible} />
+            <CandidateCheck label="Cuenta de Riot verificada" done={candidate.riotVerified} />
+            <CandidateCheck label="Elegibilidad competitiva" done={eligible} />
             <CandidateCheck
               label={
                 candidate.accountLevel != null
-                  ? `Account level ${candidate.accountLevel}`
-                  : "Account level unknown"
+                  ? `Nivel de cuenta ${candidate.accountLevel}`
+                  : "Nivel de cuenta desconocido"
               }
               done={levelReady}
             />
@@ -417,8 +419,8 @@ function CandidateCard({
         <Button className="w-full" size="sm" disabled={disabled} onClick={onInvite}>
           <UserPlus className="mr-2 size-4" />
           {role === "player" && !candidate.ready
-            ? "Cannot join starting five yet"
-            : `Invite as ${role === "player" ? "starter" : "substitute"}`}
+            ? "Todavía no puede ser titular"
+            : `Invitar como ${role === "player" ? "starter" : "substitute"}`}
         </Button>
       </div>
     </article>

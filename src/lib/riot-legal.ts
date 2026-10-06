@@ -1,2 +1,2 @@
 export const RIOT_LEGAL_NOTICE =
-  "EloShape is not endorsed by Riot Games and does not reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games and all associated properties are trademarks or registered trademarks of Riot Games, Inc.";
+  "EloShape no cuenta con el respaldo de Riot Games y no refleja las opiniones de Riot Games ni de ninguna persona involucrada oficialmente en la producción o gestión de sus productos. Riot Games y todos sus productos asociados son marcas comerciales o marcas registradas de Riot Games, Inc.";

@@ -35,7 +35,7 @@ import {
   recordMatchWalkover,
   submitMatchResult,
 } from "@/lib/competition.functions";
-import { formatDate } from "@/lib/format";
+import { formatDate, statusLabel, roundName } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 const SPLIT_STAGES = [
@@ -62,20 +62,20 @@ type Result = { ok: boolean; error?: string };
 type AdminView = "tournaments" | "splits";
 
 function humanize(value: string) {
-  return value.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+  return statusLabel(value);
 }
 
 function useOp(invalidate: () => void) {
   return (label: string) => ({
     onSuccess: (result: Result) => {
       if (!result.ok) {
-        toast.error(result.error ?? `${label} failed.`);
+        toast.error(result.error ?? `${label} falló.`);
         return;
       }
-      toast.success(`${label} done.`);
+      toast.success(`${label} completado.`);
       invalidate();
     },
-    onError: () => toast.error(`${label} failed.`),
+    onError: () => toast.error(`${label} falló.`),
   });
 }
 
@@ -105,12 +105,12 @@ function MatchReporter({
         toast.error(result.error);
         return;
       }
-      toast.success("Result recorded.");
+      toast.success("Resultado registrado.");
       setScoreA("");
       setScoreB("");
       onDone();
     },
-    onError: () => toast.error("Could not record the result."),
+    onError: () => toast.error("No se pudo registrar el resultado."),
   });
 
   const walkoverMutation = useMutation({
@@ -121,11 +121,11 @@ function MatchReporter({
         toast.error(result.error);
         return;
       }
-      toast.success("Walkover recorded as a match win.");
+      toast.success("Victoria administrativa registrada como victoria de partida.");
       setWalkoverNote("");
       onDone();
     },
-    onError: () => toast.error("Could not record the walkover."),
+    onError: () => toast.error("No se pudo registrar la victoria administrativa."),
   });
 
   const parsedA = Number(scoreA);
@@ -145,7 +145,7 @@ function MatchReporter({
 
   const confirmWalkover = (entry: { id: string; label: string }) => {
     const confirmed = window.confirm(
-      `Award this match to ${entry.label} by walkover? The team will advance and receive the normal match-win points.`,
+      `¿Otorgar esta partida a ${entry.label} por victoria administrativa? El equipo avanzará y recibirá los puntos habituales por victoria.`,
     );
     if (confirmed) walkoverMutation.mutate(entry.id);
   };
@@ -155,12 +155,13 @@ function MatchReporter({
       <div className="border-b border-border/70/60 pb-4">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div>
-            <p className="text-sm font-semibold text-foreground">Record match result</p>
+            <p className="text-sm font-semibold text-foreground">Registrar resultado</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Best of {bestOf} · first to {winsRequired} win{winsRequired === 1 ? "" : "s"}
+              Al mejor de {bestOf} · gana quien llegue primero a {winsRequired} victoria
+              {winsRequired === 1 ? "" : "s"}
             </p>
           </div>
-          <Badge variant="outline">Competitive result</Badge>
+          <Badge variant="outline">Resultado competitivo</Badge>
         </div>
 
         <div className="grid gap-2">
@@ -169,7 +170,7 @@ function MatchReporter({
               {entryA.label}
             </span>
             <Input
-              aria-label={`Score for ${entryA.label}`}
+              aria-label={`Marcador de ${entryA.label}`}
               className="text-center"
               inputMode="numeric"
               placeholder="0"
@@ -182,7 +183,7 @@ function MatchReporter({
               {entryB.label}
             </span>
             <Input
-              aria-label={`Score for ${entryB.label}`}
+              aria-label={`Marcador de ${entryB.label}`}
               className="text-center"
               inputMode="numeric"
               placeholder="0"
@@ -194,7 +195,8 @@ function MatchReporter({
 
         {scoreA !== "" && scoreB !== "" && !validSeriesScore ? (
           <p className="mt-2 text-xs text-destructive">
-            Enter a valid best-of-{bestOf} result. One team must reach {winsRequired} win
+            Ingresá un resultado válido al mejor de {bestOf}. Un equipo debe alcanzar {winsRequired}{" "}
+            victoria
             {winsRequired === 1 ? "" : "s"}.
           </p>
         ) : null}
@@ -202,7 +204,7 @@ function MatchReporter({
         <div className="mt-3 flex justify-end">
           <Button disabled={pending || !validSeriesScore} onClick={() => mutation.mutate()}>
             <ClipboardCheck />
-            Save result
+            Guardar resultado
           </Button>
         </div>
       </div>
@@ -211,21 +213,21 @@ function MatchReporter({
         <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground">
           <span className="flex items-center gap-2">
             <Gavel className="size-4" />
-            Administrative actions
+            Acciones administrativas
           </span>
           <ChevronRight className="size-4 transition-transform group-open:rotate-90" />
         </summary>
         <div className="border-t border-border/70 p-4">
-          <p className="text-sm font-semibold text-foreground">Declare walkover</p>
+          <p className="text-sm font-semibold text-foreground">Declarar victoria administrativa</p>
           <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-            Use only for a documented no-show or administrative ruling. A walkover advances the
-            winner and counts exactly like a played match win for EloShape points.
+            Usá esta opción solo ante una ausencia documentada o una resolución administrativa. El
+            ganador avanza y recibe los mismos puntos de EloShape que por una victoria jugada.
           </p>
           <Input
-            aria-label="Walkover reason"
+            aria-label="Motivo de la victoria administrativa"
             className="mt-3"
             maxLength={1000}
-            placeholder="Required reason, e.g. opponent no-show"
+            placeholder="Motivo obligatorio, por ejemplo: ausencia del rival"
             value={walkoverNote}
             onChange={(event) => setWalkoverNote(event.target.value)}
           />
@@ -235,14 +237,14 @@ function MatchReporter({
               disabled={pending || walkoverNote.trim().length < 3}
               onClick={() => confirmWalkover(entryA)}
             >
-              Award W/O to {entryA.label}
+              Otorgar victoria administrativa a {entryA.label}
             </Button>
             <Button
               variant="outline"
               disabled={pending || walkoverNote.trim().length < 3}
               onClick={() => confirmWalkover(entryB)}
             >
-              Award W/O to {entryB.label}
+              Otorgar victoria administrativa a {entryB.label}
             </Button>
           </div>
         </div>
@@ -280,18 +282,18 @@ function CompletedMatchCorrection({
     onSuccess: (result) => {
       if (!result.ok) {
         const message = result.error.includes("downstream_match_already_started")
-          ? "The next-round match already has activity. This result cannot be changed safely."
+          ? "La partida de la siguiente ronda ya tiene actividad. No se puede modificar este resultado de forma segura."
           : result.error.includes("tournament_finalized")
-            ? "Finalized tournaments cannot be corrected."
+            ? "No se pueden corregir torneos finalizados."
             : result.error;
         toast.error(message);
         return;
       }
-      toast.success("Result corrected and added to the audit trail.");
+      toast.success("Resultado corregido y registrado en el historial de auditoría.");
       setNote("");
       onDone();
     },
-    onError: () => toast.error("Could not correct the result."),
+    onError: () => toast.error("No se pudo corregir el resultado."),
   });
 
   const parsedA = Number(scoreA);
@@ -311,11 +313,11 @@ function CompletedMatchCorrection({
     const newWinner = parsedA > parsedB ? entryA : entryB;
     const winnerChanges = newWinner.id !== match.winner_entry_id;
     const warning = winnerChanges
-      ? ` This changes the winner to ${newWinner.label} and will replace the next-round entrant only if that match has not started.`
+      ? ` Esto cambia el ganador a ${newWinner.label} y reemplazará al participante de la siguiente ronda solo si esa partida no empezó.`
       : "";
     if (
       window.confirm(
-        `Correct ${entryA.label} vs ${entryB.label} to ${parsedA}-${parsedB}?${warning} This change is audited.`,
+        `Corregir ${entryA.label} vs ${entryB.label} a ${parsedA}-${parsedB}?${warning} Este cambio queda registrado.`,
       )
     ) {
       mutation.mutate();
@@ -330,24 +332,24 @@ function CompletedMatchCorrection({
             {entryA.label} {match.score_a}–{match.score_b} {entryB.label}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
-            {match.round_label} · Best of {match.best_of}
+            {roundName(match.round_label)} · Al mejor de {match.best_of}
           </p>
         </div>
         <span className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-          Edit result
+          Editar resultado
           <ChevronRight className="size-4 transition-transform group-open:rotate-90" />
         </span>
       </summary>
       <div className="border-t border-border/70 p-4">
         <div className="mb-3 rounded-md border border-amber-500/20 bg-amber-500/5 p-3 text-xs leading-relaxed text-muted-foreground">
-          Corrections are audited. If changing the winner would conflict with activity in the next
-          round, EloShape blocks the change automatically.
+          Las correcciones quedan registradas. Si cambiar el ganador entra en conflicto con la
+          actividad de la siguiente ronda, EloShape bloquea el cambio automáticamente.
         </div>
         <div className="grid gap-2 sm:grid-cols-2">
           <label className="space-y-1">
             <span className="text-xs text-muted-foreground">{entryA.label}</span>
             <Input
-              aria-label={`Corrected score for ${entryA.label}`}
+              aria-label={`Marcador corregido de ${entryA.label}`}
               inputMode="numeric"
               value={scoreA}
               onChange={(event) => setScoreA(event.target.value)}
@@ -356,7 +358,7 @@ function CompletedMatchCorrection({
           <label className="space-y-1">
             <span className="text-xs text-muted-foreground">{entryB.label}</span>
             <Input
-              aria-label={`Corrected score for ${entryB.label}`}
+              aria-label={`Marcador corregido de ${entryB.label}`}
               inputMode="numeric"
               value={scoreB}
               onChange={(event) => setScoreB(event.target.value)}
@@ -364,16 +366,16 @@ function CompletedMatchCorrection({
           </label>
         </div>
         <Input
-          aria-label="Result correction reason"
+          aria-label="Motivo de la corrección"
           className="mt-3"
           maxLength={1000}
-          placeholder="Required correction reason"
+          placeholder="Motivo obligatorio de la corrección"
           value={note}
           onChange={(event) => setNote(event.target.value)}
         />
         {!validSeriesScore && scoreA !== "" && scoreB !== "" ? (
           <p className="mt-2 text-xs text-destructive">
-            Enter a valid best-of-{match.best_of} result.
+            Ingresá un resultado válido al mejor de {match.best_of}.
           </p>
         ) : null}
         <div className="mt-3 flex justify-end">
@@ -382,7 +384,7 @@ function CompletedMatchCorrection({
             disabled={mutation.isPending || !validSeriesScore || !changed || note.trim().length < 3}
             onClick={confirmCorrection}
           >
-            Save correction
+            Guardar corrección
           </Button>
         </div>
       </div>
@@ -434,19 +436,19 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
 
   const lockMutation = useMutation({
     mutationFn: () => lock({ data: { tournamentId } }),
-    ...handlers("Roster lock"),
+    ...handlers("Bloqueo de planteles"),
   });
   const bracketMutation = useMutation({
     mutationFn: () => bracket({ data: { tournamentId, bestOf } }),
-    ...handlers("Bracket generation"),
+    ...handlers("Generación del cuadro"),
   });
   const closeMutation = useMutation({
     mutationFn: () => close({ data: { tournamentId } }),
-    ...handlers("Tournament finalization"),
+    ...handlers("Finalización del torneo"),
   });
 
   if (isPending) return <Skeleton className="h-56 w-full" />;
-  if (!data?.tournament) return <EmptyState title="Tournament not found" />;
+  if (!data?.tournament) return <EmptyState title="Torneo no encontrado" />;
 
   const t = data.tournament;
   const labels = entryLabels(data.entries);
@@ -492,12 +494,18 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
         : !finalComplete
           ? 2
           : 3;
-  const workflow = ["Registration", "Bracket setup", "Run matches", "Finalize", "Complete"];
+  const workflow = [
+    "Inscripción",
+    "Preparación del cuadro",
+    "Gestionar partidas",
+    "Finalizar",
+    "Completo",
+  ];
 
   const confirmLock = () => {
     if (
       window.confirm(
-        "Lock checked-in eligible rosters? This creates the tournament roster snapshot used for the bracket and scoring.",
+        "¿Bloquear los planteles habilitados que confirmaron asistencia? Se guardarán los integrantes que se usarán para el cuadro y la puntuación del torneo.",
       )
     ) {
       lockMutation.mutate();
@@ -507,7 +515,7 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
   const confirmFinalize = () => {
     if (
       window.confirm(
-        "Finalize this tournament and award all EloShape points? After finalization, completed results become read-only.",
+        "¿Finalizar este torneo y otorgar todos los puntos de EloShape? Después de finalizarlo, los resultados completados serán de solo lectura.",
       )
     ) {
       closeMutation.mutate();
@@ -519,14 +527,14 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
       <section>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="text-base font-semibold text-foreground">Tournament workspace</p>
+            <p className="text-base font-semibold text-foreground">Panel del torneo</p>
             <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-              EloShape only shows the action that matters for the tournament's current stage.
+              EloShape muestra la acción que corresponde a la etapa actual del torneo.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <StatusBadge status={t.status} />
-            <Badge variant="outline">{data.entries.length} entrants</Badge>
+            <Badge variant="outline">{data.entries.length} participantes</Badge>
           </div>
         </div>
 
@@ -547,89 +555,90 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
         {!t.entries_locked_at ? (
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
             <div>
-              <p className="eyebrow text-primary">Next action</p>
+              <p className="eyebrow text-primary">Próxima acción</p>
               <h3 className="mt-1 text-base font-semibold text-foreground">
-                Lock tournament rosters
+                Bloquear planteles del torneo
               </h3>
               <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                Freeze the checked-in eligible rosters before creating the bracket. This prevents
-                live team changes from changing tournament eligibility.
+                Fijá los planteles habilitados que confirmaron asistencia antes de generar el
+                cuadro. Los cambios posteriores en los equipos no modificarán el plantel registrado
+                para el torneo.
               </p>
             </div>
             <Button disabled={pending} onClick={confirmLock}>
               <LockKeyhole />
-              Lock rosters
+              Bloquear planteles
             </Button>
           </div>
         ) : !t.bracket_generated_at ? (
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
             <div>
-              <p className="eyebrow text-primary">Next action</p>
-              <h3 className="mt-1 text-base font-semibold text-foreground">Generate the bracket</h3>
+              <p className="eyebrow text-primary">Próxima acción</p>
+              <h3 className="mt-1 text-base font-semibold text-foreground">Generar el cuadro</h3>
               <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                Rosters are locked. Choose the series format and EloShape will seed the bracket from
-                the locked field.
+                Formato de las series del cuadro
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <select
-                aria-label="Bracket best-of format"
+                aria-label="Formato de series del cuadro"
                 className="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground shadow-sm outline-none focus:ring-1 focus:ring-ring"
                 value={bestOf}
                 onChange={(event) => setBestOf(Number(event.target.value))}
               >
-                <option value={1}>Best of 1</option>
-                <option value={3}>Best of 3</option>
+                <option value={1}>Al mejor de 1</option>
+                <option value={3}>Al mejor de 3</option>
               </select>
               <Button disabled={pending} onClick={() => bracketMutation.mutate()}>
                 <Swords />
-                Generate bracket
+                Generar cuadro
               </Button>
             </div>
           </div>
         ) : !finalComplete ? (
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
             <div>
-              <p className="eyebrow text-primary">Tournament live</p>
+              <p className="eyebrow text-primary">Torneo en curso</p>
               <h3 className="mt-1 text-base font-semibold text-foreground">
-                Run the ready matches
+                Gestionar las partidas listas
               </h3>
               <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                {competitiveCompleted} competitive result{competitiveCompleted === 1 ? "" : "s"}{" "}
-                recorded · {readyMatches.length} ready now · {waitingMatches.length} waiting on an
-                earlier round.
+                {competitiveCompleted} resultado competitivo{competitiveCompleted === 1 ? "" : "s"}{" "}
+                registrado · {readyMatches.length} listo ahora · {waitingMatches.length} en espera
+                de una ronda anterior.
               </p>
             </div>
             <Badge variant={readyMatches.length ? "default" : "outline"}>
               {readyMatches.length
-                ? `${readyMatches.length} need action`
-                : "Waiting for bracket progression"}
+                ? `${readyMatches.length} requieren atención`
+                : "Esperando el avance del cuadro"}
             </Badge>
           </div>
         ) : !t.finalized_at ? (
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
             <div>
-              <p className="eyebrow text-primary">Final complete</p>
+              <p className="eyebrow text-primary">Final completada</p>
               <h3 className="mt-1 text-base font-semibold text-foreground">
-                Finalize and award points
+                Finalizar y otorgar puntos
               </h3>
               <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                The champion is decided. Finalization calculates placements, match wins, phase
-                rewards and qualification results.
+                El campeón ya está definido. La finalización calcula posiciones, victorias de
+                partida, premios de cada fase y clasificaciones.
               </p>
             </div>
             <Button disabled={pending} onClick={confirmFinalize}>
               <Trophy />
-              Finalize tournament
+              Finalizar torneo
             </Button>
           </div>
         ) : (
           <div className="flex items-start gap-3">
             <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-emerald-400" />
             <div>
-              <p className="font-semibold text-foreground">Tournament finalized</p>
+              <p className="font-semibold text-foreground">Torneo finalizado</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Points and placements are locked. Finalized {formatDate(t.finalized_at)}.
+                Los puntos y las posiciones quedaron fijados. Finalizado{" "}
+                {formatDate(t.finalized_at)}.
               </p>
             </div>
           </div>
@@ -641,9 +650,10 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
           <details className="group rounded-lg border border-border/70 bg-card/35" open>
             <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4">
               <div>
-                <p className="text-sm font-semibold text-foreground">Bracket overview</p>
+                <p className="text-sm font-semibold text-foreground">Resumen del cuadro</p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {data.matches.length} total match slot{data.matches.length === 1 ? "" : "s"}
+                  {data.matches.length} espacio de partida en total
+                  {data.matches.length === 1 ? "" : "s"}
                 </p>
               </div>
               <ChevronRight className="size-4 text-muted-foreground transition-transform group-open:rotate-90" />
@@ -656,14 +666,16 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
           <section>
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
               <div>
-                <p className="text-sm font-semibold text-foreground">Matches requiring action</p>
+                <p className="text-sm font-semibold text-foreground">
+                  Partidas que requieren una acción
+                </p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Ready matches appear first. Waiting matches unlock automatically as winners
-                  advance.
+                  Las partidas listas aparecen primero. Las pendientes se habilitan automáticamente
+                  a medida que avanzan los ganadores.
                 </p>
               </div>
               <Badge variant={readyMatches.length ? "default" : "outline"}>
-                {readyMatches.length} ready
+                {readyMatches.length} listas
               </Badge>
             </div>
 
@@ -672,11 +684,11 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
                 {readyMatches.map((match) => {
                   const entryA = {
                     id: match.entry_a_id!,
-                    label: byId.get(match.entry_a_id!) ?? "Team A",
+                    label: byId.get(match.entry_a_id!) ?? "Equipo A",
                   };
                   const entryB = {
                     id: match.entry_b_id!,
-                    label: byId.get(match.entry_b_id!) ?? "Team B",
+                    label: byId.get(match.entry_b_id!) ?? "Equipo B",
                   };
                   return (
                     <div
@@ -686,14 +698,14 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
                       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
                         <div>
                           <p className="eyebrow">
-                            {match.round_label} · Match {match.bracket_slot + 1}
+                            {roundName(match.round_label)} · Partida {match.bracket_slot + 1}
                           </p>
                           <h4 className="mt-1 text-base font-semibold text-foreground">
                             {entryA.label} <span className="text-muted-foreground">vs</span>{" "}
                             {entryB.label}
                           </h4>
                         </div>
-                        <Badge variant="outline">Bo{match.best_of}</Badge>
+                        <Badge variant="outline">Mejor de{match.best_of}</Badge>
                       </div>
                       <MatchReporter
                         matchId={match.id}
@@ -708,14 +720,14 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
               </div>
             ) : t.bracket_generated_at && !t.finalized_at ? (
               <div className="rounded-lg border border-dashed border-border/70 p-5 text-sm text-muted-foreground">
-                No match needs a result right now.
+                Ninguna partida necesita un resultado por ahora.
               </div>
             ) : null}
 
             {waitingMatches.length ? (
               <details className="group mt-3 rounded-lg border border-border/70 bg-background/20">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm text-muted-foreground">
-                  <span>{waitingMatches.length} waiting on earlier rounds</span>
+                  <span>{waitingMatches.length} en espera de rondas anteriores</span>
                   <ChevronRight className="size-4 transition-transform group-open:rotate-90" />
                 </summary>
                 <div className="border-t border-border/70">
@@ -726,14 +738,14 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
                     >
                       <div>
                         <p className="text-sm font-medium text-foreground">
-                          {match.round_label} · Match {match.bracket_slot + 1}
+                          {roundName(match.round_label)} · Partida {match.bracket_slot + 1}
                         </p>
                         <p className="mt-1 text-xs text-muted-foreground">
-                          {byId.get(match.entry_a_id ?? "") ?? "TBD"} vs{" "}
-                          {byId.get(match.entry_b_id ?? "") ?? "TBD"}
+                          {byId.get(match.entry_a_id ?? "") ?? "A confirmar"} vs{" "}
+                          {byId.get(match.entry_b_id ?? "") ?? "A confirmar"}
                         </p>
                       </div>
-                      <Badge variant="outline">Waiting</Badge>
+                      <Badge variant="outline">En espera</Badge>
                     </div>
                   ))}
                 </div>
@@ -744,25 +756,25 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
           {correctableMatches.length ? (
             <section>
               <div className="mb-3">
-                <p className="text-sm font-semibold text-foreground">Completed results</p>
+                <p className="text-sm font-semibold text-foreground">Resultados completados</p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Open a match only when a submitted result must be corrected.
+                  Abrí una partida solo cuando debas corregir un resultado enviado.
                 </p>
               </div>
               {t.finalized_at ? (
                 <div className="rounded-lg border border-border/70 p-4 text-sm text-muted-foreground">
-                  This tournament is finalized. Results are read-only.
+                  Este torneo está finalizado. Sus resultados son de solo lectura.
                 </div>
               ) : (
                 <div className="space-y-2">
                   {correctableMatches.map((match) => {
                     const entryA = {
                       id: match.entry_a_id!,
-                      label: byId.get(match.entry_a_id!) ?? "Team A",
+                      label: byId.get(match.entry_a_id!) ?? "Equipo A",
                     };
                     const entryB = {
                       id: match.entry_b_id!,
-                      label: byId.get(match.entry_b_id!) ?? "Team B",
+                      label: byId.get(match.entry_b_id!) ?? "Equipo B",
                     };
                     return (
                       <CompletedMatchCorrection
@@ -781,8 +793,8 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
         </>
       ) : (
         <EmptyState
-          title="No bracket yet"
-          description="Lock rosters first, then generate the bracket."
+          title="Todavía no hay cuadro"
+          description="Primero bloqueá los planteles y después generá el cuadro."
         />
       )}
 
@@ -791,7 +803,7 @@ function TournamentOps({ tournamentId }: { tournamentId: string }) {
           <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3">
             <span className="flex items-center gap-2 text-sm font-medium text-foreground">
               <ShieldCheck className="size-4" />
-              Audit trail ({data.auditLog.length})
+              Historial de auditoría ({data.auditLog.length})
             </span>
             <ChevronRight className="size-4 text-muted-foreground transition-transform group-open:rotate-90" />
           </summary>
@@ -826,11 +838,12 @@ function TournamentStageLabel({
     status: string;
   };
 }) {
-  if (tournament.finalized_at) return <Badge>Complete</Badge>;
+  if (tournament.finalized_at) return <Badge>Completo</Badge>;
   if (!tournament.entries_locked_at)
-    return <Badge variant="outline">Registration / check-in</Badge>;
-  if (!tournament.bracket_generated_at) return <Badge variant="outline">Needs bracket</Badge>;
-  return <Badge variant="outline">Tournament running</Badge>;
+    return <Badge variant="outline">Inscripción / confirmación de asistencia</Badge>;
+  if (!tournament.bracket_generated_at)
+    return <Badge variant="outline">Falta generar el cuadro</Badge>;
+  return <Badge variant="outline">Torneo en curso</Badge>;
 }
 
 function SplitStageRail({ current }: { current: string }) {
@@ -881,16 +894,16 @@ export function CompetitionOpsPanel() {
 
   const stageMutation = useMutation({
     mutationFn: (input: { splitId: string; status: string }) => advance({ data: input }),
-    ...handlers("Stage change"),
+    ...handlers("Cambio de etapa"),
   });
   const playoffMutation = useMutation({
     mutationFn: (input: { splitId: string; allowShortField?: boolean; reason?: string }) =>
       playoffs({ data: { bestOf: 3, ...input } }),
-    ...handlers("Playoff generation"),
+    ...handlers("Generación de eliminatorias"),
   });
 
   if (isPending) return <Skeleton className="h-64 w-full" />;
-  if (!data) return <EmptyState title="Staff access required" />;
+  if (!data) return <EmptyState title="Se requiere acceso de organización" />;
 
   const activeTournaments = data.tournaments.filter(
     (tournament) => !tournament.finalized_at,
@@ -904,19 +917,19 @@ export function CompetitionOpsPanel() {
     <div className="space-y-5">
       <div className="grid gap-3 sm:grid-cols-3">
         <div className="rounded-lg border border-border/70 bg-card/35 p-4">
-          <p className="eyebrow">Active tournaments</p>
+          <p className="eyebrow">Torneos activos</p>
           <p className="mt-2 text-2xl font-semibold text-foreground">{activeTournaments}</p>
-          <p className="mt-1 text-xs text-muted-foreground">Need monitoring or progression</p>
+          <p className="mt-1 text-xs text-muted-foreground">Requieren seguimiento o avance</p>
         </div>
         <div className="rounded-lg border border-border/70 bg-card/35 p-4">
-          <p className="eyebrow">Completed</p>
+          <p className="eyebrow">Completado</p>
           <p className="mt-2 text-2xl font-semibold text-foreground">{completedTournaments}</p>
-          <p className="mt-1 text-xs text-muted-foreground">Finalized tournaments in this list</p>
+          <p className="mt-1 text-xs text-muted-foreground">Torneos finalizados de esta lista</p>
         </div>
         <div className="rounded-lg border border-border/70 bg-card/35 p-4">
-          <p className="eyebrow">Active Semi-Splits</p>
+          <p className="eyebrow">Semi-Splits activos</p>
           <p className="mt-2 text-2xl font-semibold text-foreground">{activeSplits}</p>
-          <p className="mt-1 text-xs text-muted-foreground">Circuit stages still in progress</p>
+          <p className="mt-1 text-xs text-muted-foreground">Etapas del circuito todavía en curso</p>
         </div>
       </div>
 
@@ -927,7 +940,7 @@ export function CompetitionOpsPanel() {
           onClick={() => setView("tournaments")}
         >
           <Swords />
-          Tournaments
+          Torneos
         </Button>
         <Button
           size="sm"
@@ -942,10 +955,10 @@ export function CompetitionOpsPanel() {
       {view === "tournaments" ? (
         <div className="space-y-3">
           <div>
-            <p className="text-sm font-semibold text-foreground">Tournament operations</p>
+            <p className="text-sm font-semibold text-foreground">Operaciones de torneos</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Open one tournament at a time. The workspace guides you from roster lock to final
-              scoring.
+              Abrí un torneo por vez. El panel te guía desde el bloqueo de planteles hasta la
+              puntuación final.
             </p>
           </div>
 
@@ -962,11 +975,13 @@ export function CompetitionOpsPanel() {
                             {tournament.name}
                           </p>
                           {tournament.qualifier_index ? (
-                            <Badge variant="outline">Qualifier #{tournament.qualifier_index}</Badge>
+                            <Badge variant="outline">
+                              Clasificatorio n.º{tournament.qualifier_index}
+                            </Badge>
                           ) : null}
                         </div>
                         <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                          <span>{tournament.participants_count} entrants</span>
+                          <span>{tournament.participants_count} participantes</span>
                           <span aria-hidden="true">·</span>
                           <span>{humanize(tournament.status)}</span>
                           <TournamentStageLabel tournament={tournament} />
@@ -977,7 +992,7 @@ export function CompetitionOpsPanel() {
                         variant={isSelected ? "secondary" : "outline"}
                         onClick={() => setSelected(isSelected ? null : tournament.id)}
                       >
-                        {isSelected ? "Close workspace" : "Open workspace"}
+                        {isSelected ? "Cerrar panel" : "Abrir panel"}
                         <ChevronRight
                           className={cn("transition-transform", isSelected && "rotate-90")}
                         />
@@ -989,16 +1004,16 @@ export function CompetitionOpsPanel() {
               })}
             </div>
           ) : (
-            <EmptyState title="No tournaments" />
+            <EmptyState title="No hay torneos" />
           )}
         </div>
       ) : (
         <div className="space-y-3">
           <div>
-            <p className="text-sm font-semibold text-foreground">Semi-Split progression</p>
+            <p className="text-sm font-semibold text-foreground">Avance del Semi-Split</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Only the next valid stage is offered. Playoff generation is separated from stage
-              progression so it is harder to click the wrong action.
+              Solo se ofrece la próxima etapa válida. La generación de eliminatorias está separada
+              del cambio de etapa para evitar acciones incorrectas.
             </p>
           </div>
 
@@ -1019,7 +1034,7 @@ export function CompetitionOpsPanel() {
                         </p>
                         <p className="mt-1 text-xs text-muted-foreground">
                           {formatDate(split.starts_at)} — {formatDate(split.ends_at)} ·{" "}
-                          {split.playoff_size} playoff slots
+                          {split.playoff_size} lugares en eliminatorias
                         </p>
                       </div>
                       <StatusBadge status={split.status} />
@@ -1032,11 +1047,11 @@ export function CompetitionOpsPanel() {
                         <div className="space-y-3">
                           <div>
                             <p className="text-sm font-semibold text-foreground">
-                              Build the playoff field
+                              Armar el grupo de eliminatorias
                             </p>
                             <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                              Generate the {split.playoff_size}-team playoff bracket from qualified
-                              teams before moving the split into playoffs.
+                              Generar el cuadro de {split.playoff_size}equipos clasificados antes de
+                              avanzar el split a las eliminatorias.
                             </p>
                           </div>
                           <div className="flex flex-wrap gap-2">
@@ -1045,21 +1060,22 @@ export function CompetitionOpsPanel() {
                               onClick={() => playoffMutation.mutate({ splitId: split.id })}
                             >
                               <Play />
-                              Generate playoffs ({split.playoff_size})
+                              Generar eliminatorias ({split.playoff_size})
                             </Button>
                             <details className="group">
                               <summary className="list-none">
                                 <Button asChild variant="outline">
                                   <span>
                                     <AlertTriangle />
-                                    Short-field override
+                                    Excepción por cupo incompleto
                                   </span>
                                 </Button>
                               </summary>
                               <div className="mt-3 max-w-xl rounded-md border border-amber-500/25 bg-amber-500/5 p-3">
                                 <p className="text-xs leading-relaxed text-muted-foreground">
-                                  Emergency only. EloShape requires a written reason before creating
-                                  playoffs with fewer than {split.playoff_size} qualified teams.
+                                  Solo para emergencias. Se requiere un motivo escrito para crear
+                                  eliminatorias con menos de {split.playoff_size} equipos
+                                  clasificados.
                                 </p>
                                 <Button
                                   className="mt-3"
@@ -1068,7 +1084,7 @@ export function CompetitionOpsPanel() {
                                   disabled={playoffMutation.isPending}
                                   onClick={() => {
                                     const reason = window.prompt(
-                                      `Reason for generating playoffs with fewer than ${split.playoff_size} qualified teams?`,
+                                      `¿Por qué se generan las eliminatorias con menos de ${split.playoff_size} equipos clasificados?`,
                                     );
                                     if (!reason?.trim()) return;
                                     playoffMutation.mutate({
@@ -1078,7 +1094,7 @@ export function CompetitionOpsPanel() {
                                     });
                                   }}
                                 >
-                                  Confirm short-field generation
+                                  Confirmar generación con cupo incompleto
                                 </Button>
                               </div>
                             </details>
@@ -1088,11 +1104,11 @@ export function CompetitionOpsPanel() {
                         <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
                           <div>
                             <p className="text-sm font-semibold text-foreground">
-                              Next stage: {humanize(nextStage)}
+                              Próxima etapa: {humanize(nextStage)}
                             </p>
                             <p className="mt-1 text-xs text-muted-foreground">
-                              Advance only after the current stage's tournament work and reviews are
-                              complete.
+                              Avanzá solo después de completar las operaciones y revisiones de los
+                              torneos de la etapa actual.
                             </p>
                           </div>
                           <Button
@@ -1101,14 +1117,14 @@ export function CompetitionOpsPanel() {
                             onClick={() => {
                               if (
                                 window.confirm(
-                                  `Advance ${split.name} from ${humanize(split.status)} to ${humanize(nextStage)}?`,
+                                  `¿Avanzar ${split.name} de ${humanize(split.status)} a ${humanize(nextStage)}?`,
                                 )
                               ) {
                                 stageMutation.mutate({ splitId: split.id, status: nextStage });
                               }
                             }}
                           >
-                            Advance to {humanize(nextStage)}
+                            Avanzar a {humanize(nextStage)}
                             <ChevronRight />
                           </Button>
                         </div>
@@ -1117,10 +1133,12 @@ export function CompetitionOpsPanel() {
                           <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-emerald-400" />
                           <div>
                             <p className="text-sm font-semibold text-foreground">
-                              {split.status === "cancelled" ? "Split cancelled" : "Split complete"}
+                              {split.status === "cancelled"
+                                ? "Split cancelado"
+                                : "Split completado"}
                             </p>
                             <p className="mt-1 text-xs text-muted-foreground">
-                              No stage action is available.
+                              No hay acciones de etapa disponibles.
                             </p>
                           </div>
                         </div>
@@ -1131,7 +1149,7 @@ export function CompetitionOpsPanel() {
               })}
             </div>
           ) : (
-            <EmptyState title="No Semi-Splits" />
+            <EmptyState title="No hay Semi-Splits" />
           )}
         </div>
       )}

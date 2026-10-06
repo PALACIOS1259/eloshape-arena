@@ -8,22 +8,22 @@ type TeamWorkspaceTab = "overview" | "players" | "settings";
 const tabs = [
   {
     key: "overview" as const,
-    label: "Team HQ",
-    description: "Roster & readiness",
+    label: "Panel del equipo",
+    description: "Plantel y preparación",
     to: "/team" as const,
     icon: ShieldCheck,
   },
   {
     key: "players" as const,
-    label: "Recruit",
-    description: "Find free agents",
+    label: "Reclutar",
+    description: "Buscar jugadores libres",
     to: "/team/players" as const,
     icon: Search,
   },
   {
     key: "settings" as const,
-    label: "Settings",
-    description: "Identity & controls",
+    label: "Configuración",
+    description: "Identidad y controles",
     to: "/team/settings" as const,
     icon: Settings,
   },
@@ -39,7 +39,7 @@ export function TeamWorkspaceNav({
   isCaptain?: boolean;
 }) {
   return (
-    <nav aria-label="Team workspace" className="border-b border-border/60 pb-3">
+    <nav aria-label="Espacio del equipo" className="border-b border-border/60 pb-3">
       <div className="flex flex-col gap-2 lg:flex-row lg:items-stretch">
         <div className="grid flex-1 gap-2 sm:grid-cols-3">
           {tabs.map((tab) => {
@@ -65,8 +65,8 @@ export function TeamWorkspaceNav({
                   <span className="mt-0.5 block truncate text-[11px] font-medium text-muted-foreground">
                     {unavailable
                       ? disabled
-                        ? "Create a team first"
-                        : "Captain only"
+                        ? "Primero creá un equipo"
+                        : "Solo capitanes"
                       : tab.description}
                   </span>
                 </span>
@@ -112,9 +112,9 @@ export function TeamWorkspaceNav({
             <Compass className="size-4" />
           </span>
           <span className="text-left">
-            <span className="block text-sm font-black">Team directory</span>
+            <span className="block text-sm font-black">Directorio de equipos</span>
             <span className="mt-0.5 block text-[11px] font-medium text-muted-foreground">
-              Browse the circuit
+              Explorar el circuito
             </span>
           </span>
         </Link>
@@ -123,9 +123,9 @@ export function TeamWorkspaceNav({
         <Users className="size-3.5" />
         {hasTeam
           ? isCaptain
-            ? "Captain workspace · roster changes are server validated"
-            : "Member workspace · captain-only controls are locked"
-          : "Start by creating or joining a team"}
+            ? "Panel del capitán · cambios de plantel validados por EloShape"
+            : "Panel del integrante · controles exclusivos del capitán bloqueados"
+          : "Empezá creando un equipo o uniéndote a uno"}
       </div>
     </nav>
   );

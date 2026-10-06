@@ -23,7 +23,7 @@ async function finishDiscordLink() {
   const request = sessionStorage.getItem(DISCORD_LINK_REQUEST);
   try {
     if (url.searchParams.has("error") || hash.has("error"))
-      throw new Error("Authorization declined");
+      throw new Error("Autorización rechazada");
     // The existing browser client processes implicit OAuth tokens on initialization.
     // Support PKCE too if the client flow is changed in a future update.
     const code = url.searchParams.get("code");
@@ -33,9 +33,9 @@ async function finishDiscordLink() {
     }
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user || !validDiscordLinkRequest(request, data.user.id)) {
-      throw new Error("Invalid linking session");
+      throw new Error("Sesión de vinculación inválida");
     }
-    if (!discordIdentity(data.user.identities ?? [])) throw new Error("Discord not linked");
+    if (!discordIdentity(data.user.identities ?? [])) throw new Error("Discord no está vinculado");
     return true;
   } finally {
     sessionStorage.removeItem(DISCORD_LINK_REQUEST);

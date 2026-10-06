@@ -136,10 +136,10 @@ function isSupportedTier(tier: string | null) {
 
 function unsupportedNotice(tier: string | null) {
   if (!tier || tier === "UNRANKED") {
-    return "Riot reports no Solo Queue rank yet. Play your ranked placements to unlock a division.";
+    return "Riot todavía no informa un rango de Solo/Dúo. Completá tus partidas de posicionamiento para acceder a una división.";
   }
   if (!isSupportedTier(tier)) {
-    return "Your Riot rank is currently outside EloShape's available competitive divisions.";
+    return "Tu rango de Riot está fuera de las divisiones competitivas disponibles en EloShape.";
   }
   return null;
 }
@@ -148,7 +148,7 @@ function connectionNotice(tier: string | null, accountLevel: number | null) {
   const rankNotice = unsupportedNotice(tier);
   if (rankNotice) return rankNotice;
   if (accountLevel !== null && accountLevel < DEFAULT_MIN_RIOT_ACCOUNT_LEVEL) {
-    return `Riot account level ${DEFAULT_MIN_RIOT_ACCOUNT_LEVEL} is required to compete. Your current level is ${accountLevel}.`;
+    return `Se requiere nivel de cuenta de Riot ${DEFAULT_MIN_RIOT_ACCOUNT_LEVEL} para competir. Tu nivel actual es ${accountLevel}.`;
   }
   return null;
 }
@@ -180,7 +180,7 @@ export async function connectRiotAccount(
     .maybeSingle();
   if (existing.error) throw new Error(existing.error.message);
   if (existing.data && existing.data.profile_id !== profileId) {
-    throw new Error("That Riot account is already linked to another EloShape player.");
+    throw new Error("Esa cuenta de Riot ya está vinculada a otro jugador de EloShape.");
   }
 
   const [snapshot, summoner] = await Promise.all([
@@ -198,7 +198,7 @@ export async function refreshRiotAccount(userId: string): Promise<RiotConnection
     .eq("profile_id", profileId)
     .maybeSingle();
   if (account.error) throw new Error(account.error.message);
-  if (!account.data) throw new Error("No Riot account is linked yet.");
+  if (!account.data) throw new Error("Todavía no hay una cuenta de Riot vinculada.");
 
   const lastSynced = account.data.last_synced_at ? Date.parse(account.data.last_synced_at) : 0;
   const elapsed = Date.now() - lastSynced;
@@ -208,7 +208,9 @@ export async function refreshRiotAccount(userId: string): Promise<RiotConnection
       const wait = Math.ceil((REFRESH_COOLDOWN_MS - elapsed) / 60000);
       return {
         ...cached,
-        notice: cached.notice ?? `Riot data was just synced. Try again in ${wait} min.`,
+        notice:
+          cached.notice ??
+          `Los datos de Riot se sincronizaron recién. Volvé a intentar en ${wait} min.`,
       };
     }
   }
@@ -376,15 +378,15 @@ async function reviewEligibility(args: {
     await supabaseAdmin.from("eligibility_reviews").insert({
       profile_id: profileId,
       status: currentEligibility === "eligible" ? "eligible" : "pending_review",
-      reason: "Riot account linked",
-      notes: `Riot Solo Queue tier reported as ${tier}. Ownership not verified (RSO unavailable).`,
+      reason: "Cuenta de Riot vinculada",
+      notes: `Rango informado de Riot: ${tier}. Propiedad sin verificar (RSO no disponible).`,
     });
   } else if (divisionChanged) {
     await supabaseAdmin.from("eligibility_reviews").insert({
       profile_id: profileId,
       status: "pending_review",
-      reason: "Riot division change",
-      notes: `Riot tier now ${tier}; division eligibility changed and requires review.`,
+      reason: "Cambio de división de Riot",
+      notes: `Nuevo rango de Riot: ${tier}; cambió la elegibilidad de división y requiere revisión.`,
     });
   }
 

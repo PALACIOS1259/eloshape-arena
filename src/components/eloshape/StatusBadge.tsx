@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { TOURNAMENT_STATUS_LABEL } from "@/lib/format";
+import { statusLabel } from "@/lib/format";
 
 const STATUS_CLASS: Record<string, string> = {
   registration_open: "border-success/40 bg-success/10 text-success",
@@ -25,7 +25,7 @@ export function StatusBadge({ status, className }: { status: string; className?:
           <span className="relative inline-flex size-1.5 rounded-full bg-current" />
         </span>
       ) : null}
-      {TOURNAMENT_STATUS_LABEL[status] ?? status}
+      {statusLabel(status)}
     </span>
   );
 }

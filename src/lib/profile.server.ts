@@ -68,7 +68,7 @@ export async function ensureProfile(userId: string, supabase?: AuthenticatedSupa
   if (supabase) {
     const { data, error } = await callAuthenticatedRpc<string>(supabase, "ensure_my_profile");
     if (error) throw new Error(error.message);
-    if (!data) throw new Error("Could not provision your EloShape profile.");
+    if (!data) throw new Error("No se pudo crear tu perfil de EloShape.");
     return data;
   }
 
@@ -87,7 +87,7 @@ export async function ensureProfile(userId: string, supabase?: AuthenticatedSupa
   const displayName =
     String(meta["display_name"] ?? meta["full_name"] ?? meta["name"] ?? "").trim() ||
     (authUser.user?.email ?? "").split("@")[0] ||
-    "Player";
+    "Jugador";
 
   const handle = await uniqueHandleFor(userId);
   const inserted = await supabaseAdmin
@@ -128,14 +128,16 @@ async function uniqueHandleFor(userId: string) {
 export function validateHandle(raw: string) {
   const handle = (raw ?? "").trim().toLowerCase();
   if (handle.length < 3 || handle.length > 20) {
-    throw new Error("Handle must be between 3 and 20 characters.");
+    throw new Error("El nombre de usuario debe tener entre 3 y 20 caracteres.");
   }
   if (!/^[a-z0-9_]+$/.test(handle)) {
-    throw new Error("Handle may only contain lowercase letters, numbers and underscores.");
+    throw new Error(
+      "El nombre de usuario solo puede contener letras minúsculas, números y guiones bajos.",
+    );
   }
   const normalized = handle.replace(/[_0]/g, (char) => (char === "0" ? "o" : ""));
   if (RESERVED_HANDLES.includes(handle) || RESERVED_HANDLES.includes(normalized)) {
-    throw new Error("That handle is reserved.");
+    throw new Error("Ese nombre de usuario está reservado.");
   }
   return handle;
 }
@@ -158,14 +160,14 @@ export async function updateMyProfile(
       .neq("id", profileId)
       .maybeSingle();
     if (taken.error) throw new Error(taken.error.message);
-    if (taken.data) throw new Error("That handle is already taken.");
+    if (taken.data) throw new Error("Ese nombre de usuario ya está en uso.");
     patch["handle"] = handle;
   }
 
   if (input.displayName !== undefined) {
     const name = input.displayName.trim();
     if (name.length < 2 || name.length > 40)
-      throw new Error("Display name must be 2-40 characters.");
+      throw new Error("El nombre visible debe tener entre 2 y 40 caracteres.");
     patch["display_name"] = name;
   }
 
@@ -204,7 +206,7 @@ export async function updateMyLocation(
   );
   if (error) throw new Error(error.message);
   if (!data || typeof data !== "object" || Array.isArray(data)) {
-    throw new Error("Could not update your location.");
+    throw new Error("No se pudo actualizar tu ubicación.");
   }
 
   const result = data as Record<string, unknown>;
@@ -277,21 +279,21 @@ export function onboardingSteps(input: {
   eligibility: string;
 }): OnboardingStep[] {
   return [
-    { key: "account", label: "Create EloShape account", done: true },
+    { key: "account", label: "Crear cuenta de EloShape", done: true },
     {
       key: "handle",
-      label: "Choose your handle & display name",
+      label: "Elegí tu nombre de usuario y tu nombre visible",
       done: !input.handle.startsWith("player_"),
     },
-    { key: "location", label: "Select your location", done: Boolean(input.cityId) },
-    { key: "riot", label: "Connect your Riot account", done: input.riotLinked },
-    { key: "rank", label: "Riot rank detected", done: Boolean(input.riotTier) },
+    { key: "location", label: "Seleccioná tu ubicación", done: Boolean(input.cityId) },
+    { key: "riot", label: "Conectá tu cuenta de Riot", done: input.riotLinked },
+    { key: "rank", label: "Rango de Riot detectado", done: Boolean(input.riotTier) },
     {
       key: "eligibility",
       label:
         input.eligibility === "eligible"
-          ? "Competitive eligibility confirmed"
-          : "Competitive eligibility pending review",
+          ? "Elegibilidad competitiva confirmada"
+          : "Elegibilidad competitiva pendiente de revisión",
       done: input.eligibility === "eligible" && Boolean(input.divisionCode),
     },
   ];

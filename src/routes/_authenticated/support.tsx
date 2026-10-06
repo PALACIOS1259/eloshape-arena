@@ -1,3 +1,4 @@
+import { formatDateTime, statusLabel } from "@/lib/format";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -22,11 +23,11 @@ import {
 export const Route = createFileRoute("/_authenticated/support")({
   head: () => ({
     meta: [
-      { title: "Support — EloShape" },
+      { title: "Soporte — EloShape" },
       {
         name: "description",
         content:
-          "Contact EloShape support, report a bug, ask a privacy question or request account deletion.",
+          "Contactá al soporte de EloShape, informá un error, consultá sobre privacidad o solicitá la eliminación de tu cuenta.",
       },
       { name: "robots", content: "noindex" },
     ],
@@ -35,10 +36,10 @@ export const Route = createFileRoute("/_authenticated/support")({
 });
 
 const categoryOptions: { value: SupportCategory; label: string }[] = [
-  { value: "support", label: "General support" },
-  { value: "bug", label: "Report a bug" },
-  { value: "privacy", label: "Privacy request" },
-  { value: "account_deletion", label: "Account deletion" },
+  { value: "support", label: "Soporte general" },
+  { value: "bug", label: "Informar un error" },
+  { value: "privacy", label: "Solicitud de privacidad" },
+  { value: "account_deletion", label: "Eliminación de cuenta" },
 ];
 
 function SupportPage() {
@@ -62,30 +63,32 @@ function SupportPage() {
         toast.error(result.error);
         return;
       }
-      toast.success("Support request submitted.");
+      toast.success("Solicitud de soporte enviada.");
       setSubject("");
       setMessage("");
       void queryClient.invalidateQueries({ queryKey: ["my-support-requests"] });
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : "Could not submit support request.");
+      toast.error(
+        error instanceof Error ? error.message : "No se pudo enviar la solicitud de soporte.",
+      );
     },
   });
 
   return (
     <div>
       <PageHeading
-        eyebrow="Help · Privacy"
-        title="EloShape support"
-        description="Ask for help, report a bug, send a privacy request or request deletion of your EloShape account. Requests are tied to your signed-in account so Staff can follow up safely."
+        eyebrow="Ayuda · Privacidad"
+        title="Soporte de EloShape"
+        description="Pedí ayuda, informá un error o enviá una solicitud de privacidad o eliminación de tu cuenta. La solicitud queda asociada a tu cuenta para que la organización pueda responderte."
       />
 
       <PageContainer className="grid gap-8 py-7 sm:py-9 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <section className="border-y border-border/65 py-5 sm:py-6">
-          <p className="eyebrow">New request</p>
+          <p className="eyebrow">Nueva solicitud</p>
           <div className="mt-5 space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="support-category">Category</Label>
+              <Label htmlFor="support-category">Categoría</Label>
               <select
                 id="support-category"
                 value={category}
@@ -101,7 +104,7 @@ function SupportPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="support-subject">Subject</Label>
+              <Label htmlFor="support-subject">Asunto</Label>
               <Input
                 id="support-subject"
                 value={subject}
@@ -109,14 +112,14 @@ function SupportPage() {
                 maxLength={120}
                 placeholder={
                   category === "account_deletion"
-                    ? "Delete my EloShape account"
-                    : "How can we help?"
+                    ? "Eliminar mi cuenta de EloShape"
+                    : "¿Cómo podemos ayudarte?"
                 }
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="support-message">Message</Label>
+              <Label htmlFor="support-message">Mensaje</Label>
               <Textarea
                 id="support-message"
                 value={message}
@@ -125,18 +128,19 @@ function SupportPage() {
                 rows={7}
                 placeholder={
                   category === "account_deletion"
-                    ? "Confirm that you want EloShape Staff to review deletion of your account and associated personal data. Competitive records may need to be retained or anonymized where required for tournament integrity."
-                    : "Include enough detail for Staff to reproduce or understand the issue."
+                    ? "Confirmá que querés solicitar a la organización la revisión de la eliminación de tu cuenta y tus datos personales. Los registros competitivos pueden conservarse o anonimizarse cuando sea necesario para mantener la integridad de los torneos."
+                    : "Incluí información suficiente para que la organización pueda reproducir o entender el problema."
                 }
               />
-              <p className="text-xs text-muted-foreground">{message.length}/4000 characters</p>
+              <p className="text-xs text-muted-foreground">{message.length}/4000 caracteres</p>
             </div>
 
             {category === "account_deletion" ? (
               <div className="border-l-2 border-destructive/35 pl-4 text-sm text-muted-foreground">
-                Submitting this request does not instantly erase tournament history. Staff will
-                review the request and remove or anonymize personal data while preserving records
-                that are necessary for competitive integrity or legal obligations.
+                Enviar esta solicitud no elimina de inmediato el historial de torneos. La
+                organización revisará el pedido y quitará o anonimizará los datos personales,
+                conservando los registros necesarios para la integridad competitiva o las
+                obligaciones legales.
               </div>
             ) : null}
 
@@ -146,13 +150,13 @@ function SupportPage() {
                 mutation.isPending || subject.trim().length < 3 || message.trim().length < 10
               }
             >
-              {mutation.isPending ? "Submitting…" : "Submit request"}
+              {mutation.isPending ? "Enviando…" : "Enviar solicitud"}
             </Button>
           </div>
         </section>
 
         <section>
-          <p className="eyebrow">Your requests</p>
+          <p className="eyebrow">Tus solicitudes</p>
           <div className="mt-3 space-y-3">
             {query.isPending ? (
               <>
@@ -160,11 +164,11 @@ function SupportPage() {
                 <Skeleton className="h-32 w-full" />
               </>
             ) : query.error ? (
-              <EmptyState title="Could not load your support requests" />
+              <EmptyState title="No se pudieron cargar tus solicitudes de soporte" />
             ) : !query.data?.length ? (
               <EmptyState
-                title="No support requests yet"
-                description="Requests you submit will appear here with their current Staff status."
+                title="Todavía no hay solicitudes de soporte"
+                description="Tus solicitudes aparecerán acá con su estado actual."
               />
             ) : (
               query.data.map((request) => (
@@ -181,14 +185,14 @@ function SupportPage() {
                   </p>
                   {request.staffResponse ? (
                     <div className="mt-4 border-l-2 border-primary/25 pl-4">
-                      <p className="eyebrow">Staff response</p>
+                      <p className="eyebrow">Respuesta de la organización</p>
                       <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">
                         {request.staffResponse}
                       </p>
                     </div>
                   ) : null}
                   <p className="mt-4 text-xs text-muted-foreground">
-                    Submitted {new Date(request.createdAt).toLocaleString()}
+                    Enviado {formatDateTime(request.createdAt)}
                   </p>
                 </article>
               ))
@@ -205,7 +209,7 @@ function categoryLabel(category: SupportCategory) {
 }
 
 function SupportStatusBadge({ status }: { status: SupportStatus }) {
-  const label = status.replace("_", " ");
+  const label = statusLabel(status);
   return (
     <Badge variant={status === "resolved" || status === "closed" ? "secondary" : "outline"}>
       {label}

@@ -93,30 +93,35 @@ function callRpc<T>(
 
 function friendlyResultError(message: string) {
   const code = message.toLowerCase();
-  if (code.includes("invalid_score")) return "That score is not valid for this best-of series.";
+  if (code.includes("invalid_score"))
+    return "Ese marcador no es válido para el formato de esta serie.";
   if (code.includes("not_match_participant")) {
-    return "Only a participating player or team captain can report this match.";
+    return "Solo un jugador participante o el capitán de un equipo puede informar esta partida.";
   }
-  if (code.includes("match_not_found")) return "That match could not be found.";
-  if (code.includes("match_not_reportable")) return "This match is not accepting result reports.";
-  if (code.includes("tournament_not_active"))
-    return "This tournament is not currently accepting results.";
-  if (code.includes("tournament_finalized")) return "This tournament has already been finalized.";
+  if (code.includes("match_not_found")) return "No se encontró esa partida.";
+  if (code.includes("match_not_reportable")) return "Esta partida no acepta resultados por ahora.";
+  if (code.includes("tournament_not_active")) return "Este torneo no acepta resultados por ahora.";
+  if (code.includes("tournament_finalized")) return "Este torneo ya fue finalizado.";
   if (code.includes("result_claim_already_exists")) {
-    return "The opposing participant has already submitted a result for this match.";
+    return "El rival ya envió un resultado para esta partida.";
   }
-  if (code.includes("result_claim_not_found")) return "No submitted result exists for this match.";
-  if (code.includes("result_claim_not_pending")) return "This result has already been resolved.";
+  if (code.includes("result_claim_not_found"))
+    return "No hay un resultado enviado para esta partida.";
+  if (code.includes("result_claim_not_pending")) return "Este resultado ya fue resuelto.";
   if (code.includes("opponent_confirmation_required")) {
-    return "The participant who submitted a result cannot confirm their own report.";
+    return "Quien informó el resultado no puede confirmar su propio informe.";
   }
   if (code.includes("dispute_note_required"))
-    return "Explain what is wrong before opening a dispute.";
-  if (code.includes("invalid_evidence_url")) return "Evidence must be a valid http or https link.";
-  if (code.includes("note_too_long")) return "Result notes must be 1,000 characters or fewer.";
-  if (code.includes("resolution_note_required")) return "Staff must enter a resolution note.";
-  if (code.includes("result_claim_not_resolvable")) return "This result claim is no longer open.";
-  if (code.includes("forbidden")) return "You do not have access to this match result.";
+    return "Explicá qué es incorrecto antes de abrir una disputa.";
+  if (code.includes("invalid_evidence_url"))
+    return "La evidencia debe ser un enlace válido con http o https.";
+  if (code.includes("note_too_long"))
+    return "Las notas del resultado no pueden superar los 1000 caracteres.";
+  if (code.includes("resolution_note_required"))
+    return "La organización debe ingresar una nota de resolución.";
+  if (code.includes("result_claim_not_resolvable"))
+    return "Este informe de resultado ya no está abierto.";
+  if (code.includes("forbidden")) return "No tenés acceso al resultado de esta partida.";
   return message;
 }
 
@@ -144,9 +149,10 @@ export const submitMyMatchResult = createServerFn({ method: "POST" })
       note?: string;
     }) => {
       if (!Number.isInteger(input.scoreA) || !Number.isInteger(input.scoreB)) {
-        throw new Error("Scores must be whole numbers.");
+        throw new Error("Los marcadores deben ser números enteros.");
       }
-      if (input.scoreA < 0 || input.scoreB < 0) throw new Error("Scores cannot be negative.");
+      if (input.scoreA < 0 || input.scoreB < 0)
+        throw new Error("Los marcadores no pueden ser negativos.");
       return input;
     },
   )
@@ -163,7 +169,7 @@ export const submitMyMatchResult = createServerFn({ method: "POST" })
     } catch (error) {
       return {
         ok: false as const,
-        error: error instanceof Error ? error.message : "Could not submit the result.",
+        error: error instanceof Error ? error.message : "No se pudo enviar el resultado.",
       };
     }
   });
@@ -182,7 +188,7 @@ export const respondMyMatchResult = createServerFn({ method: "POST" })
     } catch (error) {
       return {
         ok: false as const,
-        error: error instanceof Error ? error.message : "Could not respond to the result.",
+        error: error instanceof Error ? error.message : "No se pudo responder al resultado.",
       };
     }
   });
@@ -197,10 +203,12 @@ export const resolveStaffMatchDispute = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: { claimId: string; scoreA: number; scoreB: number; note: string }) => {
     if (!Number.isInteger(input.scoreA) || !Number.isInteger(input.scoreB)) {
-      throw new Error("Scores must be whole numbers.");
+      throw new Error("Los marcadores deben ser números enteros.");
     }
-    if (input.scoreA < 0 || input.scoreB < 0) throw new Error("Scores cannot be negative.");
-    if (input.note.trim().length < 3) throw new Error("Enter a staff resolution note.");
+    if (input.scoreA < 0 || input.scoreB < 0)
+      throw new Error("Los marcadores no pueden ser negativos.");
+    if (input.note.trim().length < 3)
+      throw new Error("Ingresá una nota de resolución de la organización.");
     return input;
   })
   .handler(async ({ data, context }) => {
@@ -219,7 +227,7 @@ export const resolveStaffMatchDispute = createServerFn({ method: "POST" })
     } catch (error) {
       return {
         ok: false as const,
-        error: error instanceof Error ? error.message : "Could not resolve the dispute.",
+        error: error instanceof Error ? error.message : "No se pudo resolver la disputa.",
       };
     }
   });
@@ -227,7 +235,7 @@ export const resolveStaffMatchDispute = createServerFn({ method: "POST" })
 export const dismissStaffMatchDispute = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: { claimId: string; note: string }) => {
-    if (input.note.trim().length < 3) throw new Error("Enter a staff dismissal note.");
+    if (input.note.trim().length < 3) throw new Error("Ingresá el motivo de descarte del informe.");
     return input;
   })
   .handler(async ({ data, context }) => {
@@ -244,7 +252,7 @@ export const dismissStaffMatchDispute = createServerFn({ method: "POST" })
     } catch (error) {
       return {
         ok: false as const,
-        error: error instanceof Error ? error.message : "Could not dismiss the claim.",
+        error: error instanceof Error ? error.message : "No se pudo descartar el informe.",
       };
     }
   });

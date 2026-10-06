@@ -23,7 +23,7 @@ export function DiscordAccountCard({ userId }: { userId: string }) {
   const connect = useMutation({
     mutationFn: async () => {
       const { data: current, error: userError } = await supabase.auth.getUser();
-      if (userError || current.user?.id !== userId) throw new Error("Session changed");
+      if (userError || current.user?.id !== userId) throw new Error("La sesión cambió");
       sessionStorage.setItem(
         DISCORD_LINK_REQUEST,
         JSON.stringify({ userId, startedAt: Date.now() }),
@@ -36,7 +36,7 @@ export function DiscordAccountCard({ userId }: { userId: string }) {
             skipBrowserRedirect: true,
           },
         });
-        if (error || !data.url) throw error ?? new Error("Missing authorization URL");
+        if (error || !data.url) throw error ?? new Error("Falta la dirección de autorización");
         window.location.assign(data.url);
       } catch (error) {
         sessionStorage.removeItem(DISCORD_LINK_REQUEST);
@@ -49,7 +49,7 @@ export function DiscordAccountCard({ userId }: { userId: string }) {
     mutationFn: async () => {
       // Refresh before unlinking; do not act on a stale identity or another session.
       const { data, error } = await supabase.auth.getUser();
-      if (error || data.user?.id !== userId) throw new Error("Session changed");
+      if (error || data.user?.id !== userId) throw new Error("La sesión cambió");
       const identity = discordIdentity(data.user.identities ?? []);
       if (!identity) return;
       const result = await supabase.auth.unlinkIdentity(identity);

@@ -114,6 +114,6 @@ export const getStaffSplitOps = createServerFn({ method: "GET" })
     ) => Promise<{ data: StaffSplitOps | null; error: { message: string } | null }>;
     const result = await rpc("staff_get_split_ops", { p_split: data.splitId });
     if (result.error) throw new Error(result.error.message);
-    if (!result.data) throw new Error("Split not found.");
+    if (!result.data) throw new Error("Split no encontrado.");
     return result.data;
   });

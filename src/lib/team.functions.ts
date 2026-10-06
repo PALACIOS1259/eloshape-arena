@@ -82,41 +82,45 @@ function callRpc<T>(
 
 function friendlyTeamError(message: string) {
   const code = message.toLowerCase();
-  if (code.includes("invalid_team_name")) return "Team name must be between 3 and 40 characters.";
-  if (code.includes("invalid_team_tag")) return "Team tag must be 2–6 letters or numbers.";
-  if (code.includes("team_name_taken")) return "That team name is already taken.";
-  if (code.includes("team_tag_taken")) return "That team tag is already taken.";
-  if (code.includes("team_identity_taken")) return "That team name or tag is already taken.";
-  if (code.includes("already_on_team")) return "You are already on a team.";
-  if (code.includes("player_not_found")) return "No EloShape player was found with that handle.";
-  if (code.includes("cannot_invite_self")) return "You are already the team captain.";
-  if (code.includes("player_already_on_team")) return "That player is already on a team.";
+  if (code.includes("invalid_team_name"))
+    return "El nombre del equipo debe tener entre 3 y 40 caracteres.";
+  if (code.includes("invalid_team_tag"))
+    return "La sigla del equipo debe tener de 2 a 6 letras o números.";
+  if (code.includes("team_name_taken")) return "Ese nombre de equipo ya está en uso.";
+  if (code.includes("team_tag_taken")) return "Esa sigla de equipo ya está en uso.";
+  if (code.includes("team_identity_taken")) return "Ese nombre o sigla ya está en uso.";
+  if (code.includes("already_on_team")) return "Ya estás en un equipo.";
+  if (code.includes("player_not_found"))
+    return "No encontramos un jugador de EloShape con ese nombre de usuario.";
+  if (code.includes("cannot_invite_self")) return "Ya sos capitán del equipo.";
+  if (code.includes("player_already_on_team")) return "Ese jugador ya está en un equipo.";
   if (code.includes("invite_already_pending"))
-    return "That player already has a pending invite from your team.";
-  if (code.includes("invite_not_found")) return "That team invitation is no longer available.";
-  if (code.includes("invite_not_pending")) return "That team invitation has already been resolved.";
+    return "Ese jugador ya tiene una invitación pendiente de tu equipo.";
+  if (code.includes("invite_not_found")) return "Esa invitación de equipo ya no está disponible.";
+  if (code.includes("invite_not_pending")) return "Esa invitación de equipo ya fue resuelta.";
   if (code.includes("starting_roster_full"))
-    return "The starting roster already has five players. Invite them as a substitute instead.";
-  if (code.includes("team_captain_required")) return "Only the team captain can do that.";
-  if (code.includes("team_member_not_found")) return "That player is not on your team.";
-  if (code.includes("cannot_remove_captain"))
-    return "The captain cannot be removed from the roster.";
+    return "El plantel titular ya tiene cinco jugadores. Invitalo como suplente.";
+  if (code.includes("team_captain_required")) return "Solo el capitán del equipo puede hacer eso.";
+  if (code.includes("team_member_not_found")) return "Ese jugador no está en tu equipo.";
+  if (code.includes("cannot_remove_captain")) return "No se puede quitar al capitán del plantel.";
   if (code.includes("captain_cannot_leave"))
-    return "The captain cannot leave the team. Captain transfer/disbanding comes next.";
-  if (code.includes("not_on_team")) return "You are not currently on a team.";
-  if (code.includes("team_bio_too_long")) return "Team bio must be 500 characters or fewer.";
+    return "El capitán no puede abandonar el equipo. Primero debe transferir la capitanía o disolverlo.";
+  if (code.includes("not_on_team")) return "Actualmente no estás en un equipo.";
+  if (code.includes("team_bio_too_long"))
+    return "La biografía del equipo no puede superar los 500 caracteres.";
   if (code.includes("team_ineligible"))
-    return "Your team needs exactly five eligible starters with verified Riot rank and account level 30+.";
-  if (code.includes("region_mismatch")) return "This team is based outside the tournament region.";
+    return "Tu equipo necesita exactamente cinco titulares habilitados, con rango de Riot verificado y cuenta de nivel 30 o superior.";
+  if (code.includes("region_mismatch")) return "Este equipo pertenece a otra región.";
   if (code.includes("registration_not_open") || code.includes("registration_closed"))
-    return "Team registration is not open.";
+    return "La inscripción por equipos no está abierta.";
   if (code.includes("qualified_priority_window"))
-    return "Unqualified teams have priority for this qualifier right now. Your team can enter later if spots remain.";
-  if (code.includes("tournament_full")) return "This tournament is full.";
-  if (code.includes("already_registered")) return "Your team is already registered.";
-  if (code.includes("solo_registration_required")) return "This is not a team-mode tournament.";
-  if (code.includes("checkin_not_open")) return "Team check-in has not opened yet.";
-  if (code.includes("checkin_closed")) return "Team check-in has closed.";
+    return "Por ahora tienen prioridad los equipos no clasificados. Tu equipo podrá inscribirse después si quedan lugares.";
+  if (code.includes("tournament_full")) return "Este torneo está completo.";
+  if (code.includes("already_registered")) return "Tu equipo ya está inscripto.";
+  if (code.includes("solo_registration_required")) return "Este torneo no es por equipos.";
+  if (code.includes("checkin_not_open"))
+    return "La confirmación de asistencia del equipo todavía no está abierta.";
+  if (code.includes("checkin_closed")) return "La confirmación de asistencia del equipo cerró.";
   return message;
 }
 
@@ -145,7 +149,7 @@ export const createMyTeam = createServerFn({ method: "POST" })
     } catch (error) {
       return {
         ok: false as const,
-        error: error instanceof Error ? error.message : "Could not create team.",
+        error: error instanceof Error ? error.message : "No se pudo crear el equipo.",
       };
     }
   });
@@ -166,7 +170,7 @@ export const updateMyTeam = createServerFn({ method: "POST" })
     } catch (error) {
       return {
         ok: false as const,
-        error: error instanceof Error ? error.message : "Could not update team.",
+        error: error instanceof Error ? error.message : "No se pudo actualizar el equipo.",
       };
     }
   });
@@ -186,7 +190,7 @@ export const inviteMyTeamMember = createServerFn({ method: "POST" })
     } catch (error) {
       return {
         ok: false as const,
-        error: error instanceof Error ? error.message : "Could not invite player.",
+        error: error instanceof Error ? error.message : "No se pudo invitar al jugador.",
       };
     }
   });
@@ -206,7 +210,7 @@ export const respondMyTeamInvite = createServerFn({ method: "POST" })
     } catch (error) {
       return {
         ok: false as const,
-        error: error instanceof Error ? error.message : "Could not respond to invite.",
+        error: error instanceof Error ? error.message : "No se pudo responder a la invitación.",
       };
     }
   });
@@ -225,7 +229,7 @@ export const cancelMyTeamInvite = createServerFn({ method: "POST" })
     } catch (error) {
       return {
         ok: false as const,
-        error: error instanceof Error ? error.message : "Could not cancel invite.",
+        error: error instanceof Error ? error.message : "No se pudo cancelar la invitación.",
       };
     }
   });
@@ -244,7 +248,7 @@ export const removeMyTeamMember = createServerFn({ method: "POST" })
     } catch (error) {
       return {
         ok: false as const,
-        error: error instanceof Error ? error.message : "Could not remove player.",
+        error: error instanceof Error ? error.message : "No se pudo quitar al jugador.",
       };
     }
   });
@@ -257,7 +261,7 @@ export const leaveMyTeam = createServerFn({ method: "POST" })
     } catch (error) {
       return {
         ok: false as const,
-        error: error instanceof Error ? error.message : "Could not leave team.",
+        error: error instanceof Error ? error.message : "No se pudo abandonar el equipo.",
       };
     }
   });
@@ -276,7 +280,7 @@ export const registerMyTeamForTournament = createServerFn({ method: "POST" })
     } catch (error) {
       return {
         ok: false as const,
-        error: error instanceof Error ? error.message : "Could not register team.",
+        error: error instanceof Error ? error.message : "No se pudo inscribir al equipo.",
       };
     }
   });
@@ -295,7 +299,8 @@ export const checkInMyTeamToTournament = createServerFn({ method: "POST" })
     } catch (error) {
       return {
         ok: false as const,
-        error: error instanceof Error ? error.message : "Could not check in team.",
+        error:
+          error instanceof Error ? error.message : "No se pudo confirmar la asistencia del equipo.",
       };
     }
   });

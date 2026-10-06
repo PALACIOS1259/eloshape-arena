@@ -26,16 +26,24 @@ import { PageContainer } from "@/components/layout/PageShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { formatDateTime, formatPoints, placementLabel } from "@/lib/format";
+import {
+  formatDateTime,
+  formatPoints,
+  placementLabel,
+  divisionLabel,
+  statusLabel,
+  seasonLabel,
+  tournamentFormat,
+} from "@/lib/format";
 import { tournamentDetailQuery } from "@/lib/queries";
 import { canonicalMetadata } from "@/lib/site-metadata";
 import { cn } from "@/lib/utils";
 
 const EVENT_STAGES = [
-  { key: "registration_open", label: "Registration", description: "Build the field" },
-  { key: "registration_closed", label: "Check-in", description: "Lock the bracket" },
-  { key: "live", label: "Live bracket", description: "Play the event" },
-  { key: "completed", label: "Results", description: "Final standings" },
+  { key: "registration_open", label: "Inscripción", description: "Completar participantes" },
+  { key: "registration_closed", label: "Check-in", description: "Bloquear el cuadro" },
+  { key: "live", label: "Cuadro en vivo", description: "Jugar el evento" },
+  { key: "completed", label: "Resultados", description: "Posiciones finales" },
 ] as const;
 
 export const Route = createFileRoute("/tournaments/$slug")({
@@ -48,14 +56,14 @@ export const Route = createFileRoute("/tournaments/$slug")({
     if (!loaderData) {
       return {
         meta: [
-          { title: "Tournament unavailable — EloShape" },
+          { title: "Torneo no disponible — EloShape" },
           { name: "robots", content: "noindex" },
         ],
       };
     }
-    const title = `${loaderData.name} — EloShape tournament`;
+    const title = `${loaderData.name} — Torneo de EloShape`;
     const description =
-      loaderData.subtitle ?? "Bracket, participants and results for this EloShape tournament.";
+      loaderData.subtitle ?? "Cuadro, participantes y resultados de este torneo de EloShape.";
     const canonical = canonicalMetadata(`/tournaments/${encodeURIComponent(loaderData.slug)}`);
     return {
       meta: [
@@ -71,11 +79,11 @@ export const Route = createFileRoute("/tournaments/$slug")({
   notFoundComponent: () => (
     <PageContainer className="py-20">
       <EmptyState
-        title="Tournament not found"
-        description="This bracket may have been removed or renamed."
+        title="Torneo no encontrado"
+        description="Este cuadro pudo haberse eliminado o cambiado de nombre."
         action={
           <Button asChild>
-            <Link to="/tournaments">Back to tournaments</Link>
+            <Link to="/tournaments">Volver a torneos</Link>
           </Button>
         }
       />
@@ -118,11 +126,11 @@ function TournamentDetailPage() {
       (row) => row.team_id === teamId && row.status === "qualified",
     );
     if (!qualification?.qualified_from_tournament_id) return null;
-    if (qualification.qualified_from_tournament_id === tournament.id) return "Qualified here";
+    if (qualification.qualified_from_tournament_id === tournament.id) return "Clasificó acá";
 
     const sourceIndex = qualifierIndexByTournament.get(qualification.qualified_from_tournament_id);
     if (sourceIndex != null && sourceIndex < (tournament.qualifier_index ?? 0)) {
-      return `Already qualified · Q${sourceIndex}`;
+      return `Ya clasificado · C${sourceIndex}`;
     }
     return null;
   };
@@ -150,7 +158,7 @@ function TournamentDetailPage() {
             className="inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground transition-colors hover:text-primary"
           >
             <ArrowLeft className="size-3.5" />
-            Tournament circuit
+            Circuito de torneos
           </Link>
 
           <div className="mt-5 flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
@@ -158,11 +166,15 @@ function TournamentDetailPage() {
               <div className="flex flex-wrap items-center gap-2">
                 <StatusBadge status={tournament.status} />
                 <DivisionBadge division={tournament.division} />
-                <Badge variant="outline">{tournament.mode === "team" ? "5v5 Team" : "Solo"}</Badge>
+                <Badge variant="outline">
+                  {tournament.mode === "team" ? "Equipos de 5 contra 5" : "Individual"}
+                </Badge>
                 {tournament.season?.name ? (
-                  <Badge variant="secondary">{tournament.season.name}</Badge>
+                  <Badge variant="secondary">{seasonLabel(tournament.season.name)}</Badge>
                 ) : null}
-                {isDemoFixture ? <Badge variant="outline">Staging demo fixture</Badge> : null}
+                {isDemoFixture ? (
+                  <Badge variant="outline">Datos de demostración del entorno de pruebas</Badge>
+                ) : null}
               </div>
 
               <h1 className="mt-4 max-w-4xl text-3xl font-black tracking-tight text-foreground sm:text-4xl">
@@ -170,7 +182,7 @@ function TournamentDetailPage() {
               </h1>
               <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground sm:text-base">
                 {tournament.subtitle ??
-                  "Official EloShape competition with verified eligibility, structured matches and circuit points."}
+                  "Competencia oficial de EloShape con elegibilidad verificada, partidas organizadas y puntos del circuito."}
               </p>
 
               <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-muted-foreground">
@@ -184,7 +196,7 @@ function TournamentDetailPage() {
                 </span>
                 <span className="inline-flex items-center gap-1.5">
                   <Swords className="size-3.5 text-primary" />
-                  {tournament.format ?? "Format TBD"}
+                  {tournamentFormat(tournament.format)}
                 </span>
                 {tournament.prize ? (
                   <span className="inline-flex items-center gap-1.5 text-gold">
@@ -198,7 +210,7 @@ function TournamentDetailPage() {
             <div className="w-full border-t border-border/60 pt-4 xl:w-[22rem] xl:border-l xl:border-t-0 xl:pl-6 xl:pt-0">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="eyebrow">Tournament field</p>
+                  <p className="eyebrow">Participantes del torneo</p>
                   <p className="mt-1 text-xl font-black tabular-nums text-foreground">
                     {capacity ? `${filled}/${capacity}` : filled}
                   </p>
@@ -226,8 +238,8 @@ function TournamentDetailPage() {
                     />
                   </div>
                   <div className="mt-2 flex items-center justify-between text-[11px] font-semibold text-muted-foreground">
-                    <span>{Math.max(0, capacity - filled)} spots remaining</span>
-                    <span className="tabular-nums">{pct}% full</span>
+                    <span>{Math.max(0, capacity - filled)} lugares disponibles</span>
+                    <span className="tabular-nums">{pct}% completo</span>
                   </div>
                 </>
               ) : null}
@@ -236,7 +248,7 @@ function TournamentDetailPage() {
                 <p className="mt-3 flex items-start gap-2 text-xs text-muted-foreground">
                   <Clock3 className="mt-0.5 size-3.5 shrink-0 text-primary" />
                   <span>
-                    Registration closes{" "}
+                    Cierre de inscripción{" "}
                     <strong className="font-semibold text-foreground">
                       {formatDateTime(tournament.registration_closes_at)}
                     </strong>
@@ -266,19 +278,19 @@ function TournamentDetailPage() {
                 value="overview"
                 className="rounded-lg px-4 py-2 text-xs font-black data-[state=active]:bg-primary/12 data-[state=active]:text-primary"
               >
-                Overview
+                Resumen
               </TabsTrigger>
               <TabsTrigger
                 value="participants"
                 className="rounded-lg px-4 py-2 text-xs font-black data-[state=active]:bg-primary/12 data-[state=active]:text-primary"
               >
-                Participants · {entries.length}
+                Participantes · {entries.length}
               </TabsTrigger>
               <TabsTrigger
                 value="bracket"
                 className="rounded-lg px-4 py-2 text-xs font-black data-[state=active]:bg-primary/12 data-[state=active]:text-primary"
               >
-                Bracket · {matches.length}
+                Cuadro · {matches.length}
               </TabsTrigger>
             </TabsList>
           </div>
@@ -291,22 +303,24 @@ function TournamentDetailPage() {
               <div className="space-y-5">
                 <section className="border-b border-border/60 pb-6">
                   <div>
-                    <p className="eyebrow">Event brief</p>
+                    <p className="eyebrow">Información del evento</p>
                     <h2 className="mt-1 text-xl font-black text-foreground">
-                      Everything you need before game one
+                      Todo lo que necesitás antes de la primera partida
                     </h2>
                   </div>
                   <div className="mt-4">
                     <p className="whitespace-pre-line text-sm leading-7 text-muted-foreground">
                       {tournament.description ??
-                        "Tournament details will be published before check-in opens. Your division, geography and entry requirements are validated by EloShape when you register."}
+                        "Los detalles del torneo se publicarán antes de abrir la confirmación de asistencia. EloShape valida tu división, ubicación y requisitos de ingreso cuando te inscribís."}
                     </p>
 
                     {tournament.rules ? (
                       <div className="mt-7 border-t border-border/70 pt-6">
                         <div className="flex items-center gap-2">
                           <ShieldCheck className="size-4 text-primary" />
-                          <h3 className="text-sm font-black text-foreground">Competition rules</h3>
+                          <h3 className="text-sm font-black text-foreground">
+                            Reglas de competencia
+                          </h3>
                         </div>
                         <p className="mt-3 whitespace-pre-line text-sm leading-7 text-muted-foreground">
                           {tournament.rules}
@@ -319,31 +333,31 @@ function TournamentDetailPage() {
                 <section>
                   <div className="flex flex-wrap items-end justify-between gap-3">
                     <div>
-                      <p className="eyebrow">Match day flow</p>
+                      <p className="eyebrow">Desarrollo del día de partidas</p>
                       <h2 className="mt-1 text-xl font-black text-foreground">
-                        From registration to results
+                        De la inscripción a los resultados
                       </h2>
                     </div>
                     <span className="text-xs font-semibold text-muted-foreground">
-                      Simple, server-validated workflow
+                      Proceso simple, validado por el servidor
                     </span>
                   </div>
 
                   <div className="mt-5 grid gap-5 md:grid-cols-3">
                     <FlowStep
                       number="01"
-                      title="Register"
-                      description="Enter the tournament while registration is open. Eligibility is checked automatically."
+                      title="Inscribirse"
+                      description="Inscribite mientras el registro esté abierto. La elegibilidad se comprueba automáticamente."
                     />
                     <FlowStep
                       number="02"
-                      title="Check in"
-                      description="Confirm your entry before the event so the bracket can lock correctly."
+                      title="Confirmar asistencia"
+                      description="Confirmá tu participación antes del evento para que el cuadro pueda cerrarse correctamente."
                     />
                     <FlowStep
                       number="03"
-                      title="Compete"
-                      description="Follow your bracket, report results and advance toward the final."
+                      title="Competir"
+                      description="Seguí tu cuadro, informá resultados y avanzá hacia la final."
                     />
                   </div>
                 </section>
@@ -351,25 +365,25 @@ function TournamentDetailPage() {
 
               <div className="space-y-5">
                 <section className="border-y border-border/65 py-5">
-                  <p className="eyebrow">Tournament access</p>
-                  <h2 className="mt-1 text-lg font-black text-foreground">Ready to compete?</h2>
+                  <p className="eyebrow">Acceso al torneo</p>
+                  <h2 className="mt-1 text-lg font-black text-foreground">¿Listo para competir?</h2>
                   <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                    Open to{" "}
+                    Abierto a{" "}
                     <strong className="font-semibold text-foreground">
-                      {tournament.division?.name ?? "assigned"}
+                      {divisionLabel(tournament.division)}
                     </strong>{" "}
-                    players or teams. Riot rank is used for eligibility; EloShape tournament results
-                    drive circuit standings.
+                    jugadores o equipos. El rango de Riot se usa para verificar la elegibilidad; los
+                    resultados de EloShape determinan las posiciones del circuito.
                   </p>
 
                   <div className="mt-5 space-y-2.5">
-                    <AccessCheck label="Division validated on the server" />
-                    <AccessCheck label="Region eligibility validated" />
+                    <AccessCheck label="División validada por el servidor" />
+                    <AccessCheck label="Elegibilidad regional validada" />
                     <AccessCheck
                       label={
                         tournament.mode === "team"
-                          ? "Team roster checked before entry"
-                          : "Player identity checked before entry"
+                          ? "Plantel del equipo verificado antes de inscribirse"
+                          : "Identidad del jugador verificada antes de inscribirse"
                       }
                     />
                   </div>
@@ -384,27 +398,27 @@ function TournamentDetailPage() {
                 </section>
 
                 <section>
-                  <p className="eyebrow">Event information</p>
+                  <p className="eyebrow">Información del evento</p>
                   <div className="mt-3 grid grid-cols-2 gap-x-5 gap-y-4">
                     <InfoTile
                       icon={<CalendarDays className="size-4" />}
-                      label="Start"
+                      label="Inicio"
                       value={formatDateTime(tournament.starts_at)}
                     />
                     <InfoTile
                       icon={<MapPin className="size-4" />}
-                      label="Region"
+                      label="Región"
                       value={tournament.region?.name ?? "LAS"}
                     />
                     <InfoTile
                       icon={<Swords className="size-4" />}
-                      label="Format"
-                      value={tournament.format ?? "TBD"}
+                      label="Formato"
+                      value={tournamentFormat(tournament.format)}
                     />
                     <InfoTile
                       icon={<Users className="size-4" />}
-                      label="Mode"
-                      value={tournament.mode === "team" ? "5v5 Team" : "Solo"}
+                      label="Modalidad"
+                      value={tournament.mode === "team" ? "Equipos de 5 contra 5" : "Individual"}
                     />
                   </div>
                 </section>
@@ -418,24 +432,27 @@ function TournamentDetailPage() {
           >
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
-                <p className="eyebrow">Tournament field</p>
+                <p className="eyebrow">Participantes del torneo</p>
                 <h2 className="mt-1 text-2xl font-black text-foreground">
-                  {tournament.status === "completed" ? "Final standings" : "Registered competitors"}
+                  {tournament.status === "completed"
+                    ? "Posiciones finales"
+                    : "Competidores inscritos"}
                 </h2>
                 <p className="mt-2 text-sm text-muted-foreground">
                   {entries.length} {entries.length === 1 ? "entry" : "entries"}
-                  {capacity ? ` · ${capacity} total slots` : ""}.
+                  {capacity ? ` · ${capacity} lugares totales` : ""}.
                 </p>
                 {isDemoFixture && tournament.status === "completed" ? (
                   <p className="mt-2 max-w-2xl text-xs leading-relaxed text-muted-foreground">
-                    This staging fixture intentionally reuses some rosters and deterministic match
-                    outcomes. Final standings show who finished where; the qualification outcome
-                    below shows which teams actually claimed new Semi-Split slots after pass-down.
+                    Estos datos de demostración del entorno de pruebas reutilizan algunos planteles
+                    y resultados predeterminados. Las posiciones finales muestran quién terminó en
+                    cada puesto; la clasificación de abajo muestra qué equipos obtuvieron nuevos
+                    lugares en el Semi-Split al transferirse los cupos repetidos.
                   </p>
                 ) : null}
               </div>
               <Badge variant="outline">
-                {tournament.mode === "team" ? "Team field" : "Solo field"}
+                {tournament.mode === "team" ? "Equipos participantes" : "Jugadores participantes"}
               </Badge>
             </div>
 
@@ -443,24 +460,26 @@ function TournamentDetailPage() {
               <section className="mt-5 overflow-hidden rounded-2xl border border-primary/20 bg-primary/[0.035] shadow-card">
                 <div className="flex flex-wrap items-start justify-between gap-3 border-b border-primary/15 px-4 py-4 sm:px-5">
                   <div>
-                    <p className="eyebrow">Qualification outcome</p>
+                    <p className="eyebrow">Resultado de clasificación</p>
                     <h3 className="mt-1 text-lg font-black text-foreground">
-                      New playoff spots earned from this qualifier
+                      Nuevos lugares en eliminatorias obtenidos en este clasificatorio
                     </h3>
                     <p className="mt-1 max-w-3xl text-xs leading-relaxed text-muted-foreground">
-                      Final standings and qualification are different concepts. If a high finisher
-                      was already qualified from an earlier event, its slot passes down to the next
-                      eligible team.
+                      Las posiciones finales y la clasificación son conceptos distintos. Si un
+                      equipo bien ubicado ya estaba clasificado, su lugar pasa al siguiente equipo
+                      elegible.
                     </p>
                   </div>
-                  <Badge variant="outline">{qualifiedFromThisEvent.length} new qualifiers</Badge>
+                  <Badge variant="outline">
+                    {qualifiedFromThisEvent.length} nuevos clasificados
+                  </Badge>
                 </div>
                 <div className="grid gap-px bg-border/60 sm:grid-cols-2 xl:grid-cols-4">
                   {qualifiedFromThisEvent.map((qualification) => {
                     const entry = entries.find(
                       (candidate) => candidate.team?.id === qualification.team_id,
                     );
-                    const name = entry?.team?.name ?? "Qualified team";
+                    const name = entry?.team?.name ?? "Equipo clasificado";
                     const passDown =
                       entry?.placement != null && entry.placement > qualifiedFromThisEvent.length;
                     return (
@@ -470,19 +489,19 @@ function TournamentDetailPage() {
                       >
                         <div className="flex items-center justify-between gap-2">
                           <span className="text-[10px] font-black uppercase tracking-[0.14em] text-primary">
-                            Slot #{qualification.qualification_position}
+                            Lugar n.º{qualification.qualification_position}
                           </span>
                           {passDown ? (
                             <Badge variant="secondary" className="text-[9px]">
-                              Pass-down
+                              Cupo transferido
                             </Badge>
                           ) : null}
                         </div>
                         <p className="mt-2 truncate text-sm font-black text-foreground">{name}</p>
                         <p className="mt-1 text-[11px] text-muted-foreground">
                           {entry?.placement
-                            ? `Finished ${placementLabel(entry.placement)} in this event`
-                            : "Qualified from this event"}
+                            ? `Terminó ${placementLabel(entry.placement)} en este evento`
+                            : "Clasificó en este evento"}
                         </p>
                       </div>
                     );
@@ -494,7 +513,7 @@ function TournamentDetailPage() {
             {podium.length ? (
               <div className="mt-5 grid gap-3 md:grid-cols-3">
                 {podium.map((entry) => {
-                  const name = entry.team?.name ?? entry.profile?.display_name ?? "TBD";
+                  const name = entry.team?.name ?? entry.profile?.display_name ?? "A confirmar";
                   return (
                     <PodiumCard
                       key={entry.id}
@@ -510,14 +529,14 @@ function TournamentDetailPage() {
             {entries.length ? (
               <div className="mt-5 overflow-hidden border-y border-border/65 bg-card/15">
                 <div className="hidden grid-cols-[4rem_minmax(0,1fr)_8rem_8rem] gap-3 border-b border-border bg-background/25 px-5 py-3 text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground sm:grid">
-                  <span>Seed</span>
-                  <span>Competitor</span>
-                  <span className="text-right">Placement</span>
-                  <span className="text-right">Points</span>
+                  <span>Posición inicial</span>
+                  <span>Competidor</span>
+                  <span className="text-right">Puesto final</span>
+                  <span className="text-right">Puntos</span>
                 </div>
 
                 {entries.map((entry, index) => {
-                  const name = entry.team?.name ?? entry.profile?.display_name ?? "TBD";
+                  const name = entry.team?.name ?? entry.profile?.display_name ?? "A confirmar";
                   const href =
                     entry.profile != null
                       ? {
@@ -554,7 +573,7 @@ function TournamentDetailPage() {
                             </span>
                           )}
                           <span className="mt-1 flex flex-wrap items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
-                            <span>{entry.status.replaceAll("_", " ")}</span>
+                            <span>{statusLabel(entry.status)}</span>
                             {qualificationLabel(entry.team?.id) ? (
                               <span className="rounded-full border border-primary/20 bg-primary/8 px-1.5 py-0.5 text-[9px] tracking-[0.08em] text-primary">
                                 {qualificationLabel(entry.team?.id)}
@@ -583,8 +602,8 @@ function TournamentDetailPage() {
             ) : (
               <div className="mt-5 border-y border-border/65 py-5">
                 <EmptyState
-                  title="No participants yet"
-                  description="Entries appear here as players or teams register and check in."
+                  title="Todavía no hay participantes"
+                  description="Las inscripciones aparecen acá cuando jugadores o equipos se registran y confirman asistencia."
                 />
               </div>
             )}
@@ -596,16 +615,16 @@ function TournamentDetailPage() {
           >
             <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
               <div>
-                <p className="eyebrow">Championship bracket</p>
-                <h2 className="mt-1 text-2xl font-black text-foreground">Road to the title</h2>
+                <p className="eyebrow">Cuadro del campeonato</p>
+                <h2 className="mt-1 text-2xl font-black text-foreground">Camino al título</h2>
                 <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-                  Follow every matchup from the opening round through the championship. Open a match
-                  to report a result or view its dispute status.
+                  Seguí cada cruce desde la primera ronda hasta el campeonato. Abrí una partida para
+                  informar un resultado o consultar su disputa.
                 </p>
               </div>
               <div className="flex gap-2">
-                <Badge variant="outline">{matches.length} matches</Badge>
-                <Badge variant="outline">Single elimination</Badge>
+                <Badge variant="outline">{matches.length} partidas</Badge>
+                <Badge variant="outline">Eliminación directa</Badge>
               </div>
             </div>
 
@@ -614,8 +633,8 @@ function TournamentDetailPage() {
             ) : (
               <div className="border-y border-border/65 py-5">
                 <EmptyState
-                  title="Bracket not generated yet"
-                  description="The bracket is seeded once registration closes and check-in completes."
+                  title="El cuadro todavía no se generó"
+                  description="El cuadro se ordena cuando cierran las inscripciones y termina la confirmación de asistencia."
                 />
               </div>
             )}
@@ -639,9 +658,11 @@ function EventProgress({
     <section className="border-b border-border/60 pb-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="eyebrow">Event progress</p>
+          <p className="eyebrow">Avance del evento</p>
           <p className="mt-1 text-sm font-black text-foreground">
-            {completed ? "Tournament complete" : "Follow the event from entry to final results"}
+            {completed
+              ? "Torneo finalizado"
+              : "Seguí el evento desde la inscripción hasta los resultados finales"}
           </p>
         </div>
         {status === "live" ? (
@@ -650,7 +671,7 @@ function EventProgress({
               <span className="absolute inline-flex size-full animate-ping rounded-full bg-primary opacity-60" />
               <span className="relative inline-flex size-2 rounded-full bg-primary" />
             </span>
-            LIVE
+            EN VIVO
           </span>
         ) : null}
       </div>
@@ -769,7 +790,7 @@ function PodiumCard({
       </div>
       <p className="mt-5 truncate text-lg font-black text-foreground">{name}</p>
       <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-        {placementLabel(placement)} place
+        {placementLabel(placement)} puesto
       </p>
     </div>
   );

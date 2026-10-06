@@ -12,8 +12,9 @@ export function SiteFooter() {
         <div className="min-w-0">
           <EloShapeLogo />
           <p className="mt-4 max-w-sm text-sm text-muted-foreground">
-            The competitive circuit for amateur League of Legends players. Skill-based divisions,
-            city-to-region brackets, and a ranking that only counts EloShape results.
+            El circuito competitivo para jugadores amateur de League of Legends. Divisiones por
+            nivel, cuadros de ciudad a región y una clasificación que solo cuenta resultados de
+            EloShape.
           </p>
           <div className="mt-5 flex flex-col items-start gap-3">
             <a
@@ -21,7 +22,7 @@ export function SiteFooter() {
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-sm text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
-              aria-label="Join the EloShape Discord (opens in a new tab)"
+              aria-label="Unite al Discord de EloShape (abre en una pestaña nueva)"
             >
               <MessageCircle className="size-4 shrink-0" aria-hidden="true" />
               <span>Discord de EloShape</span>
@@ -31,7 +32,7 @@ export function SiteFooter() {
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex max-w-full items-center gap-2 rounded-sm text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
-              aria-label="Instagram: @eloshape.circuito.lol (opens in a new tab)"
+              aria-label="Instagram: @eloshape.circuito.lol (abre en una pestaña nueva)"
             >
               <Instagram className="size-4 shrink-0" aria-hidden="true" />
               <span className="break-all">@eloshape.circuito.lol</span>
@@ -40,29 +41,29 @@ export function SiteFooter() {
         </div>
 
         <FooterColumn
-          title="Compete"
+          title="Competir"
           links={[
-            { to: "/tournaments", label: "Tournaments" },
-            { to: "/rankings", label: "Rankings" },
-            { to: "/teams", label: "Teams" },
+            { to: "/tournaments", label: "Torneos" },
+            { to: "/rankings", label: "Clasificaciones" },
+            { to: "/teams", label: "Equipos" },
           ]}
         />
         <FooterColumn
-          title="Platform"
+          title="Plataforma"
           links={[
-            { to: "/divisions", label: "Divisions & eligibility" },
-            { to: "/rules", label: "Points & rules" },
-            { to: "/auth", label: "Sign in" },
-            { to: "/support", label: "Support & account requests" },
-            { to: "/privacy", label: "Privacy Policy" },
-            { to: "/terms", label: "Terms of Service" },
+            { to: "/divisions", label: "Divisiones y elegibilidad" },
+            { to: "/rules", label: "Puntos y reglas" },
+            { to: "/auth", label: "Iniciar sesión" },
+            { to: "/support", label: "Soporte y solicitudes de cuenta" },
+            { to: "/privacy", label: "Política de privacidad" },
+            { to: "/terms", label: "Términos de servicio" },
           ]}
         />
         <div>
-          <p className="eyebrow">Fair play</p>
+          <p className="eyebrow">Juego limpio</p>
           <p className="mt-3 text-sm text-muted-foreground">
-            Riot rank is used only to verify division eligibility. EloShape points are earned
-            exclusively in EloShape tournaments.
+            El rango de Riot se usa únicamente para verificar la división. Los puntos de EloShape se
+            obtienen exclusivamente en sus torneos.
           </p>
         </div>
       </div>

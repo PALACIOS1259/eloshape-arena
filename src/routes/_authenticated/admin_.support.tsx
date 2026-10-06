@@ -1,3 +1,4 @@
+import { statusLabel, formatDateTime, supportCategoryLabel } from "@/lib/format";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -20,8 +21,11 @@ import {
 export const Route = createFileRoute("/_authenticated/admin_/support")({
   head: () => ({
     meta: [
-      { title: "Support queue — EloShape Staff" },
-      { name: "description", content: "Review EloShape support, privacy and deletion requests." },
+      { title: "Solicitudes de soporte — Organización de EloShape" },
+      {
+        name: "description",
+        content: "Revisá solicitudes de soporte, privacidad y eliminación de cuentas.",
+      },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -42,12 +46,12 @@ function StaffSupportPage() {
   return (
     <div>
       <PageHeading
-        eyebrow="Staff · Support"
-        title="Support queue"
-        description="Review player support, bug, privacy and account-deletion requests. Account deletion is a reviewed workflow so competitive history can be preserved or anonymized safely."
+        eyebrow="Organización · Soporte"
+        title="Solicitudes de soporte"
+        description="Revisá consultas, errores, solicitudes de privacidad y eliminación de cuentas. La eliminación se revisa para conservar o anonimizar el historial competitivo cuando corresponda."
         aside={
           <Button asChild variant="outline">
-            <Link to="/admin">Back to moderation console</Link>
+            <Link to="/admin">Volver al panel de moderación</Link>
           </Button>
         }
       />
@@ -60,14 +64,14 @@ function StaffSupportPage() {
           </div>
         ) : query.error || !query.data ? (
           <EmptyState
-            title="Staff access required"
-            description="This queue is limited to EloShape admin and moderator accounts."
+            title="Se requiere acceso de organización"
+            description="Esta lista está limitada a cuentas de administración y moderación de EloShape."
           />
         ) : (
           <>
             <div className="mb-6 flex flex-wrap gap-2 border-b border-border/60 pb-4">
-              <Badge variant="outline">{openCount} open</Badge>
-              <Badge variant="outline">{reviewCount} in review</Badge>
+              <Badge variant="outline">{openCount} abiertas</Badge>
+              <Badge variant="outline">{reviewCount} en revisión</Badge>
               <Badge variant="secondary">{query.data.length} total</Badge>
             </div>
 
@@ -75,7 +79,7 @@ function StaffSupportPage() {
               {query.data.length ? (
                 query.data.map((request) => <SupportCard key={request.id} request={request} />)
               ) : (
-                <EmptyState title="Support queue clear" />
+                <EmptyState title="No hay solicitudes pendientes" />
               )}
             </div>
           </>
@@ -98,35 +102,37 @@ function SupportCard({ request }: { request: StaffSupportRequest }) {
         toast.error(result.error);
         return;
       }
-      toast.success(`Support request marked ${result.result.status.replace("_", " ")}.`);
+      toast.success(`Solicitud de soporte marcada como ${statusLabel(result.result.status)}.`);
       void queryClient.invalidateQueries({ queryKey: ["staff-support-requests"] });
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : "Could not update support request.");
+      toast.error(
+        error instanceof Error ? error.message : "No se pudo actualizar la solicitud de soporte.",
+      );
     },
   });
 
   const requester = request.profile
     ? `${request.profile.displayName} (@${request.profile.handle})`
-    : "Account without a linked public profile";
+    : "Cuenta sin perfil público vinculado";
 
   return (
     <article className="border-y border-border/65 py-5 sm:py-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="outline">{request.category.replace("_", " ")}</Badge>
+            <Badge variant="outline">{supportCategoryLabel(request.category)}</Badge>
             <StatusBadge status={request.status} />
           </div>
           <h2 className="mt-3 text-lg font-black text-foreground">{request.subject}</h2>
           <p className="mt-1 text-xs text-muted-foreground">
-            {requester} · {new Date(request.createdAt).toLocaleString()}
+            {requester} · {formatDateTime(request.createdAt)}
           </p>
         </div>
         {request.profile ? (
           <Button asChild size="sm" variant="outline">
             <Link to="/players/$handle" params={{ handle: request.profile.handle }}>
-              Player profile
+              Perfil del jugador
             </Link>
           </Button>
         ) : null}
@@ -135,14 +141,14 @@ function SupportCard({ request }: { request: StaffSupportRequest }) {
       <p className="mt-4 whitespace-pre-wrap text-sm text-muted-foreground">{request.message}</p>
 
       <div className="mt-5">
-        <p className="eyebrow">Response visible to player</p>
+        <p className="eyebrow">Respuesta visible para el jugador</p>
         <Textarea
           className="mt-2"
           rows={4}
           maxLength={2000}
           value={response}
           onChange={(event) => setResponse(event.target.value)}
-          placeholder="Add a response or resolution note."
+          placeholder="Agregá una respuesta o una nota de resolución."
         />
       </div>
 
@@ -153,10 +159,10 @@ function SupportCard({ request }: { request: StaffSupportRequest }) {
           disabled={mutation.isPending}
           onClick={() => mutation.mutate("in_review")}
         >
-          Mark in review
+          Marcar en revisión
         </Button>
         <Button size="sm" disabled={mutation.isPending} onClick={() => mutation.mutate("resolved")}>
-          Resolve
+          Resolver
         </Button>
         <Button
           size="sm"
@@ -164,7 +170,7 @@ function SupportCard({ request }: { request: StaffSupportRequest }) {
           disabled={mutation.isPending}
           onClick={() => mutation.mutate("closed")}
         >
-          Close
+          Cerrar
         </Button>
       </div>
     </article>
@@ -174,7 +180,7 @@ function SupportCard({ request }: { request: StaffSupportRequest }) {
 function StatusBadge({ status }: { status: SupportStatus }) {
   return (
     <Badge variant={status === "resolved" || status === "closed" ? "secondary" : "outline"}>
-      {status.replace("_", " ")}
+      {statusLabel(status)}
     </Badge>
   );
 }

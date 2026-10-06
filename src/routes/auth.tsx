@@ -1,3 +1,4 @@
+import { authErrorMessage } from "@/lib/auth-messages";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -35,14 +36,14 @@ export const Route = createFileRoute("/auth")({
   }),
   head: () => ({
     meta: [
-      { title: "Sign in — EloShape" },
+      { title: "Iniciar sesión — EloShape" },
       {
         name: "description",
         content:
-          "Sign in or create an EloShape account to register for tournaments and track your points.",
+          "Iniciá sesión o creá una cuenta de EloShape para inscribirte a torneos y seguir tus puntos.",
       },
-      { property: "og:title", content: "Sign in to EloShape" },
-      { property: "og:description", content: "Join the amateur League of Legends circuit." },
+      { property: "og:title", content: "Iniciá sesión en EloShape" },
+      { property: "og:description", content: "Sumate al circuito amateur de League of Legends." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -85,7 +86,9 @@ function AuthPage() {
         });
         if (error) {
           console.error("[EloShape auth] password reset request failed", { name: error.name });
-          throw new Error("Could not send the reset email. Please try again shortly.");
+          throw new Error(
+            "No se pudo enviar el correo de recuperación. Volvé a intentar en unos minutos.",
+          );
         }
         setSent(true);
         return;
@@ -94,11 +97,13 @@ function AuthPage() {
       if (isSignup) {
         if (!strongPassword(password)) {
           throw new Error(
-            "Use at least 10 characters with uppercase, lowercase, a number, and a symbol.",
+            "Usá al menos 10 caracteres con mayúsculas, minúsculas, un número y un símbolo.",
           );
         }
         if (!acceptedLegal) {
-          throw new Error("You must accept the Terms of Service and Privacy Policy to continue.");
+          throw new Error(
+            "Tenés que aceptar los términos del servicio y la política de privacidad para continuar.",
+          );
         }
 
         const { data, error } = await supabase.auth.signUp({
@@ -116,7 +121,9 @@ function AuthPage() {
         });
         if (error) {
           if (error.message.toLowerCase().includes("legal_acceptance_required")) {
-            throw new Error("You must accept the Terms of Service and Privacy Policy to continue.");
+            throw new Error(
+              "Tenés que aceptar los términos del servicio y la política de privacidad para continuar.",
+            );
           }
           if (closedLaunch) {
             throw new Error(
@@ -140,23 +147,23 @@ function AuthPage() {
       if (error) throw error;
       await enterPlatform();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Authentication failed");
+      toast.error(authErrorMessage(error));
     } finally {
       setLoading(false);
     }
   };
 
   const title = isForgot
-    ? "Reset your password"
+    ? "Restablecé tu contraseña"
     : isSignup
-      ? "Create your EloShape account"
-      : "Sign in to EloShape";
+      ? "Creá tu cuenta de EloShape"
+      : "Iniciá sesión en EloShape";
 
   const description = isForgot
-    ? "Enter your account email and we'll send you a secure password reset link."
+    ? "Ingresá el correo de tu cuenta y te enviaremos un enlace seguro para restablecer la contraseña."
     : isSignup
-      ? "Register for tournaments, link your Riot account for eligibility, and start earning circuit points."
-      : "Welcome back. Your division, points and brackets are waiting.";
+      ? "Inscribite a torneos, vinculá Riot para verificar tu elegibilidad y empezá a sumar puntos del circuito."
+      : "Bienvenido de nuevo. Tu división, puntos y cuadros te están esperando.";
 
   return (
     <PageContainer className="flex min-h-[72vh] items-center justify-center py-12">
@@ -175,8 +182,8 @@ function AuthPage() {
           <div className="mt-6 space-y-4">
             <p className="rounded-md border border-success/30 bg-success/10 p-4 text-sm text-success">
               {isForgot
-                ? "If an EloShape account exists for that email, a password reset link has been sent."
-                : "Check your email to confirm your account, then sign in."}
+                ? "Si existe una cuenta de EloShape con ese correo, se envió un enlace para restablecer la contraseña."
+                : "Revisá tu correo para confirmar la cuenta y después iniciá sesión."}
             </p>
             <Button
               type="button"
@@ -187,14 +194,14 @@ function AuthPage() {
                 navigate({ to: "/auth", search: { mode: "signin" } });
               }}
             >
-              Back to sign in
+              Volver a iniciar sesión
             </Button>
           </div>
         ) : (
           <form onSubmit={submit} className="mt-6 space-y-4">
             {isSignup ? (
               <div>
-                <Label htmlFor="displayName">Display name</Label>
+                <Label htmlFor="displayName">Nombre visible</Label>
                 <Input
                   id="displayName"
                   value={displayName}
@@ -207,7 +214,7 @@ function AuthPage() {
             ) : null}
 
             <div>
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">Correo electrónico</Label>
               <Input
                 id="email"
                 type="email"
@@ -221,7 +228,7 @@ function AuthPage() {
 
             {!isForgot ? (
               <div>
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Contraseña</Label>
                 <Input
                   id="password"
                   type="password"
@@ -234,7 +241,7 @@ function AuthPage() {
                 />
                 {isSignup ? (
                   <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                    At least 10 characters with uppercase, lowercase, a number, and a symbol.
+                    Al menos 10 caracteres con mayúsculas, minúsculas, un número y un símbolo.
                   </p>
                 ) : null}
               </div>
@@ -253,13 +260,13 @@ function AuthPage() {
                   htmlFor="legal"
                   className="text-xs leading-5 text-muted-foreground"
                 >
-                  I agree to the{" "}
+                  Acepto los{" "}
                   <Link to="/terms" className="font-semibold text-foreground hover:text-brand">
-                    Terms of Service
+                    Términos de servicio
                   </Link>{" "}
-                  and{" "}
+                  y la{" "}
                   <Link to="/privacy" className="font-semibold text-foreground hover:text-brand">
-                    Privacy Policy
+                    Política de privacidad
                   </Link>
                   .
                 </label>
@@ -272,12 +279,12 @@ function AuthPage() {
               disabled={loading || (isSignup && !acceptedLegal)}
             >
               {loading
-                ? "Please wait…"
+                ? "Esperá un momento…"
                 : isForgot
-                  ? "Send reset link"
+                  ? "Enviar enlace de recuperación"
                   : isSignup
-                    ? "Create account"
-                    : "Sign in"}
+                    ? "Crear cuenta"
+                    : "Iniciar sesión"}
             </Button>
           </form>
         )}
@@ -290,7 +297,7 @@ function AuthPage() {
                 onClick={() => navigate({ to: "/auth", search: { mode: "forgot" } })}
                 className="text-muted-foreground hover:text-foreground"
               >
-                Forgot your password?
+                ¿Olvidaste tu contraseña?
               </button>
             ) : null}
 
@@ -304,7 +311,9 @@ function AuthPage() {
               }
               className="block w-full text-muted-foreground hover:text-foreground"
             >
-              {isSignup || isForgot ? "Back to sign in" : "New to EloShape? Create an account"}
+              {isSignup || isForgot
+                ? "Volver a iniciar sesión"
+                : "¿Sos nuevo en EloShape? Creá una cuenta"}
             </button>
           </div>
         ) : null}

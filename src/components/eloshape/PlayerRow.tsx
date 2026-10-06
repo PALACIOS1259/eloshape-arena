@@ -115,7 +115,7 @@ export function PlayerRow({
       </span>
 
       <span className="tabular hidden text-sm font-semibold text-muted-foreground sm:block">
-        {player.wins}W · {player.losses}L · {winRate(player.wins, player.losses)}
+        {player.wins}G · {player.losses}P · {winRate(player.wins, player.losses)}
       </span>
 
       <span className="flex items-center justify-end gap-3">

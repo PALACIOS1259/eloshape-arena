@@ -10,17 +10,24 @@ import { StatusBadge } from "@/components/eloshape/StatusBadge";
 import { PageContainer } from "@/components/layout/PageShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { formatDate, formatDateTime, formatPoints } from "@/lib/format";
+import {
+  formatDate,
+  formatDateTime,
+  formatPoints,
+  divisionLabel,
+  statusLabel,
+  seasonLabel,
+} from "@/lib/format";
 import { canonicalMetadata } from "@/lib/site-metadata";
 import { bracketQuery, splitDetailQuery } from "@/lib/split-queries";
 import { cn } from "@/lib/utils";
 
 const DISPLAY_STAGES = [
-  { label: "Scheduled" },
-  { label: "4 Qualifiers" },
-  { label: "Qualified + Seeding" },
-  { label: "16-Team Playoff" },
-  { label: "Champion" },
+  { label: "Programado" },
+  { label: "4 clasificatorios" },
+  { label: "Clasificados y ordenamiento" },
+  { label: "Eliminatorias de 16 equipos" },
+  { label: "Campeón" },
 ] as const;
 
 function displayStageIndex(status: string) {
@@ -33,8 +40,8 @@ function displayStageIndex(status: string) {
 }
 
 function displayStageLabel(status: string) {
-  if (status === "semifinals") return "Playoff · Semifinals";
-  if (status === "final") return "Playoff · Grand Final";
+  if (status === "semifinals") return "Eliminatorias · Semifinales";
+  if (status === "final") return "Eliminatorias · Gran final";
   return DISPLAY_STAGES[displayStageIndex(status)]?.label ?? status;
 }
 
@@ -46,13 +53,13 @@ export const Route = createFileRoute("/splits/$slug")({
   },
   head: ({ loaderData }) => {
     const name = loaderData?.split.name ?? "Semi-Split";
-    const description = `Standings, qualifier results and the playoff bracket for ${name} on EloShape.`;
+    const description = `Posiciones, resultados de clasificatorios y cuadro de eliminatorias de ${name} en EloShape.`;
     const canonical = loaderData?.split.slug
       ? canonicalMetadata(`/splits/${encodeURIComponent(loaderData.split.slug)}`)
       : canonicalMetadata("/splits");
     return {
       meta: [
-        { title: `${name} — EloShape Semi-Split` },
+        { title: `${name} — Semi-Split de EloShape` },
         { name: "description", content: description },
         { property: "og:title", content: `${name} — EloShape` },
         { property: "og:description", content: description },
@@ -65,12 +72,12 @@ export const Route = createFileRoute("/splits/$slug")({
   },
   errorComponent: () => (
     <PageContainer className="py-16">
-      <EmptyState title="Split unavailable" description="Please try again in a moment." />
+      <EmptyState title="Split no disponible" description="Volvé a intentar en un momento." />
     </PageContainer>
   ),
   notFoundComponent: () => (
     <PageContainer className="py-16">
-      <EmptyState title="Split not found" description="This Semi-Split does not exist." />
+      <EmptyState title="Split no encontrado" description="Este Semi-Split no existe." />
     </PageContainer>
   ),
   component: SplitPage,
@@ -81,8 +88,8 @@ function PlayoffBracket({ slug }: { slug: string }) {
   if (!data || !data.matches.length) {
     return (
       <EmptyState
-        title="Bracket not generated yet"
-        description="The playoff bracket is published once seeding closes."
+        title="El cuadro todavía no se generó"
+        description="El cuadro de eliminatorias se publica cuando termina el ordenamiento."
       />
     );
   }
@@ -111,17 +118,19 @@ function SplitPage() {
         <div className="absolute right-0 top-0 size-[30rem] translate-x-1/3 -translate-y-1/2 rounded-full bg-primary/10 blur-3xl" />
         <PageContainer className="relative py-8 sm:py-10">
           <Button asChild size="sm" variant="ghost" className="mb-6 -ml-3">
-            <Link to="/splits">← All Semi-Splits</Link>
+            <Link to="/splits">← Todos los Semi-Splits</Link>
           </Button>
 
           <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <StatusBadge status={split.status} />
-                {split.division ? <Badge variant="outline">{split.division.name}</Badge> : null}
+                {split.division ? (
+                  <Badge variant="outline">{divisionLabel(split.division)}</Badge>
+                ) : null}
                 {split.region ? <Badge variant="outline">{split.region.name}</Badge> : null}
               </div>
-              <p className="eyebrow mt-4">{split.season?.name ?? "EloShape season"}</p>
+              <p className="eyebrow mt-4">{seasonLabel(split.season?.name)}</p>
               <h1 className="mt-2 max-w-4xl text-3xl font-black tracking-tight text-foreground sm:text-4xl">
                 {split.name}
               </h1>
@@ -131,25 +140,26 @@ function SplitPage() {
                   {formatDate(split.starts_at)} — {formatDate(split.ends_at)}
                 </span>
                 <span className="inline-flex items-center gap-2">
-                  <Swords className="size-4" /> 4 qualifiers → 16 qualified → one{" "}
-                  {split.playoff_size}-team playoff bracket
+                  <Swords className="size-4" /> 4 clasificatorios → 16 clasificados → un cuadro de{" "}
+                  {split.playoff_size}equipos
                 </span>
               </p>
             </div>
 
             <div className="w-full border-t border-border/60 pt-4 xl:w-[22rem] xl:border-l xl:border-t-0 xl:pl-6 xl:pt-0">
               <p className="text-[10px] font-black uppercase tracking-[0.14em] text-primary">
-                Current phase
+                Fase actual
               </p>
               <p className="mt-1.5 text-xl font-black text-foreground">
                 {displayStageLabel(split.status)}
               </p>
               <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                {qualifiedCount}/{split.playoff_size} playoff places are currently locked.
+                {qualifiedCount}/{split.playoff_size} lugares en las eliminatorias ya están
+                confirmados.
               </p>
               {split.dispute_deadline_at ? (
                 <p className="mt-3 text-xs text-muted-foreground">
-                  Disputes close {formatDateTime(split.dispute_deadline_at)}
+                  Cierre de disputas {formatDateTime(split.dispute_deadline_at)}
                 </p>
               ) : null}
             </div>
@@ -163,36 +173,36 @@ function SplitPage() {
         <section className="mt-6 grid grid-cols-2 gap-x-6 gap-y-5 border-b border-border/60 pb-6 xl:grid-cols-4">
           <OverviewMetric
             icon={<Swords className="size-4" />}
-            label="Qualifiers"
+            label="Clasificatorios"
             value={`${qualifiers.length}/4`}
-            detail="Open events"
+            detail="Eventos abiertos"
           />
           <OverviewMetric
             icon={<Users className="size-4" />}
-            label="Teams in split"
+            label="Equipos del split"
             value={String(standings.length)}
-            detail="Qualifier seeding table"
+            detail="Tabla de ordenamiento de clasificatorios"
           />
           <OverviewMetric
             icon={<CheckCircle2 className="size-4" />}
-            label="Qualified"
+            label="Clasificado"
             value={`${qualifiedCount}/${split.playoff_size}`}
-            detail="Playoff places"
+            detail="Lugares en las eliminatorias"
           />
           <OverviewMetric
             icon={<Trophy className="size-4" />}
-            label="Championship"
-            value={`${split.playoff_size} teams`}
-            detail="Single elimination"
+            label="Campeonato"
+            value={`${split.playoff_size} equipos`}
+            detail="Eliminación directa"
             gold
           />
         </section>
 
         <section className="mt-12">
           <SectionHeader
-            eyebrow="Stage 1"
-            title="Open Qualifiers"
-            description="Four open events. Each qualifier awards four playoff places to the highest-finishing eligible teams that are not already qualified. If a qualified team plays again, its qualification place passes down."
+            eyebrow="Etapa 1"
+            title="Clasificatorios abiertos"
+            description="Cuatro eventos abiertos. Cada clasificatorio otorga cuatro lugares en las eliminatorias a los equipos elegibles mejor ubicados que todavía no estén clasificados. Si un equipo ya clasificado vuelve a jugar, su lugar pasa al siguiente."
           />
           {qualifiers.length ? (
             <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -211,7 +221,7 @@ function SplitPage() {
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-black uppercase tracking-[0.14em] text-primary">
-                        Qualifier {tournament.qualifier_index}
+                        Clasificatorio {tournament.qualifier_index}
                       </span>
                       <StatusBadge status={tournament.status} />
                     </div>
@@ -224,7 +234,7 @@ function SplitPage() {
                       </p>
 
                       <div className="mt-5 flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">Field</span>
+                        <span className="text-muted-foreground">Participantes</span>
                         <span className="font-black tabular-nums text-foreground">
                           {participantCount}/{maxParticipants || "∞"}
                         </span>
@@ -237,9 +247,9 @@ function SplitPage() {
                       </div>
 
                       <div className="mt-5 flex items-center justify-between border-t border-border/60 pt-3 text-xs font-semibold text-muted-foreground">
-                        <span>4 slots · pass-down</span>
+                        <span>4 lugares · transferencia al siguiente</span>
                         <span className="inline-flex items-center gap-1 text-primary">
-                          View <ChevronRight className="size-3.5" />
+                          Ver <ChevronRight className="size-3.5" />
                         </span>
                       </div>
                     </div>
@@ -249,7 +259,7 @@ function SplitPage() {
             </div>
           ) : (
             <div className="mt-5">
-              <EmptyState title="Qualifiers not scheduled yet" />
+              <EmptyState title="Los clasificatorios todavía no están programados" />
             </div>
           )}
         </section>
@@ -257,11 +267,11 @@ function SplitPage() {
         <section className="mt-14">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <SectionHeader
-              eyebrow="Qualifier table"
-              title="Playoff seeding standings"
-              description="Only points earned in the four qualifiers count in this table. It sets playoff seeds and replacement priority; playoff results never reshuffle these seeds."
+              eyebrow="Tabla de clasificatorios"
+              title="Clasificación para ordenar las eliminatorias"
+              description="En esta tabla cuentan solo los puntos obtenidos en los cuatro clasificatorios. Define las posiciones iniciales y la prioridad de reemplazo; los resultados de las eliminatorias no cambian ese orden."
             />
-            <Badge variant="outline">{standings.length} teams</Badge>
+            <Badge variant="outline">{standings.length} equipos</Badge>
           </div>
 
           {podium.length ? (
@@ -285,14 +295,14 @@ function SplitPage() {
                     >
                       #{index + 1}
                     </span>
-                    {row.qualification_status === "qualified" ? <Badge>Qualified</Badge> : null}
+                    {row.qualification_status === "qualified" ? <Badge>Clasificado</Badge> : null}
                   </div>
                   <p className="mt-4 truncate text-lg font-black text-foreground group-hover:text-primary">
                     {row.team_name}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {row.team_tag ? `[${row.team_tag}] · ` : ""}
-                    {row.wins}-{row.losses} record
+                    {row.wins}-{row.losses} historial
                   </p>
                   <p className="mt-4 text-2xl font-black tabular-nums text-gold">
                     {formatPoints(row.points)}
@@ -310,22 +320,22 @@ function SplitPage() {
                   <thead>
                     <tr className="border-b border-border bg-background/25 text-left">
                       <th className="px-4 py-3 text-[10px] font-black uppercase tracking-[0.12em] text-muted-foreground">
-                        Rank
+                        Puesto
                       </th>
                       <th className="px-4 py-3 text-[10px] font-black uppercase tracking-[0.12em] text-muted-foreground">
-                        Team
+                        Equipo
                       </th>
                       <th className="px-4 py-3 text-[10px] font-black uppercase tracking-[0.12em] text-muted-foreground">
-                        Points
+                        Puntos
                       </th>
                       <th className="px-4 py-3 text-[10px] font-black uppercase tracking-[0.12em] text-muted-foreground">
-                        Record
+                        Historial
                       </th>
                       <th className="px-4 py-3 text-[10px] font-black uppercase tracking-[0.12em] text-muted-foreground">
-                        Qualifiers
+                        Clasificatorios
                       </th>
                       <th className="px-4 py-3 text-[10px] font-black uppercase tracking-[0.12em] text-muted-foreground">
-                        Playoff status
+                        Estado en eliminatorias
                       </th>
                     </tr>
                   </thead>
@@ -378,7 +388,7 @@ function SplitPage() {
                               {row.qualification_status}
                             </Badge>
                           ) : (
-                            <span className="text-xs text-muted-foreground">Still competing</span>
+                            <span className="text-xs text-muted-foreground">Sigue compitiendo</span>
                           )}
                         </td>
                       </tr>
@@ -388,7 +398,7 @@ function SplitPage() {
               </div>
             ) : (
               <div className="p-6">
-                <EmptyState title="No teams have competed yet" />
+                <EmptyState title="Todavía no compitieron equipos" />
               </div>
             )}
           </div>
@@ -396,12 +406,12 @@ function SplitPage() {
 
         <section className="mt-14">
           <SectionHeader
-            eyebrow="Stage 2 · 16 playoff places"
-            title="Qualified field"
+            eyebrow="Fase 2 · 16 lugares en eliminatorias"
+            title="Equipos clasificados"
             description={
               seedsRevealed
-                ? "Four unique eligible teams are taken from each qualifier. The 16-team field is now seeded by qualifier points."
-                : "Each qualifier locks four unique playoff places. Already-qualified teams can compete again, but their qualification place passes down."
+                ? "De cada clasificatorio se toman cuatro equipos elegibles distintos. Los 16 equipos se ordenan según sus puntos de clasificación."
+                : "Cada clasificatorio confirma cuatro lugares únicos. Los equipos ya clasificados pueden volver a competir, pero su lugar pasa al siguiente."
             }
           />
           {qualifications.length ? (
@@ -413,28 +423,28 @@ function SplitPage() {
                       {row.playoff_seed ? `#${row.playoff_seed}` : row.qualification_position}
                     </span>
                     <Badge variant={row.status === "qualified" ? "default" : "outline"}>
-                      {row.status}
+                      {statusLabel(row.status)}
                     </Badge>
                   </div>
                   <p className="mt-4 truncate font-black text-foreground">
-                    {row.team?.name ?? "Unknown team"}
+                    {row.team?.name ?? "Equipo desconocido"}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {row.team?.tag ? `[${row.team.tag}] · ` : ""}
                     {row.qualified_from?.qualifier_index
-                      ? `Qualifier ${row.qualified_from.qualifier_index}`
-                      : "Standings replacement"}
+                      ? `Clasificatorio ${row.qualified_from.qualifier_index}`
+                      : "Reemplazo por clasificación"}
                   </p>
                   <div className="mt-4 border-t border-border/70 pt-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
-                    Slot {row.qualification_position}
-                    {row.replaces ? ` · replaces ${row.replaces.name}` : ""}
+                    Lugar {row.qualification_position}
+                    {row.replaces ? ` · reemplaza a ${row.replaces.name}` : ""}
                   </div>
                 </article>
               ))}
             </div>
           ) : (
             <div className="mt-5">
-              <EmptyState title="No qualified teams yet" />
+              <EmptyState title="Todavía no hay equipos clasificados" />
             </div>
           )}
         </section>
@@ -442,15 +452,17 @@ function SplitPage() {
         <section className="mt-14">
           <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="eyebrow">Final stage · one championship bracket</p>
-              <h2 className="mt-1 text-2xl font-black text-foreground">16-team playoff bracket</h2>
+              <p className="eyebrow">Fase final · un cuadro de campeonato</p>
+              <h2 className="mt-1 text-2xl font-black text-foreground">
+                Cuadro de eliminatorias de 16 equipos
+              </h2>
               <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-                This is one continuous single-elimination bracket: Round of 16 → Quarterfinals →
-                Semifinals → Grand Final. Walkovers count as match wins; true byes advance without
-                match-win points.
+                Es un único cuadro de eliminación directa: Octavos → Cuartos → Semifinales → Gran
+                final. Las victorias administrativas cuentan como victorias de partida; los pases
+                directos permiten avanzar sin puntos por victoria.
               </p>
               <div className="mt-4 flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground">
-                {["Round of 16", "Quarterfinals", "Semifinals", "Grand Final"].map(
+                {["Octavos de final", "Cuartos de final", "Semifinales", "Gran final"].map(
                   (round, index) => (
                     <span key={round} className="inline-flex items-center gap-2">
                       <span>{round}</span>
@@ -463,7 +475,7 @@ function SplitPage() {
             {playoffs ? (
               <Button asChild variant="outline">
                 <Link to="/tournaments/$slug" params={{ slug: playoffs.slug }}>
-                  Open playoff event
+                  Abrir evento de eliminatorias
                 </Link>
               </Button>
             ) : null}
@@ -472,8 +484,8 @@ function SplitPage() {
             <PlayoffBracket slug={playoffs.slug} />
           ) : (
             <EmptyState
-              title="Playoffs not created yet"
-              description="The bracket appears once the qualifiers are complete and seeding closes."
+              title="Las eliminatorias todavía no se crearon"
+              description="El cuadro aparece cuando terminan los clasificatorios y se cierra el ordenamiento."
             />
           )}
         </section>

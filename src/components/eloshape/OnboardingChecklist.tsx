@@ -11,7 +11,7 @@ export function OnboardingChecklist({ steps }: { steps: OnboardingStep[] }) {
   return (
     <div className="border-y border-border/65 py-5">
       <div className="flex items-baseline justify-between gap-3">
-        <p className="eyebrow">Onboarding</p>
+        <p className="eyebrow">Primeros pasos</p>
         <span className="tabular text-sm font-black text-gold">{completion}%</span>
       </div>
       <Progress value={completion} className="mt-3 h-1.5" />

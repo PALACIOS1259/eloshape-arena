@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { PageContainer, PageHeading } from "@/components/layout/PageShell";
 import { directoryQuery } from "@/lib/queries";
-import { formatPoints } from "@/lib/format";
+import { formatPoints, pointRuleLabel, seasonLabel } from "@/lib/format";
 import { canonicalMetadata } from "@/lib/site-metadata";
 
 export const Route = createFileRoute("/rules")({
@@ -11,16 +11,16 @@ export const Route = createFileRoute("/rules")({
     const canonical = canonicalMetadata("/rules");
     return {
       meta: [
-        { title: "Points & rules — EloShape" },
+        { title: "Puntos y reglas — EloShape" },
         {
           name: "description",
           content:
-            "The EloShape point system: configurable awards for participation, wins and placements, earned only in EloShape tournaments.",
+            "El sistema de puntos de EloShape: premios configurables por participación, victorias y puestos, obtenidos solo en torneos de EloShape.",
         },
-        { property: "og:title", content: "EloShape points & rules" },
+        { property: "og:title", content: "Puntos y reglas de EloShape" },
         {
           property: "og:description",
-          content: "Transparent, configurable point awards for the EloShape competitive circuit.",
+          content: "Puntos transparentes y configurables para el circuito competitivo de EloShape.",
         },
         ...canonical.meta,
       ],
@@ -39,16 +39,16 @@ function RulesPage() {
   return (
     <div>
       <PageHeading
-        eyebrow="Ranking system"
-        title="Points & rules"
-        description="Every point on an EloShape leaderboard traces back to one of these rules, applied to a real EloShape match or placement. Solo Queue performance never awards points."
+        eyebrow="Sistema de clasificación"
+        title="Puntos y reglas"
+        description="Cada punto de la clasificación de EloShape corresponde a una de estas reglas, aplicada a una partida o puesto real de EloShape. El rendimiento en la cola clasificatoria individual nunca otorga puntos."
       />
 
       <PageContainer className="py-7 sm:py-9">
         <div className="overflow-hidden border-y border-border/65 bg-card/15">
           <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 border-b border-border/55 bg-background/15 px-4 py-2.5">
-            <span className="eyebrow">Rule</span>
-            <span className="eyebrow text-right">Points</span>
+            <span className="eyebrow">Regla</span>
+            <span className="eyebrow text-right">Puntos</span>
           </div>
           {directory.pointRules.map((rule) => (
             <div
@@ -57,9 +57,8 @@ function RulesPage() {
             >
               <span className="min-w-0">
                 <span className="block truncate text-sm font-semibold text-foreground">
-                  {rule.label}
+                  {pointRuleLabel(rule.code, rule.label)}
                 </span>
-                <span className="eyebrow mt-1 block">{rule.code}</span>
               </span>
               <span className="tabular shrink-0 text-sm font-black text-gold">
                 +{formatPoints(rule.points)}
@@ -70,20 +69,20 @@ function RulesPage() {
 
         <div className="mt-8 grid gap-x-8 gap-y-6 border-t border-border/60 pt-7 sm:grid-cols-2">
           <Card
-            title="Season and monthly boards"
-            body={`Season totals accumulate across ${directory.activeSeason?.name ?? "the season"}. Monthly totals reset each month so new players always have something to chase.`}
+            title="Clasificaciones de temporada y mensuales"
+            body={`Los totales de temporada se acumulan durante ${directory.activeSeason?.name ? seasonLabel(directory.activeSeason.name) : "la temporada"}. Los totales mensuales se reinician cada mes para que los nuevos jugadores siempre tengan un objetivo.`}
           />
           <Card
-            title="Geography ladders"
-            body="The same points feed city, province, country and regional leaderboards, so a Rosario player can win locally without beating all of LAS."
+            title="Clasificaciones por ubicación"
+            body="Los mismos puntos alimentan las clasificaciones por ciudad, provincia, país y región, para que un jugador de Rosario pueda ganar a nivel local sin superar a toda LAS."
           />
           <Card
-            title="Riot rank is eligibility only"
-            body="Rank decides which division you can enter. It contributes zero points and never appears in the ranking formula."
+            title="El rango de Riot solo determina la elegibilidad"
+            body="El rango decide a qué división podés entrar. No aporta puntos ni aparece en la fórmula de clasificación."
           />
           <Card
-            title="Reviews can adjust results"
-            body="If an eligibility review finds a smurf, entries are voided and awarded points are removed from the ledger."
+            title="Las revisiones pueden ajustar resultados"
+            body="Si una revisión detecta una cuenta de nivel inferior al real, se anulan las inscripciones y se retiran los puntos otorgados."
           />
         </div>
       </PageContainer>

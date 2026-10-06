@@ -1,3 +1,4 @@
+import { divisionDescription, riotRankLabel } from "@/lib/format";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ShieldCheck } from "lucide-react";
@@ -13,16 +14,17 @@ export const Route = createFileRoute("/divisions")({
     const canonical = canonicalMetadata("/divisions");
     return {
       meta: [
-        { title: "Divisions & eligibility — EloShape" },
+        { title: "Divisiones y elegibilidad — EloShape" },
         {
           name: "description",
           content:
-            "How EloShape divisions work: Riot rank verifies which division you may enter, and points are earned only inside EloShape tournaments.",
+            "Cómo funcionan las divisiones de EloShape: el rango de Riot verifica a qué división podés entrar y los puntos se ganan solo en los torneos de EloShape.",
         },
-        { property: "og:title", content: "EloShape divisions & eligibility" },
+        { property: "og:title", content: "Divisiones y elegibilidad de EloShape" },
         {
           property: "og:description",
-          content: "Iron, Bronze, Silver and Gold divisions with verified Riot-rank eligibility.",
+          content:
+            "Divisiones Hierro, Bronce, Plata y Oro con elegibilidad verificada mediante el rango de Riot.",
         },
         ...canonical.meta,
       ],
@@ -41,9 +43,9 @@ function DivisionsPage() {
   return (
     <div>
       <PageHeading
-        eyebrow="Fair play"
-        title="Divisions & eligibility"
-        description="EloShape is built for amateur players, so brackets are separated by skill. Your Riot rank is verified once to place you in a division — after that, only EloShape results matter."
+        eyebrow="Juego limpio"
+        title="Divisiones y elegibilidad"
+        description="EloShape está pensado para jugadores amateurs, por eso los cuadros se separan por habilidad. Se verifica tu rango de Riot para asignarte una división y, a partir de ahí, cuentan solo tus resultados en EloShape."
       />
 
       <PageContainer className="py-7 sm:py-9">
@@ -54,35 +56,39 @@ function DivisionsPage() {
               className="relative overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-br from-card/92 via-card/72 to-background/55 p-5 shadow-card transition-all duration-200 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg"
             >
               <DivisionBadge division={division} size="md" />
-              <p className="mt-4 text-sm text-muted-foreground">{division.description}</p>
-              <p className="eyebrow mt-5">Eligible Riot tiers</p>
+              <p className="mt-4 text-sm text-muted-foreground">
+                {divisionDescription(division.code, division.description)}
+              </p>
+              <p className="eyebrow mt-5">Rangos de Riot habilitados</p>
               <p className="mt-2 text-sm font-semibold text-foreground">
-                {(division.riot_tiers as string[] | null)?.join(" · ") ?? "—"}
+                {(division.riot_tiers as string[] | null)
+                  ?.map((tier) => riotRankLabel(tier, null))
+                  .join(" · ") ?? "—"}
               </p>
             </div>
           ))}
         </div>
 
         <div className="mt-10 border-t border-border/60 pt-7">
-          <p className="eyebrow">Anti-smurf process</p>
+          <p className="eyebrow">Proceso contra cuentas de nivel inferior al real</p>
           <ol className="mt-4 grid gap-4 text-sm text-muted-foreground md:grid-cols-3">
             <li className="flex gap-3">
               <ShieldCheck className="mt-0.5 size-4 shrink-0 text-brand" />
-              Link your Riot account. EloShape reads only your rank for eligibility — no keys or
-              credentials are stored client-side.
+              Vinculá tu cuenta de Riot. EloShape consulta tu rango para verificar la elegibilidad;
+              no guarda claves ni credenciales en el navegador.
             </li>
             <li className="flex gap-3">
               <ShieldCheck className="mt-0.5 size-4 shrink-0 text-brand" />
-              Your division is assigned from that tier and re-checked periodically.
+              Tu división se asigna según ese rango y se vuelve a comprobar periódicamente.
             </li>
             <li className="flex gap-3">
               <ShieldCheck className="mt-0.5 size-4 shrink-0 text-brand" />
-              Dominant or anomalous results trigger a manual eligibility review before points and
-              prizes are confirmed.
+              Los resultados dominantes o anómalos generan una revisión manual de elegibilidad antes
+              de confirmar puntos y premios.
             </li>
           </ol>
           <Button asChild className="mt-6">
-            <Link to="/rules">See how points are awarded</Link>
+            <Link to="/rules">Ver cómo se otorgan los puntos</Link>
           </Button>
         </div>
       </PageContainer>

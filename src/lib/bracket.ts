@@ -92,9 +92,9 @@ export function roundLabel(roundIndex: number, rounds: number): string {
   const remaining = rounds - 1 - roundIndex;
   if (remaining === 0) return "Final";
   if (remaining === 1) return "Semifinal";
-  if (remaining === 2) return "Quarterfinal";
+  if (remaining === 2) return "Cuartos de final";
   const teams = 2 ** (remaining + 1);
-  return `Round of ${teams}`;
+  return `Ronda de ${teams}`;
 }
 
 export type BracketOptions = {
@@ -118,7 +118,8 @@ export function buildBracket(
       ? [...(competitors as SeededCompetitor[])].sort((a, b) => a.seed - b.seed)
       : seedCompetitors(competitors as BracketCompetitor[]);
 
-  if (seeds.length < 2) throw new Error("A bracket needs at least two competitors.");
+  if (seeds.length < 2)
+    throw new Error("Se necesitan al menos dos participantes para generar un cuadro.");
 
   const size = bracketSize(seeds.length);
   const rounds = Math.log2(size);

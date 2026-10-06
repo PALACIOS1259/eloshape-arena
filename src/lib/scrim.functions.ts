@@ -68,24 +68,27 @@ export type ScrimHub = {
 
 function friendlyScrimError(raw: string) {
   const code = raw.toLowerCase();
-  if (code.includes("team_captain_required")) return "Only a team captain can do that.";
+  if (code.includes("team_captain_required"))
+    return "Solo el capitán de un equipo puede hacer eso.";
   if (code.includes("scrim_start_too_soon"))
-    return "Schedule the scrim at least 10 minutes from now.";
-  if (code.includes("invalid_scrim_window")) return "The end time must be after the start time.";
-  if (code.includes("invalid_best_of")) return "Scrims can be Bo1, Bo3 or Bo5.";
-  if (code.includes("scrim_note_too_long")) return "Scrim notes are limited to 240 characters.";
-  if (code.includes("scrim_not_found")) return "That scrim is no longer available.";
-  if (code.includes("scrim_not_open")) return "That scrim is no longer open for challenges.";
-  if (code.includes("scrim_already_started")) return "That scrim has already started.";
-  if (code.includes("cannot_challenge_own_scrim")) return "You cannot challenge your own team.";
-  if (code.includes("scrim_challenge_not_found")) return "That challenge no longer exists.";
-  if (code.includes("scrim_challenge_not_pending"))
-    return "That challenge has already been handled.";
-  if (code.includes("scrim_completed")) return "Completed scrims cannot be cancelled.";
-  if (code.includes("scrim_not_reportable")) return "This scrim is not ready for a result.";
-  if (code.includes("not_scrim_participant")) return "Your team is not part of this scrim.";
+    return "Programá la práctica con al menos 10 minutos de anticipación.";
+  if (code.includes("invalid_scrim_window"))
+    return "La hora de finalización debe ser posterior al inicio.";
+  if (code.includes("invalid_best_of")) return "Las prácticas pueden ser al mejor de 1, 3 o 5.";
+  if (code.includes("scrim_note_too_long"))
+    return "Las notas de práctica no pueden superar los 240 caracteres.";
+  if (code.includes("scrim_not_found")) return "Esa práctica ya no está disponible.";
+  if (code.includes("scrim_not_open")) return "Esa práctica ya no acepta desafíos.";
+  if (code.includes("scrim_already_started")) return "Esa práctica ya comenzó.";
+  if (code.includes("cannot_challenge_own_scrim")) return "No podés desafiar a tu propio equipo.";
+  if (code.includes("scrim_challenge_not_found")) return "Ese desafío ya no existe.";
+  if (code.includes("scrim_challenge_not_pending")) return "Ese desafío ya fue gestionado.";
+  if (code.includes("scrim_completed")) return "No se pueden cancelar prácticas completadas.";
+  if (code.includes("scrim_not_reportable"))
+    return "Esta práctica todavía no permite registrar un resultado.";
+  if (code.includes("not_scrim_participant")) return "Tu equipo no participa en esta práctica.";
   if (code.includes("invalid_scrim_score"))
-    return "Enter a valid final score for the selected Best-of format.";
+    return "Ingresá un marcador final válido para el formato seleccionado.";
   return raw;
 }
 
@@ -151,7 +154,7 @@ export const createMyScrim = createServerFn({ method: "POST" })
     } catch (error) {
       return {
         ok: false as const,
-        error: error instanceof Error ? error.message : "Could not create scrim.",
+        error: error instanceof Error ? error.message : "No se pudo crear la práctica.",
       };
     }
   });
@@ -172,7 +175,7 @@ export const challengeScrim = createServerFn({ method: "POST" })
     } catch (error) {
       return {
         ok: false as const,
-        error: error instanceof Error ? error.message : "Could not challenge this scrim.",
+        error: error instanceof Error ? error.message : "No se pudo desafiar a este equipo.",
       };
     }
   });
@@ -192,7 +195,7 @@ export const respondScrimChallenge = createServerFn({ method: "POST" })
     } catch (error) {
       return {
         ok: false as const,
-        error: error instanceof Error ? error.message : "Could not update this challenge.",
+        error: error instanceof Error ? error.message : "No se pudo actualizar este desafío.",
       };
     }
   });
@@ -211,7 +214,7 @@ export const cancelMyScrim = createServerFn({ method: "POST" })
     } catch (error) {
       return {
         ok: false as const,
-        error: error instanceof Error ? error.message : "Could not cancel this scrim.",
+        error: error instanceof Error ? error.message : "No se pudo cancelar la práctica.",
       };
     }
   });
@@ -236,7 +239,8 @@ export const reportMyScrimResult = createServerFn({ method: "POST" })
     } catch (error) {
       return {
         ok: false as const,
-        error: error instanceof Error ? error.message : "Could not report this scrim result.",
+        error:
+          error instanceof Error ? error.message : "No se pudo informar el resultado de práctica.",
       };
     }
   });

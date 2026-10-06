@@ -22,16 +22,16 @@ import { PageContainer, PageHeading } from "@/components/layout/PageShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatDate, riotRankLabel } from "@/lib/format";
+import { formatDate, riotRankLabel, statusLabel } from "@/lib/format";
 import { getAdminOverview, setPlayerEligibility } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
     meta: [
-      { title: "Admin control center — EloShape" },
+      { title: "Panel de administración — EloShape" },
       {
         name: "description",
-        content: "EloShape staff operations, moderation and competition control.",
+        content: "Operaciones de organización, moderación y control competitivo de EloShape.",
       },
       { name: "robots", content: "noindex" },
     ],
@@ -46,16 +46,16 @@ function EligibilityActions({ profileId }: { profileId: string }) {
   const decide = useServerFn(setPlayerEligibility);
   const mutation = useMutation({
     mutationFn: (status: Decision) =>
-      decide({ data: { profileId, status, reason: `Staff set ${status}` } }),
+      decide({ data: { profileId, status, reason: `El staff asignó ${statusLabel(status)}` } }),
     onSuccess: (result) => {
       if (!result.ok) {
         toast.error(result.error);
         return;
       }
-      toast.success(`Eligibility set to ${result.profile.eligibility}.`);
+      toast.success(`Elegibilidad establecida en ${statusLabel(result.profile.eligibility)}.`);
       void queryClient.invalidateQueries({ queryKey: ["admin-overview"] });
     },
-    onError: () => toast.error("Could not update eligibility."),
+    onError: () => toast.error("No se pudo actualizar la elegibilidad."),
   });
 
   const decideWithConfirmation = (status: Decision) => {
@@ -64,7 +64,7 @@ function EligibilityActions({ profileId }: { profileId: string }) {
       return;
     }
     const confirmed = window.confirm(
-      `Set this player's competitive eligibility to “${status.replace("_", " ")}”?`,
+      `¿Cambiar la elegibilidad competitiva de este jugador a «${statusLabel(status)}»?`,
     );
     if (confirmed) mutation.mutate(status);
   };
@@ -77,7 +77,7 @@ function EligibilityActions({ profileId }: { profileId: string }) {
         onClick={() => decideWithConfirmation("eligible")}
       >
         <UserCheck />
-        Approve
+        Aprobar
       </Button>
       <Button
         size="sm"
@@ -85,7 +85,7 @@ function EligibilityActions({ profileId }: { profileId: string }) {
         disabled={mutation.isPending}
         onClick={() => decideWithConfirmation("pending_review")}
       >
-        Keep pending
+        Mantener pendiente
       </Button>
       <Button
         size="sm"
@@ -93,7 +93,7 @@ function EligibilityActions({ profileId }: { profileId: string }) {
         disabled={mutation.isPending}
         onClick={() => decideWithConfirmation("rejected")}
       >
-        Reject
+        Rechazar
       </Button>
       <Button
         size="sm"
@@ -101,7 +101,7 @@ function EligibilityActions({ profileId }: { profileId: string }) {
         disabled={mutation.isPending}
         onClick={() => decideWithConfirmation("suspended")}
       >
-        Suspend
+        Suspender
       </Button>
     </div>
   );
@@ -150,12 +150,12 @@ function AdminPage() {
   return (
     <div>
       <PageHeading
-        eyebrow="EloShape staff"
-        title="Admin control center"
-        description="Review what needs attention first, then open the dedicated workspace for the task you want to complete."
+        eyebrow="Organización de EloShape"
+        title="Panel de administración"
+        description="Revisá primero lo que requiere atención y después abrí el panel de la tarea que quieras completar."
         aside={
           <Button asChild variant="outline">
-            <Link to="/dashboard">Player dashboard</Link>
+            <Link to="/dashboard">Panel del jugador</Link>
           </Button>
         }
       />
@@ -174,40 +174,40 @@ function AdminPage() {
           </div>
         ) : error ? (
           <EmptyState
-            title="Staff access required"
-            description="This console is limited to accounts with the admin or moderator role."
+            title="Se requiere acceso de organización"
+            description="Este panel está limitado a cuentas de administración y moderación."
           />
         ) : data ? (
           <>
             <section className="border-b border-border/60 pb-6">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <p className="eyebrow">System overview</p>
+                  <p className="eyebrow">Resumen del sistema</p>
                   <h2 className="mt-1 text-xl font-black text-foreground">
-                    What needs your attention
+                    Qué requiere tu atención
                   </h2>
                   <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                    Start with queues that have pending work. Routine data and technical controls
-                    stay out of the way until you need them.
+                    Empezá por las tareas pendientes. Los datos de referencia y los controles
+                    avanzados quedan disponibles cuando los necesites.
                   </p>
                 </div>
                 <Badge variant={queuedCount ? "default" : "outline"}>
-                  {queuedCount} queued item{queuedCount === 1 ? "" : "s"}
+                  {queuedCount} elemento pendiente{queuedCount === 1 ? "" : "s"}
                 </Badge>
               </div>
 
               <div className="mt-5 flex flex-wrap items-center gap-x-8 gap-y-3">
-                <AdminMetric label="Players" value={data.counts.players} />
-                <AdminMetric label="Teams" value={data.counts.teams} />
-                <AdminMetric label="Tournaments" value={data.counts.tournaments} />
+                <AdminMetric label="Jugadores" value={data.counts.players} />
+                <AdminMetric label="Equipos" value={data.counts.teams} />
+                <AdminMetric label="Torneos" value={data.counts.tournaments} />
               </div>
             </section>
 
             <section className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               <QueueCard
                 icon={<UserCheck className="size-4" />}
-                title="Eligibility reviews"
-                description="Approve, reject or hold players that require a manual competitive eligibility decision."
+                title="Revisiones de elegibilidad"
+                description="Aprobá, rechazá o mantené pendientes a los jugadores que necesitan una decisión manual de elegibilidad."
                 count={data.counts.reviews}
                 action={
                   <Button
@@ -216,7 +216,7 @@ function AdminPage() {
                     variant={data.counts.reviews ? "default" : "outline"}
                   >
                     <a href="#eligibility">
-                      Review players
+                      Revisar jugadores
                       <ChevronRight />
                     </a>
                   </Button>
@@ -224,8 +224,8 @@ function AdminPage() {
               />
               <QueueCard
                 icon={<Gavel className="size-4" />}
-                title="Match disputes"
-                description="Resolve conflicting match submissions and competitive result disputes."
+                title="Disputas de partidas"
+                description="Resolvé informes de marcador contradictorios y disputas sobre resultados competitivos."
                 count={data.counts.disputes}
                 action={
                   <Button
@@ -234,7 +234,7 @@ function AdminPage() {
                     variant={data.counts.disputes ? "default" : "outline"}
                   >
                     <Link to="/admin/disputes">
-                      Open disputes
+                      Abrir disputas
                       <ChevronRight />
                     </Link>
                   </Button>
@@ -242,8 +242,8 @@ function AdminPage() {
               />
               <QueueCard
                 icon={<LifeBuoy className="size-4" />}
-                title="Support queue"
-                description="Read player support requests and respond without mixing them with tournament controls."
+                title="Solicitudes de soporte"
+                description="Leé y respondé las consultas de jugadores desde su panel de soporte."
                 count={data.counts.support}
                 action={
                   <Button
@@ -252,7 +252,7 @@ function AdminPage() {
                     variant={data.counts.support ? "default" : "outline"}
                   >
                     <Link to="/admin/support">
-                      Open support
+                      Abrir soporte
                       <ChevronRight />
                     </Link>
                   </Button>
@@ -260,12 +260,12 @@ function AdminPage() {
               />
               <QueueCard
                 icon={<Swords className="size-4" />}
-                title="Competition operations"
-                description="Lock rosters, create brackets, report results, award walkovers and finalize tournaments."
+                title="Operaciones competitivas"
+                description="Bloqueá planteles, generá cuadros, registrá resultados, otorgá victorias administrativas y finalizá torneos."
                 action={
                   <Button asChild className="w-full" variant="outline">
                     <a href="#competition">
-                      Manage tournaments
+                      Gestionar torneos
                       <ChevronRight />
                     </a>
                   </Button>
@@ -276,17 +276,17 @@ function AdminPage() {
             <section id="eligibility" className="mt-10 scroll-mt-24">
               <div className="flex flex-wrap items-end justify-between gap-3">
                 <div>
-                  <p className="eyebrow">Eligibility</p>
+                  <p className="eyebrow">Elegibilidad</p>
                   <h2 className="mt-1 text-xl font-black text-foreground">
-                    Players waiting for review
+                    Jugadores pendientes de revisión
                   </h2>
                   <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-                    This is the action queue. Once a decision is made, the player leaves this list
-                    and the decision remains available in history below.
+                    Esta lista contiene las decisiones pendientes. Al resolverlas, el jugador sale
+                    de la lista y la decisión queda guardada en el historial.
                   </p>
                 </div>
                 <Badge variant={data.counts.reviews ? "default" : "outline"}>
-                  {data.counts.reviews} pending
+                  {data.counts.reviews} pendientes
                 </Badge>
               </div>
 
@@ -301,17 +301,19 @@ function AdminPage() {
                         <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-2">
                             <span className="truncate text-sm font-semibold text-foreground">
-                              {review.profile?.display_name ?? "Unknown player"}
+                              {review.profile?.display_name ?? "Jugador desconocido"}
                             </span>
-                            <Badge variant="outline">{review.status.replace("_", " ")}</Badge>
+                            <Badge variant="outline">{statusLabel(review.status)}</Badge>
                           </div>
                           <p className="mt-1 text-xs text-muted-foreground">
                             {riotRankLabel(review.profile?.riot_tier, review.profile?.riot_rank)} ·
-                            submitted {formatDate(review.created_at)}
+                            enviado {formatDate(review.created_at)}
                           </p>
                           {review.reason ? (
                             <div className="mt-3 border-l-2 border-primary/25 pl-3">
-                              <p className="text-xs font-bold text-foreground">Review reason</p>
+                              <p className="text-xs font-bold text-foreground">
+                                Motivo de revisión
+                              </p>
                               <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                                 {review.reason}
                               </p>
@@ -326,8 +328,8 @@ function AdminPage() {
                 ) : (
                   <div className="p-8">
                     <EmptyState
-                      title="Eligibility queue clear"
-                      description="No player currently requires a manual decision."
+                      title="No hay revisiones pendientes"
+                      description="Actualmente ningún jugador requiere una decisión manual."
                     />
                   </div>
                 )}
@@ -339,10 +341,10 @@ function AdminPage() {
                     <Activity className="size-4 text-muted-foreground" />
                     <div>
                       <p className="text-sm font-semibold text-foreground">
-                        Eligibility decision history
+                        Historial de decisiones de elegibilidad
                       </p>
                       <p className="mt-1 text-xs text-muted-foreground">
-                        Recent completed staff decisions · read-only
+                        Decisiones recientes de la organización · solo lectura
                       </p>
                     </div>
                   </div>
@@ -359,19 +361,19 @@ function AdminPage() {
                           <p className="truncate text-sm font-medium text-foreground">
                             {review.profile?.display_name ??
                               review.profile?.handle ??
-                              "Unknown player"}
+                              "Jugador desconocido"}
                           </p>
                           <p className="mt-1 text-xs text-muted-foreground">
                             {formatDate(review.created_at)}
                             {review.reason ? ` · ${review.reason}` : ""}
                           </p>
                         </div>
-                        <Badge variant="outline">{review.status.replace("_", " ")}</Badge>
+                        <Badge variant="outline">{statusLabel(review.status)}</Badge>
                       </div>
                     ))
                   ) : (
                     <div className="p-6">
-                      <EmptyState title="No completed decisions yet" />
+                      <EmptyState title="Todavía no hay decisiones completadas" />
                     </div>
                   )}
                 </div>
@@ -382,9 +384,9 @@ function AdminPage() {
               <section className="mt-10">
                 <div className="flex flex-wrap items-end justify-between gap-3">
                   <div>
-                    <p className="eyebrow">Reports</p>
+                    <p className="eyebrow">Reportes</p>
                     <h2 className="mt-1 text-lg font-semibold text-foreground">
-                      Active moderation reports
+                      Reportes de moderación activos
                     </h2>
                   </div>
                   <Badge>{data.counts.reports}</Badge>
@@ -397,7 +399,10 @@ function AdminPage() {
                     >
                       <div className="min-w-0">
                         <p className="text-sm font-semibold text-foreground">
-                          {report.reason} · {report.reported?.display_name ?? "No reported player"}
+                          {report.reason === "match_result_dispute"
+                            ? "Disputa de resultado"
+                            : report.reason}{" "}
+                          · {report.reported?.display_name ?? "Sin jugador reportado"}
                         </p>
                         <p className="mt-1 text-xs text-muted-foreground">
                           {formatDate(report.created_at)}
@@ -408,7 +413,7 @@ function AdminPage() {
                           </p>
                         ) : null}
                       </div>
-                      <Badge variant="outline">{report.status}</Badge>
+                      <Badge variant="outline">{statusLabel(report.status)}</Badge>
                     </div>
                   ))}
                 </div>
@@ -418,18 +423,16 @@ function AdminPage() {
             <section id="competition" className="mt-12 scroll-mt-24">
               <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <p className="eyebrow">Competition</p>
-                  <h2 className="mt-1 text-lg font-semibold text-foreground">
-                    Tournament control room
-                  </h2>
+                  <p className="eyebrow">Competencia</p>
+                  <h2 className="mt-1 text-lg font-semibold text-foreground">Control de torneos</h2>
                   <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                    Guided operations for rosters, brackets, match results, walkovers, corrections,
-                    scoring and Semi-Split progression.
+                    Operaciones guiadas de planteles, cuadros, resultados, victorias
+                    administrativas, correcciones, puntuación y avance de Semi-Splits.
                   </p>
                 </div>
                 <Button asChild variant="outline">
                   <Link to="/admin/splits">
-                    Advanced split view
+                    Vista avanzada de splits
                     <ChevronRight />
                   </Link>
                 </Button>
@@ -446,11 +449,11 @@ function AdminPage() {
                     </span>
                     <div>
                       <p className="text-sm font-semibold text-foreground">
-                        Riot account reference
+                        Referencia de cuentas de Riot
                       </p>
                       <p className="mt-1 text-xs text-muted-foreground">
-                        {data.riotAccounts.length} linked account
-                        {data.riotAccounts.length === 1 ? "" : "s"} · reference data only
+                        {data.riotAccounts.length} cuenta vinculada
+                        {data.riotAccounts.length === 1 ? "" : "s"} · datos de referencia
                       </p>
                     </div>
                   </div>
@@ -465,12 +468,13 @@ function AdminPage() {
                       >
                         <div className="min-w-0">
                           <span className="block truncate text-sm font-semibold text-foreground">
-                            {account.profile?.display_name ?? "Unknown player"} · {account.riot_id}
+                            {account.profile?.display_name ?? "Jugador desconocido"} ·{" "}
+                            {account.riot_id}
                           </span>
                           <span className="mt-1 block text-xs text-muted-foreground">
                             {riotRankLabel(account.solo_tier, account.solo_rank)}
                             {account.solo_lp != null ? ` · ${account.solo_lp} LP` : ""} ·{" "}
-                            {account.platform.toUpperCase()} · synced{" "}
+                            {account.platform.toUpperCase()} · sincronizado{" "}
                             {formatDate(account.last_synced_at)}
                           </span>
                           <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -478,14 +482,18 @@ function AdminPage() {
                               <DivisionBadge division={account.profile.division} />
                             ) : null}
                             <Badge variant={account.data_verified ? "default" : "outline"}>
-                              {account.data_verified ? "Riot data verified" : "Unverified data"}
+                              {account.data_verified
+                                ? "Datos de Riot verificados"
+                                : "Datos sin verificar"}
                             </Badge>
                             <Badge variant="outline">
                               {account.ownership_verified
-                                ? "Ownership verified"
-                                : "Ownership unverified"}
+                                ? "Titularidad verificada"
+                                : "Titularidad sin verificar"}
                             </Badge>
-                            <Badge variant="outline">{account.profile?.eligibility}</Badge>
+                            <Badge variant="outline">
+                              {statusLabel(account.profile?.eligibility ?? "pending_review")}
+                            </Badge>
                           </div>
                         </div>
                         {account.profile ? (
@@ -495,7 +503,7 @@ function AdminPage() {
                     ))
                   ) : (
                     <div className="p-8">
-                      <EmptyState title="No linked Riot accounts yet" />
+                      <EmptyState title="Todavía no hay cuentas de Riot vinculadas" />
                     </div>
                   )}
                 </div>
@@ -504,7 +512,8 @@ function AdminPage() {
 
             <div className="mt-8 flex items-center gap-2 text-xs text-muted-foreground">
               <ShieldCheck className="size-4" />
-              Competition and moderation actions remain server-validated and audited.
+              Las acciones de competencia y moderación se validan en el servidor y quedan
+              registradas.
             </div>
           </>
         ) : null}

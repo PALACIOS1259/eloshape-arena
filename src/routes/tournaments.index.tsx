@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { TOURNAMENT_STATUS_LABEL } from "@/lib/format";
+import { TOURNAMENT_STATUS_LABEL, divisionLabel } from "@/lib/format";
 import { directoryQuery, tournamentsQuery } from "@/lib/queries";
 import { canonicalMetadata } from "@/lib/site-metadata";
 import { cn } from "@/lib/utils";
@@ -28,16 +28,17 @@ export const Route = createFileRoute("/tournaments/")({
     const canonical = canonicalMetadata("/tournaments");
     return {
       meta: [
-        { title: "Tournaments — EloShape competitive circuit" },
+        { title: "Torneos — Circuito competitivo de EloShape" },
         {
           name: "description",
           content:
-            "Browse open, live and completed EloShape League of Legends tournaments by division, format and region.",
+            "Consultá los torneos de League of Legends de EloShape abiertos, en curso y finalizados por división, formato y región.",
         },
-        { property: "og:title", content: "EloShape tournaments" },
+        { property: "og:title", content: "Torneos de EloShape" },
         {
           property: "og:description",
-          content: "Open registrations, live brackets and completed events across the LAS circuit.",
+          content:
+            "Inscripciones abiertas, cuadros en vivo y eventos finalizados de todo el circuito LAS.",
         },
         ...canonical.meta,
       ],
@@ -88,9 +89,9 @@ function TournamentsPage() {
   return (
     <div>
       <PageHeading
-        eyebrow="EloShape circuit"
-        title="Tournaments"
-        description="Find an event, enter the right division and follow every official bracket from registration through final standings."
+        eyebrow="Circuito de EloShape"
+        title="Torneos"
+        description="Buscá un evento, entrá en la división correcta y seguí el cuadro oficial desde la inscripción hasta las posiciones finales."
         aside={
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
             <Metric icon={<Radio className="size-3.5" />} value={liveCount} label="live" accent />
@@ -105,9 +106,9 @@ function TournamentsPage() {
           <div className="flex flex-col gap-4 py-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="eyebrow">Tournament finder</p>
+                <p className="eyebrow">Buscador de torneos</p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Filter official EloShape events by stage, division and mode.
+                  Filtrá los eventos oficiales de EloShape por fase, división y modalidad.
                 </p>
               </div>
               {activeFilters ? (
@@ -118,11 +119,11 @@ function TournamentsPage() {
                   onClick={() => update({ status: "all", division: "all", mode: "all" })}
                 >
                   <FilterX className="size-4" />
-                  Reset
+                  Restablecer
                 </Button>
               ) : (
                 <span className="text-xs text-muted-foreground">
-                  {tournaments.length} visible events
+                  {tournaments.length} eventos visibles
                 </span>
               )}
             </div>
@@ -141,7 +142,7 @@ function TournamentsPage() {
                   )}
                 >
                   {status === "all"
-                    ? "All events"
+                    ? "Todos los eventos"
                     : (TOURNAMENT_STATUS_LABEL[status] ?? status.replaceAll("_", " "))}
                 </button>
               ))}
@@ -149,25 +150,25 @@ function TournamentsPage() {
 
             <div className="grid gap-3 border-t border-border/55 pt-4 sm:grid-cols-2">
               <Filter
-                label="Division"
+                label="División"
                 value={search.division}
                 onChange={(division) => update({ division })}
                 options={[
-                  { value: "all", label: "All divisions" },
+                  { value: "all", label: "Todas las divisiones" },
                   ...directory.divisions.map((division) => ({
                     value: division.code,
-                    label: division.name,
+                    label: divisionLabel(division),
                   })),
                 ]}
               />
               <Filter
-                label="Mode"
+                label="Modalidad"
                 value={search.mode}
                 onChange={(mode) => update({ mode })}
                 options={[
-                  { value: "all", label: "Solo & team" },
-                  { value: "solo", label: "Solo" },
-                  { value: "team", label: "Team 5v5" },
+                  { value: "all", label: "Individual y equipos" },
+                  { value: "solo", label: "Individual" },
+                  { value: "team", label: "Equipos de 5 contra 5" },
                 ]}
               />
             </div>
@@ -177,15 +178,15 @@ function TournamentsPage() {
         <section className="mt-8">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="eyebrow">Tournament board</p>
+              <p className="eyebrow">Panel de torneos</p>
               <h2 className="mt-1 text-xl font-black text-foreground sm:text-2xl">
                 {search.status === "live"
-                  ? "Live brackets"
+                  ? "Cuadros en vivo"
                   : search.status === "registration_open"
-                    ? "Open for registration"
+                    ? "Inscripción abierta"
                     : search.status === "completed"
-                      ? "Tournament archive"
-                      : "Circuit events"}
+                      ? "Archivo de torneos"
+                      : "Eventos del circuito"}
               </h2>
             </div>
             <p className="text-xs text-muted-foreground">
@@ -203,15 +204,15 @@ function TournamentsPage() {
           ) : (
             <div className="mt-5">
               <EmptyState
-                title="No tournaments match these filters"
-                description="Try another division, mode or tournament state."
+                title="No hay torneos que coincidan con estos filtros"
+                description="Probá otra división, modalidad o estado del torneo."
                 action={
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => update({ status: "all", division: "all", mode: "all" })}
                   >
-                    Clear filters
+                    Limpiar filtros
                   </Button>
                 }
               />

@@ -12,17 +12,18 @@ type RpcResult<T> = { data: T | null; error: { message: string } | null };
 
 function friendly(message: string) {
   const code = message.toLowerCase();
-  if (code.includes("team_captain_required")) return "Only the team captain can do that.";
-  if (code.includes("team_member_not_found")) return "That player is not on your team.";
-  if (code.includes("invalid_team_role")) return "Choose Starter or Substitute.";
-  if (code.includes("invalid_lane_role")) return "Choose Top, Jungle, Mid, ADC or Support.";
-  if (code.includes("starting_roster_full")) return "The starting roster already has five players.";
-  if (code.includes("captain_must_be_starter")) return "The team captain must remain a starter.";
-  if (code.includes("already_team_captain")) return "That player is already the team captain.";
+  if (code.includes("team_captain_required")) return "Solo el capitán del equipo puede hacer eso.";
+  if (code.includes("team_member_not_found")) return "Ese jugador no está en tu equipo.";
+  if (code.includes("invalid_team_role")) return "Elegí titular o suplente.";
+  if (code.includes("invalid_lane_role"))
+    return "Elegí superior, jungla, central, tirador o soporte.";
+  if (code.includes("starting_roster_full")) return "El plantel titular ya tiene cinco jugadores.";
+  if (code.includes("captain_must_be_starter")) return "El capitán debe permanecer como titular.";
+  if (code.includes("already_team_captain")) return "Ese jugador ya es capitán del equipo.";
   if (code.includes("roster_locked_for_tournament"))
-    return "Roster changes are locked while your team is checked in to an active tournament.";
+    return "Los cambios de plantel están bloqueados mientras el equipo tenga asistencia confirmada en un torneo activo.";
   if (code.includes("team_active_tournament"))
-    return "You cannot disband the team while it is checked in to or competing in an active tournament.";
+    return "No podés disolver el equipo mientras tenga asistencia confirmada o esté compitiendo en un torneo activo.";
   return message;
 }
 
@@ -52,7 +53,8 @@ export const updateMyTeamMemberRole = createServerFn({ method: "POST" })
     } catch (error) {
       return {
         ok: false as const,
-        error: error instanceof Error ? error.message : "Could not update roster role.",
+        error:
+          error instanceof Error ? error.message : "No se pudo actualizar la función del plantel.",
       };
     }
   });
@@ -72,7 +74,8 @@ export const updateMyTeamMemberLaneRole = createServerFn({ method: "POST" })
     } catch (error) {
       return {
         ok: false as const,
-        error: error instanceof Error ? error.message : "Could not update League role.",
+        error:
+          error instanceof Error ? error.message : "No se pudo actualizar la posición de juego.",
       };
     }
   });
@@ -91,7 +94,7 @@ export const transferMyTeamCaptain = createServerFn({ method: "POST" })
     } catch (error) {
       return {
         ok: false as const,
-        error: error instanceof Error ? error.message : "Could not transfer team captaincy.",
+        error: error instanceof Error ? error.message : "No se pudo transferir la capitanía.",
       };
     }
   });
@@ -107,7 +110,7 @@ export const archiveMyTeam = createServerFn({ method: "POST" })
     } catch (error) {
       return {
         ok: false as const,
-        error: error instanceof Error ? error.message : "Could not disband team.",
+        error: error instanceof Error ? error.message : "No se pudo disolver el equipo.",
       };
     }
   });

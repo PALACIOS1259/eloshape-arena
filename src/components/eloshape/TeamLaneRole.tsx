@@ -16,37 +16,37 @@ type LaneMeta = {
 export const TEAM_LANES: LaneMeta[] = [
   {
     value: "top",
-    label: "Top",
+    label: "Superior",
     short: "TOP",
-    description: "Solo lane · frontline",
+    description: "Línea individual · primera línea",
     icon: Swords,
   },
   {
     value: "jungle",
-    label: "Jungle",
+    label: "Jungla",
     short: "JGL",
-    description: "Pathing · map control",
+    description: "Rutas · control del mapa",
     icon: Leaf,
   },
   {
     value: "mid",
-    label: "Mid",
+    label: "Central",
     short: "MID",
-    description: "Central pressure · carry",
+    description: "Presión central · daño principal",
     icon: Sparkles,
   },
   {
     value: "bot",
     label: "ADC",
     short: "ADC",
-    description: "Ranged damage · marksman",
+    description: "Daño a distancia · tirador",
     icon: Crosshair,
   },
   {
     value: "support",
-    label: "Support",
+    label: "Soporte",
     short: "SUP",
-    description: "Vision · protection · setup",
+    description: "Visión · protección · iniciación",
     icon: Shield,
   },
 ];
@@ -56,7 +56,7 @@ export function laneMeta(role: TeamLaneRole | null | undefined) {
 }
 
 export function laneLabel(role: TeamLaneRole | null | undefined) {
-  return laneMeta(role)?.label ?? "Role unassigned";
+  return laneMeta(role)?.label ?? "Posición sin asignar";
 }
 
 export function TeamLaneBadge({
@@ -78,7 +78,7 @@ export function TeamLaneBadge({
           className,
         )}
       >
-        Role open
+        Posición disponible
       </span>
     );
   }

@@ -36,7 +36,7 @@ export function TeamCard({
     <Link
       to="/teams/$slug"
       params={{ slug: team.slug }}
-      aria-label={`Open ${team.name} roster`}
+      aria-label={`Abrir ${team.name}: plantel`}
       className={cn(
         "group relative flex min-h-60 flex-col overflow-hidden rounded-2xl border border-border/75 bg-gradient-to-br from-card/95 via-card/80 to-background/70 p-5 shadow-card transition-all duration-200 hover:-translate-y-1 hover:border-primary/35 hover:shadow-xl sm:p-6",
         podium && "border-gold/20",
@@ -89,18 +89,18 @@ export function TeamCard({
       </div>
 
       <div className="relative mt-7 grid grid-cols-3 divide-x divide-border/60">
-        <Stat value={formatPoints(team.points_season)} label="Points" />
+        <Stat value={formatPoints(team.points_season)} label="Puntos" />
         <Stat value={record} label={`${winRate(team.wins, team.losses)} WR`} />
         <Stat
           value={String(team.championships ?? 0)}
-          label="Titles"
+          label="Títulos"
           icon={<Trophy className="size-3.5" />}
           gold
         />
       </div>
 
       <div className="relative mt-auto flex items-center justify-between pt-7 text-[11px] font-semibold text-muted-foreground">
-        <span>{games ? `${games} official games` : "No official games yet"}</span>
+        <span>{games ? `${games} partidas oficiales` : "Todavía no hay partidas oficiales"}</span>
         <ChevronRight className="size-4 transition-all group-hover:translate-x-1 group-hover:text-primary" />
       </div>
     </Link>

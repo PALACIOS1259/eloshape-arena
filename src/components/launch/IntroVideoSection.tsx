@@ -21,9 +21,9 @@ function publicVideoUrl(value: unknown): string | undefined {
 const introVideoUrl = publicVideoUrl(import.meta.env["VITE_INTRO_VIDEO_URL"]);
 
 const steps = [
-  { icon: ShieldCheck, label: "Verify your competitive eligibility" },
-  { icon: Swords, label: "Join a team and enter a bracket" },
-  { icon: Trophy, label: "Earn points inside the EloShape circuit" },
+  { icon: ShieldCheck, label: "Verificá tu elegibilidad competitiva" },
+  { icon: Swords, label: "Unite a un equipo e ingresá a un torneo" },
+  { icon: Trophy, label: "Sumá puntos dentro del circuito EloShape" },
 ] as const;
 
 export function IntroVideoSection() {
@@ -34,13 +34,13 @@ export function IntroVideoSection() {
       <PageContainer className="py-12 sm:py-14">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:items-center">
           <div>
-            <p className="eyebrow">How EloShape works</p>
+            <p className="eyebrow">Cómo funciona EloShape</p>
             <h2 className="mt-3 text-3xl font-black tracking-tight text-foreground sm:text-4xl">
-              From Riot ID to tournament bracket
+              Desde tu Riot ID hasta el cuadro del torneo
             </h2>
             <p className="mt-4 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
-              See how amateur players build a team, enter the right division and compete in a
-              structured regional circuit.
+              Conocé cómo armar un equipo, ingresar a la división adecuada y competir en un circuito
+              regional organizado.
             </p>
 
             <ul className="mt-7 space-y-4">
@@ -56,7 +56,7 @@ export function IntroVideoSection() {
 
             <Button asChild className="mt-8">
               <Link to="/tournaments">
-                Explore tournaments
+                Explorar torneos
                 <ArrowRight className="size-4" />
               </Link>
             </Button>
@@ -70,7 +70,7 @@ export function IntroVideoSection() {
                 playsInline
                 preload="metadata"
                 poster="/og-image.jpg"
-                aria-label="EloShape platform introduction"
+                aria-label="Presentación de la plataforma EloShape"
               >
                 <source src={introVideoUrl} type="video/mp4" />
                 <track
@@ -80,7 +80,7 @@ export function IntroVideoSection() {
                   srcLang="es"
                   label="Español"
                 />
-                Your browser does not support embedded video.
+                Tu navegador no permite reproducir este video.
               </video>
             </div>
           </div>

@@ -54,10 +54,10 @@ export function ProfileSettingsCard({
         toast.error(result.error);
         return;
       }
-      toast.success("Profile updated.");
+      toast.success("Perfil actualizado.");
       invalidate();
     },
-    onError: () => toast.error("Could not update your profile."),
+    onError: () => toast.error("No se pudo actualizar tu perfil."),
   });
 
   const location = useMutation({
@@ -68,7 +68,7 @@ export function ProfileSettingsCard({
         return;
       }
       toast.success(
-        `Location set to ${[
+        `Ubicación establecida en ${[
           result.location.city,
           result.location.province,
           result.location.country,
@@ -79,12 +79,12 @@ export function ProfileSettingsCard({
       );
       invalidate();
     },
-    onError: () => toast.error("Could not update your location."),
+    onError: () => toast.error("No se pudo actualizar tu ubicación."),
   });
 
   return (
     <div className="border-y border-border/65 py-5">
-      <p className="eyebrow">Public profile</p>
+      <p className="eyebrow">Perfil público</p>
 
       <form
         className="mt-4 space-y-4"
@@ -95,7 +95,7 @@ export function ProfileSettingsCard({
       >
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
-            <Label htmlFor="handle">Handle</Label>
+            <Label htmlFor="handle">Nombre de usuario</Label>
             <Input
               id="handle"
               value={handle}
@@ -104,11 +104,11 @@ export function ProfileSettingsCard({
               required
             />
             <p className="mt-1 text-xs text-muted-foreground">
-              3–20 characters, lowercase letters, numbers and underscores.
+              De 3 a 20 caracteres: letras minúsculas, números y guiones bajos.
             </p>
           </div>
           <div>
-            <Label htmlFor="displayName">Display name</Label>
+            <Label htmlFor="displayName">Nombre visible</Label>
             <Input
               id="displayName"
               value={displayName}
@@ -119,7 +119,7 @@ export function ProfileSettingsCard({
           </div>
         </div>
         <div>
-          <Label htmlFor="bio">Bio</Label>
+          <Label htmlFor="bio">Biografía</Label>
           <Textarea
             id="bio"
             value={bio}
@@ -130,14 +130,14 @@ export function ProfileSettingsCard({
           />
         </div>
         <Button type="submit" disabled={identity.isPending}>
-          {identity.isPending ? "Saving…" : "Save profile"}
+          {identity.isPending ? "Guardando…" : "Guardar perfil"}
         </Button>
       </form>
 
       <div className="mt-6 border-t border-border/60 pt-5">
-        <Label htmlFor="city">Location</Label>
+        <Label htmlFor="city">Ubicación</Label>
         <p className="mt-1 text-xs text-muted-foreground">
-          Pick your city — EloShape resolves province, country and region for you.
+          Elegí tu ciudad. EloShape completa la provincia, el país y la región.
         </p>
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <Select
@@ -148,7 +148,7 @@ export function ProfileSettingsCard({
             }}
           >
             <SelectTrigger id="city" className="w-64" disabled={location.isPending}>
-              <SelectValue placeholder="Select your city" />
+              <SelectValue placeholder="Seleccioná tu ciudad" />
             </SelectTrigger>
             <SelectContent>
               {cities.map((city) => (
@@ -166,7 +166,7 @@ export function ProfileSettingsCard({
               profile.region?.name,
             ]
               .filter(Boolean)
-              .join(" → ") || "No location set"}
+              .join(" → ") || "Sin ubicación registrada"}
           </span>
         </div>
       </div>

@@ -37,32 +37,34 @@ function callRpc<T>(
 
 function friendlyRpcError(message: string) {
   const code = message.toLowerCase();
-  if (code.includes("riot_account_missing")) return "Connect your Riot account before registering.";
+  if (code.includes("riot_account_missing"))
+    return "Conectá tu cuenta de Riot antes de inscribirte.";
   if (code.includes("riot_rank_unverified"))
-    return "Your Riot Solo Queue rank must be verified first.";
+    return "Primero se debe verificar tu rango clasificatorio de Solo/Dúo.";
   if (code.includes("account_level_below_minimum"))
-    return "Your Riot account does not meet this tournament's minimum account level.";
+    return "Tu cuenta de Riot no alcanza el nivel mínimo de este torneo.";
   if (code.includes("platform_mismatch"))
-    return "Your Riot account is linked to a different server/platform.";
-  if (code.includes("division_mismatch")) return "This bracket is for another division.";
-  if (code.includes("region_mismatch")) return "This bracket is restricted to another region.";
-  if (code.includes("account_suspended")) return "Your account is suspended.";
+    return "Tu cuenta de Riot está vinculada a otro servidor.";
+  if (code.includes("division_mismatch")) return "Este cuadro corresponde a otra división.";
+  if (code.includes("region_mismatch")) return "Este cuadro está limitado a otra región.";
+  if (code.includes("account_suspended")) return "Tu cuenta está suspendida.";
   if (code.includes("eligibility_rejected"))
-    return "Your competitive eligibility was rejected. Contact moderation.";
+    return "Tu elegibilidad competitiva fue rechazada. Contactá a moderación.";
   if (code.includes("eligibility_pending_review"))
-    return "Your competitive eligibility is still pending review.";
-  if (code.includes("registration_not_open")) return "Registration is not open.";
-  if (code.includes("registration_closed")) return "Registration has closed.";
-  if (code.includes("tournament_full")) return "This tournament is full.";
-  if (code.includes("already_registered")) return "You are already registered for this tournament.";
+    return "Tu elegibilidad competitiva sigue pendiente de revisión.";
+  if (code.includes("registration_not_open")) return "La inscripción no está abierta.";
+  if (code.includes("registration_closed")) return "La inscripción cerró.";
+  if (code.includes("tournament_full")) return "Este torneo está completo.";
+  if (code.includes("already_registered")) return "Ya estás inscripto en este torneo.";
   if (code.includes("team_registration_required"))
-    return "This tournament requires team registration.";
-  if (code.includes("tournament_not_found")) return "Tournament not found.";
-  if (code.includes("checkin_not_open")) return "Check-in has not opened yet.";
-  if (code.includes("checkin_closed")) return "Check-in has closed.";
-  if (code.includes("checkin_not_required")) return "This tournament does not require check-in.";
-  if (code.includes("not_registered")) return "You are not registered for this tournament.";
-  if (code.includes("entry_not_checkin_eligible")) return "This entry cannot be checked in.";
+    return "Este torneo requiere inscripción por equipos.";
+  if (code.includes("tournament_not_found")) return "Torneo no encontrado.";
+  if (code.includes("checkin_not_open")) return "La confirmación de asistencia todavía no abrió.";
+  if (code.includes("checkin_closed")) return "La confirmación de asistencia cerró.";
+  if (code.includes("checkin_not_required")) return "Este torneo no requiere confirmar asistencia.";
+  if (code.includes("not_registered")) return "No estás inscripto en este torneo.";
+  if (code.includes("entry_not_checkin_eligible"))
+    return "No se puede confirmar la asistencia de esta inscripción.";
   return message;
 }
 
@@ -78,7 +80,7 @@ export async function registerForTournament(
   );
   if (error) throw new Error(friendlyRpcError(error.message));
   if (!data || typeof data !== "object" || Array.isArray(data)) {
-    throw new Error("Could not register for this tournament.");
+    throw new Error("No se pudo inscribir al torneo.");
   }
 
   const entryId = typeof data["entry_id"] === "string" ? data["entry_id"] : "";
@@ -88,7 +90,7 @@ export async function registerForTournament(
   const tournamentName =
     typeof data["tournament_name"] === "string" ? data["tournament_name"] : tournamentSlug;
 
-  if (!entryId) throw new Error("Could not register for this tournament.");
+  if (!entryId) throw new Error("No se pudo inscribir al torneo.");
 
   return {
     entryId,
@@ -110,11 +112,11 @@ export async function checkInToTournament(
   );
   if (error) throw new Error(friendlyRpcError(error.message));
   if (!data || typeof data !== "object" || Array.isArray(data)) {
-    throw new Error("Could not check in.");
+    throw new Error("No se pudo confirmar asistencia.");
   }
 
   const entryId = typeof data["entry_id"] === "string" ? data["entry_id"] : "";
   const status = typeof data["status"] === "string" ? data["status"] : "checked_in";
-  if (!entryId) throw new Error("Could not check in.");
+  if (!entryId) throw new Error("No se pudo confirmar asistencia.");
   return { entryId, status };
 }

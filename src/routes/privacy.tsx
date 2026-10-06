@@ -9,16 +9,17 @@ export const Route = createFileRoute("/privacy")({
     const canonical = canonicalMetadata("/privacy");
     return {
       meta: [
-        { title: "Privacy Policy — EloShape" },
+        { title: "Política de privacidad — EloShape" },
         {
           name: "description",
           content:
-            "How EloShape handles player accounts, Riot account linking data and competitive records.",
+            "Cómo maneja EloShape las cuentas de jugadores, los datos de vinculación de Riot y los registros competitivos.",
         },
-        { property: "og:title", content: "EloShape Privacy Policy" },
+        { property: "og:title", content: "Política de privacidad de EloShape" },
         {
           property: "og:description",
-          content: "What data EloShape stores about players and Riot account links.",
+          content:
+            "Qué datos guarda EloShape sobre los jugadores y las cuentas de Riot vinculadas.",
         },
         { property: "og:type", content: "website" },
         { name: "twitter:card", content: "summary" },
@@ -34,101 +35,111 @@ function PrivacyPage() {
   return (
     <div>
       <PageHeading
-        eyebrow="Legal"
-        title="Privacy Policy"
-        description="What EloShape stores, why it stores it, and what is never shown publicly."
+        eyebrow="Información legal"
+        title="Política de privacidad"
+        description="Qué guarda EloShape, por qué lo guarda y qué datos nunca se muestran públicamente."
       />
       <PageContainer className="prose-invert max-w-3xl space-y-7 py-8 sm:py-10 text-sm leading-relaxed text-muted-foreground">
         <p className="text-xs font-semibold uppercase tracking-wide text-foreground">
-          Effective August 27, 2026
+          Vigente desde el 27 de agosto de 2026
         </p>
         <section>
-          <h2 className="text-base font-black text-foreground">Account data</h2>
+          <h2 className="text-base font-black text-foreground">Datos de la cuenta</h2>
           <p className="mt-2">
-            EloShape accounts are managed with email and password authentication. Your email address
-            is used for authentication and account recovery only and is never shown on public
-            profiles or in public rankings.
+            Las cuentas de EloShape usan autenticación con correo electrónico y contraseña. Tu
+            correo se usa únicamente para iniciar sesión y recuperar la cuenta; nunca se muestra en
+            perfiles ni clasificaciones públicos.
           </p>
           <p className="mt-2">
-            When you create an account, EloShape records the version and time of your acceptance of
-            the Terms of Service and Privacy Policy.
+            Al crear una cuenta, EloShape registra la versión y la fecha de tu aceptación de los
+            términos del servicio y la política de privacidad.
           </p>
         </section>
         <section>
-          <h2 className="text-base font-black text-foreground">Optional Discord linking and bot</h2>
-          <p className="mt-1 text-xs">Discord integration notice added October 5, 2026.</p>
-          <p className="mt-2">
-            If you choose to connect Discord from your EloShape profile, Discord asks you to
-            authorize the connection. Supabase Auth processes the OAuth authorization and stores the
-            Discord identity associated with your EloShape account, including your Discord user ID
-            and identity information such as your account name and email. EloShape uses that
-            verified identity to identify your account in its Discord server.
+          <h2 className="text-base font-black text-foreground">
+            Vinculación opcional de Discord y bot
+          </h2>
+          <p className="mt-1 text-xs">
+            Aviso sobre la integración de Discord agregado el 5 de octubre de 2026.
           </p>
           <p className="mt-2">
-            The EloShape bot receives only the Discord IDs it needs to synchronize the Cuenta
-            vinculada role and, through a separate approval process, the Beta tester role. Those
-            private endpoints do not send the bot your email, password or OAuth tokens. The bot also
-            keeps server, role, channel and message IDs needed to operate its official messages,
-            private team spaces and support tickets. Connecting Discord does not make your Discord
-            identity public on EloShape player profiles.
+            Si elegís conectar Discord desde tu perfil de EloShape, Discord te pide autorizar la
+            conexión. Supabase Auth procesa la autorización OAuth y guarda la identidad de Discord
+            asociada a tu cuenta de EloShape, incluidos tu ID de usuario de Discord y datos de
+            identidad como el nombre de la cuenta y el correo electrónico. EloShape usa esa
+            identidad verificada para identificar tu cuenta en su servidor de Discord.
           </p>
           <p className="mt-2">
-            You can unlink Discord from your profile. The bot removes Cuenta vinculada on its next
-            successful synchronization while it is online. Unlinking does not delete messages or
-            tickets already posted in Discord, nor does it delete your EloShape account. For
-            deletion requests, contact EloShape support or staff through a private Discord ticket.
-            Discord messages and account data are also subject to{" "}
+            El bot de EloShape recibe solo los IDs de Discord necesarios para sincronizar el rol
+            Cuenta vinculada y, mediante un proceso separado de aprobación, el rol Beta tester. Esos
+            servicios privados no envían al bot tu correo, contraseña ni tokens OAuth. El bot
+            también conserva los IDs del servidor, roles, canales y mensajes necesarios para sus
+            mensajes oficiales, espacios privados de equipo y tickets de soporte. Conectar Discord
+            no hace pública tu identidad de Discord en los perfiles de jugadores de EloShape.
+          </p>
+          <p className="mt-2">
+            Podés desvincular Discord desde tu perfil. El bot retira Cuenta vinculada en su próxima
+            sincronización exitosa mientras esté conectado. Desvincular no borra los mensajes o
+            tickets ya publicados en Discord ni elimina tu cuenta de EloShape. Para solicitar una
+            eliminación, contactá al soporte de EloShape o al staff mediante un ticket privado de
+            Discord. Los mensajes y datos de cuenta de Discord también están sujetos a{" "}
             <a
               href="https://discord.com/privacy"
               target="_blank"
               rel="noopener noreferrer"
               className="font-semibold text-foreground underline underline-offset-4"
             >
-              Discord&apos;s privacy policy
+              la política de privacidad de Discord
             </a>
             .
           </p>
         </section>
         <section>
-          <h2 className="text-base font-black text-foreground">Riot account linking</h2>
+          <h2 className="text-base font-black text-foreground">Vinculación de Riot</h2>
           <p className="mt-2">
-            When you connect a Riot ID, EloShape asks the Riot Games API for your account identifier
-            (PUUID) and your Solo Queue ranked snapshot. The PUUID is stored privately on our
-            servers and is never exposed on public pages or through our public API. Public profiles
-            may show your Riot ID, Solo Queue tier and division only.
+            Cuando conectás un Riot ID, EloShape consulta a la API de Riot Games tu identificador de
+            cuenta (PUUID) y tu rango en la cola clasificatoria individual. El PUUID se guarda de
+            forma privada en nuestros servidores y nunca se expone en páginas públicas ni en nuestra
+            API pública. Los perfiles públicos pueden mostrar tu Riot ID, rango y división.
           </p>
           <p className="mt-2">
-            Linking a Riot ID through the Riot API confirms that the account exists. It does not
-            prove account ownership. Ownership verification requires Riot Sign On, which is not yet
-            available on EloShape.
-          </p>
-        </section>
-        <section>
-          <h2 className="text-base font-black text-foreground">Competitive records</h2>
-          <p className="mt-2">
-            Tournament entries, official match results, ranking points and achievements are public
-            competitive records. Moderation notes and eligibility review notes are private to staff.
-          </p>
-          <p className="mt-2">
-            When a participant reports or disputes a result, EloShape may store the proposed score,
-            notes, an evidence URL supplied by the participant, confirmation or dispute status, and
-            the final staff resolution. These dispute materials are limited to participating users
-            and staff as needed to operate the competition; public tournament pages show the
-            official competitive result rather than private dispute notes.
+            Vincular un Riot ID mediante la API de Riot confirma que la cuenta existe. No demuestra
+            que te pertenece. Verificar la propiedad requiere Riot Sign On, que todavía no está
+            disponible en EloShape.
           </p>
         </section>
         <section>
-          <h2 className="text-base font-black text-foreground">Deletion and privacy requests</h2>
+          <h2 className="text-base font-black text-foreground">Registros competitivos</h2>
           <p className="mt-2">
-            You can request account deletion or submit another privacy request at any time from the{" "}
+            Las inscripciones a torneos, resultados oficiales, puntos de clasificación y logros son
+            registros competitivos públicos. Las notas de moderación y revisión de elegibilidad son
+            privadas y están limitadas al staff.
+          </p>
+          <p className="mt-2">
+            Cuando un participante informa o disputa un resultado, EloShape puede guardar el
+            marcador propuesto, notas, un enlace de evidencia aportado por el participante, el
+            estado de confirmación o disputa y la resolución final del staff. Estos materiales se
+            limitan a los participantes involucrados y al staff según lo necesario para administrar
+            la competencia. Las páginas públicas muestran el resultado competitivo oficial, sin las
+            notas privadas de la disputa.
+          </p>
+        </section>
+        <section>
+          <h2 className="text-base font-black text-foreground">
+            Solicitudes de eliminación y privacidad
+          </h2>
+          <p className="mt-2">
+            Podés pedir la eliminación de tu cuenta o enviar otra solicitud de privacidad en
+            cualquier momento desde la{" "}
             <Link
               to="/support"
               className="font-semibold text-foreground underline underline-offset-4"
             >
-              EloShape support page
+              página de soporte de EloShape
             </Link>
-            . Historical tournament results may be retained or anonymised where necessary to keep
-            past brackets and competitive records consistent.
+            . Los resultados históricos de torneos pueden conservarse o anonimizarse cuando sea
+            necesario para mantener la coherencia de los cuadros y registros competitivos
+            anteriores.
           </p>
         </section>
         <p className="border-t border-border/60 pt-6 text-xs">{RIOT_LEGAL_NOTICE}</p>

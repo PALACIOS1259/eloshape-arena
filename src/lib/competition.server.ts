@@ -36,7 +36,7 @@ async function loadSeedableEntries(client: Client, tournamentId: string) {
     .eq("id", tournamentId)
     .maybeSingle();
   fail(tournament.error);
-  if (!tournament.data) throw new Error("Tournament not found.");
+  if (!tournament.data) throw new Error("Torneo no encontrado.");
   const checkinRequired = tournament.data.checkin_required !== false;
 
   const { data, error } = await client
@@ -67,7 +67,9 @@ export async function generateTournamentBracket(
 ) {
   const competitors = await loadSeedableEntries(client, tournamentId);
   if (competitors.length < 2) {
-    throw new Error("At least two checked-in entries with locked rosters are required.");
+    throw new Error(
+      "Se necesitan al menos dos inscripciones con asistencia confirmada y planteles bloqueados.",
+    );
   }
 
   const bracket = buildBracket(competitors, series);

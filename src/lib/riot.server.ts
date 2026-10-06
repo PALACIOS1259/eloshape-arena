@@ -38,7 +38,7 @@ export const RIOT_PLATFORMS: Record<
 > = {
   // Extensible: add BR1/NA1/EUW1... with their regional routing host.
   LA2: {
-    label: "LAS (Latin America South)",
+    label: "LAS (Latinoamérica Sur)",
     host: "https://la2.api.riotgames.com",
     regional: "https://americas.api.riotgames.com",
   },
@@ -83,14 +83,15 @@ export type RiotErrorCode =
   | "unknown";
 
 const USER_MESSAGE: Record<RiotErrorCode, string> = {
-  not_configured: "Riot integration is not configured yet.",
-  invalid_riot_id: "Check your Riot ID and tag line.",
-  not_found: "We couldn't find that Riot account.",
-  unauthorized: "Riot integration is temporarily unavailable.",
-  rate_limited: "Riot is rate limiting us right now. Please try again in a moment.",
-  unavailable: "Riot's service is temporarily unavailable. Please try again shortly.",
-  timeout: "Riot did not respond in time. Please try again.",
-  unknown: "Riot data sync is temporarily unavailable.",
+  not_configured: "La integración con Riot todavía no está configurada.",
+  invalid_riot_id: "Revisá tu Riot ID y su etiqueta.",
+  not_found: "No encontramos esa cuenta de Riot.",
+  unauthorized: "La integración con Riot no está disponible temporalmente.",
+  rate_limited: "Riot está limitando las consultas. Volvé a intentar en unos momentos.",
+  unavailable:
+    "El servicio de Riot no está disponible temporalmente. Volvé a intentar en unos momentos.",
+  timeout: "Riot no respondió a tiempo. Volvé a intentar.",
+  unknown: "La sincronización de Riot no está disponible temporalmente.",
 };
 
 export class RiotError extends Error {

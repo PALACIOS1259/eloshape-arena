@@ -1,3 +1,4 @@
+import { divisionLabel, seasonLabel } from "@/lib/format";
 import type { ReactNode } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -26,16 +27,17 @@ export const Route = createFileRoute("/rankings")({
     const canonical = canonicalMetadata("/rankings");
     return {
       meta: [
-        { title: "Rankings — EloShape leaderboards by division and region" },
+        { title: "Clasificaciones — EloShape por división y región" },
         {
           name: "description",
           content:
-            "EloShape rankings for season and monthly periods, filtered by division and by region, country, province or city.",
+            "Clasificaciones de temporada y mensuales de EloShape, filtradas por división y por región, país, provincia o ciudad.",
         },
-        { property: "og:title", content: "EloShape rankings" },
+        { property: "og:title", content: "Clasificaciones de EloShape" },
         {
           property: "og:description",
-          content: "Season and monthly leaderboards across every division and geography.",
+          content:
+            "Clasificaciones de temporada y mensuales de todas las divisiones y ubicaciones.",
         },
         ...canonical.meta,
       ],
@@ -57,10 +59,10 @@ export const Route = createFileRoute("/rankings")({
 });
 
 const KIND_LABEL: Record<string, string> = {
-  region: "Region",
-  country: "Country",
-  province: "Province",
-  city: "City",
+  region: "Región",
+  country: "País",
+  province: "Provincia",
+  city: "Ciudad",
 };
 
 function RankingsPage() {
@@ -89,18 +91,19 @@ function RankingsPage() {
   return (
     <div>
       <PageHeading
-        eyebrow={directory.activeSeason?.name ?? "Season 1"}
-        title="Rankings"
-        description="Tournament performance builds your EloShape ranking. Riot rank only decides which division you are eligible to enter."
+        eyebrow={seasonLabel(directory.activeSeason?.name)}
+        title="Clasificaciones"
+        description="Tu rendimiento en los torneos construye tu clasificación de EloShape. El rango de Riot solo determina a qué división podés entrar."
         aside={
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1.5">
               <Users className="size-3.5" />
-              <strong className="font-black text-foreground">{players.length}</strong> ranked
+              <strong className="font-black text-foreground">{players.length}</strong> en la
+              clasificación
             </span>
             <span className="inline-flex items-center gap-1.5">
               <Trophy className="size-3.5 text-gold" />
-              official points only
+              solo puntos oficiales
             </span>
           </div>
         }
@@ -110,9 +113,9 @@ function RankingsPage() {
         <section className="border-y border-border/65 py-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="eyebrow">Leaderboard filters</p>
+              <p className="eyebrow">Filtros de clasificación</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Narrow the table by period, division and geography.
+                Filtrá la tabla por período, división y ubicación.
               </p>
             </div>
             <Button
@@ -122,12 +125,12 @@ function RankingsPage() {
               onClick={() => update({ period: "season", division: "all", region: "all" })}
             >
               <SlidersHorizontal className="size-4" />
-              Reset
+              Restablecer
             </Button>
           </div>
 
           <div className="mt-4 grid gap-3 border-t border-border/55 pt-4 sm:grid-cols-3">
-            <Filter label="Period">
+            <Filter label="Período">
               <Select
                 value={search.period}
                 onValueChange={(value) => update({ period: value as "season" | "month" })}
@@ -136,35 +139,35 @@ function RankingsPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="season">Season</SelectItem>
-                  <SelectItem value="month">This month</SelectItem>
+                  <SelectItem value="season">Temporada</SelectItem>
+                  <SelectItem value="month">Este mes</SelectItem>
                 </SelectContent>
               </Select>
             </Filter>
 
-            <Filter label="Division">
+            <Filter label="División">
               <Select value={search.division} onValueChange={(division) => update({ division })}>
                 <SelectTrigger className="mt-2 w-full border-border/80 bg-background/45">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All divisions</SelectItem>
+                  <SelectItem value="all">Todas las divisiones</SelectItem>
                   {directory.divisions.map((division) => (
                     <SelectItem key={division.code} value={division.code}>
-                      {division.name}
+                      {divisionLabel(division)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </Filter>
 
-            <Filter label="Geography">
+            <Filter label="Ubicación">
               <Select value={search.region} onValueChange={(region) => update({ region })}>
                 <SelectTrigger className="mt-2 w-full border-border/80 bg-background/45">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All of LAS</SelectItem>
+                  <SelectItem value="all">Toda LAS</SelectItem>
                   {directory.regions.map((region) => (
                     <SelectItem key={region.slug} value={region.slug}>
                       {KIND_LABEL[region.kind] ?? region.kind} · {region.name}
@@ -180,21 +183,21 @@ function RankingsPage() {
           <div className="mb-3 flex items-end justify-between gap-3">
             <div>
               <p className="eyebrow">
-                {search.period === "month" ? "Monthly table" : "Season table"}
+                {search.period === "month" ? "Tabla mensual" : "Tabla de temporada"}
               </p>
-              <h2 className="mt-1 text-xl font-black text-foreground sm:text-2xl">Leaderboard</h2>
+              <h2 className="mt-1 text-xl font-black text-foreground sm:text-2xl">Clasificación</h2>
             </div>
-            <p className="text-xs text-muted-foreground">{players.length} players</p>
+            <p className="text-xs text-muted-foreground">{players.length} jugadores</p>
           </div>
 
           {players.length ? (
             <div className="overflow-hidden border-y border-border/65 bg-card/20">
               <div className="hidden grid-cols-[2.5rem_minmax(0,1fr)_7rem_6rem_5rem] gap-3 border-b border-border/55 bg-background/15 px-4 py-2.5 sm:grid">
                 <span className="eyebrow">#</span>
-                <span className="eyebrow">Player</span>
-                <span className="eyebrow">Division</span>
-                <span className="eyebrow">Record</span>
-                <span className="eyebrow text-right">Points</span>
+                <span className="eyebrow">Jugador</span>
+                <span className="eyebrow">División</span>
+                <span className="eyebrow">Historial</span>
+                <span className="eyebrow text-right">Puntos</span>
               </div>
               {players.map((player, index) => (
                 <PlayerRow
@@ -207,8 +210,8 @@ function RankingsPage() {
             </div>
           ) : (
             <EmptyState
-              title="No players in this ranking yet"
-              description="Try a broader geography or division filter."
+              title="Todavía no hay jugadores en esta clasificación"
+              description="Probá ampliar el filtro de ubicación o división."
             />
           )}
         </section>

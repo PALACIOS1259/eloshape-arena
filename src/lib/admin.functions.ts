@@ -58,7 +58,7 @@ export const setPlayerEligibility = createServerFn({ method: "POST" })
     } catch (error) {
       return {
         ok: false as const,
-        error: error instanceof Error ? error.message : "Could not update eligibility.",
+        error: error instanceof Error ? error.message : "No se pudo actualizar la elegibilidad.",
       };
     }
   });

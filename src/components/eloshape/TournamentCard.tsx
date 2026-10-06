@@ -4,7 +4,7 @@ import { CalendarDays, ChevronRight, MapPin, Radio, Swords, Trophy, Users } from
 
 import { DivisionBadge, type DivisionLike } from "./DivisionBadge";
 import { StatusBadge } from "./StatusBadge";
-import { formatDateTime } from "@/lib/format";
+import { formatDateTime, tournamentFormat } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 export type TournamentCardData = {
@@ -25,11 +25,11 @@ export type TournamentCardData = {
 };
 
 function actionLabel(status: string) {
-  if (status === "registration_open") return "Open registration";
-  if (status === "registration_closed") return "View seeded field";
-  if (status === "live") return "Follow live bracket";
-  if (status === "completed") return "View results";
-  return "Open tournament";
+  if (status === "registration_open") return "Inscripción abierta";
+  if (status === "registration_closed") return "Ver participantes ordenados";
+  if (status === "live") return "Seguir el cuadro en vivo";
+  if (status === "completed") return "Ver resultados";
+  return "Abrir torneo";
 }
 
 export function TournamentCard({
@@ -83,13 +83,13 @@ export function TournamentCard({
 
       <div className="relative flex flex-1 flex-col p-5">
         <p className="text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground">
-          {tournament.mode === "team" ? "5v5 Team Tournament" : "Solo Tournament"}
+          {tournament.mode === "team" ? "Torneo por equipos 5 contra 5" : "Torneo individual"}
         </p>
         <h3 className="mt-2 text-lg font-black leading-tight tracking-tight text-foreground transition-colors group-hover:text-primary">
           {tournament.name}
         </h3>
         <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
-          {tournament.subtitle ?? "Competitive EloShape event for the LAS circuit."}
+          {tournament.subtitle ?? "Competencia oficial de EloShape para el circuito LAS."}
         </p>
 
         <div className="mt-5 grid grid-cols-2 gap-x-5 gap-y-3 border-t border-border/55 pt-4 text-xs">
@@ -98,10 +98,13 @@ export function TournamentCard({
             label={formatDateTime(tournament.starts_at)}
           />
           <Fact icon={<MapPin className="size-3.5" />} label={tournament.region?.name ?? "LAS"} />
-          <Fact icon={<Swords className="size-3.5" />} label={tournament.format ?? "TBD"} />
+          <Fact
+            icon={<Swords className="size-3.5" />}
+            label={tournamentFormat(tournament.format)}
+          />
           <Fact
             icon={<Users className="size-3.5" />}
-            label={capacity ? `${filled}/${capacity} entries` : `${filled} entries`}
+            label={capacity ? `${filled}/${capacity} inscripciones` : `${filled} inscripciones`}
           />
         </div>
 
@@ -116,7 +119,9 @@ export function TournamentCard({
           {capacity ? (
             <div>
               <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-                <span>{spotsLeft === 0 ? "Field full" : `${spotsLeft} spots left`}</span>
+                <span>
+                  {spotsLeft === 0 ? "Cupo completo" : `${spotsLeft} lugares disponibles`}
+                </span>
                 <span className="tabular-nums">{pct}%</span>
               </div>
               <div className="mt-2 h-1 overflow-hidden rounded-full bg-muted/70">

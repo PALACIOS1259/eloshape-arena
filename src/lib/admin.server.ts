@@ -165,7 +165,7 @@ export async function decideEligibility(
   );
   if (error) throw new Error(error.message);
   if (!data || typeof data !== "object" || Array.isArray(data)) {
-    throw new Error("Could not update eligibility.");
+    throw new Error("No se pudo actualizar la elegibilidad.");
   }
 
   const id = typeof data["id"] === "string" ? data["id"] : args.profileId;

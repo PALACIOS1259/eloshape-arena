@@ -32,20 +32,21 @@ export type StaffSupportRequest = SupportRequest & {
 
 function friendlySupportError(message: string) {
   const code = message.toLowerCase();
-  if (code.includes("authentication_required")) return "Sign in to contact EloShape support.";
-  if (code.includes("invalid_support_category")) return "Choose a valid support category.";
+  if (code.includes("authentication_required"))
+    return "Iniciá sesión para contactar al soporte de EloShape.";
+  if (code.includes("invalid_support_category")) return "Elegí una categoría de soporte válida.";
   if (code.includes("invalid_support_subject")) {
-    return "Subject must be between 3 and 120 characters.";
+    return "El asunto debe tener entre 3 y 120 caracteres.";
   }
   if (code.includes("invalid_support_message")) {
-    return "Message must be between 10 and 4,000 characters.";
+    return "El mensaje debe tener entre 10 y 4000 caracteres.";
   }
-  if (code.includes("invalid_support_status")) return "Choose a valid support status.";
+  if (code.includes("invalid_support_status")) return "Elegí un estado de soporte válido.";
   if (code.includes("support_response_too_long")) {
-    return "Staff response must be 2,000 characters or fewer.";
+    return "La respuesta de la organización no puede superar los 2000 caracteres.";
   }
-  if (code.includes("support_request_not_found")) return "That support request could not be found.";
-  if (code.includes("forbidden")) return "Staff access required.";
+  if (code.includes("support_request_not_found")) return "No se encontró esa solicitud de soporte.";
+  if (code.includes("forbidden")) return "Se requiere acceso de organización.";
   return message;
 }
 
@@ -72,10 +73,10 @@ export const submitMySupportRequest = createServerFn({ method: "POST" })
     const subject = input.subject.trim();
     const message = input.message.trim();
     if (subject.length < 3 || subject.length > 120) {
-      throw new Error("Subject must be between 3 and 120 characters.");
+      throw new Error("El asunto debe tener entre 3 y 120 caracteres.");
     }
     if (message.length < 10 || message.length > 4000) {
-      throw new Error("Message must be between 10 and 4,000 characters.");
+      throw new Error("El mensaje debe tener entre 10 y 4000 caracteres.");
     }
     return { category: input.category, subject, message };
   })
@@ -94,7 +95,8 @@ export const submitMySupportRequest = createServerFn({ method: "POST" })
     } catch (error) {
       return {
         ok: false as const,
-        error: error instanceof Error ? error.message : "Could not submit support request.",
+        error:
+          error instanceof Error ? error.message : "No se pudo enviar la solicitud de soporte.",
       };
     }
   });
@@ -130,7 +132,8 @@ export const updateStaffSupportRequest = createServerFn({ method: "POST" })
     } catch (error) {
       return {
         ok: false as const,
-        error: error instanceof Error ? error.message : "Could not update support request.",
+        error:
+          error instanceof Error ? error.message : "No se pudo actualizar la solicitud de soporte.",
       };
     }
   });

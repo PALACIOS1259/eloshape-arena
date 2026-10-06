@@ -51,7 +51,7 @@ export function EloShapeLogo({
           <span className="text-base font-black tracking-tight text-foreground">
             Elo<span className="text-brand-gradient">Shape</span>
           </span>
-          <span className="eyebrow mt-1 text-[0.5625rem]">Competitive circuit</span>
+          <span className="eyebrow mt-1 text-[0.5625rem]">Circuito competitivo</span>
         </span>
       ) : null}
     </span>

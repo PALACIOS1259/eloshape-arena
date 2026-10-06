@@ -51,7 +51,7 @@ export const registerForTournament = createServerFn({ method: "POST" })
     } catch (error) {
       return {
         ok: false as const,
-        error: message(error, "Could not register for this tournament."),
+        error: message(error, "No se pudo inscribir al torneo."),
       };
     }
   });
@@ -68,6 +68,6 @@ export const checkInToTournament = createServerFn({ method: "POST" })
         entry: await checkIn(context.userId, supabase, data.slug),
       };
     } catch (error) {
-      return { ok: false as const, error: message(error, "Could not check in.") };
+      return { ok: false as const, error: message(error, "No se pudo confirmar asistencia.") };
     }
   });

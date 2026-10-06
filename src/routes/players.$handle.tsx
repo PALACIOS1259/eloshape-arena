@@ -8,7 +8,17 @@ import { EmptyState } from "@/components/eloshape/EmptyState";
 import { MovementIndicator, PlayerAvatar } from "@/components/eloshape/PlayerRow";
 import { PageContainer } from "@/components/layout/PageShell";
 import { Button } from "@/components/ui/button";
-import { formatDate, formatPoints, placementLabel, riotRankLabel, winRate } from "@/lib/format";
+import {
+  formatDate,
+  formatPoints,
+  placementLabel,
+  riotRankLabel,
+  winRate,
+  statusLabel,
+  pointRuleLabel,
+  achievementLabel,
+  achievementDescription,
+} from "@/lib/format";
 import { playerQuery } from "@/lib/queries";
 import { canonicalMetadata } from "@/lib/site-metadata";
 import { cn } from "@/lib/utils";
@@ -22,11 +32,14 @@ export const Route = createFileRoute("/players/$handle")({
   head: ({ loaderData }) => {
     if (!loaderData) {
       return {
-        meta: [{ title: "Player unavailable — EloShape" }, { name: "robots", content: "noindex" }],
+        meta: [
+          { title: "Jugador no disponible — EloShape" },
+          { name: "robots", content: "noindex" },
+        ],
       };
     }
-    const title = `${loaderData.name} — EloShape player profile`;
-    const description = `EloShape points, division, record, achievements and tournament history for ${loaderData.name}.`;
+    const title = `${loaderData.name} — Perfil de jugador de EloShape`;
+    const description = `Puntos, división, historial, logros y torneos de EloShape de ${loaderData.name}.`;
     const canonical = canonicalMetadata(`/players/${encodeURIComponent(loaderData.handle)}`);
     return {
       meta: [
@@ -42,10 +55,10 @@ export const Route = createFileRoute("/players/$handle")({
   notFoundComponent: () => (
     <PageContainer className="py-20">
       <EmptyState
-        title="Player not found"
+        title="Jugador no encontrado"
         action={
           <Button asChild>
-            <Link to="/rankings">Back to rankings</Link>
+            <Link to="/rankings">Volver a las clasificaciones</Link>
           </Button>
         }
       />
@@ -112,26 +125,28 @@ function PlayerPage() {
                 ) : (
                   <ShieldAlert className="size-3.5" />
                 )}
-                {eligible ? "Eligibility verified" : `Eligibility: ${profile.eligibility}`}
+                {eligible
+                  ? "Elegibilidad verificada"
+                  : `Elegibilidad: ${statusLabel(profile.eligibility)}`}
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-x-7 gap-y-4 border-t border-border/55 pt-5 sm:grid-cols-5 lg:border-l lg:border-t-0 lg:pl-7 lg:pt-0">
               <Metric
-                label="Season"
+                label="Temporada"
                 value={formatPoints(profile.points_season)}
                 extra={<MovementIndicator value={profile.rank_movement} />}
                 accent
               />
-              <Metric label="Month" value={formatPoints(profile.points_month)} />
+              <Metric label="Mes" value={formatPoints(profile.points_month)} />
               <Metric
-                label="Record"
+                label="Historial"
                 value={`${profile.wins}-${profile.losses}`}
                 extra={winRate(profile.wins, profile.losses)}
               />
-              <Metric label="Events" value={String(profile.tournaments_played ?? 0)} />
+              <Metric label="Eventos" value={String(profile.tournaments_played ?? 0)} />
               <Metric
-                label="Riot rank"
+                label="Rango de Riot"
                 value={riotRankLabel(profile.riot_tier ?? null, profile.riot_rank ?? null)}
               />
             </div>
@@ -144,8 +159,8 @@ function PlayerPage() {
           <section>
             <div className="flex items-end justify-between gap-3">
               <div>
-                <p className="eyebrow">Official history</p>
-                <h2 className="mt-1 text-xl font-black text-foreground">Tournament results</h2>
+                <p className="eyebrow">Historial oficial</p>
+                <h2 className="mt-1 text-xl font-black text-foreground">Resultados de torneos</h2>
               </div>
               <Swords className="size-4 text-muted-foreground" />
             </div>
@@ -164,7 +179,7 @@ function PlayerPage() {
                         {entry.tournament?.name}
                       </span>
                       <span className="mt-1 block text-xs text-muted-foreground">
-                        {formatDate(entry.tournament?.starts_at)} · {entry.status}
+                        {formatDate(entry.tournament?.starts_at)} · {statusLabel(entry.status)}
                       </span>
                     </span>
                     <span className="flex items-center gap-4 text-right">
@@ -183,7 +198,7 @@ function PlayerPage() {
               </div>
             ) : (
               <div className="mt-3">
-                <EmptyState title="No tournaments played yet" />
+                <EmptyState title="Todavía no jugó torneos" />
               </div>
             )}
           </section>
@@ -191,8 +206,8 @@ function PlayerPage() {
           <section>
             <div className="flex items-end justify-between gap-3">
               <div>
-                <p className="eyebrow">Scoring history</p>
-                <h2 className="mt-1 text-xl font-black text-foreground">Points ledger</h2>
+                <p className="eyebrow">Historial de puntuación</p>
+                <h2 className="mt-1 text-xl font-black text-foreground">Registro de puntos</h2>
               </div>
               <Trophy className="size-4 text-gold" />
             </div>
@@ -206,10 +221,10 @@ function PlayerPage() {
                   >
                     <span className="min-w-0">
                       <span className="block truncate text-sm font-semibold text-foreground">
-                        {row.rule?.label ?? row.rule_code}
+                        {pointRuleLabel(row.rule_code, row.rule?.label)}
                       </span>
                       <span className="mt-1 block truncate text-xs text-muted-foreground">
-                        {row.tournament?.name ?? row.note ?? "EloShape circuit"} ·{" "}
+                        {row.tournament?.name ?? row.note ?? "Circuito de EloShape"} ·{" "}
                         {formatDate(row.awarded_at)}
                       </span>
                     </span>
@@ -222,8 +237,8 @@ function PlayerPage() {
             ) : (
               <div className="mt-3">
                 <EmptyState
-                  title="No points yet"
-                  description="Points appear here after competing in EloShape tournaments."
+                  title="Todavía no hay puntos"
+                  description="Los puntos aparecen acá después de competir en torneos de EloShape."
                 />
               </div>
             )}
@@ -234,8 +249,8 @@ function PlayerPage() {
           <section>
             <div className="flex items-end justify-between gap-3">
               <div>
-                <p className="eyebrow">Recognition</p>
-                <h2 className="mt-1 text-xl font-black text-foreground">Achievements</h2>
+                <p className="eyebrow">Reconocimientos</p>
+                <h2 className="mt-1 text-xl font-black text-foreground">Logros</h2>
               </div>
               <Award className="size-4 text-gold" />
             </div>
@@ -247,10 +262,11 @@ function PlayerPage() {
                     <Award className="mt-0.5 size-4 shrink-0 text-gold" />
                     <div className="min-w-0">
                       <p className="truncate text-sm font-bold text-foreground">
-                        {achievement.title}
+                        {achievementLabel(achievement.code, achievement.title)}
                       </p>
                       <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                        {achievement.description ?? formatDate(achievement.earned_at)}
+                        {achievementDescription(achievement.code, achievement.description) ??
+                          formatDate(achievement.earned_at)}
                       </p>
                     </div>
                   </div>
@@ -258,14 +274,14 @@ function PlayerPage() {
               </div>
             ) : (
               <div className="mt-3">
-                <EmptyState title="No achievements yet" />
+                <EmptyState title="Todavía no hay logros" />
               </div>
             )}
           </section>
 
           <section>
-            <p className="eyebrow">Team history</p>
-            <h2 className="mt-1 text-xl font-black text-foreground">Teams</h2>
+            <p className="eyebrow">Historial de equipos</p>
+            <h2 className="mt-1 text-xl font-black text-foreground">Equipos</h2>
 
             {teams.length ? (
               <div className="mt-3 divide-y divide-border/60 border-y border-border/65 bg-card/15">
@@ -282,8 +298,8 @@ function PlayerPage() {
                           {membership.team.name}
                         </span>
                         <span className="mt-1 block text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">
-                          {membership.role}
-                          {membership.is_captain ? " · Captain" : ""}
+                          {statusLabel(membership.role)}
+                          {membership.is_captain ? " · Capitán" : ""}
                         </span>
                       </span>
                       <ChevronRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
@@ -293,7 +309,7 @@ function PlayerPage() {
               </div>
             ) : (
               <div className="mt-3">
-                <EmptyState title="Not on a team" />
+                <EmptyState title="Sin equipo" />
               </div>
             )}
           </section>

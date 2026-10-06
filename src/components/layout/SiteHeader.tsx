@@ -8,11 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 const NAV = [
-  { to: "/tournaments", label: "Tournaments" },
+  { to: "/tournaments", label: "Torneos" },
   { to: "/splits", label: "Semi-Splits" },
-  { to: "/rankings", label: "Rankings" },
-  { to: "/teams", label: "Teams" },
-  { to: "/divisions", label: "Divisions" },
+  { to: "/rankings", label: "Clasificaciones" },
+  { to: "/teams", label: "Equipos" },
+  { to: "/divisions", label: "Divisiones" },
 ] as const;
 
 export function SiteHeader() {
@@ -44,22 +44,22 @@ export function SiteHeader() {
           {user ? (
             <>
               <Button asChild variant="ghost" size="sm" className="hidden md:inline-flex">
-                <Link to="/team/settings">Team settings</Link>
+                <Link to="/team/settings">Configuración del equipo</Link>
               </Button>
               <Button asChild size="sm" className="hidden sm:inline-flex">
-                <Link to="/dashboard">Dashboard</Link>
+                <Link to="/dashboard">Mi panel</Link>
               </Button>
             </>
           ) : (
             <>
               <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
                 <Link to="/auth" search={{ mode: "signin" }}>
-                  Sign in
+                  Iniciar sesión
                 </Link>
               </Button>
               <Button asChild size="sm" className="hidden sm:inline-flex">
                 <Link to="/auth" search={{ mode: "signup" }}>
-                  Create account
+                  Crear cuenta
                 </Link>
               </Button>
             </>
@@ -67,12 +67,12 @@ export function SiteHeader() {
 
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="lg:hidden" aria-label="Open menu">
+              <Button variant="outline" size="icon" className="lg:hidden" aria-label="Abrir menú">
                 <Menu className="size-4" />
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-72 border-border/70 bg-background/95">
-              <SheetTitle className="sr-only">Navigation</SheetTitle>
+              <SheetTitle className="sr-only">Navegación</SheetTitle>
               <div className="mt-8 flex flex-col gap-1">
                 {NAV.map((item) => (
                   <Link
@@ -89,25 +89,25 @@ export function SiteHeader() {
                   {user ? (
                     <>
                       <Button asChild variant="outline" onClick={() => setOpen(false)}>
-                        <Link to="/team">My team</Link>
+                        <Link to="/team">Mi equipo</Link>
                       </Button>
                       <Button asChild variant="outline" onClick={() => setOpen(false)}>
-                        <Link to="/team/settings">Team settings</Link>
+                        <Link to="/team/settings">Configuración del equipo</Link>
                       </Button>
                       <Button asChild onClick={() => setOpen(false)}>
-                        <Link to="/dashboard">Dashboard</Link>
+                        <Link to="/dashboard">Mi panel</Link>
                       </Button>
                     </>
                   ) : (
                     <>
                       <Button asChild variant="outline" onClick={() => setOpen(false)}>
                         <Link to="/auth" search={{ mode: "signin" }}>
-                          Sign in
+                          Iniciar sesión
                         </Link>
                       </Button>
                       <Button asChild onClick={() => setOpen(false)}>
                         <Link to="/auth" search={{ mode: "signup" }}>
-                          Create account
+                          Crear cuenta
                         </Link>
                       </Button>
                     </>

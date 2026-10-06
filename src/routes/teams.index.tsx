@@ -18,14 +18,17 @@ export const Route = createFileRoute("/teams/")({
     const canonical = canonicalMetadata("/teams");
     return {
       meta: [
-        { title: "Teams — EloShape 5v5 rosters" },
+        { title: "Equipos — Planteles de 5 contra 5 de EloShape" },
         {
           name: "description",
           content:
-            "Every EloShape team roster with division, record, championships and season points earned on the circuit.",
+            "Todos los planteles de EloShape con división, historial, campeonatos y puntos de temporada obtenidos en el circuito.",
         },
-        { property: "og:title", content: "EloShape teams" },
-        { property: "og:description", content: "5v5 rosters competing on the EloShape circuit." },
+        { property: "og:title", content: "Equipos de EloShape" },
+        {
+          property: "og:description",
+          content: "Planteles de 5 contra 5 del circuito de EloShape.",
+        },
         ...canonical.meta,
       ],
       links: canonical.links,
@@ -109,22 +112,22 @@ function TeamsPage() {
         <header className="mb-6 border-b border-border/60 pb-5">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl">
-              <p className="eyebrow">EloShape 5v5</p>
+              <p className="eyebrow">EloShape 5 contra 5</p>
               <h1 className="mt-2 text-3xl font-black tracking-tight text-foreground sm:text-4xl">
-                Teams & practice
+                Equipos y práctica
               </h1>
               <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                Browse official rosters and performance, or jump into practice without mixing scrims
-                into the competitive circuit.
+                Consultá los planteles y rendimientos oficiales o buscá práctica sin mezclarla con
+                el circuito competitivo.
               </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-2 lg:justify-end">
               <Button asChild variant="outline" size="sm">
-                <Link to="/team/players">Find players</Link>
+                <Link to="/team/players">Buscar jugadores</Link>
               </Button>
               <Button asChild size="sm">
-                <Link to="/team">Open Team HQ</Link>
+                <Link to="/team">Abrir panel del equipo</Link>
               </Button>
             </div>
           </div>
@@ -132,14 +135,14 @@ function TeamsPage() {
           <nav className="mt-5 flex flex-wrap items-center gap-2">
             <ViewButton
               active={view === "directory"}
-              title="Team directory"
-              subtitle="Official records & rosters"
+              title="Directorio de equipos"
+              subtitle="Registros y planteles oficiales"
               onClick={() => setView("directory")}
             />
             <ViewButton
               active={view === "scrims"}
-              title="Scrim finder"
-              subtitle="Practice · no circuit points"
+              title="Solo práctica"
+              subtitle="Práctica · sin puntos del circuito"
               onClick={() => setView("scrims")}
             />
           </nav>
@@ -153,9 +156,9 @@ function TeamsPage() {
               <div className="flex flex-col gap-4 p-4 sm:p-5">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <p className="eyebrow">Team directory</p>
+                    <p className="eyebrow">Directorio de equipos</p>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      Search the circuit and compare official team performance.
+                      Buscá en el circuito y compará el rendimiento oficial de los equipos.
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
@@ -175,17 +178,17 @@ function TeamsPage() {
                       value={search}
                       onChange={(event) => setSearch(event.target.value)}
                       className="border-border/80 bg-background/45 pl-9"
-                      placeholder="Search team, tag or city"
-                      aria-label="Search teams"
+                      placeholder="Buscar equipo, sigla o ciudad"
+                      aria-label="Buscar equipos"
                     />
                   </label>
                   <select
                     value={division}
                     onChange={(event) => setDivision(event.target.value)}
                     className="h-10 rounded-md border border-border/80 bg-background/45 px-3 text-sm text-foreground"
-                    aria-label="Filter by division"
+                    aria-label="Filtrar por división"
                   >
-                    <option value="all">All divisions</option>
+                    <option value="all">Todas las divisiones</option>
                     {divisions.map((name) => (
                       <option key={name} value={name}>
                         {name}
@@ -196,12 +199,12 @@ function TeamsPage() {
                     value={sort}
                     onChange={(event) => setSort(event.target.value as SortMode)}
                     className="h-10 rounded-md border border-border/80 bg-background/45 px-3 text-sm text-foreground"
-                    aria-label="Sort teams"
+                    aria-label="Ordenar equipos"
                   >
-                    <option value="points">Season points</option>
-                    <option value="record">Win rate</option>
-                    <option value="titles">Championships</option>
-                    <option value="name">Team name</option>
+                    <option value="points">Puntos de temporada</option>
+                    <option value="record">Porcentaje de victorias</option>
+                    <option value="titles">Campeonatos</option>
+                    <option value="name">Nombre del equipo</option>
                   </select>
                   <Button
                     variant="ghost"
@@ -210,16 +213,16 @@ function TeamsPage() {
                     onClick={resetFilters}
                   >
                     <SlidersHorizontal className="size-4" />
-                    Reset
+                    Restablecer
                   </Button>
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-muted-foreground">
                   <span>
-                    <strong className="font-bold text-foreground">{visibleTeams.length}</strong> of{" "}
-                    {teams.length} teams
+                    <strong className="font-bold text-foreground">{visibleTeams.length}</strong> de{" "}
+                    {teams.length} equipos
                   </span>
-                  <span>Official points only · scrims never affect standings</span>
+                  <span>Solo puntos oficiales · las prácticas nunca afectan las posiciones</span>
                 </div>
               </div>
             </section>
@@ -233,11 +236,11 @@ function TeamsPage() {
             ) : (
               <div className="mt-6">
                 <EmptyState
-                  title="No teams match these filters"
-                  description="Try another team name, city or division."
+                  title="No hay equipos que coincidan con estos filtros"
+                  description="Probá otro nombre, ciudad o división."
                   action={
                     <Button variant="outline" onClick={resetFilters}>
-                      Clear filters
+                      Limpiar filtros
                     </Button>
                   }
                 />
@@ -246,11 +249,11 @@ function TeamsPage() {
           </>
         ) : (
           <EmptyState
-            title="No teams registered yet"
-            description="Create the first 5v5 roster and invite players by their EloShape handle."
+            title="Todavía no hay equipos registrados"
+            description="Creá el primer plantel de 5 contra 5 e invitá jugadores con su identificador de EloShape."
             action={
               <Button asChild>
-                <Link to="/team">Create a team</Link>
+                <Link to="/team">Crear un equipo</Link>
               </Button>
             }
           />

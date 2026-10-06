@@ -58,11 +58,11 @@ export function TournamentRegisterButton({
         toast.error(result.error);
         return;
       }
-      toast.success(`Registered for ${result.entry.tournamentName}.`);
+      toast.success(`Inscrito en ${result.entry.tournamentName}.`);
       invalidate();
     },
     onError: () => {
-      toast.error("Could not register for this tournament.");
+      toast.error("No se pudo inscribir al torneo.");
     },
   });
 
@@ -73,11 +73,11 @@ export function TournamentRegisterButton({
         toast.error(result.error);
         return;
       }
-      toast.success("Team registered.");
+      toast.success("Equipo inscripto.");
       invalidate();
     },
     onError: () => {
-      toast.error("Could not register your team.");
+      toast.error("No se pudo inscribir a tu equipo.");
     },
   });
 
@@ -88,11 +88,11 @@ export function TournamentRegisterButton({
         toast.error(result.error);
         return;
       }
-      toast.success("Checked in.");
+      toast.success("Asistencia confirmada.");
       invalidate();
     },
     onError: () => {
-      toast.error("Could not check in.");
+      toast.error("No se pudo confirmar asistencia.");
     },
   });
 
@@ -103,11 +103,11 @@ export function TournamentRegisterButton({
         toast.error(result.error);
         return;
       }
-      toast.success("Team checked in.");
+      toast.success("Asistencia del equipo confirmada.");
       invalidate();
     },
     onError: () => {
-      toast.error("Could not check in your team.");
+      toast.error("No se pudo confirmar la asistencia del equipo.");
     },
   });
 
@@ -121,7 +121,7 @@ export function TournamentRegisterButton({
       >
         <Link to="/auth" search={{ mode: "signin" }}>
           <LogIn className="size-4 transition-transform group-hover:translate-x-0.5" />
-          Sign in to compete
+          Iniciá sesión para competir
         </Link>
       </Button>
     );
@@ -131,7 +131,7 @@ export function TournamentRegisterButton({
     return (
       <Button variant="outline" disabled className="h-11 rounded-xl px-5 font-black">
         <LoaderCircle className="size-4 animate-spin" />
-        Checking eligibility…
+        Verificando elegibilidad…
       </Button>
     );
   }
@@ -146,7 +146,7 @@ export function TournamentRegisterButton({
         className="h-11 rounded-xl border-primary/25 bg-primary/8 px-5 font-black text-primary opacity-100"
       >
         <Check className="size-4" />
-        {isTeam ? "Team checked in" : "Checked in"}
+        {isTeam ? "Asistencia del equipo confirmada" : "Asistencia confirmada"}
       </Button>
     );
   }
@@ -166,7 +166,11 @@ export function TournamentRegisterButton({
           ) : (
             <ShieldCheck className="size-4" />
           )}
-          {pending ? "Checking in…" : isTeam ? "Check in team" : "Check in now"}
+          {pending
+            ? "Confirmando asistencia…"
+            : isTeam
+              ? "Confirmar asistencia del equipo"
+              : "Confirmar asistencia ahora"}
         </Button>
       );
     }
@@ -178,7 +182,7 @@ export function TournamentRegisterButton({
         className="h-11 rounded-xl border-gold/25 bg-gold/8 px-5 font-black text-gold opacity-100"
       >
         <Check className="size-4" />
-        {isTeam ? "Team registered" : "Registered"}
+        {isTeam ? "Equipo inscripto" : "Inscripto"}
       </Button>
     );
   }
@@ -187,12 +191,12 @@ export function TournamentRegisterButton({
     const gate = entry.registrationGate;
     const label =
       gate === "priority_unqualified"
-        ? "Priority: unqualified teams"
+        ? "Prioridad: equipos no clasificados"
         : gate === "captain_required"
-          ? "Captain registration only"
+          ? "Solo el capitán puede inscribir"
           : gate === "full"
-            ? "Tournament full"
-            : "Registration unavailable";
+            ? "Torneo completo"
+            : "Inscripción no disponible";
 
     return (
       <Button
@@ -219,7 +223,7 @@ export function TournamentRegisterButton({
         ) : (
           <Swords className="size-4 transition-transform group-hover:rotate-6" />
         )}
-        {pending ? "Registering…" : isTeam ? "Register my team" : "Enter tournament"}
+        {pending ? "Inscribiendo…" : isTeam ? "Inscribir a mi equipo" : "Inscribirme al torneo"}
       </Button>
     );
   }

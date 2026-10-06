@@ -77,22 +77,23 @@ export function ScrimBoard() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="eyebrow">Scrim finder</p>
-              <Badge variant="outline">Practice only</Badge>
-              <Badge variant="secondary">No circuit points</Badge>
+              <p className="eyebrow">Buscar partidas de práctica</p>
+              <Badge variant="outline">Solo práctica</Badge>
+              <Badge variant="secondary">Sin puntos del circuito</Badge>
             </div>
             <h2 className="mt-2 text-xl font-black tracking-tight text-foreground sm:text-2xl">
-              Find a practice match.
+              Encontrá una partida de práctica
             </h2>
             <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-              Post a time, challenge a roster and keep the result as practice history. Official
-              rankings, qualifier slots and Semi-Split seeding never change.
+              Publicá un horario, desafiá a otro plantel y guardá el resultado como historial de
+              práctica. No modifica la clasificación oficial, los cupos ni el orden de los
+              Semi-Splits.
             </p>
           </div>
           <div className="flex shrink-0 flex-wrap items-center gap-x-5 gap-y-2 border-t border-border/60 pt-3 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
-            <ScrimMetric label="Open" value={openCount} />
-            <ScrimMetric label="Matched" value={matchedCount} />
-            <ScrimMetric label="Played" value={completedCount} gold />
+            <ScrimMetric label="Abierto" value={openCount} />
+            <ScrimMetric label="Emparejado" value={matchedCount} />
+            <ScrimMetric label="Jugado" value={completedCount} gold />
           </div>
         </div>
       </section>
@@ -100,36 +101,40 @@ export function ScrimBoard() {
       {user ? (
         hubQuery.isPending ? (
           <div className="rounded-2xl border border-border bg-background/30 p-5 text-sm text-muted-foreground">
-            Loading your scrim controls…
+            Cargando tus controles de práctica…
           </div>
         ) : isCaptain ? (
           <CreateScrimCard invalidate={invalidate} />
         ) : (
           <div className="rounded-2xl border border-border bg-background/30 p-5">
             <p className="font-black text-foreground">
-              {myTeam ? "Captain controls are locked" : "Join or create a team first"}
+              {myTeam
+                ? "Los controles de capitán están bloqueados"
+                : "Primero unite a un equipo o creá uno"}
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
               {myTeam
-                ? "You can browse practice offers, but only your captain can post or challenge."
-                : "Scrims are team-vs-team. Build a roster before posting availability."}
+                ? "Podés consultar las propuestas, pero solo tu capitán puede publicar o desafiar a otro equipo."
+                : "Las prácticas son entre equipos. Armá un plantel antes de publicar disponibilidad."}
             </p>
             <Button asChild variant="outline" className="mt-4">
-              <Link to="/team">{myTeam ? "Open Team HQ" : "Create or join a team"}</Link>
+              <Link to="/team">
+                {myTeam ? "Abrir panel del equipo" : "Crear un equipo o unirse"}
+              </Link>
             </Button>
           </div>
         )
       ) : (
         <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border bg-background/30 p-5">
           <div>
-            <p className="font-black text-foreground">Want to challenge a team?</p>
+            <p className="font-black text-foreground">¿Querés desafiar a un equipo?</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Sign in with a team roster to post availability and send challenges.
+              Iniciá sesión con un plantel para publicar disponibilidad y enviar desafíos.
             </p>
           </div>
           <Button asChild>
             <Link to="/auth" search={{ mode: "signin" }}>
-              Sign in
+              Iniciar sesión
             </Link>
           </Button>
         </div>
@@ -142,18 +147,19 @@ export function ScrimBoard() {
       <section>
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="eyebrow">Practice board</p>
-            <h3 className="mt-1 text-2xl font-black text-foreground">Available scrims</h3>
+            <p className="eyebrow">Tablero de práctica</p>
+            <h3 className="mt-1 text-2xl font-black text-foreground">Prácticas disponibles</h3>
             <p className="mt-2 text-sm text-muted-foreground">
-              Open posts first, then already-matched and recently completed practice.
+              Primero se muestran las propuestas abiertas, luego las emparejadas y las prácticas
+              completadas recientemente.
             </p>
           </div>
-          <Badge variant="outline">{scrims.length} posts</Badge>
+          <Badge variant="outline">{scrims.length} publicaciones</Badge>
         </div>
 
         {scrimsQuery.isPending ? (
           <div className="mt-5 rounded-2xl border border-border bg-background/30 p-8 text-center text-sm text-muted-foreground">
-            Loading practice board…
+            Cargando tablero de práctica…
           </div>
         ) : scrims.length ? (
           <div className="mt-5 grid gap-4 lg:grid-cols-2">
@@ -171,8 +177,8 @@ export function ScrimBoard() {
         ) : (
           <div className="mt-5">
             <EmptyState
-              title="No scrims posted yet"
-              description="The first captain to post availability will appear here."
+              title="Todavía no hay prácticas publicadas"
+              description="El primer capitán que publique disponibilidad aparecerá acá."
             />
           </div>
         )}
@@ -203,7 +209,7 @@ function CreateScrimCard({ invalidate }: { invalidate: () => void }) {
         toast.error(result.error);
         return;
       }
-      toast.success("Scrim availability posted.");
+      toast.success("Disponibilidad de práctica publicada.");
       setStartsAt("");
       setEndsAt("");
       setNote("");
@@ -218,15 +224,15 @@ function CreateScrimCard({ invalidate }: { invalidate: () => void }) {
           <CalendarClock className="size-4" />
         </span>
         <div>
-          <p className="font-black text-foreground">Post a practice window</p>
+          <p className="font-black text-foreground">Publicar un horario de práctica</p>
           <p className="text-xs text-muted-foreground">
-            Other captains can challenge your team for this slot.
+            Otros capitanes podrán desafiar a tu equipo para este horario.
           </p>
         </div>
       </div>
       <div className="grid gap-3 p-5 lg:grid-cols-[1fr_1fr_8rem_minmax(0,1.2fr)_auto] lg:items-end">
         <label className="space-y-2 text-xs font-semibold text-foreground">
-          Start
+          Inicio
           <Input
             type="datetime-local"
             value={startsAt}
@@ -234,7 +240,7 @@ function CreateScrimCard({ invalidate }: { invalidate: () => void }) {
           />
         </label>
         <label className="space-y-2 text-xs font-semibold text-foreground">
-          End <span className="font-normal text-muted-foreground">(optional)</span>
+          Fin <span className="font-normal text-muted-foreground">(opcional)</span>
           <Input
             type="datetime-local"
             value={endsAt}
@@ -242,7 +248,7 @@ function CreateScrimCard({ invalidate }: { invalidate: () => void }) {
           />
         </label>
         <label className="space-y-2 text-xs font-semibold text-foreground">
-          Format
+          Formato
           <select
             value={bestOf}
             onChange={(event) => setBestOf(Number(event.target.value) as 1 | 3 | 5)}
@@ -254,12 +260,12 @@ function CreateScrimCard({ invalidate }: { invalidate: () => void }) {
           </select>
         </label>
         <label className="space-y-2 text-xs font-semibold text-foreground">
-          Note
+          Nota
           <Input
             value={note}
             onChange={(event) => setNote(event.target.value)}
             maxLength={240}
-            placeholder="Tournament practice · serious comms"
+            placeholder="Práctica para torneo · comunicación seria"
           />
         </label>
         <Button
@@ -272,7 +278,7 @@ function CreateScrimCard({ invalidate }: { invalidate: () => void }) {
           ) : (
             <Gamepad2 className="size-4" />
           )}
-          Post
+          Publicar
         </Button>
       </div>
     </section>
@@ -294,7 +300,9 @@ function IncomingChallenges({
         toast.error(result.error);
         return;
       }
-      toast.success(result.data.status === "matched" ? "Scrim matched." : "Challenge declined.");
+      toast.success(
+        result.data.status === "matched" ? "Práctica emparejada." : "Desafío rechazado.",
+      );
       invalidate();
     },
   });
@@ -302,8 +310,10 @@ function IncomingChallenges({
   return (
     <section className="overflow-hidden rounded-2xl border border-gold/25 bg-gold/[0.035] shadow-card">
       <div className="border-b border-gold/15 px-5 py-4">
-        <p className="eyebrow text-gold">Incoming challenges</p>
-        <h3 className="mt-1 text-lg font-black text-foreground">Teams want your practice slot</h3>
+        <p className="eyebrow text-gold">Desafíos recibidos</p>
+        <h3 className="mt-1 text-lg font-black text-foreground">
+          Equipos interesados en tu horario
+        </h3>
       </div>
       <div className="divide-y divide-border/70">
         {challenges.map((challenge) => (
@@ -320,7 +330,7 @@ function IncomingChallenges({
                 [{challenge.challenger.tag}] {challenge.challenger.name}
               </Link>
               <p className="mt-1 text-xs text-muted-foreground">
-                Challenge sent {formatDateTime(challenge.createdAt)}
+                Desafío enviado {formatDateTime(challenge.createdAt)}
               </p>
             </div>
             <div className="flex gap-2">
@@ -329,7 +339,7 @@ function IncomingChallenges({
                 onClick={() => mutation.mutate({ challengeId: challenge.id, accept: true })}
                 disabled={mutation.isPending}
               >
-                <Check className="size-4" /> Accept
+                <Check className="size-4" /> Aceptar
               </Button>
               <Button
                 size="sm"
@@ -337,7 +347,7 @@ function IncomingChallenges({
                 onClick={() => mutation.mutate({ challengeId: challenge.id, accept: false })}
                 disabled={mutation.isPending}
               >
-                <X className="size-4" /> Decline
+                <X className="size-4" /> Rechazar
               </Button>
             </div>
           </div>
@@ -377,7 +387,7 @@ function ScrimCard({
         toast.error(result.error);
         return;
       }
-      toast.success("Challenge sent.");
+      toast.success("Desafío enviado.");
       invalidate();
     },
   });
@@ -389,7 +399,7 @@ function ScrimCard({
         toast.error(result.error);
         return;
       }
-      toast.success("Scrim cancelled.");
+      toast.success("Práctica cancelada.");
       invalidate();
     },
   });
@@ -408,17 +418,17 @@ function ScrimCard({
         toast.error(result.error);
         return;
       }
-      toast.success("Practice result saved.");
+      toast.success("Resultado de práctica guardado.");
       invalidate();
     },
   });
 
   const statusLabel =
     scrim.status === "open"
-      ? "Looking for opponent"
+      ? "Buscando rival"
       : scrim.status === "matched"
-        ? "Matched"
-        : "Played";
+        ? "Emparejado"
+        : "Jugado";
 
   return (
     <article
@@ -431,7 +441,7 @@ function ScrimCard({
       <div className="flex items-center justify-between gap-3 border-b border-border/70 bg-background/25 px-4 py-3">
         <div className="flex items-center gap-2">
           <Badge variant={scrim.status === "open" ? "default" : "outline"}>{statusLabel}</Badge>
-          <Badge variant="secondary">Bo{scrim.bestOf}</Badge>
+          <Badge variant="secondary">Mejor de{scrim.bestOf}</Badge>
         </div>
         <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
           <Clock3 className="size-3.5" />
@@ -453,9 +463,9 @@ function ScrimCard({
             />
           ) : (
             <div className="text-center sm:text-right">
-              <p className="font-black text-muted-foreground">Open slot</p>
+              <p className="font-black text-muted-foreground">Horario disponible</p>
               <p className="mt-1 text-xs text-muted-foreground">
-                {scrim.challengeCount} pending challenge{scrim.challengeCount === 1 ? "" : "s"}
+                {scrim.challengeCount} desafío pendiente{scrim.challengeCount === 1 ? "" : "s"}
               </p>
             </div>
           )}
@@ -473,14 +483,16 @@ function ScrimCard({
             <span className="text-sm font-black tabular-nums text-foreground">
               {scrim.scoreTeam} – {scrim.scoreOpponent}
             </span>
-            <span className="text-xs font-semibold text-muted-foreground">Practice result</span>
+            <span className="text-xs font-semibold text-muted-foreground">
+              Resultado de práctica
+            </span>
           </div>
         ) : null}
 
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-border/70 pt-4">
           <p className="inline-flex items-center gap-2 text-[11px] font-semibold text-muted-foreground">
             <ShieldCheck className="size-3.5 text-primary" />
-            Scrim results do not affect official EloShape standings.
+            Los resultados de práctica no afectan la clasificación oficial de EloShape.
           </p>
 
           <div className="flex flex-wrap gap-2">
@@ -495,7 +507,7 @@ function ScrimCard({
                 ) : (
                   <Handshake className="size-4" />
                 )}
-                {outgoingStatus === "pending" ? "Challenge sent" : "Challenge team"}
+                {outgoingStatus === "pending" ? "Desafío enviado" : "Desafiar al equipo"}
               </Button>
             ) : null}
 
@@ -506,7 +518,7 @@ function ScrimCard({
                 onClick={() => cancelMutation.mutate()}
                 disabled={cancelMutation.isPending}
               >
-                Cancel
+                Cancelar
               </Button>
             ) : null}
           </div>
@@ -515,9 +527,9 @@ function ScrimCard({
         {scrim.status === "matched" && isCaptain && isParticipant ? (
           <div className="mt-4 grid gap-3 rounded-xl border border-primary/15 bg-primary/[0.035] p-4 sm:grid-cols-[1fr_5rem_5rem_auto] sm:items-end">
             <div>
-              <p className="text-xs font-black text-foreground">Save practice result</p>
+              <p className="text-xs font-black text-foreground">Guardar resultado de práctica</p>
               <p className="mt-1 text-[11px] text-muted-foreground">
-                Score is always shown as {scrim.team.tag} vs {scrim.opponent?.tag}.
+                El marcador siempre se muestra como {scrim.team.tag} vs {scrim.opponent?.tag}.
               </p>
             </div>
             <Input
@@ -525,7 +537,7 @@ function ScrimCard({
               min={0}
               value={scoreHost}
               onChange={(event) => setScoreHost(event.target.value)}
-              aria-label={scrim.team.name + " score"}
+              aria-label={scrim.team.name + " marcador"}
               placeholder="0"
             />
             <Input
@@ -533,7 +545,7 @@ function ScrimCard({
               min={0}
               value={scoreOpponent}
               onChange={(event) => setScoreOpponent(event.target.value)}
-              aria-label={(scrim.opponent?.name ?? "Opponent") + " score"}
+              aria-label={(scrim.opponent?.name ?? "Rival") + " marcador"}
               placeholder="0"
             />
             <Button
@@ -542,7 +554,7 @@ function ScrimCard({
               disabled={!scoreHost || !scoreOpponent || reportMutation.isPending}
             >
               <Swords className="size-4" />
-              Save
+              Guardar
             </Button>
           </div>
         ) : null}
@@ -560,7 +572,7 @@ function TeamSide({
   winner: boolean;
   right?: boolean;
 }) {
-  const meta = ["[" + team.tag + "]", team.division?.name ?? null, winner ? "Winner" : null]
+  const meta = ["[" + team.tag + "]", team.division?.name ?? null, winner ? "Ganador" : null]
     .filter(Boolean)
     .join(" · ");
 

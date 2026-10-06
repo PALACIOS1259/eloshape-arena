@@ -22,7 +22,7 @@ export const updateMyProfile = createServerFn({ method: "POST" })
     } catch (error) {
       return {
         ok: false as const,
-        error: error instanceof Error ? error.message : "Could not update your profile.",
+        error: error instanceof Error ? error.message : "No se pudo actualizar tu perfil.",
       };
     }
   });
@@ -42,7 +42,7 @@ export const updateMyLocation = createServerFn({ method: "POST" })
     } catch (error) {
       return {
         ok: false as const,
-        error: error instanceof Error ? error.message : "Could not update your location.",
+        error: error instanceof Error ? error.message : "No se pudo actualizar tu ubicación.",
       };
     }
   });

@@ -100,7 +100,7 @@ export function PreLaunchPage() {
         </section>
 
         <footer className="flex flex-col gap-4 border-t border-border/70 pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <p>© 2026 EloShape. Competitive circuit.</p>
+          <p>© 2026 EloShape. Circuito competitivo.</p>
           <nav aria-label="Redes e información legal" className="flex flex-wrap items-center gap-5">
             <a
               href={INSTAGRAM_URL}

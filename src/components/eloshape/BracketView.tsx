@@ -1,3 +1,4 @@
+import { statusLabel, roundName } from "@/lib/format";
 import { Link } from "@tanstack/react-router";
 import {
   CheckCircle2,
@@ -40,28 +41,28 @@ const MATCH_GAP = 28;
 const MATCH_PITCH = MATCH_CARD_HEIGHT + MATCH_GAP;
 
 function humanStatus(status: string) {
-  return status.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+  return statusLabel(status);
 }
 
 function matchMeta(match: BracketMatchRow) {
   if (match.resolution_type === "walkover") {
     return {
-      label: "Walkover",
-      detail: "Counts as a match win",
+      label: "Victoria administrativa",
+      detail: "Cuenta como victoria de partida",
       tone: "text-gold",
     };
   }
   if (match.is_bye) {
     return {
-      label: "Bye",
-      detail: "Advances without match-win points",
+      label: "Pase directo",
+      detail: "Avanza sin puntos por victoria",
       tone: "text-muted-foreground",
     };
   }
   if (match.status === "completed") {
     return {
-      label: `Bo${match.best_of} complete`,
-      detail: "Final result",
+      label: `Bo${match.best_of} completado`,
+      detail: "Resultado final",
       tone: "text-primary",
     };
   }
@@ -107,10 +108,10 @@ function Side({
             !entry && "text-muted-foreground",
           )}
         >
-          {entry?.label ?? "TBD"}
+          {entry?.label ?? "A confirmar"}
         </span>
         <span className="mt-0.5 block truncate text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-          {entry?.tag ? `[${entry.tag}]` : entry ? "EloShape team" : "Awaiting winner"}
+          {entry?.tag ? `[${entry.tag}]` : entry ? "Equipo de EloShape" : "Esperando ganador"}
         </span>
       </span>
       <span
@@ -157,7 +158,7 @@ function MatchCard({
       >
         <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground">
           {isFinal ? <Trophy className="size-3 text-gold" /> : <Swords className="size-3" />}
-          Match {match.bracket_slot + 1}
+          Partida {match.bracket_slot + 1}
         </span>
         <span className={cn("text-[10px] font-bold uppercase tracking-wider", meta.tone)}>
           {meta.label}
@@ -194,7 +195,7 @@ function MatchCard({
             params={{ matchId: match.id }}
             className="inline-flex shrink-0 items-center gap-1 text-[10px] font-bold text-primary hover:text-primary/80"
           >
-            Match <ExternalLink className="size-3" />
+            Partida <ExternalLink className="size-3" />
           </Link>
         ) : null}
       </div>
@@ -238,18 +239,18 @@ export function BracketView({
       <div className="flex flex-col gap-4 border-b border-border/60 bg-card/30 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="eyebrow">Championship tree</span>
+            <span className="eyebrow">Cuadro del campeonato</span>
             <span className="rounded-md border border-border bg-background/35 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-              {entries.length} teams
+              {entries.length} equipos
             </span>
             <span className="rounded-md border border-border bg-background/35 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-              Single elimination
+              Eliminación directa
             </span>
           </div>
-          <h3 className="mt-2 text-lg font-black text-foreground">Road to the championship</h3>
+          <h3 className="mt-2 text-lg font-black text-foreground">Camino al campeonato</h3>
           <p className="mt-1 text-xs text-muted-foreground">
-            Follow each matchup from the opening round to the final. Scroll sideways on smaller
-            screens.
+            Seguí cada cruce desde la primera ronda hasta la final. En pantallas pequeñas, desplazá
+            el cuadro hacia los costados.
           </p>
         </div>
 
@@ -260,7 +261,7 @@ export function BracketView({
             </span>
             <div className="min-w-0">
               <p className="text-[10px] font-black uppercase tracking-[0.14em] text-gold">
-                Champion
+                Campeón
               </p>
               <p className="max-w-44 truncate text-sm font-black text-foreground">
                 {champion.label}
@@ -269,7 +270,7 @@ export function BracketView({
           </div>
         ) : (
           <div className="inline-flex items-center gap-2 self-start rounded-lg border border-border/70 bg-background/25 px-3 py-2 text-xs font-semibold text-muted-foreground">
-            <CircleDashed className="size-3.5" /> Championship in progress
+            <CircleDashed className="size-3.5" /> Campeonato en curso
           </div>
         )}
       </div>
@@ -279,7 +280,7 @@ export function BracketView({
           <div className="mb-4 flex" style={{ width: boardWidth }}>
             {rounds.map((roundIndex, position) => {
               const currentRound = roundMatches[position] ?? [];
-              const label = currentRound[0]?.round_label ?? `Round ${roundIndex + 1}`;
+              const label = roundName(currentRound[0]?.round_label ?? `Ronda ${roundIndex + 1}`);
               const isFinal = position === rounds.length - 1;
               return (
                 <div
@@ -303,7 +304,7 @@ export function BracketView({
                           isFinal && "text-gold",
                         )}
                       >
-                        {isFinal ? "Championship" : `Round ${position + 1}`}
+                        {isFinal ? "Campeonato" : `Ronda ${position + 1}`}
                       </p>
                       <p className="mt-0.5 text-sm font-black text-foreground">{label}</p>
                     </div>
@@ -384,16 +385,16 @@ export function BracketView({
 
           <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
             <span className="inline-flex items-center gap-1.5">
-              <span className="size-2 rounded-full bg-primary" /> Completed / winner
+              <span className="size-2 rounded-full bg-primary" /> Completado / ganador
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <span className="size-2 rounded-full border border-border" /> Pending
+              <span className="size-2 rounded-full border border-border" /> Pendiente
             </span>
             <span className="inline-flex items-center gap-1.5 text-gold">
-              <Trophy className="size-3" /> Championship match
+              <Trophy className="size-3" /> Partida del campeonato
             </span>
             <span className="ml-auto inline-flex items-center gap-1 text-muted-foreground">
-              Progress flows left to right <ChevronRight className="size-3" />
+              El avance se muestra de izquierda a derecha <ChevronRight className="size-3" />
             </span>
           </div>
         </div>
@@ -413,7 +414,7 @@ export function entryLabels(
   return entries.map((entry) => ({
     id: entry.id,
     seed: entry.seed,
-    label: entry.team?.name ?? entry.profile?.display_name ?? "Unknown",
+    label: entry.team?.name ?? entry.profile?.display_name ?? "Desconocido",
     tag: entry.team?.tag ?? null,
   }));
 }

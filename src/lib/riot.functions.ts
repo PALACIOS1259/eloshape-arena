@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { riotErrorMessage, riotNotice } from "./riot-messages";
 
 import {
   createAuthenticatedSupabaseClient,
@@ -9,7 +10,7 @@ import {
 
 function userMessage(error: unknown) {
   const message = error instanceof Error ? error.message : "";
-  return message || "Riot data sync is temporarily unavailable.";
+  return message || "La sincronización de Riot no está disponible temporalmente.";
 }
 
 type RiotServiceStatus = {
@@ -49,6 +50,7 @@ type EdgeResponse<T = unknown> = {
   ok?: boolean;
   account?: T;
   error?: string;
+  code?: string;
   service?: RiotServiceStatus;
 };
 
@@ -56,7 +58,7 @@ function edgeConfig() {
   const url = process.env["SUPABASE_URL"]?.trim();
   const publishableKey = process.env["SUPABASE_PUBLISHABLE_KEY"]?.trim();
   if (!url || !publishableKey) {
-    throw new Error("Supabase Edge Functions are not configured in this environment.");
+    throw new Error("La integración de Riot no está configurada en este entorno.");
   }
   return { url: url.replace(/\/$/, ""), publishableKey };
 }
@@ -77,8 +79,9 @@ async function invokeRiotEdge<T>(
   });
 
   const payload = (await response.json().catch(() => ({}))) as EdgeResponse<T>;
+  if (payload.error) payload.error = riotErrorMessage(payload.code);
   if (!response.ok && !payload.error) {
-    payload.error = "Riot data sync is temporarily unavailable.";
+    payload.error = "La sincronización de Riot no está disponible temporalmente.";
   }
   return payload;
 }
@@ -133,10 +136,13 @@ export const connectRiotAccount = createServerFn({ method: "POST" })
       if (!result.ok || !result.account) {
         return {
           ok: false as const,
-          error: result.error ?? "Riot data sync is temporarily unavailable.",
+          error: result.error ?? "La sincronización de Riot no está disponible temporalmente.",
         };
       }
-      return { ok: true as const, account: result.account };
+      return {
+        ok: true as const,
+        account: { ...result.account, notice: riotNotice(result.account.notice) },
+      };
     } catch (error) {
       return { ok: false as const, error: userMessage(error) };
     }
@@ -152,10 +158,13 @@ export const refreshRiotAccount = createServerFn({ method: "POST" })
       if (!result.ok || !result.account) {
         return {
           ok: false as const,
-          error: result.error ?? "Riot data sync is temporarily unavailable.",
+          error: result.error ?? "La sincronización de Riot no está disponible temporalmente.",
         };
       }
-      return { ok: true as const, account: result.account };
+      return {
+        ok: true as const,
+        account: { ...result.account, notice: riotNotice(result.account.notice) },
+      };
     } catch (error) {
       return { ok: false as const, error: userMessage(error) };
     }

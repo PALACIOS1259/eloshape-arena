@@ -1,3 +1,4 @@
+import { divisionLabel } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 export type DivisionLike = {
@@ -35,7 +36,7 @@ export function DivisionBadge({
       )}
     >
       <span className="size-1.5 rounded-full bg-current" />
-      {division.name ?? division.code}
+      {divisionLabel(division)}
     </span>
   );
 }

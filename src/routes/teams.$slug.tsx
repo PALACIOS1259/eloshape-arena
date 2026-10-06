@@ -9,7 +9,14 @@ import { StatusBadge } from "@/components/eloshape/StatusBadge";
 import { PageContainer } from "@/components/layout/PageShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { formatDate, formatPoints, initials, placementLabel, winRate } from "@/lib/format";
+import {
+  formatDate,
+  formatPoints,
+  initials,
+  placementLabel,
+  winRate,
+  riotRankLabel,
+} from "@/lib/format";
 import { teamQuery } from "@/lib/queries";
 import { canonicalMetadata } from "@/lib/site-metadata";
 
@@ -22,11 +29,14 @@ export const Route = createFileRoute("/teams/$slug")({
   head: ({ loaderData }) => {
     if (!loaderData) {
       return {
-        meta: [{ title: "Team unavailable — EloShape" }, { name: "robots", content: "noindex" }],
+        meta: [
+          { title: "Equipo no disponible — EloShape" },
+          { name: "robots", content: "noindex" },
+        ],
       };
     }
-    const title = `${loaderData.name} — EloShape team`;
-    const description = `Roster, record and tournament history for ${loaderData.name} on the EloShape circuit.`;
+    const title = `${loaderData.name} — Equipo de EloShape`;
+    const description = `Plantel, historial y torneos de ${loaderData.name} en el circuito de EloShape.`;
     const canonical = canonicalMetadata(`/teams/${encodeURIComponent(loaderData.slug)}`);
     return {
       meta: [
@@ -42,10 +52,10 @@ export const Route = createFileRoute("/teams/$slug")({
   notFoundComponent: () => (
     <PageContainer className="py-20">
       <EmptyState
-        title="Team not found"
+        title="Equipo no encontrado"
         action={
           <Button asChild>
-            <Link to="/teams">Back to teams</Link>
+            <Link to="/teams">Volver a equipos</Link>
           </Button>
         }
       />
@@ -71,7 +81,7 @@ function TeamPage() {
         <PageContainer className="relative py-8 sm:py-10">
           <Button asChild size="sm" variant="ghost" className="mb-6 -ml-3">
             <Link to="/teams">
-              <ArrowLeft className="mr-2 size-4" /> All teams
+              <ArrowLeft className="mr-2 size-4" /> Todos los equipos
             </Link>
           </Button>
 
@@ -97,27 +107,27 @@ function TeamPage() {
                     <MapPin className="size-4" /> {team.city?.name ?? "LAS"}
                   </span>
                   <span className="inline-flex items-center gap-1.5">
-                    <Users className="size-4" /> {members.length} roster members
+                    <Users className="size-4" /> {members.length} integrantes del plantel
                   </span>
                   <span className="inline-flex items-center gap-1.5">
-                    <ShieldCheck className="size-4" /> {starters.length}/5 starters
+                    <ShieldCheck className="size-4" /> {starters.length}/5 titulares
                   </span>
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-x-7 gap-y-4 border-t border-border/60 pt-4 sm:grid-cols-4 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
-              <TeamMetric label="Points" value={formatPoints(team.points_season)} accent />
+              <TeamMetric label="Puntos" value={formatPoints(team.points_season)} accent />
               <TeamMetric
-                label="Record"
+                label="Historial"
                 value={`${team.wins}-${team.losses}`}
                 detail={winRate(team.wins, team.losses)}
               />
-              <TeamMetric label="Titles" value={String(team.championships ?? 0)} />
+              <TeamMetric label="Títulos" value={String(team.championships ?? 0)} />
               <TeamMetric
-                label="Roster"
+                label="Plantel"
                 value={String(members.length)}
-                detail={`${starters.length}/5 starters`}
+                detail={`${starters.length}/5 titulares`}
               />
             </div>
           </div>
@@ -135,22 +145,22 @@ function TeamPage() {
           <section className="min-w-0">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
-                <p className="eyebrow">Roster</p>
-                <h2 className="mt-1 text-xl font-black text-foreground">Starting five & bench</h2>
+                <p className="eyebrow">Plantel</p>
+                <h2 className="mt-1 text-xl font-black text-foreground">Titulares y suplentes</h2>
               </div>
-              <Badge variant="outline">{members.length} players</Badge>
+              <Badge variant="outline">{members.length} jugadores</Badge>
             </div>
 
             <div className="mt-4 space-y-5">
               <RosterSection
-                title="Starting roster"
-                description="Players currently occupying competitive starting slots."
+                title="Plantel titular"
+                description="Jugadores que actualmente ocupan los lugares de titular."
                 members={starters}
               />
               {substitutes.length ? (
                 <RosterSection
-                  title="Substitutes"
-                  description="Bench depth available to the team."
+                  title="Suplentes"
+                  description="Suplentes disponibles para el equipo."
                   members={substitutes}
                 />
               ) : null}
@@ -160,8 +170,8 @@ function TeamPage() {
           <section className="min-w-0">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
-                <p className="eyebrow">Competition history</p>
-                <h2 className="mt-1 text-xl font-black text-foreground">Tournament results</h2>
+                <p className="eyebrow">Historial competitivo</p>
+                <h2 className="mt-1 text-xl font-black text-foreground">Resultados de torneos</h2>
               </div>
               <Badge variant="outline">{entries.length}</Badge>
             </div>
@@ -201,8 +211,8 @@ function TeamPage() {
                 ))
               ) : (
                 <EmptyState
-                  title="No tournaments played yet"
-                  description="This team has not recorded an EloShape tournament result yet."
+                  title="Todavía no jugó torneos"
+                  description="Este equipo todavía no tiene resultados en torneos de EloShape."
                 />
               )}
             </div>
@@ -269,16 +279,15 @@ function RosterSection({
                       </Link>
                       {member.is_captain ? (
                         <Badge variant="secondary">
-                          <Crown className="mr-1 size-3" /> Captain
+                          <Crown className="mr-1 size-3" /> Capitán
                         </Badge>
                       ) : null}
                       <Badge variant="outline">
-                        {member.role === "substitute" ? "Substitute" : "Starter"}
+                        {member.role === "substitute" ? "Suplente" : "Titular"}
                       </Badge>
                     </div>
                     <p className="mt-1 truncate text-xs text-muted-foreground">
-                      @{profile.handle} · {profile.riot_tier ?? "Unranked"}{" "}
-                      {profile.riot_rank ?? ""}
+                      @{profile.handle} · {riotRankLabel(profile.riot_tier, profile.riot_rank)}
                     </p>
                   </div>
                 </div>
@@ -288,13 +297,13 @@ function RosterSection({
                     <p className="text-sm font-black tabular-nums text-foreground">
                       {profile.wins}-{profile.losses}
                     </p>
-                    <p className="eyebrow mt-1">Record</p>
+                    <p className="eyebrow mt-1">Historial</p>
                   </div>
                   <div>
                     <p className="text-sm font-black tabular-nums text-foreground">
                       {formatPoints(profile.points_season)}
                     </p>
-                    <p className="eyebrow mt-1">Player pts</p>
+                    <p className="eyebrow mt-1">Puntos del jugador</p>
                   </div>
                 </div>
               </div>
@@ -302,7 +311,7 @@ function RosterSection({
           })}
         </div>
       ) : (
-        <div className="p-6 text-sm text-muted-foreground">No players in this group.</div>
+        <div className="p-6 text-sm text-muted-foreground">No hay jugadores en este grupo.</div>
       )}
     </div>
   );
