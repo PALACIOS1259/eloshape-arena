@@ -334,7 +334,7 @@ function DangerZone({ team }: { team: { name: string; tag: string; slug: string 
             disabled={!canArchive || mutation.isPending}
             onClick={() => mutation.mutate()}
           >
-            {mutation.isPending ? "Disbanding…" : "Disolver equipo permanentemente"}
+            {mutation.isPending ? "Disolviendo…" : "Disolver equipo permanentemente"}
           </Button>
         </div>
       </div>
