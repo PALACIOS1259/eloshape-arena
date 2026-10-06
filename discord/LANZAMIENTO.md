@@ -57,6 +57,27 @@ combina invitación activa/no vencida, correo confirmado y Discord OAuth verific
 Los IDs escritos a mano y user_metadata no autorizan roles. Las tablas de whitelist
 y los snapshots no son públicos.
 
+Guardar invitación autoriza el correo, pero no envía un mail de invitación. El staff
+comparte https://eloshape.com.ar/auth?mode=signup con la persona aprobada. Debe
+registrarse con ese mismo correo, confirmar el mail de registro de Supabase e
+ingresar para vincular Discord. El correo aprobado de EloShape no tiene que ser
+el mismo correo de Discord: la vinculación se comprueba mediante OAuth.
+
+Entrar al servidor no asigna un rol personalizado: @everyone permite ver los
+canales de espera. Cuenta vinculada se obtiene al vincular la identidad; Beta
+tester requiere además una invitación activa/no vencida y correo confirmado.
+Ambos roles se reconcilian al arrancar y cada minuto si las sincronizaciones están
+activadas y el bot sigue online. Revocar la invitación retira Beta tester en el
+siguiente ciclo; no retira Cuenta vinculada mientras la identidad siga vinculada.
+
+El botón de tickets no requiere Beta tester. Si aparece «La aplicación no respondió
+a tiempo», comprobar que el bot está conectado y actualizar bot.js a esta entrega:
+confirma el botón antes de crear el canal y evita tickets duplicados al pulsarlo
+varias veces. Detener con Ctrl+C, reemplazar bot.js, conservar .env e ids.json y
+reiniciar con iniciar-bot.cmd. El bot necesita gestionar canales y permisos en
+🎫 TICKETS. Revisar #alertas-bot o la consola si falla. Probar también con una
+cuenta sin roles: debe poder abrir un ticket privado sin acceder a otros tickets.
+
 Mantener mantenimiento y la restricción por invitación habilitados. Cuando haya
 testers reales y los controles estén verificados, aprobar sus correos en /admin,
 establecer BETA_SYNC_ENABLED=true y reiniciar. No hace falta desactivar la restricción

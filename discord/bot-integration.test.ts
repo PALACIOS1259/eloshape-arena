@@ -3,7 +3,30 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runInNewContext } from "node:vm";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+class ButtonBuilder {
+  setCustomId() {
+    return this;
+  }
+  setLabel() {
+    return this;
+  }
+  setEmoji() {
+    return this;
+  }
+  setStyle() {
+    return this;
+  }
+  setDisabled() {
+    return this;
+  }
+}
+class ActionRowBuilder {
+  addComponents() {
+    return this;
+  }
+}
 
 class Collection extends Map<string, any> {
   find(predicate: (value: any) => boolean) {
@@ -28,6 +51,10 @@ const P = Object.fromEntries(
   ].map((key, i) => [key, 1n << BigInt(i)]),
 );
 const discord = {
+  ButtonBuilder,
+  ActionRowBuilder,
+  ButtonStyle: { Success: 3, Danger: 4 },
+  MessageFlags: { Ephemeral: 64 },
   ChannelType: { GuildCategory: 4, GuildText: 0, GuildVoice: 2 },
   PermissionFlagsBits: P,
   OverwriteType: { Role: 0, Member: 1 },
@@ -74,8 +101,10 @@ function setup() {
       create: async (options: any) => {
         const channel = {
           ...options,
+          parentId: options.parent,
           id: String(1600000000000000000n + BigInt(++sequence)),
           edit: async (changes: any) => Object.assign(channel, changes),
+          send: async () => {},
         };
         channels.set(channel.id, channel);
         return channel;
@@ -179,10 +208,115 @@ function setup() {
     });
     return replies;
   };
-  return { send, channels, guild, saved, api: module.exports, competition, structure, members };
+  return {
+    send,
+    channels,
+    guild,
+    saved,
+    api: module.exports,
+    competition,
+    structure,
+    members,
+    events,
+  };
+}
+
+function ticketButton(ctx: ReturnType<typeof setup>, customId = "ticket_abrir") {
+  const interaction = {
+    guild: ctx.guild,
+    user: { id: "1900000000000000000", username: "tester", tag: "tester" },
+    member: {
+      guild: ctx.guild,
+      permissions: { has: () => false },
+      roles: { cache: new Collection() },
+    },
+    customId,
+    isButton: () => true,
+    deferred: false,
+    replied: false,
+    deferReply: vi.fn(async () => {
+      interaction.deferred = true;
+    }),
+    editReply: vi.fn(async () => {
+      interaction.replied = true;
+    }),
+    reply: vi.fn(),
+    followUp: vi.fn(),
+  };
+  return interaction;
 }
 
 describe("uploaded bot integration", () => {
+  it("acknowledges ticket buttons before a slow channel creation and prevents duplicate tickets", async () => {
+    const ctx = setup();
+    ctx.channels.set("tickets", { id: "tickets", name: "🎫 TICKETS", type: 4 });
+    const create = ctx.guild.channels.create;
+    let finishCreation!: () => void;
+    const slowRequest = new Promise<void>((resolve) => {
+      finishCreation = resolve;
+    });
+    const first = ticketButton(ctx);
+    const second = ticketButton(ctx);
+    ctx.guild.channels.create = vi.fn(async (options: any) => {
+      expect(first.deferred).toBe(true);
+      expect(second.deferred).toBe(true);
+      await slowRequest;
+      return create(options);
+    });
+    const opening = ctx.events.interactionCreate(first);
+    const repeated = ctx.events.interactionCreate(second);
+    await vi.waitFor(() => expect(ctx.guild.channels.create).toHaveBeenCalledOnce());
+    expect(first.editReply).not.toHaveBeenCalled();
+    finishCreation();
+    await Promise.all([opening, repeated]);
+    expect(first.deferReply).toHaveBeenCalledWith({ flags: 64 });
+    expect(first.editReply).toHaveBeenCalledWith({
+      content: expect.stringContaining("Ticket abierto"),
+    });
+    expect(second.editReply).toHaveBeenCalledWith({
+      content: expect.stringContaining("Ya tenés un ticket"),
+    });
+    expect(ctx.guild.channels.create).toHaveBeenCalledOnce();
+    expect(first.reply).not.toHaveBeenCalled();
+  });
+
+  it("finishes the deferred reply on a creation failure and keeps the queue usable", async () => {
+    const ctx = setup();
+    ctx.channels.set("tickets", { id: "tickets", name: "🎫 TICKETS", type: 4 });
+    const create = ctx.guild.channels.create;
+    ctx.guild.channels.create = vi
+      .fn()
+      .mockRejectedValueOnce(new Error("Missing Permissions"))
+      .mockImplementation(create);
+    const failed = ticketButton(ctx);
+    await ctx.events.interactionCreate(failed);
+    expect(failed.editReply).toHaveBeenCalledWith({
+      content: expect.stringContaining("Ocurrió un error"),
+    });
+    expect(failed.followUp).not.toHaveBeenCalled();
+    const retry = ticketButton(ctx);
+    await ctx.events.interactionCreate(retry);
+    expect(retry.editReply).toHaveBeenCalledWith({
+      content: expect.stringContaining("Ticket abierto"),
+    });
+  });
+
+  it("answers missing setup and rejects assignment by nonstaff without changing channels", async () => {
+    const ctx = setup();
+    const missing = ticketButton(ctx);
+    await ctx.events.interactionCreate(missing);
+    expect(missing.editReply).toHaveBeenCalledWith({
+      content: expect.stringContaining("no está configurado"),
+    });
+    const assignment = ticketButton(ctx, "ticket_asignar");
+    await ctx.events.interactionCreate(assignment);
+    expect(assignment.deferReply).toHaveBeenCalledWith({ flags: 64 });
+    expect(assignment.editReply).toHaveBeenCalledWith({
+      content: expect.stringContaining("Solo el staff"),
+    });
+    expect(ctx.channels.size).toBe(0);
+  });
+
   it("creates dynamic named tournaments and two private voices per match, without duplicates", async () => {
     const ctx = setup();
     await ctx.send("!torneo crear split-rosario-2 | Split Rosario 2");

@@ -805,9 +805,8 @@ async function abrirTicket(interaction) {
   const user = interaction.user;
   const categoria = buscarCanal(guild, ["🎫 TICKETS"], ChannelType.GuildCategory);
   if (!categoria) {
-    return interaction.reply({
+    return interaction.editReply({
       content: "❌ El sistema de tickets no está configurado.",
-      flags: MessageFlags.Ephemeral,
     });
   }
 
@@ -818,9 +817,8 @@ async function abrirTicket(interaction) {
       !c.name.startsWith("cerrado-"),
   );
   if (abierto) {
-    return interaction.reply({
+    return interaction.editReply({
       content: `Ya tenés un ticket abierto: ${abierto}`,
-      flags: MessageFlags.Ephemeral,
     });
   }
 
@@ -849,9 +847,8 @@ async function abrirTicket(interaction) {
     components: [botonesTicket()],
   });
 
-  await interaction.reply({
+  await interaction.editReply({
     content: `✅ Ticket abierto: ${canal}`,
-    flags: MessageFlags.Ephemeral,
   });
   await alerta(guild, `🎫 Nuevo ticket de ${user.tag}: ${canal}`);
 }
@@ -860,17 +857,15 @@ async function asignarTicket(interaction) {
   const canal = interaction.channel;
   const member = interaction.member;
   if (!esStaff(member)) {
-    return interaction.reply({
+    return interaction.editReply({
       content: "❌ Solo el staff puede asignarse tickets.",
-      flags: MessageFlags.Ephemeral,
     });
   }
   const usuario = leerTopic(canal.topic, "usuario");
   const asignado = leerTopic(canal.topic, "asignado");
   if (asignado) {
-    return interaction.reply({
+    return interaction.editReply({
       content: `Este ticket ya está asignado a <@${asignado}>.`,
-      flags: MessageFlags.Ephemeral,
     });
   }
 
@@ -884,7 +879,7 @@ async function asignarTicket(interaction) {
   });
   await canal.setTopic(`usuario:${usuario} | asignado:${member.id}`);
 
-  await interaction.reply(
+  await interaction.editReply(
     `🙋 ${member} tomó el ticket. Desde ahora solo lo ven <@${usuario}> y ${member}.`,
   );
   await alerta(interaction.guild, `🙋 ${member.user.tag} tomó ${canal}`);
@@ -1059,25 +1054,29 @@ client.on("interactionCreate", async (interaction) => {
   try {
     switch (interaction.customId) {
       case "ticket_abrir":
-        return await abrirTicket(interaction);
+        // Discord exige confirmar el botón antes de crear canales o esperar la cola.
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+        return await encolar(() => abrirTicket(interaction));
       case "ticket_asignar":
-        return await asignarTicket(interaction);
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+        return await encolar(() => asignarTicket(interaction));
       case "ticket_cerrar":
         return await cerrarTicket(interaction);
     }
   } catch (error) {
     console.error(`Error en el botón ${interaction.customId}:`, error);
+    const respuesta = {
+      content: "❌ Ocurrió un error. El staff ya fue avisado.",
+    };
+    if (interaction.deferred && !interaction.replied)
+      await interaction.editReply(respuesta).catch(() => {});
+    else if (interaction.replied)
+      await interaction.followUp({ ...respuesta, flags: MessageFlags.Ephemeral }).catch(() => {});
+    else await interaction.reply({ ...respuesta, flags: MessageFlags.Ephemeral }).catch(() => {});
     await alerta(
       interaction.guild,
       `❌ Error en el botón \`${interaction.customId}\`: ${error.message}`,
-    );
-    const respuesta = {
-      content: "❌ Ocurrió un error. El staff ya fue avisado.",
-      flags: MessageFlags.Ephemeral,
-    };
-    if (interaction.replied || interaction.deferred)
-      await interaction.followUp(respuesta).catch(() => {});
-    else await interaction.reply(respuesta).catch(() => {});
+    ).catch(() => {});
   }
 });
 
